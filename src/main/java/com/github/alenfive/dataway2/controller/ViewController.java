@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
  * @menu 页面显示
  */
 @Controller
-@RequestMapping("/interface-ui")
+@RequestMapping("/api-ui")
 public class ViewController {
 
     @GetMapping

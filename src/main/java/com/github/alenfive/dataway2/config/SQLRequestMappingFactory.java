@@ -7,13 +7,13 @@ import com.github.alenfive.dataway2.entity.ApiResultType;
 import com.github.alenfive.dataway2.entity.ApiType;
 import com.github.alenfive.dataway2.extend.ApiPagerInterface;
 import com.github.alenfive.dataway2.extend.DataSourceDialect;
-import com.github.alenfive.dataway2.service.ApiService;
 import com.github.alenfive.dataway2.service.ScriptParseService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ReflectionUtils;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.mvc.condition.PatternsRequestCondition;
@@ -53,7 +53,7 @@ public class SQLRequestMappingFactory {
     private final List<String> blankList = Arrays.asList(
             "/dataway2",
             "/error",
-            "/interface-ui"
+            "/api-ui"
     );
 
     @Autowired
@@ -64,9 +64,6 @@ public class SQLRequestMappingFactory {
 
     @Autowired
     private ApiPagerInterface apiPager;
-
-    @Autowired
-    private ApiService apiService;
 
     @Autowired
     private RequestMappingHandlerMapping requestMappingHandlerMapping;
@@ -85,12 +82,34 @@ public class SQLRequestMappingFactory {
     @PostConstruct
     public void init() throws IOException {
 
-        List<Map<String,Object>> apiInfos = dataSourceDialect.executeQuery(dataSourceDialect.listApiInfoScript(),null,null);
 
-        //注册mapping
+
+        //加载数据库API
+        List<Map<String,Object>> apiInfos = dataSourceDialect.executeQuery(dataSourceDialect.listApiInfoScript(),null,null);
         for (Map<String,Object> map : apiInfos){
             ApiInfo apiInfo = objectMapper.readValue(objectMapper.writeValueAsBytes(map),ApiInfo.class);
-            cacheApiInfo.put(buildApiInfoKey(apiInfo),apiInfo);
+            this.cacheApiInfo.put(buildApiInfoKey(apiInfo),apiInfo);
+        }
+
+        //加载代码方式的API
+        List<ApiInfo> codeApiList = getPathListForCode();
+        for (ApiInfo codeInfo : codeApiList){
+            ApiInfo dbInfo = this.cacheApiInfo.get(buildApiInfoKey(codeInfo));
+            if (dbInfo != null){
+                continue;
+            }
+
+            codeInfo.setCreateTime(new Date());
+            codeInfo.setUpdateTime(new Date());
+            ApiParams apiParams = ApiParams.builder().param(codeInfo.toMap()).build();
+            StringBuilder script = new StringBuilder(dataSourceDialect.saveApiInfoScript());
+            parseService.buildParams(script,apiParams);
+            dataSourceDialect.execute(script.toString(),null,null);
+            this.cacheApiInfo.put(buildApiInfoKey(codeInfo),codeInfo);
+        }
+
+        //注册mapping
+        for (ApiInfo apiInfo : this.cacheApiInfo.values()){
             registerMappingForApiInfo(apiInfo);
         }
 
@@ -215,6 +234,12 @@ public class SQLRequestMappingFactory {
     public void saveOrUpdateApiInfo(ApiInfo apiInfo) throws IOException {
         apiInfo.setUpdateTime(new Date());
         if (apiInfo.getId() == null){
+
+            ApiInfo dbInfo = this.cacheApiInfo.get(buildApiInfoKey(apiInfo));
+            if (dbInfo != null){
+                throw new IllegalArgumentException(buildApiInfoKey(apiInfo)+"already exist");
+            }
+
             apiInfo.setCreateTime(new Date());
 
             ApiParams apiParams = ApiParams.builder().param(apiInfo.toMap()).build();
@@ -284,12 +309,22 @@ public class SQLRequestMappingFactory {
         for (RequestMappingInfo info : map.keySet()) {
             for(String path : info.getPatternsCondition().getPatterns()){
 
+                String blankPath = blankList.stream().filter(item->path.startsWith(item)).findFirst().orElse(null);
+                if (!StringUtils.isEmpty(blankPath)){
+                    continue;
+                }
+
                 Set<RequestMethod> methods = info.getMethodsCondition().getMethods();
                 if (methods.isEmpty()){
                     result.add(ApiInfo.builder()
                             .path(path)
                             .method("All")
                             .type(ApiType.Code.name())
+                            .group("公共API")
+                            .editor("admin")
+                            .comment("")
+                            .script("")
+                            .params("")
                             .build());
                 }else{
                     for (RequestMethod method : methods){
@@ -297,6 +332,11 @@ public class SQLRequestMappingFactory {
                                 .path(path)
                                 .method(method.name())
                                 .type(ApiType.Code.name())
+                                .group("公共API")
+                                .editor("admin")
+                                .comment("")
+                                .script("")
+                                .params("")
                                 .build());
                     }
                 }

@@ -36,11 +36,6 @@ public class ApiController {
     @Autowired
     private SQLRequestMappingFactory sqlRequestMapping;
 
-    @Autowired
-    private ScriptParseService parseService;
-
-    @Autowired
-    private DataSourceDialect dataSource;
 
     /**
      * LOAD DATASOURCE

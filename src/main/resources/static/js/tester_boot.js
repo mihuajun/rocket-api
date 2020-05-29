@@ -1,6 +1,6 @@
 const gwtStartupScript = document.currentScript.getAttribute('data-gwt-startup-src');
 
-const readFavoriteLanguageCallback = function (result) {
+/*const readFavoriteLanguageCallback = function (result) {
     const userFavoriteLanguage = (result && result.favoriteLanguage) || 'en';
 
     chrome.storage.local.set({ favoriteLanguage: userFavoriteLanguage }, () => {
@@ -18,4 +18,4 @@ const readFavoriteLanguageCallback = function (result) {
     });
 };
 
-chrome.storage.local.get('favoriteLanguage', readFavoriteLanguageCallback);
+chrome.storage.local.get('favoriteLanguage', readFavoriteLanguageCallback);*/
