@@ -1,0 +1,32 @@
+spring:
+  application:
+    name: example
+  jackson:
+    default-property-inclusion: non_null
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: GMT+8
+  mvc:
+    format:
+      dateTime: yyyy-MM-dd HH:mm:ss
+  datasource:
+    url: jdbc:mysql://mysql-test.app.gs:3306/dataway2?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai
+    username: dichantest
+    password: UmMtAvFl
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  thymeleaf:
+    cache: false
+    check-template: true
+    check-template-location: true
+    enabled: true
+    encoding: utf-8
+    mode: HTML5
+    prefix: classpath:/templates/
+    suffix: .html
+
+  dataway2:
+    apiPrefix: /test1
+
+logging:
+  level:
+    com.github.alenfive.dataway2: debug
