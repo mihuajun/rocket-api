@@ -1,15 +1,16 @@
 package com.github.alenfive.dataway2;
 
 import com.github.alenfive.dataway2.entity.ApiParams;
+import com.github.alenfive.dataway2.extend.ApiPagerInterface;
 import com.github.alenfive.dataway2.service.ScriptParseService;
 import javafx.application.Application;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
-import org.junit.platform.commons.util.StringUtils;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -87,5 +88,42 @@ public class ApplicationTests {
                 "end11;";
         List<StringBuilder> scriptList = parseService.extractExecutableScript(script);
         System.out.println(scriptList);
+    }
+
+    @Autowired
+    private ApiPagerInterface apiPager;
+
+    @Test
+    public void testPager(){
+        StringBuilder script = new StringBuilder("select * from user limit #{index},#{pageSize}");
+
+        ApiParams apiParams = new ApiParams();
+        apiParams.putParam("pageNo",2);
+
+        Integer pageNo = null;
+        String value = parseService.buildParamItem(apiParams,apiPager.getPageNoVarName());
+        if (StringUtils.isEmpty(value)){
+            apiParams.putParam(apiPager.getPageNoVarName(),apiPager.getPageNoDefaultValue());
+            pageNo = apiPager.getPageNoDefaultValue();
+        }else {
+            pageNo = Integer.valueOf(value);
+        }
+
+        Integer pageSize = null;
+
+        value = parseService.buildParamItem(apiParams,apiPager.getPageSizeVarName());
+        if (StringUtils.isEmpty(value)){
+            apiParams.putParam(apiPager.getPageSizeVarName(),apiPager.getPageSizeDefaultValue());
+            pageSize = apiPager.getPageSizeDefaultValue();
+        }else{
+            pageSize = pageSize =Integer.valueOf(value);
+
+        }
+
+        apiParams.putParam(apiPager.getIndexVarName(),(pageNo-1)*pageSize);
+        parseService.buildParams(script,apiParams);
+        log.info("testPager:{}",script.toString());
+        assert script.toString().equals("select * from user limit 15,15");
+
     }
 }

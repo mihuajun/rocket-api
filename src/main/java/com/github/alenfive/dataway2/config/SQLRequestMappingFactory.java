@@ -24,8 +24,6 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * @Description:
@@ -167,8 +165,8 @@ public class SQLRequestMappingFactory {
 
         if (ApiResultType.page.name().equals(reaultType)){
 
-            Integer pageNo = getPagerNo(apiParams);
-            Integer pageSize = getPagerSize(apiParams);
+            Integer pageNo = buildPagerNo(apiParams);
+            Integer pageSize = buildPagerSize(apiParams);
             apiParams.putParam(apiPager.getIndexVarName(),(pageNo-1)*pageSize);
 
             Long totalRecords = dataSourceDialect.executeCount(scriptList.get(0).toString(),apiInfo,apiParams);
@@ -182,14 +180,22 @@ public class SQLRequestMappingFactory {
         return null;
     }
 
-    private Integer getPagerNo(ApiParams apiParams) {
+    private Integer buildPagerNo(ApiParams apiParams) {
         String value = parseService.buildParamItem(apiParams,apiPager.getPageNoVarName());
-        return StringUtils.isEmpty(value)?apiPager.getPageNoDefaultValue():Integer.valueOf(value);
+        if (StringUtils.isEmpty(value)){
+            apiParams.putParam(apiPager.getPageNoVarName(),apiPager.getPageNoDefaultValue());
+            return apiPager.getPageNoDefaultValue();
+        }
+        return Integer.valueOf(value);
     }
 
-    private Integer getPagerSize(ApiParams apiParams) {
+    private Integer buildPagerSize(ApiParams apiParams) {
         String value = parseService.buildParamItem(apiParams,apiPager.getPageSizeVarName());
-        return StringUtils.isEmpty(value)?apiPager.getPageSizeDefaultValue():Integer.valueOf(value);
+        if (StringUtils.isEmpty(value)){
+            apiParams.putParam(apiPager.getPageSizeVarName(),apiPager.getPageSizeDefaultValue());
+            return apiPager.getPageSizeDefaultValue();
+        }
+        return Integer.valueOf(value);
     }
 
     private String buildPath(HttpServletRequest request){
