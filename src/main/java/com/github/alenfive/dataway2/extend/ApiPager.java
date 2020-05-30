@@ -22,10 +22,35 @@ import java.util.Map;
 @Component
 public class ApiPager implements ApiPagerInterface {
     @Override
-    public Object build(Long totalRecords, List data, ApiInfo apiInfo, ApiParams apiParams) {
+    public Object buildPager(Long totalRecords, List data, ApiInfo apiInfo, ApiParams apiParams) {
         Map<String,Object> pager = new HashMap<>();
         pager.put("totalRecords",totalRecords);
         pager.put("data",data);
         return pager;
+    }
+
+    @Override
+    public String getPageSizeVarName() {
+        return "pageSize";
+    }
+
+    @Override
+    public String getPageNoVarName() {
+        return "pageNo";
+    }
+
+    @Override
+    public String getIndexVarName() {
+        return "index";
+    }
+
+    @Override
+    public Integer getPageSizeDefaultValue() {
+        return 15;
+    }
+
+    @Override
+    public Integer getPageNoDefaultValue() {
+        return 1;
     }
 }

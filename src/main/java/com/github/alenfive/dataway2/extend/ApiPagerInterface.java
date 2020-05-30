@@ -17,5 +17,16 @@ import java.util.List;
  * @menu 分页返回
  */
 public interface ApiPagerInterface {
-    Object build(Long totalRecords, List data, ApiInfo apiInfo, ApiParams apiParams);
+
+    Object buildPager(Long totalRecords, List data, ApiInfo apiInfo, ApiParams apiParams);
+
+    String getPageSizeVarName();
+
+    String getPageNoVarName();
+
+    String getIndexVarName();
+
+    Integer getPageSizeDefaultValue();
+
+    Integer getPageNoDefaultValue();
 }

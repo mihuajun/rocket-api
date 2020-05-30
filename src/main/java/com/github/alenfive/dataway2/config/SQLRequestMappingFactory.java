@@ -1,10 +1,7 @@
 package com.github.alenfive.dataway2.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.alenfive.dataway2.entity.ApiInfo;
-import com.github.alenfive.dataway2.entity.ApiParams;
-import com.github.alenfive.dataway2.entity.ApiResultType;
-import com.github.alenfive.dataway2.entity.ApiType;
+import com.github.alenfive.dataway2.entity.*;
 import com.github.alenfive.dataway2.extend.ApiPagerInterface;
 import com.github.alenfive.dataway2.extend.DataSourceDialect;
 import com.github.alenfive.dataway2.service.ScriptParseService;
@@ -27,6 +24,8 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @Description:
@@ -167,15 +166,30 @@ public class SQLRequestMappingFactory {
         }
 
         if (ApiResultType.page.name().equals(reaultType)){
+
+            Integer pageNo = getPagerNo(apiParams);
+            Integer pageSize = getPagerSize(apiParams);
+            apiParams.putParam(apiPager.getIndexVarName(),(pageNo-1)*pageSize);
+
             Long totalRecords = dataSourceDialect.executeCount(scriptList.get(0).toString(),apiInfo,apiParams);
             List<Map<String,Object>> resultList = dataSourceDialect.executeQuery(scriptList.get(1).toString(),apiInfo,apiParams);
-            return apiPager.build(totalRecords,resultList,apiInfo,apiParams);
+            return apiPager.buildPager(totalRecords,resultList,apiInfo,apiParams);
         }
 
         for (StringBuilder script : scriptList){
             dataSourceDialect.execute(script.toString(),apiInfo,apiParams);
         }
         return null;
+    }
+
+    private Integer getPagerNo(ApiParams apiParams) {
+        String value = parseService.buildParamItem(apiParams,apiPager.getPageNoVarName());
+        return StringUtils.isEmpty(value)?apiPager.getPageNoDefaultValue():Integer.valueOf(value);
+    }
+
+    private Integer getPagerSize(ApiParams apiParams) {
+        String value = parseService.buildParamItem(apiParams,apiPager.getPageSizeVarName());
+        return StringUtils.isEmpty(value)?apiPager.getPageSizeDefaultValue():Integer.valueOf(value);
     }
 
     private String buildPath(HttpServletRequest request){

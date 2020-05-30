@@ -28,6 +28,8 @@ import java.util.stream.Stream;
 @Service
 public class ScriptParseService {
 
+    private Set<String> scopeSet = Stream.of(ParamScope.values()).map(ParamScope::name).collect(Collectors.toSet());
+
     public void parse(StringBuilder script,ApiParams apiParams){
         buildIf(script,apiParams);
         buildParams(script,apiParams);
@@ -99,7 +101,7 @@ public class ScriptParseService {
                 throw new IllegalArgumentException("missed if split ','");
             }
             String varName = script.substring(startIf+3,ifSplit);
-            String value = buildParamItem(scopeSet,apiParams,varName);
+            String value = buildParamItem(apiParams,varName);
             if (StringUtils.isEmpty(value)){
                 script = script.replace(startIf,endIf+1,"");
             }else{
@@ -117,8 +119,6 @@ public class ScriptParseService {
      */
     public void buildParams(StringBuilder script, ApiParams apiParams){
 
-        Set<String> scopeSet = Stream.of(ParamScope.values()).map(ParamScope::name).collect(Collectors.toSet());
-
         //匹配参数#{}
         Pattern r = Pattern.compile("#\\{[A-Za-z0-9-_\\.]+\\}");
 
@@ -129,7 +129,7 @@ public class ScriptParseService {
             if (find){
                 String group = m.group();
                 String varName = group.replace("#{","").replace("}","");
-                String value = buildParamItem(scopeSet,apiParams,varName);
+                String value = buildParamItem(apiParams,varName);
                 if (value == null){
                     throw new IllegalArgumentException("parameter '"+varName+"' not found");
                 }
@@ -140,7 +140,7 @@ public class ScriptParseService {
 
     }
 
-    private String buildParamItem(Set<String> scopeSet, ApiParams apiParams, String varName) {
+    public String buildParamItem(ApiParams apiParams, String varName) {
         String[] paramArr = varName.split("\\.");
 
 
