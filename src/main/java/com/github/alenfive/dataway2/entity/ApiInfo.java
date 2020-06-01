@@ -58,6 +58,10 @@ public class ApiInfo {
      */
     private String script;
     /**
+     * 服务
+     */
+    private String service;
+    /**
      * 分组
      */
     private String group;

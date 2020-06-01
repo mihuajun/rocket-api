@@ -23,4 +23,9 @@ public class ViewController {
     public String index(){
         return "index";
     }
+
+    @GetMapping("/v2")
+    public String index2(){
+        return "index_bak";
+    }
 }

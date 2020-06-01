@@ -7,6 +7,7 @@ import com.github.alenfive.dataway2.extend.DataSourceDialect;
 import com.github.alenfive.dataway2.service.ScriptParseService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ReflectionUtils;
@@ -24,6 +25,7 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 /**
  * @Description:
@@ -52,6 +54,9 @@ public class SQLRequestMappingFactory {
             "/error",
             "/api-ui"
     );
+
+    @Value("${spring.application.name}")
+    private String service;
 
     @Autowired
     private ApplicationContext appContext;
@@ -252,6 +257,7 @@ public class SQLRequestMappingFactory {
     }
 
     public void saveOrUpdateApiInfo(ApiInfo apiInfo) throws IOException {
+
         apiInfo.setUpdateTime(new Date());
         if (apiInfo.getId() == null){
 
@@ -261,7 +267,7 @@ public class SQLRequestMappingFactory {
             }
 
             apiInfo.setCreateTime(new Date());
-
+            apiInfo.setService(service);
             ApiParams apiParams = ApiParams.builder().param(apiInfo.toMap()).build();
             StringBuilder script = new StringBuilder(dataSourceDialect.saveApiInfoScript());
             parseService.buildParams(script,apiParams);
@@ -340,6 +346,7 @@ public class SQLRequestMappingFactory {
                             .path(path)
                             .method("All")
                             .type(ApiType.Code.name())
+                            .service(service)
                             .group("公共API")
                             .editor("admin")
                             .comment("")
@@ -352,6 +359,7 @@ public class SQLRequestMappingFactory {
                                 .path(path)
                                 .method(method.name())
                                 .type(ApiType.Code.name())
+                                .service(service)
                                 .group("公共API")
                                 .editor("admin")
                                 .comment("")
@@ -364,5 +372,9 @@ public class SQLRequestMappingFactory {
             }
         }
         return result;
+    }
+
+    public List<String> getGroupList() {
+        return this.cacheApiInfo.values().stream().map(ApiInfo::getGroup).collect(Collectors.toList());
     }
 }

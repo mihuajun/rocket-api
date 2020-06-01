@@ -74,4 +74,8 @@ public class ApiController {
         sqlRequestMapping.deleteApiInfo(apiInfo);
     }
 
+    @GetMapping("/group-list")
+    public List<String> getGroupList(){
+        return sqlRequestMapping.getGroupList();
+    }
 }
