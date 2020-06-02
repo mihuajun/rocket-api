@@ -375,9 +375,9 @@
                                     </div>
 
                                 </div>
-                                <textarea id="CodeMirror1" name="CodeMirror1">
-
-                                </textarea>
+                                <div class="code-body">
+                                    <textarea id="CodeMirror1" name="CodeMirror1"></textarea>
+                                </div>
                             </div>
                         </section>
                         <section style="display:none" class="pane pane-request request-common" id="request">
@@ -2196,6 +2196,22 @@
             .intercom-lightweight-app {
                 display: none;
             }
+        }
+
+        .code-body{
+            margin-top: 30px;
+            border: 1px solid #ccc;
+        }
+        .CodeMirror {
+            border: 1px solid #eee;
+            height: auto;
+            min-height: 300px;
+        }
+        .CodeMirror-scroll {
+            min-height: 300px;
+            height: auto;
+            overflow-y: hidden;
+            overflow-x: auto;
         }
     </style>
 </div>

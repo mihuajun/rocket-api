@@ -33,6 +33,8 @@ $(function(){
     var CodeMirrorEditor = CodeMirror.fromTextArea(myTextarea,{
         mode:"application/json",
         theme:"eclipse",
+        scrollbarStyle:null,
+        lineWrapping:true,
         lineNumbers: true,//是否显示行号
         smartIndent : true,  // 是否智能缩进
         tabSize : 4,  // Tab缩进，默认4
