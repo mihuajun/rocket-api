@@ -25,7 +25,7 @@ spring:
     suffix: .html
 
   dataway2:
-    apiPrefix: /test1
+    apiPrefix: /api/
 
 logging:
   level:

@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!-- saved from url=(0071)/index.html#requests -->
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
@@ -328,21 +328,19 @@
                                     <div class="row-uri-in-request-view">
                                         <div class="row-uri">
                                             <div class="uri-method">
-                                                <div class="uri-help"><a class="help-link"
-                                                                         href="http://tools.ietf.org/html/rfc7231#section-4"
-                                                                         tabindex="-1" target="_blank"> Method </a>
+                                                <div class="uri-help">
+                                                    <a class="help-link" href="http://tools.ietf.org/html/rfc7231#section-4" tabindex="-1" target="_blank"> Method </a>
                                                 </div>
                                                 <div>
-                                                    <div class="btn-group input-append split-dropdown"
-                                                         e2e-tag="method-selector">
-                                                        <div class="input-append dropdown-toggle"
-                                                             data-toggle="dropdown"><input type="text"
-                                                                                           class="gwt-TextBox"
-                                                                                           style="width: 85px;"><span
-                                                                class="add-on"><a href="javascript:;"
-                                                                                  class="btn btn-small btn-link split-dropdown-trigger"
-                                                                                  tabindex="-1"><i
-                                                                class="icon-caret-down"></i></a></span></div>
+                                                    <div class="btn-group input-append split-dropdown" e2e-tag="method-selector">
+                                                        <div class="input-append dropdown-toggle" data-toggle="dropdown">
+                                                            <input type="text" class="gwt-TextBox" style="width: 85px;" value="GET">
+                                                            <span class="add-on">
+                                                                <a href="javascript:;" class="btn btn-small btn-link split-dropdown-trigger" tabindex="-1">
+                                                                    <i class="icon-caret-down"> </i>
+                                                                </a>
+                                                            </span>
+                                                        </div>
                                                         <ul class="dropdown-menu">
                                                             <li><a href="javascript:;"><i></i> GET </a></li>
                                                             <li><a href="javascript:;"><i></i> POST </a></li>
@@ -356,67 +354,30 @@
                                                 </div>
                                             </div>
                                             <div class="uri-editor">
-                                                <div class="uri-help"><a
-                                                        href="http://tools.ietf.org/html/rfc3986#page-17" tabindex="-1"
-                                                        target="_blank"> Scheme </a> :// <a
-                                                        href="http://tools.ietf.org/html/rfc7230#section-2.7"
-                                                        tabindex="-1" target="_blank"> Host [ ":" Port ] [ Path [ "?"
-                                                    Query ]] </a></div>
+                                                <div class="uri-help"><a> Path </a></div>
                                                 <div class="uri-input">
-                                                    <div class="uri-input-lock"><i class="fa fa-lock"></i></div>
-                                                    <span class="expression-input input-append uri-path"><input
-                                                            type="text" class="gwt-TextBox" id="gwt-uid-349"
-                                                            spellcheck="false" autocomplete="off" e2e-tag="uri-input"
-                                                            placeholder="Type an URI"><span class="add-on"
-                                                                                            data-original-title=""
-                                                                                            title=""><i
-                                                            class="icon-magic"></i></span></span>
-                                                    <div class="uri-length" title="length: 8 byte(s)"
-                                                         style="display: inline;">length: 8 byte(s)
-                                                    </div>
+                                                    <span class="expression-input input-append uri-path">
+                                                        <input type="text" class="gwt-TextBox" spellcheck="false" th:value="${apiPrefix}" autocomplete="off" e2e-tag="uri-input" placeholder="Type an Path" style="padding-left:10px;">
+                                                        <span class="add-on" data-original-title="" title=""> <i class="icon-magic"></i></span></span>
+                                                    <div class="uri-length" title="length: 8 byte(s)" style="display: inline;">length: 8 byte(s) </div>
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="btn-group send"><a href="javascript:;"
-                                                                       class="btn btn-send btn-primary"
+                                        <div class="btn-group send">
+                                            <a href="javascript:;" class="btn btn-send btn-primary"
                                                                        e2e-tag="btn-send"
                                                                        data-original-title="save request (Alt + Enter)"
-                                                                       title=""><i class="icon-send"></i> Save </a> <a
-                                                href="javascript:;" class="btn btn-primary btn-send dropdown-toggle"
-                                                data-toggle="dropdown" e2e-tag="btn-send-additional-actions"
+                                                                       title="">
+                                                <i class="icon-send"></i> Save As</a>
+                                            <a href="javascript:;" class="btn btn-primary btn-send dropdown-toggle" data-toggle="dropdown" e2e-tag="btn-send-additional-actions"
                                                 tabindex="-1"><i class="icon-caret-down"></i> </a>
                                         </div>
                                     </div>
-                                    <div class="query-parameters-form in-request-view collapsed">
-                                        <div class="query-parameters-form-title collapsed-title"><i
-                                                class="fa fa-caret-right" tabindex="0"></i> <span class="title-content"
-                                                                                                  e2e-tag="query-parameter-expand">Query parameters</span>
-                                            <span class="subtitle-counter"></span>
-                                            <button class="r-btn r-btn-link" title="Sort query parameters"
-                                                    e2e-tag="query-parameter-sort" aria-hidden="true"
-                                                    style="display: none;"><i
-                                                    class="fa fa-sort-alpha-asc"></i><span></span><span
-                                                    class="r-btn-indicator" aria-hidden="true"
-                                                    style="display: none;"></span></button>
-                                        </div>
-                                        <div class="query-parameters-form-block"></div>
-                                        <div class="query-parameters-btns-row">
-                                            <button class="list-action-add r-btn r-btn-small r-btn-rounded"
-                                                    title="Add a new query parameter." e2e-tag="query-parameter-add"><i
-                                                    class="fa fa-plus"></i><span>Add query parameter</span><span
-                                                    class="r-btn-indicator" aria-hidden="true"
-                                                    style="display: none;"></span></button>
-                                            <button class="list-action-remove-all r-btn r-btn-link"
-                                                    title="Remove all query parameters"
-                                                    e2e-tag="query-parameter-remove-all" aria-hidden="true"
-                                                    tabindex="-1" style="display: none;"><i
-                                                    class="fa fa-trash-o"></i><span></span><span class="r-btn-indicator"
-                                                                                                 aria-hidden="true"
-                                                                                                 style="display: none;"></span>
-                                            </button>
-                                        </div>
-                                    </div>
+
                                 </div>
+                                <textarea id="CodeMirror1" name="CodeMirror1">
+
+                                </textarea>
                             </div>
                         </section>
                         <section style="display:none" class="pane pane-request request-common" id="request">

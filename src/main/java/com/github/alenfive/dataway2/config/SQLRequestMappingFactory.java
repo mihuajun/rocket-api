@@ -227,7 +227,7 @@ public class SQLRequestMappingFactory {
         if (ApiType.Code.equals(apiInfo.getType())){
             return;
         }
-        String pattern = properties.getApiPrefix()+apiInfo.getPath();
+        String pattern = (properties.getApiPrefix()+apiInfo.getPath()).replaceAll("/+","/");
         log.debug("register mapping [{}]{}",apiInfo.getMethod(),pattern);
         PatternsRequestCondition patternsRequestCondition = new PatternsRequestCondition(pattern);
         RequestMethodsRequestCondition methodsRequestCondition = new RequestMethodsRequestCondition(RequestMethod.valueOf(apiInfo.getMethod()));

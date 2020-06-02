@@ -27,18 +27,31 @@ let gdata = {
 }
 $(function(){
     loadApiList();
+    loadEvent();
     $("#loader").hide();
-    var myTextarea = document.getElementById('CodeMirror');
+    var myTextarea = document.getElementById('CodeMirror1');
     var CodeMirrorEditor = CodeMirror.fromTextArea(myTextarea,{
         mode:"application/json",
         theme:"eclipse",
         lineNumbers: true,//是否显示行号
-        value:"111111111",//经测试这个没用，如果要手动设置编辑器的内容，看下面
         smartIndent : true,  // 是否智能缩进
         tabSize : 4,  // Tab缩进，默认4
         readOnly : false , // 是否只读，默认false
     });
+
 });
+
+function loadEvent() {
+    loadSelectEvent();
+}
+
+function loadSelectEvent() {
+    $(".dropdown-menu>li").on("click",function (e) {
+        let value = $(this).text().trim();
+        $(this).parents(".btn-group").find(".input-append>input").val(value);
+    });
+}
+
 function loadApiList() {
     $.getJSON(loadApiListUrl,function (data) {
         data = unpackResult(data);

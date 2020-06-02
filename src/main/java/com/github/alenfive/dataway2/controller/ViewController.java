@@ -1,6 +1,9 @@
 package com.github.alenfive.dataway2.controller;
 
+import com.github.alenfive.dataway2.config.Dataway2Properties;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -19,13 +22,17 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("/api-ui")
 public class ViewController {
 
+    @Autowired
+    private Dataway2Properties properties;
+
     @GetMapping
     public String index(){
         return "index";
     }
 
     @GetMapping("/v2")
-    public String index2(){
+    public String index2(Model model){
+        model.addAttribute("apiPrefix",properties.getApiPrefix());
         return "index_bak";
     }
 }
