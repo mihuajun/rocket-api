@@ -23,6 +23,7 @@ window.localStorage.getItem('favoriteLanguage', readFavoriteLanguageCallback);*/
 let loadApiListUrl = "/dataway2/api-list";
 let saveApiUrl = "/dataway2/api-info";
 let getApiUrl = "/dataway2/api-info/";
+let deleteApiUrl = "/dataway2/api-info";
 let sqlCodeMirror;
 let gdata = {
 
@@ -66,6 +67,20 @@ function loadEvent() {
     loadSelectBoxEvent();
     loadInputTypeEvent();
     loadEditAbleEvent();
+}
+function moveApi() {
+
+}
+function removeApi(e,id) {
+    $.ajax({
+        type: "delete",
+        url: deleteApiUrl,
+        contentType : "application/json",
+        data: JSON.stringify({"id":id}),
+        success: function (data) {
+            $(e).parents(".request").remove();
+        }
+    });
 }
 
 function loadEditAbleEvent() {
@@ -215,11 +230,11 @@ function buildApiTree(list,collapsed) {
                 '                                                    <span class="gwt-InlineHTML node-text"\n' +
                 '                                                          e2e-tag="drive|'+(item.comment?item.comment:item.path)+'">'+(item.comment?item.comment:item.path)+'</span>\n' +
                 '                                                    <div class="status" aria-hidden="true" style="display: none;"></div>\n' +
-                '                                                    <div class="btn-group ctrls dropdown-primary"><a\n' +
+                '                                                    <div class="btn-group ctrls dropdown-primary" data-id="'+item.id+'" ><a\n' +
                 '                                                            class="btn-mini dropdown-toggle" data-toggle="dropdown"\n' +
                 '                                                            e2e-tag="drive|'+(item.comment?item.comment:item.path)+'|more"><i\n' +
                 '                                                            class="sli-icon-options-vertical"></i></a>\n' +
-                '                                                        <ul class="pull-right dropdown-menu"><li class="dropdown-item"><a><i class="fa fa-copy"></i><span class="gwt-InlineHTML">Copy</span></a></li><li class="dropdown-item"><a><i class="fa fa-random"></i><span class="gwt-InlineHTML">Move</span></a></li><li class="dropdown-item"><a><i class="fa fa-edit"></i><span class="gwt-InlineHTML">Rename</span></a></li><li class="dropdown-item"><a><i class="fa fa-trash-o"></i><span class="gwt-InlineHTML">Remove</span></a></li></ul>\n' +
+                '                                                        <ul class="pull-right dropdown-menu"><li class="dropdown-item"><a><i class="fa fa-random"></i><span class="gwt-InlineHTML">Move</span></a></li><li class="dropdown-item" onclick="removeApi(this,'+item.id+')"><a><i class="fa fa-trash-o" onclick="moveApi(this,'+item.id+')"></i><span class="gwt-InlineHTML">Remove</span></a></li></ul>\n' +
                 '                                                    </div>\n' +
                 '                                                </div></li>');
         })
