@@ -1,10 +1,13 @@
 package com.github.alenfive.dataway2.controller;
 
 import com.github.alenfive.dataway2.config.Dataway2Properties;
+import com.github.alenfive.dataway2.config.SQLRequestMappingFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 /**
@@ -25,14 +28,22 @@ public class ViewController {
     @Autowired
     private Dataway2Properties properties;
 
-    @GetMapping
+    @Autowired
+    private SQLRequestMappingFactory sqlRequestMapping;
+
+    @GetMapping("/v3")
     public String index(){
         return "index";
     }
 
-    @GetMapping("/v2")
+    @GetMapping
     public String index2(Model model){
-        model.addAttribute("apiPrefix",properties.getApiPrefix());
+        return "index_bak";
+    }
+
+    @GetMapping("/{id}")
+    public String index3(Model model, @PathVariable Integer id){
+        model.addAttribute("currApi",id);
         return "index_bak";
     }
 }

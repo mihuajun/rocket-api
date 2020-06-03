@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<body>
+<section style="display:none" class="pane pane-request request-common" id="request" th:fragment="request-section">
+    <div class="draft-ribbon" style="">
+        <div class="draft-ribbon-text"> Draft</div>
+    </div>
+    <div class="pane-request-header">
+        <div class="editable-input-container request-name" style="display: none;"
+             aria-hidden="true">
+            <div class="editable-input input-append read-only"><input type="text"
+                                                                      class="gwt-TextBox gwt-TextBox-readonly"
+                                                                      readonly=""
+                                                                      required="true"
+                                                                      maxlength="256"><span
+                    class="add-on"><i class="icon-pencil"></i></span></div>
+            <div class="editable-input-error" title=""></div>
+        </div>
+        <div class="request-name-not-editable" style="">
+            <div class="request-name-not-editable-text">模板新增修改接口</div>
+            <button class="request-name-not-editable-link r-btn-small r-btn r-btn-link"
+                    title="Go to request in repository" style=""><i
+                    class="fa fa-external-link"></i><span></span><span class="r-btn-indicator"
+                                                                       aria-hidden="true"
+                                                                       style="display: none;"></span>
+            </button>
+        </div>
+        <div class="btn-group btn-save-rp"><a
+                class="gwt-Anchor btn btn-default btn-save-primary" href="javascript:;"
+                data-original-title="Save request as (Alt + Shift + S)" title="">Save as</a> <a
+                href="javascript:;" class="btn btn-default btn-save-primary dropdown-toggle"
+                e2e-tag="btn-save-more" data-toggle="dropdown"><i
+                class="icon-caret-down"></i></a>
+            <ul class="dropdown-menu pull-right">
+                <li data-original-title="Save request as (Alt + Shift + S)" title=""
+                    style="display: none;" class="" aria-hidden="true"><a
+                        href="javascript:;"><i></i> Save as </a></li>
+                <li data-original-title="Copy as cURL (Alt + G)" title="" class=""><a
+                        href="javascript:;"><i></i> Copy as cURL </a></li>
+            </ul>
+        </div>
+    </div>
+    <div class="content">
+        <div class="service">
+            <div class="row-uri-in-request-view">
+                <div class="row-uri">
+                    <div class="uri-method">
+                        <div class="uri-help"><a class="help-link"
+                                                 href="http://tools.ietf.org/html/rfc7231#section-4"
+                                                 tabindex="-1" target="_blank"> Method </a>
+                        </div>
+                        <div>
+                            <div class="btn-group input-append split-dropdown"
+                                 e2e-tag="method-selector">
+                                <div class="input-append dropdown-toggle"
+                                     data-toggle="dropdown"><input type="text"
+                                                                   class="gwt-TextBox"
+                                                                   style="width: 85px;"><span
+                                        class="add-on"><a href="javascript:;"
+                                                          class="btn btn-small btn-link split-dropdown-trigger"
+                                                          tabindex="-1"><i
+                                        class="icon-caret-down"></i></a></span></div>
+                                <ul class="dropdown-menu">
+                                    <li class="active"><a href="javascript:;"><i></i> GET </a>
+                                    </li>
+                                    <li><a href="javascript:;"><i></i> POST </a></li>
+                                    <li><a href="javascript:;"><i></i> PUT </a></li>
+                                    <li><a href="javascript:;"><i></i> DELETE </a></li>
+                                    <li><a href="javascript:;"><i></i> HEAD </a></li>
+                                    <li><a href="javascript:;"><i></i> OPTIONS </a></li>
+                                    <li><a href="javascript:;"><i></i> PATCH </a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="uri-editor">
+                        <div class="uri-help"><a
+                                href="http://tools.ietf.org/html/rfc3986#page-17" tabindex="-1"
+                                target="_blank"> Scheme </a> :// <a
+                                href="http://tools.ietf.org/html/rfc7230#section-2.7"
+                                tabindex="-1" target="_blank"> Host [ ":" Port ] [ Path [ "?"
+                            Query ]] </a></div>
+                        <div class="uri-input">
+                            <div class="uri-input-lock hide"><i class="fa fa-lock"></i></div>
+                            <span class="expression-input input-append uri-path"><input
+                                    type="text" class="gwt-TextBox" id="gwt-uid-349"
+                                    spellcheck="false" autocomplete="off" e2e-tag="uri-input"
+                                    placeholder="Type an URI"><ul
+                                    class="typeahead dropdown-menu"
+                                    style="top: 30px; left: 0px; display: none;"><li
+                                    data-value="http://times-china.source3g.com:5015/common/whiteProjectList/page"
+                                    class="active"><a href="/index.html#"><strong>http://times-china.source3g.com:5015/common/whiteProjectList/page</strong></a></li></ul><span
+                                    class="add-on" data-original-title="" title=""><i
+                                    class="icon-magic"></i></span></span>
+                            <div class="uri-length" title="length: 47 byte(s)"
+                                 style="display: inline;">length: 47 byte(s)
+                            </div>
+                        </div>
+                        <div class="uri-validation-error"></div>
+                    </div>
+                </div>
+                <div class="btn-group send"><a href="javascript:;"
+                                               class="btn btn-send btn-primary"
+                                               e2e-tag="btn-send"
+                                               data-original-title="Send request (Alt + Enter)"
+                                               title=""><i class="icon-send"></i> Send </a> <a
+                        href="javascript:;" class="btn btn-send dropdown-toggle btn-primary"
+                        data-toggle="dropdown" e2e-tag="btn-send-additional-actions"
+                        tabindex="-1"><i class="icon-caret-down"></i> </a>
+                    <ul class="dropdown-menu pull-right">
+                        <li><a href="javascript:;"><i></i> Follow redirects </a></li>
+                        <li><a href="javascript:;"><i></i> Don't follow redirects </a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="query-parameters-form in-request-view collapsed">
+                <div class="query-parameters-form-title collapsed-title"><i
+                        class="fa fa-caret-right" onclick="collapsedTree(this)"
+                        tabindex="0"></i> <span class="title-content"
+                                                e2e-tag="query-parameter-expand">Query parameters</span>
+                    <span class="subtitle-counter"></span>
+                    <button class="r-btn r-btn-link" title="Sort query parameters"
+                            e2e-tag="query-parameter-sort" aria-hidden="true"
+                            style="display: none;"><i
+                            class="fa fa-sort-alpha-asc"></i><span></span><span
+                            class="r-btn-indicator" aria-hidden="true"
+                            style="display: none;"></span></button>
+                </div>
+                <div class="query-parameters-form-block"></div>
+                <div class="query-parameters-btns-row">
+                    <button class="list-action-add r-btn r-btn-small r-btn-rounded"
+                            title="Add a new query parameter." e2e-tag="query-parameter-add"><i
+                            class="fa fa-plus"></i><span>Add query parameter</span><span
+                            class="r-btn-indicator" aria-hidden="true"
+                            style="display: none;"></span></button>
+                    <button class="list-action-remove-all r-btn r-btn-link"
+                            title="Remove all query parameters"
+                            e2e-tag="query-parameter-remove-all" aria-hidden="true"
+                            tabindex="-1" style="display: none;"><i
+                            class="fa fa-trash-o"></i><span></span><span class="r-btn-indicator"
+                                                                         aria-hidden="true"
+                                                                         style="display: none;"></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="layout-for-headers-and-body">
+            <div class="headers">
+                <div class="headers-form">
+                    <div class="headers-form-title"><span class="title-content"> Headers </span>
+                        <i class="sli-icon-question link-to-rfc" data-original-title=""
+                           title=""></i>
+                        <button class="r-btn r-btn-link" title="Sort headers"
+                                e2e-tag="header-sort" style=""><i
+                                class="fa fa-sort-alpha-asc"></i><span></span><span
+                                class="r-btn-indicator" aria-hidden="true"
+                                style="display: none;"></span></button>
+                        <button class="header-warning r-btn r-btn-link" aria-hidden="true"
+                                title="Show warnings" style="display: none;"><i
+                                class="fa fa-exclamation-triangle"></i><span></span><span
+                                class="r-btn-indicator" aria-hidden="true"
+                                style="display: none;"></span></button>
+                        <ul class="nav nav-pills contextual-menu-in-title">
+                            <li class="dropdown right"><a href="javascript:;"
+                                                          class="dropdown-toggle"
+                                                          data-toggle="dropdown"><i></i> Form
+                                <span class="caret"></span></a>
+                                <ul class="dropdown-menu">
+                                    <li><a href="javascript:;"><i></i> Form </a></li>
+                                    <li><a href="javascript:;"><i></i> Raw </a></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+                    <div>
+                        <div class="headers-form-block">
+                            <div class="header-row" e2e-tag="header"><span
+                                    class="gwt-CheckBox header-cell" title="Enable/Disable"
+                                    e2e-tag="header-state"><input type="checkbox" value="on"
+                                                                  id="gwt-uid-3717" tabindex="0"
+                                                                  checked=""><label
+                                    for="gwt-uid-3717"></label></span><span
+                                    class="gwt-InlineHTML header-cell-name header-name-ro header-cell"
+                                    aria-hidden="true" style="display: none;"><a
+                                    href="http://tools.ietf.org/html/rfc7231#section-3.1.1.5"
+                                    target="_blank" class="header-link"><span
+                                    title="Content-Type">Content-Type</span></a></span><span
+                                    class="expression-input input-append header-cell-name header-cell"><input
+                                    type="text" class="gwt-TextBox" id="gwt-uid-3718"
+                                    placeholder="name" e2e-tag="header-name"><span
+                                    class="add-on" data-original-title="" title=""><i
+                                    class="icon-magic"></i></span></span><span
+                                    class="gwt-InlineLabel header-cell">:</span><span
+                                    class="expression-input input-append header-cell-value header-cell"><input
+                                    type="text" class="gwt-TextBox" id="gwt-uid-3719"
+                                    placeholder="value" e2e-tag="header-value"><span
+                                    class="add-on" data-original-title="" title=""><i
+                                    class="icon-magic"></i></span></span>
+                                <button class="btn-remove-header r-btn r-btn-link header-cell"
+                                        title="Remove" e2e-tag="header-remove"><i
+                                        class="fa fa-times-thin"></i><span></span><span
+                                        class="r-btn-indicator" aria-hidden="true"
+                                        style="display: none;"></span></button>
+                                <div class="header-cell-fixed-action header-cell">
+                                    <button class="r-btn r-btn-link hide" title="Edit"
+                                            e2e-tag="header-edit"><i
+                                            class="sli-icon-key"></i><span></span><span
+                                            class="r-btn-indicator" aria-hidden="true"
+                                            style="display: none;"></span></button>
+                                    <button class="header-warning r-btn r-btn-link hide"
+                                            title="Show warnings" e2e-tag="header-warning"><i
+                                            class="fa fa-exclamation-triangle"></i><span></span><span
+                                            class="r-btn-indicator" aria-hidden="true"
+                                            style="display: none;"></span></button>
+                                </div>
+                            </div>
+                            <div class="header-row" e2e-tag="header"><span
+                                    class="gwt-CheckBox header-cell" title="Enable/Disable"
+                                    e2e-tag="header-state"><input type="checkbox" value="on"
+                                                                  id="gwt-uid-3721" tabindex="0"
+                                                                  checked=""><label
+                                    for="gwt-uid-3721"></label></span><span
+                                    class="gwt-InlineHTML header-cell-name header-name-ro header-cell"
+                                    aria-hidden="true" style="display: none;"><span
+                                    title="loginUserInfo">loginUserInfo</span></span><span
+                                    class="expression-input input-append header-cell-name header-cell"><input
+                                    type="text" class="gwt-TextBox" id="gwt-uid-3722"
+                                    placeholder="name" e2e-tag="header-name"><span
+                                    class="add-on" data-original-title="" title=""><i
+                                    class="icon-magic"></i></span></span><span
+                                    class="gwt-InlineLabel header-cell">:</span><span
+                                    class="expression-input input-append header-cell-value header-cell"><input
+                                    type="text" class="gwt-TextBox" id="gwt-uid-3723"
+                                    placeholder="value" e2e-tag="header-value"><span
+                                    class="add-on" data-original-title="" title=""><i
+                                    class="icon-magic"></i></span></span>
+                                <button class="btn-remove-header r-btn r-btn-link header-cell"
+                                        title="Remove" e2e-tag="header-remove"><i
+                                        class="fa fa-times-thin"></i><span></span><span
+                                        class="r-btn-indicator" aria-hidden="true"
+                                        style="display: none;"></span></button>
+                                <div class="header-cell-fixed-action header-cell">
+                                    <button class="r-btn r-btn-link hide" title="Edit"
+                                            e2e-tag="header-edit"><i
+                                            class="sli-icon-key"></i><span></span><span
+                                            class="r-btn-indicator" aria-hidden="true"
+                                            style="display: none;"></span></button>
+                                    <button class="header-warning r-btn r-btn-link hide"
+                                            title="Show warnings" e2e-tag="header-warning"><i
+                                            class="fa fa-exclamation-triangle"></i><span></span><span
+                                            class="r-btn-indicator" aria-hidden="true"
+                                            style="display: none;"></span></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="headers-btns-row">
+                        <button class="list-action-add r-btn r-btn-small r-btn-rounded" title=""
+                                e2e-tag="header-add"
+                                data-original-title="Add a new header (Alt + H)"><i
+                                class="fa fa-plus"></i><span>Add header</span><span
+                                class="r-btn-indicator" aria-hidden="true"
+                                style="display: none;"></span></button>
+                        <button class="r-btn r-btn-link" title="Add an authorization"
+                                e2e-tag="header-add-auth"><i class="sli-icon-key"></i><span>Add authorization</span><span
+                                class="r-btn-indicator" aria-hidden="true"
+                                style="display: none;"></span></button>
+                        <button class="list-action-remove-all r-btn r-btn-link"
+                                title="Remove all headers" e2e-tag="header-remove-all"
+                                tabindex="-1" style=""><i
+                                class="fa fa-trash-o"></i><span></span><span
+                                class="r-btn-indicator" aria-hidden="true"
+                                style="display: none;"></span></button>
+                    </div>
+                </div>
+            </div>
+            <div class="resizer-for-headers-and-body">
+                <div class="resizer-pane"><i class="fa fa-caret-left"
+                                             style="visibility: visible;"></i> <span
+                        class="headers-subtitle"> Headers <span
+                        class="subtitle-counter">[2]</span> </span></div>
+                <div class="resizer">
+                    <div class="resizer-line"></div>
+                </div>
+                <div class="resizer-pane"><i class="fa fa-caret-right"
+                                             style="visibility: visible;"></i> <span
+                        class="body-subtitle"> Body <span class="subtitle-counter"
+                                                          style="display: none;"></span> </span>
+                </div>
+            </div>
+            <div class="body body-content body-form">
+                <div class="body-form-title"><span class="title-content"> Body </span> <i
+                        class="sli-icon-question link-to-rfc" data-original-title=""
+                        title=""></i>
+                    <button class="r-btn r-btn-link" title="Sort items" e2e-tag="body-sort"
+                            aria-hidden="true" style="display: none;"><i
+                            class="fa fa-sort-alpha-asc"></i><span></span><span
+                            class="r-btn-indicator" aria-hidden="true"
+                            style="display: none;"></span></button>
+                    <ul class="nav nav-pills contextual-menu-in-title">
+                        <li class="dropdown right" e2e-tag="body-type" style=""><a
+                                href="javascript:;" class="dropdown-toggle"
+                                data-toggle="dropdown"><i></i> Text <span class="caret"></span></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="javascript:;"><i></i> Text </a></li>
+                                <li><a href="javascript:;"><i></i> File </a></li>
+                                <li><a href="javascript:;"><i></i> Form </a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+                <div class="note" style="display: none;" aria-hidden="true">
+                    <div><a target="_blank"
+                            href="http://www.w3.org/TR/XMLHttpRequest/#the-send()-method">XHR</a>
+                        does not allow payloads for <a target="_blank"
+                                                       href="http://tools.ietf.org/html/rfc7231#section-4.3.1">GET</a>
+                        request.
+                    </div>
+                    <button class="btn-open-body-editor r-btn r-btn-link" aria-hidden="true"
+                            style="display: none;" disabled="disabled"><i
+                            class="fa fa-no-icon"></i><span>Click here to open an entity-body editor.</span><span
+                            class="r-btn-indicator" aria-hidden="true"
+                            style="display: none;"></span></button>
+                    <div aria-hidden="true" style="display: none;">or change a method definition
+                        in <a href="/index.html#settings:HTTP">Settings</a>.
+                    </div>
+                </div>
+                <div class="b-container" style="">
+                    <textarea id="CodeMirror"  name="CodeMirror"></textarea>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+</body>
+</html>

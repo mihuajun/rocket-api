@@ -132,7 +132,7 @@ public class SQLRequestMappingFactory {
                           @RequestParam(required = false) Map<String,Object> param,
                           @RequestBody(required = false) Map<String,Object> body) {
 
-        String path = buildPath(request);
+        String path = buildPattern(request);
         String method = request.getMethod();
         ApiParams apiParams = ApiParams.builder()
                 .pathVar(pathVar)
@@ -203,11 +203,6 @@ public class SQLRequestMappingFactory {
         return Integer.valueOf(value);
     }
 
-    private String buildPath(HttpServletRequest request){
-        String pattern = buildPattern(request);
-        return pattern.replaceFirst(properties.getApiPrefix(),"");
-    }
-
     private String buildPattern(HttpServletRequest request) {
         Set<RequestMappingInfo> infos = requestMappingHandlerMapping.getHandlerMethods().keySet();
         RequestMappingInfo currInfo = null;
@@ -227,7 +222,7 @@ public class SQLRequestMappingFactory {
         if (ApiType.Code.equals(apiInfo.getType())){
             return;
         }
-        String pattern = (properties.getApiPrefix()+apiInfo.getPath()).replaceAll("/+","/");
+        String pattern = apiInfo.getPath().replaceAll("/+","/");
         log.debug("register mapping [{}]{}",apiInfo.getMethod(),pattern);
         PatternsRequestCondition patternsRequestCondition = new PatternsRequestCondition(pattern);
         RequestMethodsRequestCondition methodsRequestCondition = new RequestMethodsRequestCondition(RequestMethod.valueOf(apiInfo.getMethod()));
@@ -244,9 +239,8 @@ public class SQLRequestMappingFactory {
         if (ApiType.Code.equals(apiInfo.getType())){
             return;
         }
-        String pattern = properties.getApiPrefix()+apiInfo.getPath();
-        log.debug("unregister mapping [{}]{}",apiInfo.getMethod(),pattern);
-        PatternsRequestCondition patternsRequestCondition = new PatternsRequestCondition(pattern);
+        log.debug("unregister mapping [{}]{}",apiInfo.getMethod(),apiInfo.getPath());
+        PatternsRequestCondition patternsRequestCondition = new PatternsRequestCondition(apiInfo.getPath());
         RequestMethodsRequestCondition methodsRequestCondition = new RequestMethodsRequestCondition(RequestMethod.valueOf(apiInfo.getMethod()));
         RequestMappingInfo mappingInfo = new RequestMappingInfo(patternsRequestCondition,methodsRequestCondition,null,null,null,null,null);
         requestMappingHandlerMapping.unregisterMapping(mappingInfo);
@@ -256,16 +250,16 @@ public class SQLRequestMappingFactory {
         return this.cacheApiInfo.values();
     }
 
+
     public void saveOrUpdateApiInfo(ApiInfo apiInfo) throws IOException {
+
+        if (exists(apiInfo)){
+            throw new IllegalArgumentException(buildApiInfoKey(apiInfo)+" already exist");
+        }
 
         apiInfo.setUpdateTime(new Date());
         if (apiInfo.getId() == null){
-
-            ApiInfo dbInfo = this.cacheApiInfo.get(buildApiInfoKey(apiInfo));
-            if (dbInfo != null){
-                throw new IllegalArgumentException(buildApiInfoKey(apiInfo)+"already exist");
-            }
-
+            apiInfo.setType(ApiType.Sql.name());
             apiInfo.setCreateTime(new Date());
             apiInfo.setService(service);
             ApiParams apiParams = ApiParams.builder().param(apiInfo.toMap()).build();
@@ -299,6 +293,14 @@ public class SQLRequestMappingFactory {
 
         //注册mapping
         this.registerMappingForApiInfo(dbInfo);
+    }
+
+    private boolean exists(ApiInfo apiInfo) {
+        ApiInfo dbInfo = this.cacheApiInfo.values().stream().filter(item->item.getPath().equals(apiInfo.getPath()) && (item.getMethod().equals("All") || item.getMethod().equals(apiInfo.getMethod()))).findFirst().orElse(null);
+        if (dbInfo == null || (apiInfo.getId() != null && apiInfo.getId() == dbInfo.getId())){
+            return false;
+        }
+        return true;
     }
 
     public void deleteApiInfo(ApiInfo apiInfo) {

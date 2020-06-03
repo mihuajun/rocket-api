@@ -1,0 +1,923 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<body>
+<section class="pane" id="bottom-side" aria-hidden="true" style="height: 0px; display: none;" th:fragment="bottom-section">
+    <div>
+        <div class="hide-pane">
+            <div class="btn-group"><a class="btn btn-mini btn-link disabled"
+                                      title="Save selected requests to a scenario"
+                                      e2e-tag="bottom-save-selected"><i class="icon-download-alt"></i></a><a
+                    class="btn btn-mini btn-link disabled" title="Deselect all requests"
+                    e2e-tag="bottom-deselect-all"><i class="icon-check-empty"></i></a><a
+                    class="btn btn-mini btn-link disabled" title="Remove selected requests"
+                    e2e-tag="bottom-remove-selected"><i class="icon-remove"></i></a><a href="javascript:;"
+                                                                                       class="btn btn-mini btn-link"
+                                                                                       title="Clear all history content"
+                                                                                       e2e-tag="bottom-clear-history"><i
+                    class="icon-trash"></i></a><a href="javascript:;" class="btn btn-mini btn-link"
+                                                  title="Add new assertions" e2e-tag="assertion-add-bis"
+                                                  aria-hidden="true" style="display: none;"><i
+                    class="icon-plus"></i> Add </a><a href="javascript:;" class="btn btn-mini btn-link"
+                                                      title="Switch to View" aria-hidden="true"
+                                                      style="display: none;"><i
+                    class="icon-file-text-alt"></i> View </a></div>
+            <div class="btn-group"><a href="javascript:;" class="btn" title="Minimize"><i
+                    class="icon-angle-down"></i></a></div>
+        </div>
+        <ul class="nav nav-tabs bottom-pane-selector">
+            <li class="active" e2e-tag="history-tab"><a href="javascript:;"><i class="icon-list"></i>
+                History </a></li>
+            <li e2e-tag="assertion-tab" style=""><a href="javascript:;"><i class="icon-tasks"></i>
+                Assertions </a></li>
+            <li e2e-tag="http-tab" style=""><a href="javascript:;"><i class="icon-exchange"></i> HTTP </a>
+            </li>
+            <li e2e-tag="description-tab" style=""><a href="javascript:;"><i class="icon-book"></i>
+                Description </a></li>
+        </ul>
+    </div>
+    <div class="content" aria-hidden="true" style="display: none;">
+        <div class="history-bottom" id="h-history">
+            <div style="display: none;"><p class="note">Loading history entries</p></div>
+            <div class="records" style="overflow: auto; position: relative; zoom: 1;">
+                <div style="position: relative; zoom: 1;">
+                    <table class="h-history">
+                        <colgroup>
+                            <col width="130px">
+                            <col width="20px">
+                            <col width="60px">
+                            <col>
+                            <col width="130px">
+                            <col width="100px">
+                            <col width="40px">
+                            <col width="60px">
+                        </colgroup>
+                        <tbody>
+                        <tr>
+                            <td class="datetime"><label class="checkbox" for="gwt-uid-3700"
+                                                        data-id="history.1590750671375"><input
+                                    type="checkbox" value="on" id="gwt-uid-3700" tabindex="0"><span>May 29, 2020, 7:11:11 PM</span></label>
+                            </td>
+                            <td><i></i></td>
+                            <td><a href="javascript:;" class="btn btn-link method method-post" title="POST"><i></i>
+                                POST </a></td>
+                            <td class="url"><a href="javascript:;" class="btn btn-link"
+                                               title="http://localhost:8080/org/mini-program-template"><i></i>
+                                http://localhost:8080/org/mini-program-template </a></td>
+                            <td class="status response-error"><a title="404"
+                                                                 href="http://tools.ietf.org/html/rfc7231#section-6.5.4"
+                                                                 target="_blank">404</a></td>
+                            <td class="from-cache"><span title="a cache detected">cache</span></td>
+                            <td class="count"></td>
+                            <td class="time"><span title="elapsed time: 17ms">17ms</span></td>
+                        </tr>
+                        <tr>
+                            <td class="datetime"><label class="checkbox" for="gwt-uid-3447"
+                                                        data-id="history.1590750164060"><input
+                                    type="checkbox" value="on" id="gwt-uid-3447" tabindex="0"><span>May 29, 2020, 7:02:43 PM</span></label>
+                            </td>
+                            <td><i></i></td>
+                            <td><a href="javascript:;" class="btn btn-link method method-get"
+                                   title="GET"><i></i> GET </a></td>
+                            <td class="url"><a href="javascript:;" class="btn btn-link"
+                                               title="http://localhost:8080/hello/{hello}99"><i></i>
+                                http://localhost:8080/hello/{hello}99 </a></td>
+                            <td class="status response-ok"><a title="200"
+                                                              href="http://tools.ietf.org/html/rfc7231#section-6.3.1"
+                                                              target="_blank">200</a></td>
+                            <td class="from-cache"><span title="a cache detected">cache</span></td>
+                            <td class="count"></td>
+                            <td class="time"><span title="elapsed time: 383ms">383ms</span></td>
+                        </tr>
+                        <tr>
+                            <td class="datetime"><label class="checkbox" for="gwt-uid-3309"
+                                                        data-id="history.1590744994535"><input
+                                    type="checkbox" value="on" id="gwt-uid-3309" tabindex="0"><span>May 29, 2020, 5:36:34 PM</span></label>
+                            </td>
+                            <td><i></i></td>
+                            <td><a href="javascript:;" class="btn btn-link method method-post" title="POST"><i></i>
+                                POST </a></td>
+                            <td class="url"><a href="javascript:;" class="btn btn-link"
+                                               title="http://times-china.source3g.com:5015/common/whiteProjectList/page"><i></i>
+                                http://times-china.source3g.com:5015/common/whiteProjectList/page </a></td>
+                            <td class="status response-ok"><a title="200"
+                                                              href="http://tools.ietf.org/html/rfc7231#section-6.3.1"
+                                                              target="_blank">200</a></td>
+                            <td class="from-cache"><span title="a cache detected">cache</span></td>
+                            <td class="count"></td>
+                            <td class="time"><span title="elapsed time: 267ms">267ms</span></td>
+                        </tr>
+                        <tr>
+                            <td class="datetime"><label class="checkbox" for="gwt-uid-2763"
+                                                        data-id="history.1590744654273"><input
+                                    type="checkbox" value="on" id="gwt-uid-2763" tabindex="0"><span>May 29, 2020, 5:30:53 PM</span></label>
+                            </td>
+                            <td><i></i></td>
+                            <td><a href="javascript:;" class="btn btn-link method method-get"
+                                   title="GET"><i></i> GET </a></td>
+                            <td class="url"><a href="javascript:;" class="btn btn-link"
+                                               title="http://localhost:8080/dataway2/api-list"><i></i>
+                                http://localhost:8080/dataway2/api-list </a></td>
+                            <td class="status response-ok"><a title="200"
+                                                              href="http://tools.ietf.org/html/rfc7231#section-6.3.1"
+                                                              target="_blank">200</a></td>
+                            <td class="from-cache"><span title="a cache detected">cache</span></td>
+                            <td class="count"></td>
+                            <td class="time"><span title="elapsed time: 199ms">199ms</span></td>
+                        </tr>
+                        <tr>
+                            <td class="datetime"><label class="checkbox" for="gwt-uid-1814"
+                                                        data-id="history.1590743901805"><input
+                                    type="checkbox" value="on" id="gwt-uid-1814" tabindex="0"><span>May 29, 2020, 5:18:20 PM</span></label>
+                            </td>
+                            <td><i></i></td>
+                            <td><a href="javascript:;" class="btn btn-link method method-post" title="POST"><i></i>
+                                POST </a></td>
+                            <td class="url"><a href="javascript:;" class="btn btn-link"
+                                               title="http://times-china.source3g.com:5015/common/whiteProjectList/page"><i></i>
+                                http://times-china.source3g.com:5015/common/whiteProjectList/page </a></td>
+                            <td class="status response-ok"><a title="200"
+                                                              href="http://tools.ietf.org/html/rfc7231#section-6.3.1"
+                                                              target="_blank">200</a></td>
+                            <td class="from-cache"><span title="a cache detected">cache</span></td>
+                            <td class="count"></td>
+                            <td class="time"><span title="elapsed time: 766ms">766ms</span></td>
+                        </tr>
+                        <tr>
+                            <td class="datetime"><label class="checkbox" for="gwt-uid-841"
+                                                        data-id="history.1590739330702"><input
+                                    type="checkbox" value="on" id="gwt-uid-841" tabindex="0"><span>May 29, 2020, 4:23:38 PM</span></label>
+                            </td>
+                            <td><i></i></td>
+                            <td><a href="javascript:;" class="btn btn-link method method-get"
+                                   title="GET"><i></i> GET </a></td>
+                            <td class="url"><a href="javascript:;" class="btn btn-link"
+                                               title="http://localhost:8080/test1/user/page"><i></i>
+                                http://localhost:8080/test1/user/page </a></td>
+                            <td class="status response-ok"><a title="200"
+                                                              href="http://tools.ietf.org/html/rfc7231#section-6.3.1"
+                                                              target="_blank">200</a></td>
+                            <td class="from-cache"><span title="a cache detected">cache</span></td>
+                            <td class="count"><span title="repeated 2x consecutive">2x</span></td>
+                            <td class="time"><span title="elapsed time: 746ms">746ms</span></td>
+                        </tr>
+                        <tr>
+                            <td class="datetime"><label class="checkbox" for="gwt-uid-849"
+                                                        data-id="history.1590739321462"><input
+                                    type="checkbox" value="on" id="gwt-uid-849" tabindex="0"><span>May 29, 2020, 4:02:00 PM</span></label>
+                            </td>
+                            <td><i></i></td>
+                            <td><a href="javascript:;" class="btn btn-link method method-post" title="POST"><i></i>
+                                POST </a></td>
+                            <td class="url"><a href="javascript:;" class="btn btn-link"
+                                               title="http://localhost:8080/dataway2/api-info"><i></i>
+                                http://localhost:8080/dataway2/api-info </a></td>
+                            <td class="status response-ok"><a title="200"
+                                                              href="http://tools.ietf.org/html/rfc7231#section-6.3.1"
+                                                              target="_blank">200</a></td>
+                            <td class="from-cache"><span title="a cache detected">cache</span></td>
+                            <td class="count"></td>
+                            <td class="time"><span title="elapsed time: 1.42s">1.42s</span></td>
+                        </tr>
+                        <tr>
+                            <td class="datetime"><label class="checkbox" for="gwt-uid-857"
+                                                        data-id="history.1590739248448"><input
+                                    type="checkbox" value="on" id="gwt-uid-857" tabindex="0"><span>May 29, 2020, 4:00:47 PM</span></label>
+                            </td>
+                            <td><i></i></td>
+                            <td><a href="javascript:;" class="btn btn-link method method-get"
+                                   title="GET"><i></i> GET </a></td>
+                            <td class="url"><a href="javascript:;" class="btn btn-link"
+                                               title="http://localhost:8080/test1/user/page"><i></i>
+                                http://localhost:8080/test1/user/page </a></td>
+                            <td class="status response-error"><a title="500"
+                                                                 href="http://tools.ietf.org/html/rfc7231#section-6.6.1"
+                                                                 target="_blank">500</a></td>
+                            <td class="from-cache"><span title="a cache detected">cache</span></td>
+                            <td class="count"></td>
+                            <td class="time"><span title="elapsed time: 925ms">925ms</span></td>
+                        </tr>
+                        <tr>
+                            <td class="datetime"><label class="checkbox" for="gwt-uid-920"
+                                                        data-id="history.1590739236924"><input
+                                    type="checkbox" value="on" id="gwt-uid-920" tabindex="0"><span>May 29, 2020, 4:00:32 PM</span></label>
+                            </td>
+                            <td><i></i></td>
+                            <td><a href="javascript:;" class="btn btn-link method method-post" title="POST"><i></i>
+                                POST </a></td>
+                            <td class="url"><a href="javascript:;" class="btn btn-link"
+                                               title="http://localhost:8080/dataway2/api-info"><i></i>
+                                http://localhost:8080/dataway2/api-info </a></td>
+                            <td class="status response-ok"><a title="200"
+                                                              href="http://tools.ietf.org/html/rfc7231#section-6.3.1"
+                                                              target="_blank">200</a></td>
+                            <td class="from-cache"><span title="a cache detected">cache</span></td>
+                            <td class="count"></td>
+                            <td class="time"><span title="elapsed time: 4.63s">4.63s</span></td>
+                        </tr>
+                        <tr>
+                            <td class="datetime"><label class="checkbox" for="gwt-uid-928"
+                                                        data-id="history.1590739082856"><input
+                                    type="checkbox" value="on" id="gwt-uid-928" tabindex="0"><span>May 29, 2020, 3:59:16 PM</span></label>
+                            </td>
+                            <td><i></i></td>
+                            <td><a href="javascript:;" class="btn btn-link method method-post" title="POST"><i></i>
+                                POST </a></td>
+                            <td class="url"><a href="javascript:;" class="btn btn-link"
+                                               title="http://localhost:8080/dataway2/api-info"><i></i>
+                                http://localhost:8080/dataway2/api-info </a></td>
+                            <td class="status response-error"><a title="500"
+                                                                 href="http://tools.ietf.org/html/rfc7231#section-6.6.1"
+                                                                 target="_blank">500</a></td>
+                            <td class="from-cache"><span title="a cache detected">cache</span></td>
+                            <td class="count"><span title="repeated 2x consecutive">2x</span></td>
+                            <td class="time"><span title="elapsed time: 927ms">927ms</span></td>
+                        </tr>
+                        <tr>
+                            <td class="datetime"><label class="checkbox" for="gwt-uid-936"
+                                                        data-id="history.1590738903647"><input
+                                    type="checkbox" value="on" id="gwt-uid-936" tabindex="0"><span>May 29, 2020, 3:55:02 PM</span></label>
+                            </td>
+                            <td><i></i></td>
+                            <td><a href="javascript:;" class="btn btn-link method method-get"
+                                   title="GET"><i></i> GET </a></td>
+                            <td class="url"><a href="javascript:;" class="btn btn-link"
+                                               title="http://localhost:8080/test1/user/page"><i></i>
+                                http://localhost:8080/test1/user/page </a></td>
+                            <td class="status response-ok"><a title="200"
+                                                              href="http://tools.ietf.org/html/rfc7231#section-6.3.1"
+                                                              target="_blank">200</a></td>
+                            <td class="from-cache"><span title="a cache detected">cache</span></td>
+                            <td class="count"></td>
+                            <td class="time"><span title="elapsed time: 601ms">601ms</span></td>
+                        </tr>
+                        <tr>
+                            <td class="datetime"><label class="checkbox" for="gwt-uid-944"
+                                                        data-id="history.1590738873688"><input
+                                    type="checkbox" value="on" id="gwt-uid-944" tabindex="0"><span>May 29, 2020, 3:54:42 PM</span></label>
+                            </td>
+                            <td><i></i></td>
+                            <td><a href="javascript:;" class="btn btn-link method method-get"
+                                   title="GET"><i></i> GET </a></td>
+                            <td class="url"><a href="javascript:;" class="btn btn-link"
+                                               title="http://localhost:8080/hello/199"><i></i>
+                                http://localhost:8080/hello/199 </a></td>
+                            <td class="status response-ok"><a title="200"
+                                                              href="http://tools.ietf.org/html/rfc7231#section-6.3.1"
+                                                              target="_blank">200</a></td>
+                            <td class="from-cache"><span title="a cache detected">cache</span></td>
+                            <td class="count"><span title="repeated 6x consecutive">6x</span></td>
+                            <td class="time"><span title="elapsed time: 127ms">127ms</span></td>
+                        </tr>
+                        <tr>
+                            <td class="datetime"><label class="checkbox" for="gwt-uid-945"
+                                                        data-id="history.1590738853159"><input
+                                    type="checkbox" value="on" id="gwt-uid-945" tabindex="0"><span>May 29, 2020, 3:54:28 PM</span></label>
+                            </td>
+                            <td><i></i></td>
+                            <td><a href="javascript:;" class="btn btn-link method method-get"
+                                   title="GET"><i></i> GET </a></td>
+                            <td class="url"><a href="javascript:;" class="btn btn-link"
+                                               title="http://localhost:8080/test1/user/first"><i></i>
+                                http://localhost:8080/test1/user/first </a></td>
+                            <td class="status response-ok"><a title="200"
+                                                              href="http://tools.ietf.org/html/rfc7231#section-6.3.1"
+                                                              target="_blank">200</a></td>
+                            <td class="from-cache"><span title="a cache detected">cache</span></td>
+                            <td class="count"><span title="repeated 10x consecutive">10x</span></td>
+                            <td class="time"><span title="elapsed time: 497ms">497ms</span></td>
+                        </tr>
+                        <tr>
+                            <td class="datetime"><label class="checkbox" for="gwt-uid-1033"
+                                                        data-id="history.1590738802888"><input
+                                    type="checkbox" value="on" id="gwt-uid-1033" tabindex="0"><span>May 29, 2020, 3:53:47 PM</span></label>
+                            </td>
+                            <td><i></i></td>
+                            <td><a href="javascript:;" class="btn btn-link method method-get"
+                                   title="GET"><i></i> GET </a></td>
+                            <td class="url"><a href="javascript:;" class="btn btn-link"
+                                               title="http://localhost:8080/hello/199"><i></i>
+                                http://localhost:8080/hello/199 </a></td>
+                            <td class="status response-ok"><a title="200"
+                                                              href="http://tools.ietf.org/html/rfc7231#section-6.3.1"
+                                                              target="_blank">200</a></td>
+                            <td class="from-cache"><span title="a cache detected">cache</span></td>
+                            <td class="count"><span title="repeated 13x consecutive">13x</span></td>
+                            <td class="time"><span title="elapsed time: 132ms">132ms</span></td>
+                        </tr>
+                        <tr>
+                            <td class="datetime"><label class="checkbox" for="gwt-uid-1041"
+                                                        data-id="history.1590738742039"><input
+                                    type="checkbox" value="on" id="gwt-uid-1041" tabindex="0"><span>May 29, 2020, 3:52:27 PM</span></label>
+                            </td>
+                            <td><i></i></td>
+                            <td><a href="javascript:;" class="btn btn-link method method-get"
+                                   title="GET"><i></i> GET </a></td>
+                            <td class="url"><a href="javascript:;" class="btn btn-link"
+                                               title="http://localhost:8080/test1/user/first"><i></i>
+                                http://localhost:8080/test1/user/first </a></td>
+                            <td class="status response-ok"><a title="200"
+                                                              href="http://tools.ietf.org/html/rfc7231#section-6.3.1"
+                                                              target="_blank">200</a></td>
+                            <td class="from-cache"><span title="a cache detected">cache</span></td>
+                            <td class="count"><span title="repeated 4x consecutive">4x</span></td>
+                            <td class="time"><span title="elapsed time: 323ms">323ms</span></td>
+                        </tr>
+                        <tr>
+                            <td class="datetime"><label class="checkbox" for="gwt-uid-1049"
+                                                        data-id="history.1590738678659"><input
+                                    type="checkbox" value="on" id="gwt-uid-1049" tabindex="0"><span>May 29, 2020, 3:51:41 PM</span></label>
+                            </td>
+                            <td><i></i></td>
+                            <td><a href="javascript:;" class="btn btn-link method method-get"
+                                   title="GET"><i></i> GET </a></td>
+                            <td class="url"><a href="javascript:;" class="btn btn-link"
+                                               title="http://localhost:8080/test1/user/page"><i></i>
+                                http://localhost:8080/test1/user/page </a></td>
+                            <td class="status response-ok"><a title="200"
+                                                              href="http://tools.ietf.org/html/rfc7231#section-6.3.1"
+                                                              target="_blank">200</a></td>
+                            <td class="from-cache"><span title="a cache detected">cache</span></td>
+                            <td class="count"><span title="repeated 4x consecutive">4x</span></td>
+                            <td class="time"><span title="elapsed time: 617ms">617ms</span></td>
+                        </tr>
+                        <tr>
+                            <td class="datetime"><label class="checkbox" for="gwt-uid-1057"
+                                                        data-id="history.1590738668454"><input
+                                    type="checkbox" value="on" id="gwt-uid-1057" tabindex="0"><span>May 29, 2020, 3:51:07 PM</span></label>
+                            </td>
+                            <td><i></i></td>
+                            <td><a href="javascript:;" class="btn btn-link method method-post" title="POST"><i></i>
+                                POST </a></td>
+                            <td class="url"><a href="javascript:;" class="btn btn-link"
+                                               title="http://localhost:8080/dataway2/api-info"><i></i>
+                                http://localhost:8080/dataway2/api-info </a></td>
+                            <td class="status response-ok"><a title="200"
+                                                              href="http://tools.ietf.org/html/rfc7231#section-6.3.1"
+                                                              target="_blank">200</a></td>
+                            <td class="from-cache"><span title="a cache detected">cache</span></td>
+                            <td class="count"></td>
+                            <td class="time"><span title="elapsed time: 1.39s">1.39s</span></td>
+                        </tr>
+                        <tr>
+                            <td class="datetime"><label class="checkbox" for="gwt-uid-1065"
+                                                        data-id="history.1590738573824"><input
+                                    type="checkbox" value="on" id="gwt-uid-1065" tabindex="0"><span>May 29, 2020, 3:49:32 PM</span></label>
+                            </td>
+                            <td><i></i></td>
+                            <td><a href="javascript:;" class="btn btn-link method method-get"
+                                   title="GET"><i></i> GET </a></td>
+                            <td class="url"><a href="javascript:;" class="btn btn-link"
+                                               title="http://localhost:8080/test1/user/list"><i></i>
+                                http://localhost:8080/test1/user/list </a></td>
+                            <td class="status response-ok"><a title="200"
+                                                              href="http://tools.ietf.org/html/rfc7231#section-6.3.1"
+                                                              target="_blank">200</a></td>
+                            <td class="from-cache"><span title="a cache detected">cache</span></td>
+                            <td class="count"></td>
+                            <td class="time"><span title="elapsed time: 745ms">745ms</span></td>
+                        </tr>
+                        <tr>
+                            <td class="datetime"><label class="checkbox" for="gwt-uid-1073"
+                                                        data-id="history.1590738565268"><input
+                                    type="checkbox" value="on" id="gwt-uid-1073" tabindex="0"><span>May 29, 2020, 3:49:23 PM</span></label>
+                            </td>
+                            <td><i></i></td>
+                            <td><a href="javascript:;" class="btn btn-link method method-get"
+                                   title="GET"><i></i> GET </a></td>
+                            <td class="url"><a href="javascript:;" class="btn btn-link"
+                                               title="http://localhost:8080/test1/user/first"><i></i>
+                                http://localhost:8080/test1/user/first </a></td>
+                            <td class="status response-ok"><a title="200"
+                                                              href="http://tools.ietf.org/html/rfc7231#section-6.3.1"
+                                                              target="_blank">200</a></td>
+                            <td class="from-cache"><span title="a cache detected">cache</span></td>
+                            <td class="count"></td>
+                            <td class="time"><span title="elapsed time: 1.27s">1.27s</span></td>
+                        </tr>
+                        <tr>
+                            <td class="datetime"><label class="checkbox" for="gwt-uid-1081"
+                                                        data-id="history.1590738555123"><input
+                                    type="checkbox" value="on" id="gwt-uid-1081" tabindex="0"><span>May 29, 2020, 3:49:14 PM</span></label>
+                            </td>
+                            <td><i></i></td>
+                            <td><a href="javascript:;" class="btn btn-link method method-get"
+                                   title="GET"><i></i> GET </a></td>
+                            <td class="url"><a href="javascript:;" class="btn btn-link"
+                                               title="http://localhost:8080/test1/user/list"><i></i>
+                                http://localhost:8080/test1/user/list </a></td>
+                            <td class="status response-ok"><a title="200"
+                                                              href="http://tools.ietf.org/html/rfc7231#section-6.3.1"
+                                                              target="_blank">200</a></td>
+                            <td class="from-cache"><span title="a cache detected">cache</span></td>
+                            <td class="count"></td>
+                            <td class="time"><span title="elapsed time: 346ms">346ms</span></td>
+                        </tr>
+                        <tr>
+                            <td class="datetime"><label class="checkbox" for="gwt-uid-1089"
+                                                        data-id="history.1590738541466"><input
+                                    type="checkbox" value="on" id="gwt-uid-1089" tabindex="0"><span>May 29, 2020, 3:49:00 PM</span></label>
+                            </td>
+                            <td><i></i></td>
+                            <td><a href="javascript:;" class="btn btn-link method method-post" title="POST"><i></i>
+                                POST </a></td>
+                            <td class="url"><a href="javascript:;" class="btn btn-link"
+                                               title="http://localhost:8080/dataway2/api-info"><i></i>
+                                http://localhost:8080/dataway2/api-info </a></td>
+                            <td class="status response-ok"><a title="200"
+                                                              href="http://tools.ietf.org/html/rfc7231#section-6.3.1"
+                                                              target="_blank">200</a></td>
+                            <td class="from-cache"><span title="a cache detected">cache</span></td>
+                            <td class="count"></td>
+                            <td class="time"><span title="elapsed time: 1.1s">1.1s</span></td>
+                        </tr>
+                        <tr>
+                            <td class="datetime"><label class="checkbox" for="gwt-uid-1090"
+                                                        data-id="history.1590738506338"><input
+                                    type="checkbox" value="on" id="gwt-uid-1090" tabindex="0"><span>May 29, 2020, 3:48:26 PM</span></label>
+                            </td>
+                            <td><i></i></td>
+                            <td><a href="javascript:;" class="btn btn-link method method-get"
+                                   title="GET"><i></i> GET </a></td>
+                            <td class="url"><a href="javascript:;" class="btn btn-link"
+                                               title="http://localhost:8080/test1/user/page"><i></i>
+                                http://localhost:8080/test1/user/page </a></td>
+                            <td class="status response-error"><a title="405"
+                                                                 href="http://tools.ietf.org/html/rfc7231#section-6.5.5"
+                                                                 target="_blank">405</a></td>
+                            <td class="from-cache"><span title="a cache detected">cache</span></td>
+                            <td class="count"></td>
+                            <td class="time"><span title="elapsed time: 23ms">23ms</span></td>
+                        </tr>
+                        <tr>
+                            <td class="datetime"><label class="checkbox" for="gwt-uid-1091"
+                                                        data-id="history.1590738234225"><input
+                                    type="checkbox" value="on" id="gwt-uid-1091" tabindex="0"><span>May 29, 2020, 3:48:14 PM</span></label>
+                            </td>
+                            <td><i></i></td>
+                            <td><a href="javascript:;" class="btn btn-link method method-get"
+                                   title="GET"><i></i> GET </a></td>
+                            <td class="url"><a href="javascript:;" class="btn btn-link"
+                                               title="http://localhost:8080/test1/user/list"><i></i>
+                                http://localhost:8080/test1/user/list </a></td>
+                            <td class="status response-ok"><a title="200"
+                                                              href="http://tools.ietf.org/html/rfc7231#section-6.3.1"
+                                                              target="_blank">200</a></td>
+                            <td class="from-cache"><span title="a cache detected">cache</span></td>
+                            <td class="count"><span title="repeated 7x consecutive">7x</span></td>
+                            <td class="time"><span title="elapsed time: 773ms">773ms</span></td>
+                        </tr>
+                        <tr>
+                            <td class="datetime"><label class="checkbox" for="gwt-uid-1113"
+                                                        data-id="history.1590738229052"><input
+                                    type="checkbox" value="on" id="gwt-uid-1113" tabindex="0"><span>May 29, 2020, 3:43:47 PM</span></label>
+                            </td>
+                            <td><i></i></td>
+                            <td><a href="javascript:;" class="btn btn-link method method-post" title="POST"><i></i>
+                                POST </a></td>
+                            <td class="url"><a href="javascript:;" class="btn btn-link"
+                                               title="http://localhost:8080/dataway2/api-info"><i></i>
+                                http://localhost:8080/dataway2/api-info </a></td>
+                            <td class="status response-ok"><a title="200"
+                                                              href="http://tools.ietf.org/html/rfc7231#section-6.3.1"
+                                                              target="_blank">200</a></td>
+                            <td class="from-cache"><span title="a cache detected">cache</span></td>
+                            <td class="count"></td>
+                            <td class="time"><span title="elapsed time: 1.86s">1.86s</span></td>
+                        </tr>
+                        <tr>
+                            <td class="datetime"><label class="checkbox" for="gwt-uid-1121"
+                                                        data-id="history.1590738138061"><input
+                                    type="checkbox" value="on" id="gwt-uid-1121" tabindex="0"><span>May 29, 2020, 3:42:17 PM</span></label>
+                            </td>
+                            <td><i></i></td>
+                            <td><a href="javascript:;" class="btn btn-link method method-get"
+                                   title="GET"><i></i> GET </a></td>
+                            <td class="url"><a href="javascript:;" class="btn btn-link"
+                                               title="http://localhost:8080/test1/user/list"><i></i>
+                                http://localhost:8080/test1/user/list </a></td>
+                            <td class="status response-error"><a title="500"
+                                                                 href="http://tools.ietf.org/html/rfc7231#section-6.6.1"
+                                                                 target="_blank">500</a></td>
+                            <td class="from-cache"><span title="a cache detected">cache</span></td>
+                            <td class="count"></td>
+                            <td class="time"><span title="elapsed time: 534ms">534ms</span></td>
+                        </tr>
+                        <tr>
+                            <td class="datetime"><label class="checkbox" for="gwt-uid-1129"
+                                                        data-id="history.1590738126938"><input
+                                    type="checkbox" value="on" id="gwt-uid-1129" tabindex="0"><span>May 29, 2020, 3:42:05 PM</span></label>
+                            </td>
+                            <td><i></i></td>
+                            <td><a href="javascript:;" class="btn btn-link method method-post" title="POST"><i></i>
+                                POST </a></td>
+                            <td class="url"><a href="javascript:;" class="btn btn-link"
+                                               title="http://localhost:8080/dataway2/api-info"><i></i>
+                                http://localhost:8080/dataway2/api-info </a></td>
+                            <td class="status response-ok"><a title="200"
+                                                              href="http://tools.ietf.org/html/rfc7231#section-6.3.1"
+                                                              target="_blank">200</a></td>
+                            <td class="from-cache"><span title="a cache detected">cache</span></td>
+                            <td class="count"></td>
+                            <td class="time"><span title="elapsed time: 1.21s">1.21s</span></td>
+                        </tr>
+                        <tr>
+                            <td class="datetime"><label class="checkbox" for="gwt-uid-1137"
+                                                        data-id="history.1590738116485"><input
+                                    type="checkbox" value="on" id="gwt-uid-1137" tabindex="0"><span>May 29, 2020, 3:41:54 PM</span></label>
+                            </td>
+                            <td><i></i></td>
+                            <td><a href="javascript:;" class="btn btn-link method method-post" title="POST"><i></i>
+                                POST </a></td>
+                            <td class="url"><a href="javascript:;" class="btn btn-link"
+                                               title="http://localhost:8080/test1/user/1"><i></i>
+                                http://localhost:8080/test1/user/1 </a></td>
+                            <td class="status response-error"><a title="500"
+                                                                 href="http://tools.ietf.org/html/rfc7231#section-6.6.1"
+                                                                 target="_blank">500</a></td>
+                            <td class="from-cache"><span title="a cache detected">cache</span></td>
+                            <td class="count"></td>
+                            <td class="time"><span title="elapsed time: 1.37s">1.37s</span></td>
+                        </tr>
+                        <tr>
+                            <td class="datetime"><label class="checkbox" for="gwt-uid-1145"
+                                                        data-id="history.1590738072142"><input
+                                    type="checkbox" value="on" id="gwt-uid-1145" tabindex="0"><span>May 29, 2020, 3:41:08 PM</span></label>
+                            </td>
+                            <td><i></i></td>
+                            <td><a href="javascript:;" class="btn btn-link method method-post" title="POST"><i></i>
+                                POST </a></td>
+                            <td class="url"><a href="javascript:;" class="btn btn-link"
+                                               title="http://localhost:8080/test1/user/1"><i></i>
+                                http://localhost:8080/test1/user/1 </a></td>
+                            <td class="status response-info"> No response</td>
+                            <td class="from-cache"><span title="a cache detected">cache</span></td>
+                            <td class="count"></td>
+                            <td class="time"><span title="elapsed time: 4.2s">4.2s</span></td>
+                        </tr>
+                        <tr>
+                            <td class="datetime"><label class="checkbox" for="gwt-uid-1153"
+                                                        data-id="history.1590737491635"><input
+                                    type="checkbox" value="on" id="gwt-uid-1153" tabindex="0"><span>May 29, 2020, 3:40:13 PM</span></label>
+                            </td>
+                            <td><i></i></td>
+                            <td><a href="javascript:;" class="btn btn-link method method-post" title="POST"><i></i>
+                                POST </a></td>
+                            <td class="url"><a href="javascript:;" class="btn btn-link"
+                                               title="http://localhost:8080/test1/user/1"><i></i>
+                                http://localhost:8080/test1/user/1 </a></td>
+                            <td class="status response-error"><a title="500"
+                                                                 href="http://tools.ietf.org/html/rfc7231#section-6.6.1"
+                                                                 target="_blank">500</a></td>
+                            <td class="from-cache"><span title="a cache detected">cache</span></td>
+                            <td class="count"><span title="repeated 6x consecutive">6x</span></td>
+                            <td class="time"><span title="elapsed time: 5.93s">5.93s</span></td>
+                        </tr>
+                        <tr>
+                            <td class="datetime"><label class="checkbox" for="gwt-uid-1161"
+                                                        data-id="history.1590737364726"><input
+                                    type="checkbox" value="on" id="gwt-uid-1161" tabindex="0"><span>May 29, 2020, 3:30:38 PM</span></label>
+                            </td>
+                            <td><i></i></td>
+                            <td><a href="javascript:;" class="btn btn-link method method-get"
+                                   title="GET"><i></i> GET </a></td>
+                            <td class="url"><a href="javascript:;" class="btn btn-link"
+                                               title="http://localhost:8080/test1/user/1"><i></i>
+                                http://localhost:8080/test1/user/1 </a></td>
+                            <td class="status response-error"><a title="500"
+                                                                 href="http://tools.ietf.org/html/rfc7231#section-6.6.1"
+                                                                 target="_blank">500</a></td>
+                            <td class="from-cache"><span title="a cache detected">cache</span></td>
+                            <td class="count"><span title="repeated 3x consecutive">3x</span></td>
+                            <td class="time"><span title="elapsed time: 191ms">191ms</span></td>
+                        </tr>
+                        <tr>
+                            <td class="datetime"><label class="checkbox" for="gwt-uid-1169"
+                                                        data-id="history.1590736884972"><input
+                                    type="checkbox" value="on" id="gwt-uid-1169" tabindex="0"><span>May 29, 2020, 3:24:28 PM</span></label>
+                            </td>
+                            <td><i></i></td>
+                            <td><a href="javascript:;" class="btn btn-link method method-get"
+                                   title="GET"><i></i> GET </a></td>
+                            <td class="url"><a href="javascript:;" class="btn btn-link"
+                                               title="http://localhost:8080/test1/user/list"><i></i>
+                                http://localhost:8080/test1/user/list </a></td>
+                            <td class="status response-error"><a title="500"
+                                                                 href="http://tools.ietf.org/html/rfc7231#section-6.6.1"
+                                                                 target="_blank">500</a></td>
+                            <td class="from-cache"><span title="a cache detected">cache</span></td>
+                            <td class="count"><span title="repeated 3x consecutive">3x</span></td>
+                            <td class="time"><span title="elapsed time: 215ms">215ms</span></td>
+                        </tr>
+                        <tr>
+                            <td class="datetime"><label class="checkbox" for="gwt-uid-1177"
+                                                        data-id="history.1590736876476"><input
+                                    type="checkbox" value="on" id="gwt-uid-1177" tabindex="0"><span>May 29, 2020, 3:21:16 PM</span></label>
+                            </td>
+                            <td><i></i></td>
+                            <td><a href="javascript:;" class="btn btn-link method method-get"
+                                   title="GET"><i></i> GET </a></td>
+                            <td class="url"><a href="javascript:;" class="btn btn-link"
+                                               title="http://localhost:8080/user/list"><i></i>
+                                http://localhost:8080/user/list </a></td>
+                            <td class="status response-error"><a title="404"
+                                                                 href="http://tools.ietf.org/html/rfc7231#section-6.5.4"
+                                                                 target="_blank">404</a></td>
+                            <td class="from-cache"><span title="a cache detected">cache</span></td>
+                            <td class="count"></td>
+                            <td class="time"><span title="elapsed time: 28ms">28ms</span></td>
+                        </tr>
+                        <tr>
+                            <td class="datetime"><label class="checkbox" for="gwt-uid-1185"
+                                                        data-id="history.1590736794072"><input
+                                    type="checkbox" value="on" id="gwt-uid-1185" tabindex="0"><span>May 29, 2020, 3:19:32 PM</span></label>
+                            </td>
+                            <td><i></i></td>
+                            <td><a href="javascript:;" class="btn btn-link method method-post" title="POST"><i></i>
+                                POST </a></td>
+                            <td class="url"><a href="javascript:;" class="btn btn-link"
+                                               title="http://localhost:8080/dataway2/api-info"><i></i>
+                                http://localhost:8080/dataway2/api-info </a></td>
+                            <td class="status response-error"><a title="500"
+                                                                 href="http://tools.ietf.org/html/rfc7231#section-6.6.1"
+                                                                 target="_blank">500</a></td>
+                            <td class="from-cache"><span title="a cache detected">cache</span></td>
+                            <td class="count"></td>
+                            <td class="time"><span title="elapsed time: 21.63s">21.63s</span></td>
+                        </tr>
+                        <tr>
+                            <td class="datetime"><label class="checkbox" for="gwt-uid-1193"
+                                                        data-id="history.1590736714336"><input
+                                    type="checkbox" value="on" id="gwt-uid-1193" tabindex="0"><span>May 29, 2020, 3:19:15 PM</span></label>
+                            </td>
+                            <td><i></i></td>
+                            <td><a href="javascript:;" class="btn btn-link method method-post" title="POST"><i></i>
+                                POST </a></td>
+                            <td class="url"><a href="javascript:;" class="btn btn-link"
+                                               title="http://localhost:8080/dataway2/api-info"><i></i>
+                                http://localhost:8080/dataway2/api-info </a></td>
+                            <td class="status response-ok"><a title="200"
+                                                              href="http://tools.ietf.org/html/rfc7231#section-6.3.1"
+                                                              target="_blank">200</a></td>
+                            <td class="from-cache"><span title="a cache detected">cache</span></td>
+                            <td class="count"><span title="repeated 2x consecutive">2x</span></td>
+                            <td class="time"><span title="elapsed time: 986ms">986ms</span></td>
+                        </tr>
+                        <tr>
+                            <td class="datetime"><label class="checkbox" for="gwt-uid-1201"
+                                                        data-id="history.1590736503236"><input
+                                    type="checkbox" value="on" id="gwt-uid-1201" tabindex="0"><span>May 29, 2020, 3:17:46 PM</span></label>
+                            </td>
+                            <td><i></i></td>
+                            <td><a href="javascript:;" class="btn btn-link method method-post" title="POST"><i></i>
+                                POST </a></td>
+                            <td class="url"><a href="javascript:;" class="btn btn-link"
+                                               title="http://localhost:8080/dataway2/api-info"><i></i>
+                                http://localhost:8080/dataway2/api-info </a></td>
+                            <td class="status response-error"><a title="500"
+                                                                 href="http://tools.ietf.org/html/rfc7231#section-6.6.1"
+                                                                 target="_blank">500</a></td>
+                            <td class="from-cache"><span title="a cache detected">cache</span></td>
+                            <td class="count"><span title="repeated 3x consecutive">3x</span></td>
+                            <td class="time"><span title="elapsed time: 31.6s">31.6s</span></td>
+                        </tr>
+                        <tr>
+                            <td class="datetime"><label class="checkbox" for="gwt-uid-1209"
+                                                        data-id="history.1590736477402"><input
+                                    type="checkbox" value="on" id="gwt-uid-1209" tabindex="0"><span>May 29, 2020, 3:14:36 PM</span></label>
+                            </td>
+                            <td><i></i></td>
+                            <td><a href="javascript:;" class="btn btn-link method method-post" title="POST"><i></i>
+                                POST </a></td>
+                            <td class="url"><a href="javascript:;" class="btn btn-link"
+                                               title="http://localhost:8080/dataway2/api-info"><i></i>
+                                http://localhost:8080/dataway2/api-info </a></td>
+                            <td class="status response-error"><a title="500"
+                                                                 href="http://tools.ietf.org/html/rfc7231#section-6.6.1"
+                                                                 target="_blank">500</a></td>
+                            <td class="from-cache"><span title="a cache detected">cache</span></td>
+                            <td class="count"></td>
+                            <td class="time"><span title="elapsed time: 253ms">253ms</span></td>
+                        </tr>
+                        <tr>
+                            <td class="datetime"><label class="checkbox" for="gwt-uid-1217"
+                                                        data-id="history.1590736413984"><input
+                                    type="checkbox" value="on" id="gwt-uid-1217" tabindex="0"><span>May 29, 2020, 3:14:03 PM</span></label>
+                            </td>
+                            <td><i></i></td>
+                            <td><a href="javascript:;" class="btn btn-link method method-post" title="POST"><i></i>
+                                POST </a></td>
+                            <td class="url"><a href="javascript:;" class="btn btn-link"
+                                               title="http://localhost:8080/dataway2/api-info"><i></i>
+                                http://localhost:8080/dataway2/api-info </a></td>
+                            <td class="status response-error"><a title="500"
+                                                                 href="http://tools.ietf.org/html/rfc7231#section-6.6.1"
+                                                                 target="_blank">500</a></td>
+                            <td class="from-cache"><span title="a cache detected">cache</span></td>
+                            <td class="count"><span title="repeated 2x consecutive">2x</span></td>
+                            <td class="time"><span title="elapsed time: 658ms">658ms</span></td>
+                        </tr>
+                        <tr>
+                            <td class="datetime"><label class="checkbox" for="gwt-uid-1225"
+                                                        data-id="history.1590722484494"><input
+                                    type="checkbox" value="on" id="gwt-uid-1225" tabindex="0"><span>May 29, 2020, 11:21:24 AM</span></label>
+                            </td>
+                            <td><i></i></td>
+                            <td><a href="javascript:;" class="btn btn-link method method-post" title="POST"><i></i>
+                                POST </a></td>
+                            <td class="url"><a href="javascript:;" class="btn btn-link"
+                                               title="http://times-china.source3g.com:5013/login"><i></i>
+                                http://times-china.source3g.com:5013/login </a></td>
+                            <td class="status response-ok"><a title="200 OK"
+                                                              href="http://tools.ietf.org/html/rfc7231#section-6.3.1"
+                                                              target="_blank">200 OK</a></td>
+                            <td class="from-cache"><span title="a cache detected">cache</span></td>
+                            <td class="count"></td>
+                            <td class="time"><span title="elapsed time: 289ms">289ms</span></td>
+                        </tr>
+                        <tr>
+                            <td class="datetime"><label class="checkbox" for="gwt-uid-1233"
+                                                        data-id="history.1590722365910"><input
+                                    type="checkbox" value="on" id="gwt-uid-1233" tabindex="0"><span>May 29, 2020, 11:19:21 AM</span></label>
+                            </td>
+                            <td><i></i></td>
+                            <td><a href="javascript:;" class="btn btn-link method method-get"
+                                   title="GET"><i></i> GET </a></td>
+                            <td class="url"><a href="javascript:;" class="btn btn-link"
+                                               title="http://localhost:8080/evaluate/record/ticket?ticketId=100"><i></i>
+                                http://localhost:8080/evaluate/record/ticket?ticketId=100 </a></td>
+                            <td class="status response-info"> No response</td>
+                            <td class="from-cache"><span title="a cache detected">cache</span></td>
+                            <td class="count"></td>
+                            <td class="time"><span title="elapsed time: 4.3s">4.3s</span></td>
+                        </tr>
+                        <tr>
+                            <td class="datetime"><label class="checkbox" for="gwt-uid-1241"
+                                                        data-id="history.1590719530424"><input
+                                    type="checkbox" value="on" id="gwt-uid-1241" tabindex="0"><span>May 29, 2020, 10:32:10 AM</span></label>
+                            </td>
+                            <td><i></i></td>
+                            <td><a href="javascript:;" class="btn btn-link method method-post" title="POST"><i></i>
+                                POST </a></td>
+                            <td class="url"><a href="javascript:;" class="btn btn-link"
+                                               title="http://times-china.source3g.com:5013/login"><i></i>
+                                http://times-china.source3g.com:5013/login </a></td>
+                            <td class="status response-ok"><a title="200 OK"
+                                                              href="http://tools.ietf.org/html/rfc7231#section-6.3.1"
+                                                              target="_blank">200 OK</a></td>
+                            <td class="from-cache"><span title="a cache detected">cache</span></td>
+                            <td class="count"></td>
+                            <td class="time"><span title="elapsed time: 59ms">59ms</span></td>
+                        </tr>
+                        <tr>
+                            <td class="datetime"><label class="checkbox" for="gwt-uid-1249"
+                                                        data-id="history.1590719508956"><input
+                                    type="checkbox" value="on" id="gwt-uid-1249" tabindex="0"><span>May 29, 2020, 10:31:48 AM</span></label>
+                            </td>
+                            <td><i></i></td>
+                            <td><a href="javascript:;" class="btn btn-link method method-post" title="POST"><i></i>
+                                POST </a></td>
+                            <td class="url"><a href="javascript:;" class="btn btn-link"
+                                               title="https://times-china.source3g.com:5013/login"><i></i>
+                                https://times-china.source3g.com:5013/login </a></td>
+                            <td class="status response-ok"><a title="200 OK"
+                                                              href="http://tools.ietf.org/html/rfc7231#section-6.3.1"
+                                                              target="_blank">200 OK</a></td>
+                            <td class="from-cache"><span title="a cache detected">cache</span></td>
+                            <td class="count"></td>
+                            <td class="time"><span title="elapsed time: 180ms">180ms</span></td>
+                        </tr>
+                        <tr>
+                            <td class="datetime"><label class="checkbox" for="gwt-uid-1250"
+                                                        data-id="history.1590719470799"><input
+                                    type="checkbox" value="on" id="gwt-uid-1250" tabindex="0"><span>May 29, 2020, 10:31:10 AM</span></label>
+                            </td>
+                            <td><i></i></td>
+                            <td><a href="javascript:;" class="btn btn-link method method-post" title="POST"><i></i>
+                                POST </a></td>
+                            <td class="url"><a href="javascript:;" class="btn btn-link"
+                                               title="https://times-china.source3g.com:5013/login"><i></i>
+                                https://times-china.source3g.com:5013/login </a></td>
+                            <td class="status response-error"><a title="400 Bad Request"
+                                                                 href="http://tools.ietf.org/html/rfc7231#section-6.5.1"
+                                                                 target="_blank">400 Bad Request</a></td>
+                            <td class="from-cache"><span title="a cache detected">cache</span></td>
+                            <td class="count"></td>
+                            <td class="time"><span title="elapsed time: 201ms">201ms</span></td>
+                        </tr>
+                        <tr>
+                            <td class="datetime"><label class="checkbox" for="gwt-uid-1251"
+                                                        data-id="history.1590719462867"><input
+                                    type="checkbox" value="on" id="gwt-uid-1251" tabindex="0"><span>May 29, 2020, 10:31:02 AM</span></label>
+                            </td>
+                            <td><i></i></td>
+                            <td><a href="javascript:;" class="btn btn-link method method-post" title="POST"><i></i>
+                                POST </a></td>
+                            <td class="url"><a href="javascript:;" class="btn btn-link"
+                                               title="https://times-china.source3g.com:5013/login"><i></i>
+                                https://times-china.source3g.com:5013/login </a></td>
+                            <td class="status response-error"><a title="400 Bad Request"
+                                                                 href="http://tools.ietf.org/html/rfc7231#section-6.5.1"
+                                                                 target="_blank">400 Bad Request</a></td>
+                            <td class="from-cache"><span title="a cache detected">cache</span></td>
+                            <td class="count"></td>
+                            <td class="time"><span title="elapsed time: 132ms">132ms</span></td>
+                        </tr>
+                        <tr>
+                            <td class="datetime"><label class="checkbox" for="gwt-uid-1273"
+                                                        data-id="history.1590590574464"><input
+                                    type="checkbox" value="on" id="gwt-uid-1273" tabindex="0"><span>May 27, 2020, 10:42:48 PM</span></label>
+                            </td>
+                            <td><i></i></td>
+                            <td><a href="javascript:;" class="btn btn-link method method-get"
+                                   title="GET"><i></i> GET </a></td>
+                            <td class="url"><a href="javascript:;" class="btn btn-link"
+                                               title="http://localhost:8080/evaluate/record/ticket?ticketId=100"><i></i>
+                                http://localhost:8080/evaluate/record/ticket?ticketId=100 </a></td>
+                            <td class="status response-ok"><a title="200"
+                                                              href="http://tools.ietf.org/html/rfc7231#section-6.3.1"
+                                                              target="_blank">200</a></td>
+                            <td class="from-cache"><span title="a cache detected">cache</span></td>
+                            <td class="count"></td>
+                            <td class="time"><span title="elapsed time: 5.50s">5.50s</span></td>
+                        </tr>
+                        <tr>
+                            <td class="datetime"><label class="checkbox" for="gwt-uid-1281"
+                                                        data-id="history.1590590558877"><input
+                                    type="checkbox" value="on" id="gwt-uid-1281" tabindex="0"><span>May 27, 2020, 10:42:38 PM</span></label>
+                            </td>
+                            <td><i></i></td>
+                            <td><a href="javascript:;" class="btn btn-link method method-post" title="POST"><i></i>
+                                POST </a></td>
+                            <td class="url"><a href="javascript:;" class="btn btn-link"
+                                               title="http://localhost:8080/evaluate/record/send"><i></i>
+                                http://localhost:8080/evaluate/record/send </a></td>
+                            <td class="status response-ok"><a title="200"
+                                                              href="http://tools.ietf.org/html/rfc7231#section-6.3.1"
+                                                              target="_blank">200</a></td>
+                            <td class="from-cache"><span title="a cache detected">cache</span></td>
+                            <td class="count"></td>
+                            <td class="time"><span title="elapsed time: 528ms">528ms</span></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="h-filter-btn"><input type="text" class="gwt-TextBox filter" placeholder="Search">
+            </div>
+        </div>
+        <div class="assertions-container" aria-hidden="true" style="display: none;">
+            <div>
+                <div class="assertions"></div>
+                <div class="add-assertion">
+                    <button class="r-btn r-btn-small r-btn-rounded" title="Add a new assertion"
+                            e2e-tag="assertion-add"><i
+                            class="fa fa-plus"></i><span>Add assertion</span><span class="r-btn-indicator"
+                                                                                   aria-hidden="true"
+                                                                                   style="display: none;"></span>
+                    </button>
+                    <div class="assertion-suggestion-container">Suggestions: <span
+                            e2e-tag="assertion-suggestions"><a class="gwt-Anchor" tabindex="0"
+                                                               title="Status code is in range 4XX">Status code is in range 4XX</a><span>, </span><a
+                            class="gwt-Anchor" tabindex="0"
+                            title="Body content exists">Body content exists</a></span></div>
+                </div>
+            </div>
+        </div>
+        <div class="http-log" aria-hidden="true" style="display: none;">
+            <div class="request">
+                <div>
+                    <div class="status-line">POST /org/mini-program-template HTTP/1.1
+                    </div>
+                    <div class="header"><span class="name">loginUserInfo: </span><span class="value">{"id":"1","groupAccount":"ZJXHJT"}</span>
+                    </div>
+                    <div class="header"><span class="name">Content-Length: </span><span
+                            class="value">66</span></div>
+                    <div class="header"><span class="name">Content-Type: </span><span class="value">application/json</span>
+                    </div>
+                    <div class="header"><span class="name">Host: </span><span
+                            class="value">localhost:8080</span></div>
+                    <div class="entity">{
+                        "templateId":"11",
+                        "wxAppId":"222",
+                        "templateName":"333"
+                        }
+                    </div>
+                </div>
+            </div>
+            <div class="gwt-HTML"><br></div>
+            <div class="response">
+                <div></div>
+            </div>
+        </div>
+        <div class="doc-pane" aria-hidden="true" style="display: none;">
+            <div class="editable"><textarea class="gwt-TextArea"
+                                            placeholder="enter a description here - Markdown syntax supported"></textarea>
+            </div>
+            <div class="rendered" aria-hidden="true" style="display: none;">
+                <div class="gwt-HTML"></div>
+            </div>
+        </div>
+    </div>
+</section>
+</body>
+</html>

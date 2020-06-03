@@ -2,7 +2,7 @@
 
 .CodeMirror {
     /* Set height, width, borders, and global font properties here */
-    font-family: monospace;
+    font-family: auto;
     height: 300px;
 }
 
@@ -97,6 +97,7 @@ div.CodeMirror-overwrite div.CodeMirror-cursor {
 .cm-s-default .cm-punctuation,
 .cm-s-default .cm-property,
 .cm-s-default .cm-operator {
+    padding:5px;
 }
 
 .cm-s-default .cm-variable-2 {
@@ -107,12 +108,12 @@ div.CodeMirror-overwrite div.CodeMirror-cursor {
     color: #085;
 }
 
-.cm-s-default .cm-comment {
-    color: #a50;
-}
 
+.cm-s-default .cm-string{
+
+}
 .cm-s-default .cm-string {
-    color: #a11;
+    color: green;
 }
 
 .cm-s-default .cm-string-2 {
@@ -205,7 +206,7 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {
    the editor. You probably shouldn't touch them. */
 
 .CodeMirror {
-    line-height: 1;
+    line-height: 1.5;
     position: relative;
     overflow: hidden;
     background: white;

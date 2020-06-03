@@ -56,13 +56,34 @@ public class ApiController {
     }
 
     /**
+     * 单个获取
+     * @return
+     */
+    @GetMapping("/api-info/{id}")
+    public ApiInfo getPathList(@PathVariable Integer id){
+        return  sqlRequestMapping.getPathList().stream().filter(item->item.getId() == id).findFirst().orElse(null);
+    }
+
+    /**
      * SAVE APIINFO
      * @param apiInfo
      */
     @PostMapping("/api-info")
-    public void saveOrUpdateApiInfo(@RequestBody ApiInfo apiInfo) throws IOException {
-        apiInfo.setType(ApiType.Sql.name());
+    public Integer saveOrUpdateApiInfo(@RequestBody ApiInfo apiInfo) throws IOException {
+
+        if (apiInfo.getScript() != null){
+            apiInfo.setScript(apiInfo.getScript()
+                    .replace("'","\\'")
+                    .replace("\"","\\\"")
+                    .replace("{","\\{")
+                    .replace("}","\\}")
+                    .replace("#","\\#")
+                    );
+        }
         sqlRequestMapping.saveOrUpdateApiInfo(apiInfo);
+
+        //返回主键ID
+        return sqlRequestMapping.getPathList().stream().filter(item->item.getMethod().equals(apiInfo.getMethod()) && item.getPath().equals(apiInfo.getPath())).findFirst().orElse(null).getId();
     }
 
     /**

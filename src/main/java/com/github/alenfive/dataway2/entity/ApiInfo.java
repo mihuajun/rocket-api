@@ -103,6 +103,7 @@ public class ApiInfo {
         result.put("comment",comment);
         result.put("datasource",datasource);
         result.put("script",script);
+        result.put("service",service);
         result.put("group",group);
         result.put("editor",editor);
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");

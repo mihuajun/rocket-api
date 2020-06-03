@@ -24,9 +24,6 @@ spring:
     prefix: classpath:/templates/
     suffix: .html
 
-  dataway2:
-    apiPrefix: /api/
-
 logging:
   level:
     com.github.alenfive.dataway2: debug

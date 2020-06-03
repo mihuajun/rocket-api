@@ -42,12 +42,12 @@ public class MysqlDataSource implements DataSourceDialect {
 
     @Override
     public String saveApiInfoScript() {
-        return "insert into api_info(method,path,`type`,`group`,editor,`comment`,script,params,create_time,update_time) values(#{method},#{path},#{type},#{group},#{editor},#{comment},#{script},#{params},#{createTime},#{updateTime})";
+        return "insert into api_info(method,path,`type`,`service`,`group`,editor,`comment`,script,create_time,update_time) values(#{method},#{path},#{type},#{service},#{group},#{editor},#{comment},#{script},#{createTime},#{updateTime})";
     }
 
     @Override
     public String updateApiInfoScript() {
-        return "update api_info set method=#{method},path=#{path},`type`=#{type},`group`=#{group},editor=#{editor},`comment`=#{comment},script=#{script},params=#{params},update_time=#{updateTime} where id = #{id}";
+        return "update api_info set method=#{method},path=#{path},`group`=#{group},editor=#{editor},`comment`=#{comment},script=#{script},update_time=#{updateTime} where id = #{id}";
     }
 
     @Override
