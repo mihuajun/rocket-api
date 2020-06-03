@@ -1,6 +1,7 @@
 package com.github.alenfive.dataway2.controller;
 
 import com.github.alenfive.dataway2.config.SQLRequestMappingFactory;
+import com.github.alenfive.dataway2.entity.ApiResult;
 import com.github.alenfive.dataway2.entity.ApiType;
 import com.github.alenfive.dataway2.extend.DataSourceDialect;
 import com.github.alenfive.dataway2.entity.ApiInfo;
@@ -42,8 +43,8 @@ public class ApiController {
      * @return
      */
     @GetMapping("/datasource-list")
-    public String[] getDbList(){
-        return appContext.getBeanNamesForType(DataSource.class);
+    public ApiResult getDbList(){
+        return ApiResult.success(appContext.getBeanNamesForType(DataSource.class));
     }
 
     /**
@@ -51,8 +52,8 @@ public class ApiController {
      * @return
      */
     @GetMapping("/api-list")
-    public Collection<ApiInfo> getPathList(){
-        return  sqlRequestMapping.getPathList();
+    public ApiResult getPathList(){
+        return  ApiResult.success(sqlRequestMapping.getPathList());
     }
 
     /**
@@ -60,8 +61,8 @@ public class ApiController {
      * @return
      */
     @GetMapping("/api-info/{id}")
-    public ApiInfo getPathList(@PathVariable Integer id){
-        return  sqlRequestMapping.getPathList().stream().filter(item->item.getId() == id).findFirst().orElse(null);
+    public ApiResult getPathList(@PathVariable Integer id){
+        return  ApiResult.success(sqlRequestMapping.getPathList().stream().filter(item->item.getId() == id).findFirst().orElse(null));
     }
 
     /**
@@ -69,21 +70,28 @@ public class ApiController {
      * @param apiInfo
      */
     @PostMapping("/api-info")
-    public Integer saveOrUpdateApiInfo(@RequestBody ApiInfo apiInfo) throws IOException {
+    public ApiResult saveOrUpdateApiInfo(@RequestBody ApiInfo apiInfo) throws IOException {
 
-        if (apiInfo.getScript() != null){
-            apiInfo.setScript(apiInfo.getScript()
-                    .replace("'","\\'")
-                    .replace("\"","\\\"")
-                    .replace("{","\\{")
-                    .replace("}","\\}")
-                    .replace("#","\\#")
-                    );
+        try {
+            if (apiInfo.getScript() != null){
+                apiInfo.setScript(apiInfo.getScript()
+                        .replace("'","\\'")
+                        .replace("\"","\\\"")
+                        .replace("{","\\{")
+                        .replace("}","\\}")
+                        .replace("#","\\#")
+                );
+            }
+            sqlRequestMapping.saveOrUpdateApiInfo(apiInfo);
+
+            //返回主键ID
+            Integer id = sqlRequestMapping.getPathList().stream().filter(item->item.getMethod().equals(apiInfo.getMethod()) && item.getPath().equals(apiInfo.getPath())).findFirst().orElse(null).getId();
+            return ApiResult.success(id);
+        }catch (Exception e){
+            e.printStackTrace();
+            return ApiResult.fail(e.getMessage());
         }
-        sqlRequestMapping.saveOrUpdateApiInfo(apiInfo);
 
-        //返回主键ID
-        return sqlRequestMapping.getPathList().stream().filter(item->item.getMethod().equals(apiInfo.getMethod()) && item.getPath().equals(apiInfo.getPath())).findFirst().orElse(null).getId();
     }
 
     /**
@@ -91,12 +99,23 @@ public class ApiController {
      * @param apiInfo
      */
     @DeleteMapping("/api-info")
-    public void deleteApiInfo(@RequestBody ApiInfo apiInfo){
-        sqlRequestMapping.deleteApiInfo(apiInfo);
+    public ApiResult deleteApiInfo(@RequestBody ApiInfo apiInfo){
+        try {
+            sqlRequestMapping.deleteApiInfo(apiInfo);
+            return ApiResult.success(null);
+        }catch (Exception e){
+            e.printStackTrace();
+            return ApiResult.fail(e.getMessage());
+        }
+
     }
 
+    /**
+     * 组获取
+     * @return
+     */
     @GetMapping("/group-list")
-    public List<String> getGroupList(){
-        return sqlRequestMapping.getGroupList();
+    public ApiResult getGroupList(){
+        return ApiResult.success(sqlRequestMapping.getGroupList());
     }
 }

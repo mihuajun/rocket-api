@@ -2,8 +2,12 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
 <body>
 <section id="editor-action" class="pane pane-request request-common" th:fragment="editor-section">
+
     <div class="draft-ribbon" style="">
         <div class="draft-ribbon-text"> New</div>
+    </div>
+    <div class="alert">
+        <strong>Alert :</strong> Best Api Editor
     </div>
     <div class="editable-input-container request-name" style="margin-top: 18px;">
         <div class="editable-input input-append read-only">
@@ -65,6 +69,7 @@
             </div>
 
         </div>
+
         <div class="code-body">
             <textarea id="CodeMirror1" name="CodeMirror1" class="api-info-script cm-s-default"></textarea>
         </div>

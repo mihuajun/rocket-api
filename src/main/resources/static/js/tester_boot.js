@@ -109,7 +109,7 @@ function loadDetail(id,form) {
     let url = "/api-ui/"+id;
     history.pushState(null,null,url);
     $.getJSON(getApiUrl+id,function (data) {
-        data = unpackResult(data);
+        data = unpackResult(data).data;
         $(form).find(".api-info-id").val(data.id);
         $(form).find(".api-info-method").val(data.method);
         $(form).find(".api-info-path").val(data.path);
@@ -152,6 +152,12 @@ function saveExecuter(params) {
         data: JSON.stringify(params),
         success: function (data) {
             data = unpackResult(data);
+            if (data.code !=200){
+                $(".alert").html("<strong>Alert :</strong>"+data.msg);
+                return;
+            }else{
+                $(".alert").html("<strong>Alert :</strong>"+data.msg);
+            }
             loadDetail(data,"#editor-action")
         }
     });
@@ -225,7 +231,7 @@ function buildApiTree(list,collapsed) {
 function loadApiList() {
     $.getJSON(loadApiListUrl,function (data) {
         data = unpackResult(data);
-        gdata.apiList = data;
+        gdata.apiList = data.data;
         buildApiTree(gdata.apiList,"collapsed");
     })
 }
@@ -247,7 +253,7 @@ function collapsedTree(e) {
 }
 
 
-function newAction() {
+function newRequest() {
     let form = "#editor-action";
     history.pushState(null,null,"/api-ui");
     $(form).find(".api-info-id").val("");
