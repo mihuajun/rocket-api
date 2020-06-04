@@ -11,15 +11,16 @@
     </div>
     <div class="editable-input-container request-name" style="margin-top: 18px;">
         <div class="editable-input input-append read-only">
-        <input type="text" class="gwt-TextBox gwt-TextBox-readonly api-info-comment" placeholder="Comment" required="true" maxlength="256" readonly="" value="Request">
-        <span class="add-on"><i class="icon-pencil"></i></span></div><div class="editable-input-error" title=""></div>
+            <input type="text" class="gwt-TextBox gwt-TextBox-readonly api-info-comment" placeholder="Comment" required="true" maxlength="256" readonly="" value="Request">
+            <span class="add-on"><i class="icon-pencil"></i></span></div>
+        <div class="editable-input-error" title=""></div>
     </div>
     <div class="content" style="margin-top:10px;">
         <div class="service">
             <div class="row-uri-in-request-view">
                 <div class="row-uri">
-                    <input type="hidden" class="api-info-id" >
-                    <input type="hidden" class="api-info-group" value="公共API" >
+                    <input type="hidden" class="api-info-id">
+                    <input type="hidden" class="api-info-group" value="公共API">
                     <input type="hidden" class="api-info-editor" value="admin">
                     <input type="hidden" class="api-info-datasource" value="">
                     <div class="uri-method">
@@ -52,9 +53,10 @@
                         <div class="uri-help"><a> Path </a></div>
                         <div class="uri-input">
                                                     <span class="expression-input input-append uri-path">
-                                                        <input type="text" class="gwt-TextBox api-info-path" spellcheck="false" autocomplete="off" e2e-tag="uri-input" placeholder="Type an Path" style="padding-left:10px;">
+                                                        <input type="text" class="gwt-TextBox api-info-path" spellcheck="false" autocomplete="off" e2e-tag="uri-input"
+                                                               placeholder="Type an Path" style="padding-left:10px;">
                                                         <span class="add-on" data-original-title="" title=""> <i class="icon-magic"></i></span></span>
-                            <div class="uri-length" title="length: 8 byte(s)" style="display: inline;">length: 8 byte(s) </div>
+                            <div class="uri-length" title="length: 8 byte(s)" style="display: inline;">length: 8 byte(s)</div>
                         </div>
                     </div>
                 </div>
@@ -63,8 +65,11 @@
                        e2e-tag="btn-send"
                        title="save request (Alt + Enter)">
                         <i class="icon-send"></i> Save</a>
-                    <a href="javascript:;" class="btn btn-primary btn-send dropdown-toggle" data-toggle="dropdown" e2e-tag="btn-send-additional-actions" tabindex="-1"><i class="icon-caret-down"></i>  </a>
-                    <ul class="dropdown-menu pull-right"> <li><a href="javascript:;" onclick="saveAsEditor('#editor-action')"><i></i> Save as </a></li></ul>
+                    <a href="javascript:;" class="btn btn-primary btn-send dropdown-toggle" data-toggle="dropdown" e2e-tag="btn-send-additional-actions" tabindex="-1"><i
+                            class="icon-caret-down"></i> </a>
+                    <ul class="dropdown-menu pull-right">
+                        <li><a href="javascript:;" onclick="saveAsEditor('#editor-action')"><i></i> Save as </a></li>
+                    </ul>
                 </div>
             </div>
 
@@ -74,6 +79,66 @@
             <textarea id="CodeMirror1" name="CodeMirror1" class="api-info-script cm-s-default"></textarea>
         </div>
     </div>
+
+
+    <!--save as-->
+    <div class="modal save-dialog in" id="save-dialog" aria-hidden="false" style="">
+        <div class="modal-header"><a class="close" data-dismiss="modal">×</a>
+            <h3>Save Request <small></small></h3></div>
+        <div class="modal-body">
+            <div class="form-horizontal">
+                <div class="repository-path-selector">
+                    <div class="flex-container name-form">
+                        <div class="left-label"> Name</div>
+                        <div class="right-label"><input type="text" class="gwt-TextBox input-xlarge"></div>
+                    </div>
+                    <div class="validation-message"></div>
+                    <div class="path">
+                        <div class="flex-container">
+                            <div class="path-selector-header left-label"> Path</div>
+                            <div class="flex-container path-selector-container right-label"><a class="r-btn" e2e-tag="drive-selector" title="My drive"><i
+                                    class="api-tester-icon api-tester-drive"></i> <span class="drive-name">My drive</span> <span class="caret"></span></a>
+                                <ul class="dropdown-menu" e2e-tag="drives-list">
+                                    <li><a>My drive</a></li>
+                                </ul>
+                                <span class="colon">:</span>
+                                <div class="path-buttons" e2e-tag="drive-path"><a class="r-btn active">/</a></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="selector-table">
+                        <ul class="nav nav-list local-drive">
+                            
+                        </ul>
+                    </div>
+                    <div class="new-path"><a class="r-btn"><i class="fa fa-plus"></i> <span> Create </span> <span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            <li class=""><a> <i class="api-tester-icon api-tester-project"></i> <span> Project </span> </a></li>
+                            <li class="disabled"><a> <i class="api-tester-icon api-tester-service"></i> <span> Service </span> </a></li>
+                            <li class="disabled"><a> <i class="api-tester-icon api-tester-scenario"></i> <span> Scenario </span> </a></li>
+                        </ul>
+                        <div class="new-container-form" aria-hidden="true" style="display: none;">
+                            <div class="flex-container"><span class="left-label"></span> <input type="text" class="new-item-name input-xlarge">
+                                <div class="create-form">
+                                    <button class="r-btn r-btn-small"><i class="fa fa-check"></i> <span> Add </span></button>
+                                    <button class="r-btn r-btn-small"><i class="fa fa-times-thin"></i> <span> Cancel </span></button>
+                                </div>
+                            </div>
+                            <div class="validation-message"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="alert hidden">The target request will be overwritten.</div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="r-btn" e2e-tag="modal-cancel"><i class="fa fa-remove"></i><span>Cancel</span><span class="r-btn-indicator" aria-hidden="true"
+                                                                                                              style="display: none;"></span></button>
+            <button class="r-btn r-btn-primary" e2e-tag="modal-ok"><i class="fa fa-download"></i><span>Save</span><span class="r-btn-indicator" aria-hidden="true"
+                                                                                                                        style="display: none;"></span></button>
+        </div>
+    </div>
+
 </section>
 </body>
 </html>

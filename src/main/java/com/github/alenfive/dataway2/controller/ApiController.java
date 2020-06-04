@@ -2,10 +2,7 @@ package com.github.alenfive.dataway2.controller;
 
 import com.github.alenfive.dataway2.config.SQLRequestMappingFactory;
 import com.github.alenfive.dataway2.entity.ApiResult;
-import com.github.alenfive.dataway2.entity.ApiType;
-import com.github.alenfive.dataway2.extend.DataSourceDialect;
 import com.github.alenfive.dataway2.entity.ApiInfo;
-import com.github.alenfive.dataway2.service.ScriptParseService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -13,7 +10,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.sql.DataSource;
 import java.io.IOException;
-import java.util.*;
 
 /**
  * @Description:
@@ -111,11 +107,20 @@ public class ApiController {
     }
 
     /**
-     * 组获取
+     * 组名获取
      * @return
      */
-    @GetMapping("/group-list")
-    public ApiResult getGroupList(){
-        return ApiResult.success(sqlRequestMapping.getGroupList());
+    @GetMapping("/group-name-list")
+    public ApiResult getGroupNameList(){
+        return ApiResult.success(sqlRequestMapping.getGroupNameList());
+    }
+
+    /**
+     * API名获取
+     * @return
+     */
+    @GetMapping("/api-name-list")
+    public ApiResult getApiNameList(){
+        return ApiResult.success(sqlRequestMapping.getApiNameList());
     }
 }

@@ -24,6 +24,8 @@ let loadApiListUrl = "/dataway2/api-list";
 let saveApiUrl = "/dataway2/api-info";
 let getApiUrl = "/dataway2/api-info/";
 let deleteApiUrl = "/dataway2/api-info";
+let getApiGroupNameUrl = "/dataway2/group-name-list";
+let getApiNameUrl = "/dataway2/request-name-list";
 let sqlCodeMirror;
 let gdata = {
 
@@ -135,6 +137,16 @@ function loadDetail(id,form) {
     })
 }
 function saveAsEditor(form) {
+
+    $("#save-dialog .local-drive").html("");
+
+    $.getJSON(getApiGroupNameUrl,function (data) {
+        data = unpackResult(data).data;
+        $.each(data,function (index,item) {
+            $("#save-dialog .local-drive").append("<li><a onclick='listRequest(this)'><i class=\"api-tester-icon api-tester-project\"></i><span>"+item+"</span></a></li>")
+        })
+    })
+
     let params={
         "method": $(form).find(".api-info-method").val(),
         "path": $(form).find(".api-info-path").val(),
@@ -143,8 +155,24 @@ function saveAsEditor(form) {
         "comment": $(form).find(".api-info-comment").val(),
         "script": sqlCodeMirror.getValue(),
     };
-    saveExecuter(params);
+    //saveExecuter(params);
 }
+
+function listRequest(e) {
+    let value = $(e).text();
+    $("#save-dialog .local-drive").html("");
+    $.getJSON(getApiNameUrl,function (data) {
+        data = unpackResult(data).data;
+        if (data.length == 0){
+            ("#save-dialog .local-drive").append("Empty")
+            return;
+        }
+        $.each(data,function (index,item) {
+            $("#save-dialog .local-drive").append("<li><a><i class=\"api-tester-icon api-tester-request\"></i><span>"+item+"</span></a></li>")
+        })
+    })
+}
+
 function saveEditor(form) {
 
     let params={

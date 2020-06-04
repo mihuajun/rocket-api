@@ -376,7 +376,12 @@ public class SQLRequestMappingFactory {
         return result;
     }
 
-    public List<String> getGroupList() {
-        return this.cacheApiInfo.values().stream().map(ApiInfo::getGroup).collect(Collectors.toList());
+    public Set<String> getGroupNameList() {
+        return this.cacheApiInfo.values().stream().map(ApiInfo::getGroup).collect(Collectors.toSet());
+    }
+
+    public Set<String> getApiNameList(String group) {
+        return this.cacheApiInfo.values().stream().filter(item->group.equals(item.getGroup()))
+                .map(item->StringUtils.isEmpty(item.getComment())?item.getPath():item.getComment()).collect(Collectors.toSet());
     }
 }
