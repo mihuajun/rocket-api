@@ -24,6 +24,9 @@ spring:
     prefix: classpath:/templates/
     suffix: .html
 
+
 logging:
   level:
     com.github.alenfive.dataway2: debug
+server:
+  port: 8081

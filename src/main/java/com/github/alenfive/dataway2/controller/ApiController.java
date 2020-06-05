@@ -120,7 +120,7 @@ public class ApiController {
      * @return
      */
     @GetMapping("/api-name-list")
-    public ApiResult getApiNameList(){
-        return ApiResult.success(sqlRequestMapping.getApiNameList());
+    public ApiResult getApiNameList(String group){
+        return ApiResult.success(sqlRequestMapping.getApiNameList(group));
     }
 }

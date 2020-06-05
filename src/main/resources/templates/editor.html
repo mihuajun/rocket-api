@@ -6,9 +6,6 @@
     <div class="draft-ribbon" style="">
         <div class="draft-ribbon-text"> New</div>
     </div>
-    <div class="alert">
-        <strong>Alert :</strong> Best Api Editor
-    </div>
     <div class="editable-input-container request-name" style="margin-top: 18px;">
         <div class="editable-input input-append read-only">
             <input type="text" class="gwt-TextBox gwt-TextBox-readonly api-info-comment" placeholder="Comment" required="true" maxlength="256" readonly="" value="Request">
@@ -82,7 +79,7 @@
 
 
     <!--save as-->
-    <div class="modal save-dialog in" id="save-dialog" aria-hidden="false" style="">
+    <div class="modal save-dialog in" id="save-dialog" aria-hidden="false" style="display: none">
         <div class="modal-header"><a class="close" data-dismiss="modal">×</a>
             <h3>Save Request <small></small></h3></div>
         <div class="modal-body">
@@ -102,26 +99,21 @@
                                     <li><a>My drive</a></li>
                                 </ul>
                                 <span class="colon">:</span>
-                                <div class="path-buttons" e2e-tag="drive-path"><a class="r-btn active">/</a></div>
+                                <div class="path-buttons" e2e-tag="drive-path"><a class="r-btn active" onclick="listGroup()">/</a></div>
                             </div>
                         </div>
                     </div>
                     <div class="selector-table">
                         <ul class="nav nav-list local-drive">
-                            
+
                         </ul>
                     </div>
-                    <div class="new-path"><a class="r-btn"><i class="fa fa-plus"></i> <span> Create </span> <span class="caret"></span></a>
-                        <ul class="dropdown-menu">
-                            <li class=""><a> <i class="api-tester-icon api-tester-project"></i> <span> Project </span> </a></li>
-                            <li class="disabled"><a> <i class="api-tester-icon api-tester-service"></i> <span> Service </span> </a></li>
-                            <li class="disabled"><a> <i class="api-tester-icon api-tester-scenario"></i> <span> Scenario </span> </a></li>
-                        </ul>
+                    <div class="new-path"><a class="r-btn" onclick="addGroup()"><i class="fa fa-plus"></i> <span> Create </span> </a>
                         <div class="new-container-form" aria-hidden="true" style="display: none;">
                             <div class="flex-container"><span class="left-label"></span> <input type="text" class="new-item-name input-xlarge">
                                 <div class="create-form">
-                                    <button class="r-btn r-btn-small"><i class="fa fa-check"></i> <span> Add </span></button>
-                                    <button class="r-btn r-btn-small"><i class="fa fa-times-thin"></i> <span> Cancel </span></button>
+                                    <button class="r-btn r-btn-small" onclick="confirmGroup()"><i class="fa fa-check"></i> <span> Add </span></button>
+                                    <button class="r-btn r-btn-small" onclick="cancelGroup()"><i class="fa fa-times-thin"></i> <span> Cancel </span></button>
                                 </div>
                             </div>
                             <div class="validation-message"></div>
@@ -132,9 +124,9 @@
             </div>
         </div>
         <div class="modal-footer">
-            <button class="r-btn" e2e-tag="modal-cancel"><i class="fa fa-remove"></i><span>Cancel</span><span class="r-btn-indicator" aria-hidden="true"
+            <button class="r-btn" e2e-tag="modal-cancel" onclick="cancelDialog()"><i class="fa fa-remove"></i><span>Cancel</span><span class="r-btn-indicator" aria-hidden="true"
                                                                                                               style="display: none;"></span></button>
-            <button class="r-btn r-btn-primary" e2e-tag="modal-ok"><i class="fa fa-download"></i><span>Save</span><span class="r-btn-indicator" aria-hidden="true"
+            <button class="r-btn r-btn-primary" e2e-tag="modal-ok" onclick="confirmDialog('#editor-action')"><i class="fa fa-download"></i><span>Save</span><span class="r-btn-indicator" aria-hidden="true"
                                                                                                                         style="display: none;"></span></button>
         </div>
     </div>

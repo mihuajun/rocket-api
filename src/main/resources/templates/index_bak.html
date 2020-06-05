@@ -365,9 +365,32 @@
         .cm-s-default .cm-keyword{
             color:blue;
         }
+
+        #myModal{
+            width: 100%;
+            height: 100%;
+            background-color: rgba(117, 117, 117, 0.5);
+            z-index: 1005;
+            position: absolute;
+            display: none;
+        }
     </style>
 </div>
-
+<div id="myModal">
+    <div class="modal modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>提示</h3>
+            </div>
+            <div class="modal-body">
+                确定要关闭警告框信息？
+            </div>
+            <div class="modal-footer">
+                <button class="r-btn r-btn-primary"  onclick="closeModal()">关闭</button>
+            </div>
+        </div>
+    </div>
+</div>
 <script type="text/javascript" src="/js/tester_boot.js"></script>
 <script th:inline="javascript">
     let currApi = [[${currApi}]];

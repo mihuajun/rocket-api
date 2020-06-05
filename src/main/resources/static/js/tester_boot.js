@@ -25,7 +25,7 @@ let saveApiUrl = "/dataway2/api-info";
 let getApiUrl = "/dataway2/api-info/";
 let deleteApiUrl = "/dataway2/api-info";
 let getApiGroupNameUrl = "/dataway2/group-name-list";
-let getApiNameUrl = "/dataway2/request-name-list";
+let getApiNameUrl = "/dataway2/api-name-list";
 let sqlCodeMirror;
 let gdata = {
 
@@ -136,8 +136,59 @@ function loadDetail(id,form) {
         sqlCodeMirror.setValue(data.script);
     })
 }
-function saveAsEditor(form) {
+function saveAsEditor() {
+    listGroup();
+}
 
+function closeModal() {
+    $("#myModal").hide();
+}
+
+function openModal(msg) {
+    $("#myModal").show();
+    $("#myModal .modal-body").text(msg);
+}
+
+function confirmDialog(form) {
+    let group = $(form).find("#save-dialog .path-buttons .active").attr("title");
+    let params={
+        "method": $(form).find(".api-info-method").val(),
+        "path": $(form).find(".api-info-path").val(),
+        "group": group?group:"公共API",
+        "editor": $(form).find(".api-info-editor").val(),
+        "comment": $(form).find("#save-dialog .input-xlarge").val(),
+        "script": sqlCodeMirror.getValue(),
+    }
+    saveExecuter(params);
+}
+
+function confirmGroup() {
+    cancelGroup();
+    let value = $(".new-path .new-item-name").val();
+    $("#save-dialog .local-drive").append("<li><a class='curr-add' onclick='listRequest(this)'><i class=\"api-tester-icon api-tester-project\"></i><span>"+value+"</span></a></li>")
+    $("#save-dialog .curr-add").click();
+}
+
+function addGroup() {
+    $(".new-path>a").hide();
+    $(".new-path>div").show();
+    $(".new-path .left-label").text("Group");
+}
+
+function cancelGroup() {
+    $(".new-path>a").show();
+    $(".new-path>div").hide();
+}
+
+function cancelDialog() {
+    $("#save-dialog").hide();
+}
+
+function listGroup() {
+    $("#save-dialog").show();
+    $("#save-dialog .input-xlarge").val($("#editor-action .api-info-comment").val());
+    $("#save-dialog .path-buttons .r-btn").addClass("active");
+    $("#save-dialog .button-path-selector").remove();
     $("#save-dialog .local-drive").html("");
 
     $.getJSON(getApiGroupNameUrl,function (data) {
@@ -146,25 +197,18 @@ function saveAsEditor(form) {
             $("#save-dialog .local-drive").append("<li><a onclick='listRequest(this)'><i class=\"api-tester-icon api-tester-project\"></i><span>"+item+"</span></a></li>")
         })
     })
-
-    let params={
-        "method": $(form).find(".api-info-method").val(),
-        "path": $(form).find(".api-info-path").val(),
-        "group": $(form).find(".api-info-group").val(),
-        "editor": $(form).find(".api-info-editor").val(),
-        "comment": $(form).find(".api-info-comment").val(),
-        "script": sqlCodeMirror.getValue(),
-    };
-    //saveExecuter(params);
 }
 
 function listRequest(e) {
     let value = $(e).text();
+    $("#save-dialog .r-btn").removeClass("active");
+    $("#save-dialog .path-buttons").append("<a class=\"r-btn button-path-selector active\" title=\""+value+"\"><i class=\"api-tester-icon api-tester-project\"></i><span>"+value+"</span></a>");
+
     $("#save-dialog .local-drive").html("");
-    $.getJSON(getApiNameUrl,function (data) {
+    $.getJSON(getApiNameUrl+"?group="+value,function (data) {
         data = unpackResult(data).data;
         if (data.length == 0){
-            ("#save-dialog .local-drive").append("Empty")
+            $("#save-dialog .local-drive").append("<li><p class=\"navbar-text\">Empty</p></li>")
             return;
         }
         $.each(data,function (index,item) {
@@ -174,6 +218,13 @@ function listRequest(e) {
 }
 
 function saveEditor(form) {
+
+    let id = $(form).find(".api-info-id").val();
+
+    if (!id){
+        listGroup();
+        return;
+    }
 
     let params={
         "id":$(form).find(".api-info-id").val(),
@@ -196,12 +247,11 @@ function saveExecuter(params) {
         success: function (data) {
             data = unpackResult(data);
             if (data.code !=200){
-                $(".alert").html("<strong>Alert :</strong>"+data.msg);
+                openModal(data.msg);
                 return;
-            }else{
-                $(".alert").html("<strong>Alert :</strong>"+data.msg);
             }
-            loadDetail(data,"#editor-action")
+            cancelDialog();
+            loadDetail(data.data,"#editor-action")
         }
     });
 }
