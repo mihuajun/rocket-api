@@ -26,6 +26,10 @@ let getApiUrl = "/dataway2/api-info/";
 let deleteApiUrl = "/dataway2/api-info";
 let getApiGroupNameUrl = "/dataway2/group-name-list";
 let getApiNameUrl = "/dataway2/api-name-list";
+
+let indexUrl = "/api-ui";
+let detailUrl = "/api-ui/";
+
 let sqlCodeMirror;
 let gdata = {
 
@@ -40,7 +44,7 @@ function loadCurrApi() {
 $(function(){
     loadApiList();
     loadEvent();
-    loadCurrApi();
+
     $("#loader").hide();
     let myTextarea = document.getElementById('CodeMirror1');
     sqlCodeMirror = CodeMirror.fromTextArea(myTextarea,{
@@ -70,21 +74,43 @@ function loadEvent() {
     loadInputTypeEvent();
     loadEditAbleEvent();
 }
-function moveApi() {
 
+function openConfirmModal(msg,fun) {
+    $("#confirmModal").show();
+    $("#confirmModal .gwt-HTML").text(msg);
+    $("#confirmModal .r-btn-danger").unbind('click').bind("click",fun);
+    $("#modal-backdrop").show();
 }
+
+function closeConfirmModal() {
+    $("#confirmModal").hide();
+    $("#modal-backdrop").hide();
+}
+
+function moveApi(e,id) {
+    listGroup(id);
+}
+
 function removeApi(e,id) {
-    $.ajax({
-        type: "delete",
-        url: deleteApiUrl,
-        contentType : "application/json",
-        data: JSON.stringify({"id":id}),
-        success: function (data) {
-            $(e).parents(".request").remove();
-        }
+
+    openConfirmModal("The request will be permanently deleted. Are you sure?",function () {
+        $.ajax({
+            type: "delete",
+            url: deleteApiUrl,
+            contentType : "application/json",
+            data: JSON.stringify({"id":id}),
+            success: function (data) {
+                $(e).parents(".request").remove();
+                history.pushState(null,null,indexUrl);
+                closeConfirmModal();
+            }
+        });
     });
+
+    event.stopPropagation();    //  阻止事件冒泡
 }
 
+//comment 编辑事件
 function loadEditAbleEvent() {
     $(".editable-input>input").on("click",function () {
         $(this).removeAttr("readonly");
@@ -101,13 +127,14 @@ function loadEditAbleEvent() {
     });
 }
 
+//输入框占用字节显示事件
 function loadInputTypeEvent() {
     $(".gwt-TextBox").on("blur",function () {
         let value = $(this).val();
         $(this).parents(".uri-input").children(".uri-length").text("length: "+value.length+" byte(s) ");
     });
 }
-
+//method下拉框事件
 function loadSelectBoxEvent() {
     $(".dropdown-menu>li").on("click",function (e) {
         let value = $(this).text().trim();
@@ -121,9 +148,10 @@ function loadDetail(id,form) {
     $(".service").removeClass("parent-selected");
     $(".request"+id).addClass("selected");
     $(".request"+id).parents(".service").addClass("parent-selected");
+    $(".request"+id).parents(".service").removeClass("collapsed");
     $('.draft-ribbon-text').text("Edit");
 
-    let url = "/api-ui/"+id;
+    let url = detailUrl+id;
     history.pushState(null,null,url);
     $.getJSON(getApiUrl+id,function (data) {
         data = unpackResult(data).data;
@@ -141,17 +169,20 @@ function saveAsEditor() {
 }
 
 function closeModal() {
-    $("#myModal").hide();
+    $("#modal-backdrop").hide();
+    $("#msgModal").hide();
 }
 
-function openModal(msg) {
-    $("#myModal").show();
-    $("#myModal .modal-body").text(msg);
+function openMsgModal(msg) {
+    $("#modal-backdrop").show();
+    $("#msgModal").show();
+    $("#msgModal .modal-body").text(msg);
 }
 
 function confirmDialog(form) {
     let group = $(form).find("#save-dialog .path-buttons .active").attr("title");
     let params={
+        "id": $("#save-dialog").attr("data-id"),
         "method": $(form).find(".api-info-method").val(),
         "path": $(form).find(".api-info-path").val(),
         "group": group?group:"公共API",
@@ -184,11 +215,13 @@ function cancelDialog() {
     $("#save-dialog").hide();
 }
 
-function listGroup() {
+function listGroup(id) {
+    $("#save-dialog").attr("data-id",id);
     $("#save-dialog").show();
     $("#save-dialog .input-xlarge").val($("#editor-action .api-info-comment").val());
     $("#save-dialog .path-buttons .r-btn").addClass("active");
     $("#save-dialog .button-path-selector").remove();
+
     $("#save-dialog .local-drive").html("");
 
     $.getJSON(getApiGroupNameUrl,function (data) {
@@ -247,7 +280,7 @@ function saveExecuter(params) {
         success: function (data) {
             data = unpackResult(data);
             if (data.code !=200){
-                openModal(data.msg);
+                openMsgModal(data.msg);
                 return;
             }
             cancelDialog();
@@ -298,7 +331,7 @@ function buildApiTree(list,collapsed) {
 
         let $lev2 = $('<ul></ul>');
         $.each(value,function (index,item) {
-            $lev2.append('<li class="'+collapsed+' request level2 request'+item.id+'" onclick="loadDetail('+item.id+',\'#editor-action\')"><div class="name" title="'+(item.comment?item.comment:item.path)+'"><i\n' +
+            $lev2.append('<li class="'+collapsed+' request level2 request'+item.id+'" ><div class="name" onclick="loadDetail('+item.id+',\'#editor-action\')" title="'+(item.comment?item.comment:item.path)+'"><i\n' +
                 '                                                        class="fa fa-caret-right invisible" aria-hidden="true"\n' +
                 '                                                        e2e-tag="drive|'+(item.comment?item.comment:item.path)+'|expand"\n' +
                 '                                                        style="display: none;"></i>\n' +
@@ -308,13 +341,14 @@ function buildApiTree(list,collapsed) {
                 '                                                    <span class="gwt-InlineHTML node-text"\n' +
                 '                                                          e2e-tag="drive|'+(item.comment?item.comment:item.path)+'">'+(item.comment?item.comment:item.path)+'</span>\n' +
                 '                                                    <div class="status" aria-hidden="true" style="display: none;"></div>\n' +
-                '                                                    <div class="btn-group ctrls dropdown-primary" data-id="'+item.id+'" ><a\n' +
+                '                                                    <div class="btn-group ctrls dropdown-primary"  data-id="'+item.id+'" ><a\n' +
                 '                                                            class="btn-mini dropdown-toggle" data-toggle="dropdown"\n' +
                 '                                                            e2e-tag="drive|'+(item.comment?item.comment:item.path)+'|more"><i\n' +
                 '                                                            class="sli-icon-options-vertical"></i></a>\n' +
-                '                                                        <ul class="pull-right dropdown-menu"><li class="dropdown-item"><a><i class="fa fa-random"></i><span class="gwt-InlineHTML">Move</span></a></li><li class="dropdown-item" onclick="removeApi(this,'+item.id+')"><a><i class="fa fa-trash-o" onclick="moveApi(this,'+item.id+')"></i><span class="gwt-InlineHTML">Remove</span></a></li></ul>\n' +
+                '                                                        <ul class="pull-right dropdown-menu"><li class="dropdown-item"  onclick="moveApi(this,'+item.id+')"><a><i class="fa fa-random"></i><span class="gwt-InlineHTML">Move</span></a></li><li class="dropdown-item" onclick="removeApi(this,'+item.id+')"><a><i class="fa fa-trash-o" onclick="moveApi(this,'+item.id+')"></i><span class="gwt-InlineHTML">Remove</span></a></li></ul>\n' +
                 '                                                    </div>\n' +
-                '                                                </div></li>');
+                '                                                </div>' +
+                '</li>');
         })
         $lev1.append($lev2);
         $(".authenticated").append($lev1);
@@ -326,6 +360,7 @@ function loadApiList() {
         data = unpackResult(data);
         gdata.apiList = data.data;
         buildApiTree(gdata.apiList,"collapsed");
+        loadCurrApi();
     })
 }
 
@@ -348,7 +383,7 @@ function collapsedTree(e) {
 
 function newRequest() {
     let form = "#editor-action";
-    history.pushState(null,null,"/api-ui");
+    history.pushState(null,null,indexUrl);
     $(form).find(".api-info-id").val("");
     $(form).find(".api-info-method").val("GET");
     $(form).find(".api-info-path").val("");

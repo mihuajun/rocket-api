@@ -366,31 +366,41 @@
             color:blue;
         }
 
-        #myModal{
-            width: 100%;
-            height: 100%;
-            background-color: rgba(117, 117, 117, 0.5);
-            z-index: 1005;
+        .authenticated .btn-group{
             position: absolute;
-            display: none;
+            right: 0px;
         }
     </style>
 </div>
-<div id="myModal">
-    <div class="modal modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>提示</h3>
-            </div>
-            <div class="modal-body">
-                确定要关闭警告框信息？
-            </div>
-            <div class="modal-footer">
-                <button class="r-btn r-btn-primary"  onclick="closeModal()">关闭</button>
-            </div>
-        </div>
+<!--消息框-->
+<div id="msgModal" class="modal modal-dialog" style="display: none">
+    <div class="modal-header"><h3>Prompt message</h3></div>
+    <div class="modal-body">
+        msg
+    </div>
+    <div class="modal-footer">
+        <button class="r-btn r-btn-primary"  onclick="closeModal()">Close</button>
     </div>
 </div>
+<!--确认框-->
+<div  id="confirmModal" class="modal in" aria-hidden="false" style="display: none">
+    <div class="modal-header"><a class="close" onclick="closeConfirmModal()" data-dismiss="modal">×</a>
+        <h3>Confirmation <small></small></h3>
+    </div>
+    <div class="modal-body">
+        <div class="form-horizontal">
+            <div class="gwt-HTML"></div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button class="r-btn" onclick="closeConfirmModal()" e2e-tag="modal-cancel"><i class="fa fa-remove"></i><span>Cancel</span><span class="r-btn-indicator" aria-hidden="true" style="display: none;"></span>
+        </button>
+        <button class="r-btn r-btn-danger" e2e-tag="modal-ok"><i class="fa fa-trash"></i><span>Confirm</span><span class="r-btn-indicator" aria-hidden="true"
+                                                                                                                   style="display: none;"></span></button>
+    </div>
+</div>
+<div id="modal-backdrop" class="modal-backdrop  in" style="display: none;"></div>
+
 <script type="text/javascript" src="/js/tester_boot.js"></script>
 <script th:inline="javascript">
     let currApi = [[${currApi}]];
