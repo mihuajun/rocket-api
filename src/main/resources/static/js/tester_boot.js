@@ -38,6 +38,8 @@ let gdata = {
 function loadCurrApi() {
     if (currApi){
         loadDetail(currApi,"#editor-action")
+    }else{
+        newRequest();
     }
 }
 
@@ -157,13 +159,17 @@ function loadDetail(id,form) {
         data = unpackResult(data).data;
         $(form).find(".api-info-id").val(data.id);
         $(form).find(".api-info-method").val(data.method);
+        $(form).find(".api-info-datasource").val(data.datasource),
         $(form).find(".api-info-path").val(data.path);
         $(form).find(".api-info-group").val(data.group);
         $(form).find(".api-info-editor").val(data.editor);
         $(form).find(".api-info-comment").val(data.comment);
         sqlCodeMirror.setValue(data.script);
     })
+
+
 }
+
 function saveAsEditor() {
     listGroup();
 }
@@ -184,6 +190,7 @@ function confirmDialog(form) {
     let params={
         "id": $("#save-dialog").attr("data-id"),
         "method": $(form).find(".api-info-method").val(),
+        "datasource":$(form).find(".api-info-datasource").val(),
         "path": $(form).find(".api-info-path").val(),
         "group": group?group:"公共API",
         "editor": $(form).find(".api-info-editor").val(),
@@ -262,6 +269,7 @@ function saveEditor(form) {
     let params={
         "id":$(form).find(".api-info-id").val(),
         "method": $(form).find(".api-info-method").val(),
+        "datasource":$(form).find(".api-info-datasource").val(),
         "path": $(form).find(".api-info-path").val(),
         "group": $(form).find(".api-info-group").val(),
         "editor": $(form).find(".api-info-editor").val(),
@@ -386,7 +394,9 @@ function newRequest() {
     history.pushState(null,null,indexUrl);
     $(form).find(".api-info-id").val("");
     $(form).find(".api-info-method").val("GET");
+
     $(form).find(".api-info-path").val("");
+    $(form).find(".api-info-datasource").val($(form).find(".api-info-datasource").attr("default-value"));
     $(form).find(".api-info-group").val("公共API");
     $(form).find(".api-info-editor").val("admin");
     $(form).find(".api-info-comment").val("Request");

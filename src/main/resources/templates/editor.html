@@ -19,7 +19,26 @@
                     <input type="hidden" class="api-info-id">
                     <input type="hidden" class="api-info-group" value="公共API">
                     <input type="hidden" class="api-info-editor" value="admin">
-                    <input type="hidden" class="api-info-datasource" value="">
+                    <div class="uri-db" id="uri-db" th:style="'display:' + @{(${dataSourceList.size() eq 1} ? 'none' : 'inline-block')} + ''">
+                        <div class="uri-help" >
+                            <a class="help-link" href="http://tools.ietf.org/html/rfc7231#section-4" tabindex="-1" target="_blank"> Datasource </a>
+                        </div>
+                        <div>
+                            <div class="btn-group input-append split-dropdown" e2e-tag="db-selector">
+                                <div class="input-append dropdown-toggle" data-toggle="dropdown">
+                                    <input type="text" class="gwt-TextBox api-info-datasource" style="width: 85px;cursor:pointer;background-color: #fff" readonly th:attr="default-value=${dataSourceList[0]}">
+                                    <span class="add-on">
+                                        <a href="javascript:;" class="btn btn-small btn-link split-dropdown-trigger" tabindex="-1">
+                                            <i class="icon-caret-down"> </i>
+                                        </a>
+                                    </span>
+                                </div>
+                                <ul class="dropdown-menu" >
+                                    <li th:each="item,infoStat : ${dataSourceList}"><a href="javascript:;" th:text="${item}"> </a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
                     <div class="uri-method">
                         <div class="uri-help">
                             <a class="help-link" href="http://tools.ietf.org/html/rfc7231#section-4" tabindex="-1" target="_blank"> Method </a>

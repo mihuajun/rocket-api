@@ -2,9 +2,7 @@ package com.github.alenfive.dataway2.config;
 
 import com.github.alenfive.dataway2.controller.ApiController;
 import com.github.alenfive.dataway2.controller.ViewController;
-import com.github.alenfive.dataway2.extend.ApiPager;
-import com.github.alenfive.dataway2.extend.DataSourceDialect;
-import com.github.alenfive.dataway2.extend.MysqlDataSource;
+import com.github.alenfive.dataway2.extend.*;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -37,6 +35,12 @@ public class Dataway2AutoConfig {
     @ConditionalOnMissingBean
     public DataSourceDialect getDataSourceDialect(){
         return new MysqlDataSource();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public DataSourceManagerInterface getDataSourceManagerInterface(){
+        return new DefaultDataSourceManager();
     }
 
     @Bean
