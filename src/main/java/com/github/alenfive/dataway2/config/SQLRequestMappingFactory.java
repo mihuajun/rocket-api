@@ -28,7 +28,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 /**
- * @Description:
+ * @Description: 将存储的API注册为request mapping,并且提供对入参及存储的执行脚本进行解析。
+ * 输出解析后的最终脚本提供给脚本执行器`@Link DataSourceDialect`。然后对结果进行封装返回
  * @Copyright: Copyright (c) 2019  ALL RIGHTS RESERVED.
  * @Company: 成都国盛天丰技术有限责任公司
  * @Author: 米华军
@@ -71,9 +72,6 @@ public class SQLRequestMappingFactory {
     private RequestMappingHandlerMapping requestMappingHandlerMapping;
 
     @Autowired
-    private Dataway2Properties properties;
-
-    @Autowired
     private ObjectMapper objectMapper;
 
     private Map<String, ApiInfo> cacheApiInfo = new ConcurrentHashMap<>();
@@ -83,8 +81,6 @@ public class SQLRequestMappingFactory {
      */
     @PostConstruct
     public void init() throws IOException {
-
-
 
         //加载数据库API
         List<Map<String,Object>> apiInfos = dataSourceDialect.executeQuery(dataSourceDialect.listApiInfoScript(),null,null);
@@ -247,7 +243,7 @@ public class SQLRequestMappingFactory {
     }
 
     public Collection<ApiInfo> getPathList(){
-        return this.cacheApiInfo.values();
+        return this.cacheApiInfo.values().stream().sorted(Comparator.comparing(ApiInfo::getComment).thenComparing(ApiInfo::getPath)).collect(Collectors.toList());
     }
 
 

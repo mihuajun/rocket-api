@@ -22,7 +22,7 @@ import java.util.stream.Stream;
  * @UpdateDate: 2020/5/25 10:00
  * @UpdateRemark: init
  * @Version: 1.0
- * @menu 脚本解析
+ * @menu 脚本解析器
  */
 
 @Service

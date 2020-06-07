@@ -30,7 +30,7 @@ public class DefaultDataSourceManager implements DataSourceManagerInterface{
     public List<ApiDataSource> listDataSourceGroup() {
         List<ApiDataSource> result = new ArrayList<>(1);
         result.add(ApiDataSource.builder()
-                .id("Primary")
+                .id("Default")
                 .storeApi(true)
                 .dataSource(dataSource)
                 .build());

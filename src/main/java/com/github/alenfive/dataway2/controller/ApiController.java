@@ -1,14 +1,12 @@
 package com.github.alenfive.dataway2.controller;
 
 import com.github.alenfive.dataway2.config.SQLRequestMappingFactory;
-import com.github.alenfive.dataway2.entity.ApiResult;
 import com.github.alenfive.dataway2.entity.ApiInfo;
+import com.github.alenfive.dataway2.entity.ApiResult;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.web.bind.annotation.*;
 
-import javax.sql.DataSource;
 import java.io.IOException;
 
 /**
@@ -28,20 +26,8 @@ import java.io.IOException;
 public class ApiController {
 
     @Autowired
-    private ApplicationContext appContext;
-
-    @Autowired
     private SQLRequestMappingFactory sqlRequestMapping;
 
-
-    /**
-     * LOAD DATASOURCE
-     * @return
-     */
-    @GetMapping("/datasource-list")
-    public ApiResult getDbList(){
-        return ApiResult.success(appContext.getBeanNamesForType(DataSource.class));
-    }
 
     /**
      * LOAD API LIST
