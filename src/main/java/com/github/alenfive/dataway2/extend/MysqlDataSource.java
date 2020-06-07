@@ -32,7 +32,7 @@ public class MysqlDataSource implements DataSourceDialect {
 
     @Override
     public String listApiInfoScript() {
-        return "select id,method,path,datasource,`type`,`group`,editor,`comment`,script,params,create_time,update_time from api_info";
+        return "select id,method,path,datasource,`type`,`group`,editor,`comment`,script,params,create_time,update_time from api_info where service = #{service}";
     }
 
     @Override

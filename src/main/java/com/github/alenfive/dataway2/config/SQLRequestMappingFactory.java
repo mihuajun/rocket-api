@@ -83,7 +83,10 @@ public class SQLRequestMappingFactory {
     public void init() throws IOException {
 
         //加载数据库API
-        List<Map<String,Object>> apiInfos = dataSourceDialect.executeQuery(dataSourceDialect.listApiInfoScript(),null,null);
+        ApiParams apiParams = new ApiParams().putParam("service",service);
+        StringBuilder script = new StringBuilder(dataSourceDialect.listApiInfoScript());
+        parseService.buildParams(script,apiParams);
+        List<Map<String,Object>> apiInfos = dataSourceDialect.executeQuery(script.toString(),null,null);
         for (Map<String,Object> map : apiInfos){
             ApiInfo apiInfo = objectMapper.readValue(objectMapper.writeValueAsBytes(map),ApiInfo.class);
             this.cacheApiInfo.put(buildApiInfoKey(apiInfo),apiInfo);
@@ -99,8 +102,8 @@ public class SQLRequestMappingFactory {
 
             codeInfo.setCreateTime(new Date());
             codeInfo.setUpdateTime(new Date());
-            ApiParams apiParams = ApiParams.builder().param(codeInfo.toMap()).build();
-            StringBuilder script = new StringBuilder(dataSourceDialect.saveApiInfoScript());
+            apiParams = ApiParams.builder().param(codeInfo.toMap()).build();
+            script = new StringBuilder(dataSourceDialect.saveApiInfoScript());
             parseService.buildParams(script,apiParams);
             dataSourceDialect.execute(script.toString(),null,null);
             this.cacheApiInfo.put(buildApiInfoKey(codeInfo),codeInfo);
