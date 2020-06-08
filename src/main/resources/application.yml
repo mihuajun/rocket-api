@@ -15,7 +15,7 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
   data:
     mongodb:
-      uri: mongodb://root:DgUKAVE1Vk@10.66.97.231:27017/customer-origin
+      uri: mongodb://test:test123456@mysql-test.app.gs:27017/customer_origin
   thymeleaf:
     cache: false
     check-template: true

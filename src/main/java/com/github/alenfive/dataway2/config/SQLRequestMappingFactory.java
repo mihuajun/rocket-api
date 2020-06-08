@@ -354,6 +354,7 @@ public class SQLRequestMappingFactory {
                             .group("公共API")
                             .editor("admin")
                             .comment("")
+                            .datasource(dataSourceManager.getStoreApiKey())
                             .script("")
                             .params("")
                             .build());
@@ -367,6 +368,7 @@ public class SQLRequestMappingFactory {
                                 .group("公共API")
                                 .editor("admin")
                                 .comment("")
+                                .datasource(dataSourceManager.getStoreApiKey())
                                 .script("")
                                 .params("")
                                 .build());

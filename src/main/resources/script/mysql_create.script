@@ -1,0 +1,17 @@
+CREATE TABLE `api_info` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `method` varchar(45) DEFAULT NULL,
+  `path` varchar(100) DEFAULT NULL,
+  `type` varchar(5) DEFAULT NULL COMMENT '类型：CODE,SQL',
+  `service` varchar(45) DEFAULT NULL,
+  `group` varchar(45) DEFAULT NULL,
+  `editor` varchar(45) DEFAULT NULL,
+  `comment` varchar(200) DEFAULT NULL,
+  `datasource` varchar(45) DEFAULT NULL,
+  `script` text,
+  `params` text,
+  `create_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `update_time` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `unique_path_method` (`path`,`method`)
+) ENGINE=InnoDB AUTO_INCREMENT=39 DEFAULT CHARSET=utf8mb4 COMMENT='路径明细';

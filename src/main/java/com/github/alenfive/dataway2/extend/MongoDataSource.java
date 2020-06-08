@@ -2,15 +2,12 @@ package com.github.alenfive.dataway2.extend;
 
 import com.github.alenfive.dataway2.entity.ApiInfo;
 import com.github.alenfive.dataway2.entity.ApiParams;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.bson.Document;
+import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -36,7 +33,12 @@ public class MongoDataSource extends DataSourceDialect {
 
     @Override
     public String listApiInfoScript() {
-        return "select id,method,path,datasource,`type`,`group`,editor,`comment`,script,params,create_time,update_time from api_info where service = #{service}";
+        return "{\n" +
+                "\t\"find\":\"api_info\",\n" +
+                "\t\"filter\":{\n" +
+                "\t\t\"service\":#{service}\n" +
+                "\t}\n" +
+                "}";
     }
 
     @Override
@@ -46,7 +48,22 @@ public class MongoDataSource extends DataSourceDialect {
 
     @Override
     public String saveApiInfoScript() {
-        return "insert into api_info(method,path,datasource,`type`,`service`,`group`,editor,`comment`,script,create_time,update_time) values(#{method},#{path},#{datasource},#{type},#{service},#{group},#{editor},#{comment},#{script},#{createTime},#{updateTime})";
+        return "{\n" +
+                "\t\"insert\":\"api_info\",\n" +
+                "\t\"documents\":[{\n" +
+                "\t\t\"method\":#{method},\n" +
+                "\t\t\"path\":#{path},\n" +
+                "\t\t\"type\":#{type},\n" +
+                "\t\t\"service\":#{service},\n" +
+                "\t\t\"group\":#{group},\n" +
+                "\t\t\"editor\":#{editor},\n" +
+                "\t\t\"comment\":#{comment},\n" +
+                "\t\t\"datasource\":#{datasource},\n" +
+                "\t\t\"script\":#{script},\n" +
+                "\t\t\"create_time\":#{createTime},\n" +
+                "\t\t\"update_time\":#{updateTime}\n" +
+                "\t}]\n" +
+                "}";
     }
 
     @Override
@@ -61,12 +78,33 @@ public class MongoDataSource extends DataSourceDialect {
 
     @Override
     public Object execute(String script, ApiInfo apiInfo, ApiParams apiParams) {
+        mongoTemplate.executeCommand(script);
         return null;
     }
 
     @Override
     public List<Map<String,Object>> executeQuery(String script, ApiInfo apiInfo, ApiParams apiParams) {
-        return null;
+        Document document = mongoTemplate.executeCommand(script);
+        List<Document> documents = (List<Document>) ((Document)document.get("cursor")).get("firstBatch");
+        return documents.stream().map(item->toMap(item)).collect(Collectors.toList());
+    }
+
+    private Map<String,Object> toMap(Document item) {
+        Map<String, Object> map = new HashMap<>(item.size());
+        Set<String> keys = item.keySet();
+        for (String key : keys){
+           Object value = item.get(key);
+           if ("_id".equals(key)){
+               key = "id";
+           }
+           key = super.underlineToCamel(key);
+           if (value instanceof Document){
+               map.put(key,toMap((Document) value));
+               continue;
+           }
+            map.put(key,value instanceof ObjectId?((ObjectId)value).toHexString():value);
+        }
+        return map;
     }
 
     @Override

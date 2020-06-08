@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.bson.types.ObjectId;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -28,7 +29,8 @@ import java.util.Map;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ApiInfo {
-    private Integer id;
+
+    private Object id;
     /**
      * 路径
      */

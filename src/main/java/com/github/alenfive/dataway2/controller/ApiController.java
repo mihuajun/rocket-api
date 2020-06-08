@@ -4,6 +4,7 @@ import com.github.alenfive.dataway2.config.SQLRequestMappingFactory;
 import com.github.alenfive.dataway2.entity.ApiInfo;
 import com.github.alenfive.dataway2.entity.ApiResult;
 import lombok.extern.slf4j.Slf4j;
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -67,7 +68,7 @@ public class ApiController {
             sqlRequestMapping.saveOrUpdateApiInfo(apiInfo);
 
             //返回主键ID
-            Integer id = sqlRequestMapping.getPathList().stream().filter(item->item.getMethod().equals(apiInfo.getMethod()) && item.getPath().equals(apiInfo.getPath())).findFirst().orElse(null).getId();
+            Object id = sqlRequestMapping.getPathList().stream().filter(item->item.getMethod().equals(apiInfo.getMethod()) && item.getPath().equals(apiInfo.getPath())).findFirst().orElse(null).getId();
             return ApiResult.success(id);
         }catch (Exception e){
             e.printStackTrace();
