@@ -1,9 +1,12 @@
 package com.github.alenfive.dataway2.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.alenfive.dataway2.entity.*;
+import com.github.alenfive.dataway2.entity.ApiInfo;
+import com.github.alenfive.dataway2.entity.ApiParams;
+import com.github.alenfive.dataway2.entity.ApiResultType;
+import com.github.alenfive.dataway2.entity.ApiType;
 import com.github.alenfive.dataway2.extend.ApiPagerInterface;
-import com.github.alenfive.dataway2.extend.DataSourceDialect;
+import com.github.alenfive.dataway2.extend.DataSourceManager;
 import com.github.alenfive.dataway2.service.ScriptParseService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,9 +66,6 @@ public class SQLRequestMappingFactory {
     private ApplicationContext appContext;
 
     @Autowired
-    private DataSourceDialect dataSourceDialect;
-
-    @Autowired
     private ApiPagerInterface apiPager;
 
     @Autowired
@@ -73,6 +73,9 @@ public class SQLRequestMappingFactory {
 
     @Autowired
     private ObjectMapper objectMapper;
+
+    @Autowired
+    private DataSourceManager dataSourceManager;
 
     private Map<String, ApiInfo> cacheApiInfo = new ConcurrentHashMap<>();
 
@@ -84,9 +87,9 @@ public class SQLRequestMappingFactory {
 
         //加载数据库API
         ApiParams apiParams = new ApiParams().putParam("service",service);
-        StringBuilder script = new StringBuilder(dataSourceDialect.listApiInfoScript());
+        StringBuilder script = new StringBuilder(dataSourceManager.listApiInfoScript());
         parseService.buildParams(script,apiParams);
-        List<Map<String,Object>> apiInfos = dataSourceDialect.executeQuery(script.toString(),null,null);
+        List<Map<String,Object>> apiInfos = dataSourceManager.executeQuery(script.toString(), ApiInfo.builder().datasource(dataSourceManager.getStoreApiKey()).build(),null);
         for (Map<String,Object> map : apiInfos){
             ApiInfo apiInfo = objectMapper.readValue(objectMapper.writeValueAsBytes(map),ApiInfo.class);
             this.cacheApiInfo.put(buildApiInfoKey(apiInfo),apiInfo);
@@ -103,9 +106,9 @@ public class SQLRequestMappingFactory {
             codeInfo.setCreateTime(new Date());
             codeInfo.setUpdateTime(new Date());
             apiParams = ApiParams.builder().param(codeInfo.toMap()).build();
-            script = new StringBuilder(dataSourceDialect.saveApiInfoScript());
+            script = new StringBuilder(dataSourceManager.saveApiInfoScript());
             parseService.buildParams(script,apiParams);
-            dataSourceDialect.execute(script.toString(),null,null);
+            dataSourceManager.execute(script.toString(),ApiInfo.builder().datasource(dataSourceManager.getStoreApiKey()).build(),null);
             this.cacheApiInfo.put(buildApiInfoKey(codeInfo),codeInfo);
         }
 
@@ -159,12 +162,12 @@ public class SQLRequestMappingFactory {
         String reaultType = apiInfo.getPath().substring(apiInfo.getPath().lastIndexOf("/")+1);
 
         if (ApiResultType.first.name().equals(reaultType)){
-            List<Map<String,Object>> resultList = dataSourceDialect.executeQuery(scriptList.get(0).toString(),apiInfo,apiParams);
+            List<Map<String,Object>> resultList = dataSourceManager.executeQuery(scriptList.get(0).toString(),apiInfo,apiParams);
             return resultList.size()==0?Collections.EMPTY_MAP:resultList.get(0);
         }
 
         if (ApiResultType.list.name().equals(reaultType)){
-            return dataSourceDialect.executeQuery(scriptList.get(0).toString(),apiInfo,apiParams);
+            return dataSourceManager.executeQuery(scriptList.get(0).toString(),apiInfo,apiParams);
         }
 
         if (ApiResultType.page.name().equals(reaultType)){
@@ -173,13 +176,13 @@ public class SQLRequestMappingFactory {
             Integer pageSize = buildPagerSize(apiParams);
             apiParams.putParam(apiPager.getIndexVarName(),(pageNo-1)*pageSize);
 
-            Long totalRecords = dataSourceDialect.executeCount(scriptList.get(0).toString(),apiInfo,apiParams);
-            List<Map<String,Object>> resultList = dataSourceDialect.executeQuery(scriptList.get(1).toString(),apiInfo,apiParams);
+            Long totalRecords = dataSourceManager.executeCount(scriptList.get(0).toString(),apiInfo,apiParams);
+            List<Map<String,Object>> resultList = dataSourceManager.executeQuery(scriptList.get(1).toString(),apiInfo,apiParams);
             return apiPager.buildPager(totalRecords,resultList,apiInfo,apiParams);
         }
 
         for (StringBuilder script : scriptList){
-            dataSourceDialect.execute(script.toString(),apiInfo,apiParams);
+            dataSourceManager.execute(script.toString(),apiInfo,apiParams);
         }
         return null;
     }
@@ -262,16 +265,16 @@ public class SQLRequestMappingFactory {
             apiInfo.setCreateTime(new Date());
             apiInfo.setService(service);
             ApiParams apiParams = ApiParams.builder().param(apiInfo.toMap()).build();
-            StringBuilder script = new StringBuilder(dataSourceDialect.saveApiInfoScript());
+            StringBuilder script = new StringBuilder(dataSourceManager.saveApiInfoScript());
             parseService.buildParams(script,apiParams);
-            dataSourceDialect.execute(script.toString(),null,null);
+            dataSourceManager.execute(script.toString(),ApiInfo.builder().datasource(dataSourceManager.getStoreApiKey()).build(),null);
         }else{
             ApiInfo dbInfo = this.cacheApiInfo.values().stream().filter(item->item.getId().equals(apiInfo.getId())).findFirst().orElse(null);
 
             ApiParams apiParams = ApiParams.builder().param(apiInfo.toMap()).build();
-            StringBuilder script = new StringBuilder(dataSourceDialect.updateApiInfoScript());
+            StringBuilder script = new StringBuilder(dataSourceManager.updateApiInfoScript());
             parseService.buildParams(script,apiParams);
-            dataSourceDialect.execute(script.toString(),null,null);
+            dataSourceManager.execute(script.toString(),ApiInfo.builder().datasource(dataSourceManager.getStoreApiKey()).build(),null);
 
             //取消mapping注册
             unregisterMappingForApiInfo(dbInfo);
@@ -281,10 +284,10 @@ public class SQLRequestMappingFactory {
         }
 
         ApiParams apiParams = ApiParams.builder().param(apiInfo.toMap()).build();
-        StringBuilder script = new StringBuilder(dataSourceDialect.getApiInfoScript());
+        StringBuilder script = new StringBuilder(dataSourceManager.getApiInfoScript());
         parseService.buildParams(script,apiParams);
 
-        List<Map<String,Object>> apiInfoMap = dataSourceDialect.executeQuery(script.toString(),null,null);
+        List<Map<String,Object>> apiInfoMap = dataSourceManager.executeQuery(script.toString(),null,null);
         ApiInfo dbInfo = objectMapper.readValue(objectMapper.writeValueAsBytes(apiInfoMap.get(0)),ApiInfo.class);
 
         //入缓存
@@ -314,9 +317,9 @@ public class SQLRequestMappingFactory {
                 .build();
 
         //清数据库
-        StringBuilder script = new StringBuilder(dataSourceDialect.deleteApiInfoScript());
+        StringBuilder script = new StringBuilder(dataSourceManager.deleteApiInfoScript());
         parseService.buildParams(script,apiParams);
-        dataSourceDialect.execute(script.toString(),null,null);
+        dataSourceManager.execute(script.toString(),ApiInfo.builder().datasource(dataSourceManager.getStoreApiKey()).build(),null);
 
         //清缓存
         this.cacheApiInfo.remove(buildApiInfoKey(dbInfo));

@@ -3,6 +3,7 @@ package com.github.alenfive.dataway2.extend;
 import com.github.alenfive.dataway2.entity.ApiInfo;
 import com.github.alenfive.dataway2.entity.ApiParams;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -17,18 +18,46 @@ import java.util.Map;
  * @Version: 1.0
  * @menu 数据源方言抽象类
  */
-public interface DataSourceDialect {
+public abstract class DataSourceDialect {
 
-    String listApiInfoScript();
-    String getApiInfoScript();
-    String saveApiInfoScript();
-    String updateApiInfoScript();
-    String deleteApiInfoScript();
+    protected boolean storeApi = false;
 
-    Object execute(String script, ApiInfo apiInfo, ApiParams apiParams);
+    public boolean isStoreApi() {
+        return storeApi;
+    }
 
-    List<Map<String,Object>> executeQuery(String script, ApiInfo apiInfo, ApiParams apiParams);
+    abstract String listApiInfoScript();
+    abstract String getApiInfoScript();
+    abstract String saveApiInfoScript();
+    abstract String updateApiInfoScript();
+    abstract String deleteApiInfoScript();
 
-    Long executeCount(String script, ApiInfo apiInfo, ApiParams apiParams);
+    abstract Object execute(String script, ApiInfo apiInfo, ApiParams apiParams);
 
+    abstract List<Map<String,Object>> executeQuery(String script, ApiInfo apiInfo, ApiParams apiParams);
+
+    abstract Long executeCount(String script, ApiInfo apiInfo, ApiParams apiParams);
+
+    protected Map<String,Object> toReplaceKeyLow(Map<String,Object> map){
+        Map<String,Object> result = new HashMap<>(map.size());
+        for(String key : map.keySet()){
+            result.put(underlineToCamel(key),map.get(key));
+        }
+        return result;
+    }
+
+    protected String underlineToCamel(String name){
+        StringBuilder sb = new StringBuilder(name.length());
+        for (int i = 0; i < name.length(); i++) {
+            char c = name.charAt(i);
+            if ('_' == c) {
+                if (++i < name.length()){
+                    sb.append(Character.toUpperCase(name.charAt(i)));
+                }
+            }else {
+                sb.append(c);
+            }
+        }
+        return sb.toString();
+    }
 }

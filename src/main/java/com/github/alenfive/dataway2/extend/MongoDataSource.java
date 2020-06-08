@@ -3,6 +3,7 @@ package com.github.alenfive.dataway2.extend;
 import com.github.alenfive.dataway2.entity.ApiInfo;
 import com.github.alenfive.dataway2.entity.ApiParams;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,16 +22,16 @@ import java.util.stream.Collectors;
  * @UpdateDate: 2020/5/27 17:19
  * @UpdateRemark: init
  * @Version: 1.0
- * @menu MYSQL数据源
+ * @menu mongo数据源
  */
 @Transactional
-public class MysqlDataSource extends DataSourceDialect {
+public class MongoDataSource extends DataSourceDialect {
 
-    private JdbcTemplate jdbcTemplate;
+    private MongoTemplate mongoTemplate;
 
-    public MysqlDataSource(JdbcTemplate jdbcTemplate,boolean storeApi) {
+    public MongoDataSource(MongoTemplate mongoTemplate,boolean storeApi) {
+        this.mongoTemplate = mongoTemplate;
         this.storeApi = storeApi;
-        this.jdbcTemplate = jdbcTemplate;
     }
 
     @Override
@@ -60,19 +61,18 @@ public class MysqlDataSource extends DataSourceDialect {
 
     @Override
     public Object execute(String script, ApiInfo apiInfo, ApiParams apiParams) {
-        jdbcTemplate.execute(script);
         return null;
     }
 
     @Override
     public List<Map<String,Object>> executeQuery(String script, ApiInfo apiInfo, ApiParams apiParams) {
-        List<Map<String,Object>> resultList = jdbcTemplate.queryForList(script);
-        return resultList.stream().map(this::toReplaceKeyLow).collect(Collectors.toList());
+        return null;
     }
 
     @Override
     public Long executeCount(String script, ApiInfo apiInfo, ApiParams apiParams) {
-        return jdbcTemplate.queryForObject(script,Long.class);
+        return null;
     }
+
 
 }

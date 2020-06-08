@@ -1,6 +1,6 @@
 spring:
   application:
-    name: example
+    name: dataway2
   jackson:
     default-property-inclusion: non_null
     date-format: yyyy-MM-dd HH:mm:ss
@@ -13,7 +13,9 @@ spring:
     username: dichantest
     password: UmMtAvFl
     driver-class-name: com.mysql.cj.jdbc.Driver
-
+  data:
+    mongodb:
+      uri: mongodb://root:DgUKAVE1Vk@10.66.97.231:27017/customer-origin
   thymeleaf:
     cache: false
     check-template: true
@@ -24,9 +26,9 @@ spring:
     prefix: classpath:/templates/
     suffix: .html
 
-
 logging:
   level:
     com.github.alenfive.dataway2: debug
+
 server:
   port: 8081

@@ -33,13 +33,7 @@ public class Dataway2AutoConfig {
 
     @Bean
     @ConditionalOnMissingBean
-    public DataSourceDialect getDataSourceDialect(){
-        return new MysqlDataSource();
-    }
-
-    @Bean
-    @ConditionalOnMissingBean
-    public DataSourceManagerInterface getDataSourceManagerInterface(){
+    public DataSourceManager getDataSourceManagerInterface(){
         return new DefaultDataSourceManager();
     }
 

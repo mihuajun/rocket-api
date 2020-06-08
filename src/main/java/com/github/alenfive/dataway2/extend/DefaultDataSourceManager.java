@@ -1,12 +1,12 @@
 package com.github.alenfive.dataway2.extend;
 
-import com.github.alenfive.dataway2.entity.ApiDataSource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
-import javax.sql.DataSource;
-import java.util.ArrayList;
-import java.util.List;
+import javax.annotation.PostConstruct;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -21,25 +21,19 @@ import java.util.Map;
  * @menu 默认数据源管理器
  */
 @Component
-public class DefaultDataSourceManager implements DataSourceManagerInterface{
+public class DefaultDataSourceManager extends DataSourceManager {
 
     @Autowired
-    private DataSource dataSource;
+    private JdbcTemplate jdbcTemplate;
 
-    @Override
-    public List<ApiDataSource> listDataSourceGroup() {
-        List<ApiDataSource> result = new ArrayList<>(1);
-        result.add(ApiDataSource.builder()
-                .id("Default")
-                .storeApi(true)
-                .dataSource(dataSource)
-                .build());
+    @Autowired
+    private MongoTemplate mongoTemplate;
 
-        result.add(ApiDataSource.builder()
-                .id("统计")
-                .storeApi(false)
-                .dataSource(dataSource)
-                .build());
-        return result;
+    @PostConstruct
+    public void init() {
+        Map<String,DataSourceDialect> dialects = new HashMap<>();
+        dialects.put("mysql",new MysqlDataSource(jdbcTemplate,true));
+        dialects.put("mongodb",new MongoDataSource(mongoTemplate,false));
+        super.setDialectMap(dialects);
     }
 }
