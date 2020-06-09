@@ -4,11 +4,17 @@ import com.github.alenfive.dataway2.config.SQLRequestMappingFactory;
 import com.github.alenfive.dataway2.entity.ApiInfo;
 import com.github.alenfive.dataway2.entity.ApiResult;
 import lombok.extern.slf4j.Slf4j;
+import org.bson.BSONEncoder;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.util.Base64;
 
 /**
  * @Description:
@@ -44,8 +50,8 @@ public class ApiController {
      * @return
      */
     @GetMapping("/api-info/{id}")
-    public ApiResult getPathList(@PathVariable Integer id){
-        return  ApiResult.success(sqlRequestMapping.getPathList().stream().filter(item->item.getId() == id).findFirst().orElse(null));
+    public ApiResult getPathList(@PathVariable String id) {
+        return  ApiResult.success(sqlRequestMapping.getPathList().stream().filter(item->item.getId().equals(id)).findFirst().orElse(null));
     }
 
     /**
@@ -53,18 +59,9 @@ public class ApiController {
      * @param apiInfo
      */
     @PostMapping("/api-info")
-    public ApiResult saveOrUpdateApiInfo(@RequestBody ApiInfo apiInfo) throws IOException {
+    public ApiResult saveOrUpdateApiInfo(@RequestBody ApiInfo apiInfo) {
 
         try {
-            if (apiInfo.getScript() != null){
-                apiInfo.setScript(apiInfo.getScript()
-                        .replace("'","\\'")
-                        .replace("\"","\\\"")
-                        .replace("{","\\{")
-                        .replace("}","\\}")
-                        .replace("#","\\#")
-                );
-            }
             sqlRequestMapping.saveOrUpdateApiInfo(apiInfo);
 
             //返回主键ID

@@ -101,12 +101,12 @@ public class ApplicationTests {
         apiParams.putParam("pageNo",2);
 
         Integer pageNo = null;
-        String value = parseService.buildParamItem(apiParams,apiPager.getPageNoVarName());
+        Object value = parseService.buildParamItem(apiParams,apiPager.getPageNoVarName());
         if (StringUtils.isEmpty(value)){
             apiParams.putParam(apiPager.getPageNoVarName(),apiPager.getPageNoDefaultValue());
             pageNo = apiPager.getPageNoDefaultValue();
         }else {
-            pageNo = Integer.valueOf(value);
+            pageNo = Integer.valueOf(value.toString());
         }
 
         Integer pageSize = null;
@@ -116,11 +116,11 @@ public class ApplicationTests {
             apiParams.putParam(apiPager.getPageSizeVarName(),apiPager.getPageSizeDefaultValue());
             pageSize = apiPager.getPageSizeDefaultValue();
         }else{
-            pageSize = pageSize =Integer.valueOf(value);
+            pageSize =Integer.valueOf(value.toString());
 
         }
 
-        apiParams.putParam(apiPager.getIndexVarName(),(pageNo-1)*pageSize);
+        apiParams.putParam(apiPager.getIndexVarName(),apiPager.getIndexVarValue(pageSize,pageNo));
         parseService.buildParams(script,apiParams);
         log.info("testPager:{}",script.toString());
         assert script.toString().equals("select * from user limit 15,15");

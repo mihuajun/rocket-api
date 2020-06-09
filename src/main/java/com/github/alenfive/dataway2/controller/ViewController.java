@@ -43,7 +43,7 @@ public class ViewController {
     }
 
     @GetMapping("/{id}")
-    public String index3(Model model, @PathVariable Integer id){
+    public String index3(Model model, @PathVariable String id){
         model.addAttribute("dataSourceList",dataSourceManager.getDialectMap().keySet());
         model.addAttribute("currApi",id);
         return "index_bak";

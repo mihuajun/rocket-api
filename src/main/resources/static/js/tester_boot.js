@@ -164,6 +164,22 @@ function loadDetail(id,form) {
         $(form).find(".api-info-group").val(data.group);
         $(form).find(".api-info-editor").val(data.editor);
         $(form).find(".api-info-comment").val(data.comment);
+
+        $(form).find(".api-info-method").removeAttr("readonly");
+        $(form).find(".api-info-method").parent().removeClass("disabled");
+        $(form).find(".api-info-path").removeAttr("readonly");
+        $(form).find(".api-info-datasource").removeAttr("readonly");
+        $(form).find(".api-info-datasource").parent().removeClass("disabled");
+
+        if(data.type == 'Code'){
+            $(form).find(".api-info-method").attr("readonly","readonly");
+            $(form).find(".api-info-method").parent().addClass("disabled");
+            $(form).find(".api-info-path").attr("readonly","readonly");
+            $(form).find(".api-info-datasource").attr("readonly","readonly");
+            $(form).find(".api-info-datasource").parent().addClass("disabled");
+        }
+
+
         sqlCodeMirror.setValue(data.script);
     })
 
@@ -339,7 +355,7 @@ function buildApiTree(list,collapsed) {
 
         let $lev2 = $('<ul></ul>');
         $.each(value,function (index,item) {
-            $lev2.append('<li class="'+collapsed+' request level2 request'+item.id+'" ><div class="name" onclick="loadDetail('+item.id+',\'#editor-action\')" title="'+(item.comment?item.comment:item.path)+'"><i\n' +
+            $lev2.append('<li class="'+collapsed+' request level2 request'+item.id+'" ><div class="name" onclick="loadDetail(\''+item.id+'\',\'#editor-action\')" title="'+(item.comment?item.comment:item.path)+'"><i\n' +
                 '                                                        class="fa fa-caret-right invisible" aria-hidden="true"\n' +
                 '                                                        e2e-tag="drive|'+(item.comment?item.comment:item.path)+'|expand"\n' +
                 '                                                        style="display: none;"></i>\n' +
@@ -353,7 +369,7 @@ function buildApiTree(list,collapsed) {
                 '                                                            class="btn-mini dropdown-toggle" data-toggle="dropdown"\n' +
                 '                                                            e2e-tag="drive|'+(item.comment?item.comment:item.path)+'|more"><i\n' +
                 '                                                            class="sli-icon-options-vertical"></i></a>\n' +
-                '                                                        <ul class="pull-right dropdown-menu"><li class="dropdown-item"  onclick="moveApi(this,'+item.id+')"><a><i class="fa fa-random"></i><span class="gwt-InlineHTML">Move</span></a></li><li class="dropdown-item" onclick="removeApi(this,'+item.id+')"><a><i class="fa fa-trash-o" onclick="moveApi(this,'+item.id+')"></i><span class="gwt-InlineHTML">Remove</span></a></li></ul>\n' +
+                '                                                        <ul class="pull-right dropdown-menu"><li class="dropdown-item"  onclick="moveApi(this,\''+item.id+'\')"><a><i class="fa fa-random"></i><span class="gwt-InlineHTML">Move</span></a></li><li class="dropdown-item" onclick="removeApi(this,'+item.id+')"><a><i class="fa fa-trash-o" onclick="moveApi(this,'+item.id+')"></i><span class="gwt-InlineHTML">Remove</span></a></li></ul>\n' +
                 '                                                    </div>\n' +
                 '                                                </div>' +
                 '</li>');

@@ -20,7 +20,7 @@ import java.util.Map;
  * @menu 分页对象
  */
 @Component
-public class ApiPager implements ApiPagerInterface {
+public class DefaultApiPager implements ApiPagerInterface {
     @Override
     public Object buildPager(Long totalRecords, List data, ApiInfo apiInfo, ApiParams apiParams) {
         Map<String,Object> pager = new HashMap<>();
@@ -42,6 +42,11 @@ public class ApiPager implements ApiPagerInterface {
     @Override
     public String getIndexVarName() {
         return "index";
+    }
+
+    @Override
+    public Integer getIndexVarValue(Integer pageSize,Integer pageNo) {
+        return (pageNo-1)*pageSize;
     }
 
     @Override

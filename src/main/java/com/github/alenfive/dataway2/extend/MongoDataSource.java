@@ -43,7 +43,11 @@ public class MongoDataSource extends DataSourceDialect {
 
     @Override
     public String getApiInfoScript() {
-        return "select id,method,path,datasource,`type`,`group`,editor,`comment`,script,params,create_time,update_time from api_info where method = #{method} and path = #{path}";
+        return "{\n" +
+                "     find: \"api_info\",\n" +
+                "     filter: { method: #{method}, path: #{path} },\n" +
+                "     limit: 1\n" +
+                "}";
     }
 
     @Override
@@ -68,12 +72,27 @@ public class MongoDataSource extends DataSourceDialect {
 
     @Override
     public String updateApiInfoScript() {
-        return "update api_info set method=#{method},path=#{path},datasource=#{datasource},`group`=#{group},editor=#{editor},`comment`=#{comment},script=#{script},update_time=#{updateTime} where id = #{id}";
+        return "{\n" +
+                "     update: \"api_info\",\n" +
+                "     updates: \n" +
+                "     \t[{\n" +
+                "     \t\tq:{_id:ObjectId(#{id})},\n" +
+                "     \t\tu:{$set:{method:#{method},path:#{path},datasource:#{datasource},group:#{group},editor:#{editor},comment:#{comment},script:#{script},update_time:#{updateTime}}},\n" +
+                "     \t\tupsert:false,\n" +
+                "     \t\tmulti:false\n" +
+                "     \t}]\n" +
+                "     \n" +
+                "}";
     }
 
     @Override
     public String deleteApiInfoScript() {
-        return "delete from api_info where id = #{id}";
+        return "{\n" +
+                "     delete: \"api_info\",\n" +
+                "     deletes: [\n" +
+                "     \t{q:{id:#{id},limit:1}}}\n" +
+                "     ]\n" +
+                "}";
     }
 
     @Override
@@ -109,7 +128,8 @@ public class MongoDataSource extends DataSourceDialect {
 
     @Override
     public Long executeCount(String script, ApiInfo apiInfo, ApiParams apiParams) {
-        return null;
+        Document document = mongoTemplate.executeCommand(script);
+        return new Long(document.getInteger("n"));
     }
 
 

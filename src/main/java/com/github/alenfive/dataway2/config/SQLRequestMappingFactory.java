@@ -26,6 +26,7 @@ import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.lang.reflect.Method;
+import java.text.ParseException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
@@ -142,24 +143,32 @@ public class SQLRequestMappingFactory {
                 .body(body)
                 .request(request)
                 .build();
+
+
         ApiInfo apiInfo = cacheApiInfo.get(buildApiInfoKey(ApiInfo.builder().method(method).path(path).build()));
 
+        String reaultType = apiInfo.getPath().substring(apiInfo.getPath().lastIndexOf("/")+1);
+        if (ApiResultType.page.name().equals(reaultType)){
+            Integer pageNo = buildPagerNo(apiParams);
+            Integer pageSize = buildPagerSize(apiParams);
+            apiParams.putParam(apiPager.getPageNoVarName(),pageNo);
+            apiParams.putParam(apiPager.getPageSizeVarName(),pageSize);
+            apiParams.putParam(apiPager.getIndexVarName(),apiPager.getIndexVarValue(pageSize,pageNo));
+        }
         //提取脚本
         List<StringBuilder> scriptList = parseService.extractExecutableScript(apiInfo.getScript());
 
         //脚本解析
         scriptList.forEach(item->{
             parseService.parse(item,apiParams);
-            log.debug("generate sql:{}",item.toString());
+            log.debug("generate script:{}",item.toString());
         });
 
-        return buildResult(scriptList,apiInfo,apiParams);
+        return buildResult(scriptList,apiInfo,apiParams,reaultType);
 
     }
 
-    private Object buildResult(List<StringBuilder> scriptList,ApiInfo apiInfo, ApiParams apiParams){
-
-        String reaultType = apiInfo.getPath().substring(apiInfo.getPath().lastIndexOf("/")+1);
+    private Object buildResult(List<StringBuilder> scriptList,ApiInfo apiInfo, ApiParams apiParams,String reaultType){
 
         if (ApiResultType.first.name().equals(reaultType)){
             List<Map<String,Object>> resultList = dataSourceManager.executeQuery(scriptList.get(0).toString(),apiInfo,apiParams);
@@ -171,11 +180,9 @@ public class SQLRequestMappingFactory {
         }
 
         if (ApiResultType.page.name().equals(reaultType)){
-
-            Integer pageNo = buildPagerNo(apiParams);
-            Integer pageSize = buildPagerSize(apiParams);
-            apiParams.putParam(apiPager.getIndexVarName(),(pageNo-1)*pageSize);
-
+            if (scriptList.size()<2){
+                throw new MissingFormatArgumentException("Lack of script size:"+scriptList.size());
+            }
             Long totalRecords = dataSourceManager.executeCount(scriptList.get(0).toString(),apiInfo,apiParams);
             List<Map<String,Object>> resultList = dataSourceManager.executeQuery(scriptList.get(1).toString(),apiInfo,apiParams);
             return apiPager.buildPager(totalRecords,resultList,apiInfo,apiParams);
@@ -188,21 +195,21 @@ public class SQLRequestMappingFactory {
     }
 
     private Integer buildPagerNo(ApiParams apiParams) {
-        String value = parseService.buildParamItem(apiParams,apiPager.getPageNoVarName());
+        Object value = parseService.buildParamItem(apiParams,apiPager.getPageNoVarName());
         if (StringUtils.isEmpty(value)){
             apiParams.putParam(apiPager.getPageNoVarName(),apiPager.getPageNoDefaultValue());
             return apiPager.getPageNoDefaultValue();
         }
-        return Integer.valueOf(value);
+        return Integer.valueOf(value.toString());
     }
 
     private Integer buildPagerSize(ApiParams apiParams) {
-        String value = parseService.buildParamItem(apiParams,apiPager.getPageSizeVarName());
+        Object value = parseService.buildParamItem(apiParams,apiPager.getPageSizeVarName());
         if (StringUtils.isEmpty(value)){
             apiParams.putParam(apiPager.getPageSizeVarName(),apiPager.getPageSizeDefaultValue());
             return apiPager.getPageSizeDefaultValue();
         }
-        return Integer.valueOf(value);
+        return Integer.valueOf(value.toString());
     }
 
     private String buildPattern(HttpServletRequest request) {
@@ -287,7 +294,7 @@ public class SQLRequestMappingFactory {
         StringBuilder script = new StringBuilder(dataSourceManager.getApiInfoScript());
         parseService.buildParams(script,apiParams);
 
-        List<Map<String,Object>> apiInfoMap = dataSourceManager.executeQuery(script.toString(),null,null);
+        List<Map<String,Object>> apiInfoMap = dataSourceManager.executeQuery(script.toString(),ApiInfo.builder().datasource(dataSourceManager.getStoreApiKey()).build(),null);
         ApiInfo dbInfo = objectMapper.readValue(objectMapper.writeValueAsBytes(apiInfoMap.get(0)),ApiInfo.class);
 
         //入缓存
@@ -299,7 +306,7 @@ public class SQLRequestMappingFactory {
 
     private boolean exists(ApiInfo apiInfo) {
         ApiInfo dbInfo = this.cacheApiInfo.values().stream().filter(item->item.getPath().equals(apiInfo.getPath()) && (item.getMethod().equals("All") || item.getMethod().equals(apiInfo.getMethod()))).findFirst().orElse(null);
-        if (dbInfo == null || (apiInfo.getId() != null && apiInfo.getId() == dbInfo.getId())){
+        if (dbInfo == null || (apiInfo.getId() != null && apiInfo.getId().equals(dbInfo.getId()))){
             return false;
         }
         return true;

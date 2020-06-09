@@ -26,6 +26,8 @@ public interface ApiPagerInterface {
 
     String getIndexVarName();
 
+    Integer getIndexVarValue(Integer pageSize,Integer pageNo);
+
     Integer getPageSizeDefaultValue();
 
     Integer getPageNoDefaultValue();

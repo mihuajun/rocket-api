@@ -101,7 +101,7 @@ public class ScriptParseService {
                 throw new IllegalArgumentException("missed if split ','");
             }
             String varName = script.substring(startIf+3,ifSplit);
-            String value = buildParamItem(apiParams,varName);
+            Object value = buildParamItem(apiParams,varName);
             if (StringUtils.isEmpty(value)){
                 script = script.replace(startIf,endIf+1,"");
             }else{
@@ -129,22 +129,22 @@ public class ScriptParseService {
             if (find){
                 String group = m.group();
                 String varName = group.replace("#{","").replace("}","");
-                String value = buildParamItem(apiParams,varName);
+                Object value = buildParamItem(apiParams,varName);
                 if (value == null){
                     throw new IllegalArgumentException("parameter '"+varName+"' not found");
                 }
 
-                script = script.replace(m.start(),m.end(),value);
+                script = script.replace(m.start(),m.end(),buildValue(value));
             }
         }while (find);
 
     }
 
-    public String buildParamItem(ApiParams apiParams, String varName) {
+    public Object buildParamItem(ApiParams apiParams, String varName) {
         String[] paramArr = varName.split("\\.");
 
 
-        String value = null;
+        Object value = null;
         if (scopeSet.contains(paramArr[0])){
             switch (ParamScope.valueOf(paramArr[0])){
                 case pathVar:value = buildValueOfPathVar(apiParams.getPathVar(),paramArr[1]);break;
@@ -171,15 +171,15 @@ public class ScriptParseService {
         return value;
     }
 
-    private String buildValueOfHeader(HttpServletRequest request, String[] paramArr,int index) {
+    private Object buildValueOfHeader(HttpServletRequest request, String[] paramArr,int index) {
         if (request == null)return null;
-        return buildValue(request.getHeader(paramArr[index]));
+        return request.getHeader(paramArr[index]);
     }
 
-    private String buildValueOfCookie(HttpServletRequest request, String varName) {
+    private Object buildValueOfCookie(HttpServletRequest request, String varName) {
         if (request == null)return null;
         Cookie[] cookies = request.getCookies();
-
+        if (cookies == null)return null;
         Object value  = null;
         for(Cookie cookie : cookies){
             if(cookie.getName().equals(varName)){
@@ -187,26 +187,26 @@ public class ScriptParseService {
                 break;
             }
         }
-        return buildValue(value);
+        return value;
     }
 
-    private String buildValueOfBody(Map<String,Object> body, String[] paramArr,int index) {
+    private Object buildValueOfBody(Map<String,Object> body, String[] paramArr,int index) {
         if (body == null)return null;
         Object value = body.get(paramArr[index]);
         if (paramArr.length-1 > index){
             return buildValueOfBody((Map<String, Object>) value,paramArr,++index);
         }
-        return buildValue(value);
+        return value;
     }
 
-    private String buildValueOfParameter(Map<String,Object> params, String varName) {
+    private Object buildValueOfParameter(Map<String,Object> params, String varName) {
         if (params == null)return null;
-        return buildValue(params.get(varName));
+        return params.get(varName);
     }
 
-    private String buildValueOfPathVar(Map<String,Object> pathVars, String varName) {
+    private Object buildValueOfPathVar(Map<String,Object> pathVars, String varName) {
         if (pathVars == null)return null;
-        return buildValue(pathVars.get(varName));
+        return pathVars.get(varName);
     }
 
 

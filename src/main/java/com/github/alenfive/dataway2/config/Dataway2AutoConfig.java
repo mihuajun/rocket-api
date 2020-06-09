@@ -33,13 +33,13 @@ public class Dataway2AutoConfig {
 
     @Bean
     @ConditionalOnMissingBean
-    public DataSourceManager getDataSourceManagerInterface(){
+    public DataSourceManager getDataSourceManager(){
         return new DefaultDataSourceManager();
     }
 
     @Bean
     @ConditionalOnMissingBean
-    public ApiPager getApiPager(){
-        return new ApiPager();
+    public DefaultApiPager getApiPager(){
+        return new DefaultApiPager();
     }
 }
