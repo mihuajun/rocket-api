@@ -33,7 +33,7 @@ import java.util.Map;
 @AllArgsConstructor
 public class ApiInfo {
 
-    private Object id;
+    private String id;
     /**
      * 路径
      */
