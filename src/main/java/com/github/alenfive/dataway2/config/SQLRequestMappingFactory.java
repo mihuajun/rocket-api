@@ -35,7 +35,6 @@ import java.util.stream.Collectors;
  * @Description: 将存储的API注册为request mapping,并且提供对入参及存储的执行脚本进行解析。
  * 输出解析后的最终脚本提供给脚本执行器`@Link DataSourceDialect`。然后对结果进行封装返回
  * @Copyright: Copyright (c) 2019  ALL RIGHTS RESERVED.
- * @Company: 成都国盛天丰技术有限责任公司
  * @Author: 米华军
  * @CreateDate: 2020/5/27 16:30
  * @UpdateDate: 2020/5/27 16:30

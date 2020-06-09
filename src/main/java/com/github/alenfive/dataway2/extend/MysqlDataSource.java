@@ -15,7 +15,6 @@ import java.util.stream.Collectors;
 /**
  * @Description:
  * @Copyright: Copyright (c) 2019  ALL RIGHTS RESERVED.
- * @Company: 成都国盛天丰技术有限责任公司
  * @Author: 米华军
  * @CreateDate: 2020/5/27 17:19
  * @UpdateDate: 2020/5/27 17:19
