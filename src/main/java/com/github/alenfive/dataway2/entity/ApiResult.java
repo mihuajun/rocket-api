@@ -20,6 +20,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ApiResult {
+    private Integer unpack = 1;
     private Integer code = 200;
     private String msg = "success";
     private Object data;

@@ -389,6 +389,16 @@ function loadApiList() {
 }
 
 function unpackResult(data){
+    if (data.unpack){
+        return data;
+    }
+
+    $.each(data,function (key,value) {
+        if ($.isPlainObject(value)){
+            data = unpackResult(value);
+            return;
+        }
+    })
     return data;
 }
 
@@ -417,4 +427,11 @@ function newRequest() {
     $(form).find(".api-info-editor").val("admin");
     $(form).find(".api-info-comment").val("Request");
     sqlCodeMirror.setValue("");
+
+    //css
+    $(form).find(".api-info-method").removeAttr("readonly");
+    $(form).find(".api-info-method").parent().removeClass("disabled");
+    $(form).find(".api-info-path").removeAttr("readonly");
+    $(form).find(".api-info-datasource").removeAttr("readonly");
+    $(form).find(".api-info-datasource").parent().removeClass("disabled");
 }

@@ -3,6 +3,8 @@ package com.github.alenfive.dataway2.config;
 import com.github.alenfive.dataway2.controller.ApiController;
 import com.github.alenfive.dataway2.controller.ViewController;
 import com.github.alenfive.dataway2.extend.*;
+import com.github.alenfive.dataway2.service.ScriptParseService;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -11,6 +13,7 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @EnableConfigurationProperties({Dataway2Properties.class})
+@ConditionalOnBean(DataSourceManager.class)
 public class Dataway2AutoConfig {
 
     @Bean
@@ -33,13 +36,13 @@ public class Dataway2AutoConfig {
 
     @Bean
     @ConditionalOnMissingBean
-    public DataSourceManager getDataSourceManager(){
-        return new DefaultDataSourceManager();
+    public DefaultApiPager getApiPager(){
+        return new DefaultApiPager();
     }
 
     @Bean
     @ConditionalOnMissingBean
-    public DefaultApiPager getApiPager(){
-        return new DefaultApiPager();
+    public ScriptParseService getScriptParseService(){
+        return new ScriptParseService();
     }
 }

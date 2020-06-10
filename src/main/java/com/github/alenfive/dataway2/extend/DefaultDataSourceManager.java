@@ -1,6 +1,7 @@
 package com.github.alenfive.dataway2.extend;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
@@ -30,6 +31,7 @@ public class DefaultDataSourceManager extends DataSourceManager {
 
     @PostConstruct
     public void init() {
+
         Map<String,DataSourceDialect> dialects = new HashMap<>();
         dialects.put("mysql",new MysqlDataSource(jdbcTemplate,true));
         dialects.put("mongodb",new MongoDataSource(mongoTemplate,false));

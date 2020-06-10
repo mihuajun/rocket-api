@@ -1,5 +1,6 @@
 package com.github.alenfive.dataway2.config;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.alenfive.dataway2.entity.ApiInfo;
 import com.github.alenfive.dataway2.entity.ApiParams;
@@ -26,7 +27,6 @@ import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.lang.reflect.Method;
-import java.text.ParseException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
@@ -109,7 +109,7 @@ public class SQLRequestMappingFactory {
             script = new StringBuilder(dataSourceManager.saveApiInfoScript());
             parseService.buildParams(script,apiParams);
             dataSourceManager.execute(script.toString(),ApiInfo.builder().datasource(dataSourceManager.getStoreApiKey()).build(),null);
-            this.cacheApiInfo.put(buildApiInfoKey(codeInfo),codeInfo);
+            this.cacheApiInfo.put(buildApiInfoKey(codeInfo),getDbInfo(codeInfo));
         }
 
         //注册mapping
@@ -289,18 +289,22 @@ public class SQLRequestMappingFactory {
             this.cacheApiInfo.remove(buildApiInfoKey(dbInfo));
         }
 
-        ApiParams apiParams = ApiParams.builder().param(apiInfo.toMap()).build();
-        StringBuilder script = new StringBuilder(dataSourceManager.getApiInfoScript());
-        parseService.buildParams(script,apiParams);
-
-        List<Map<String,Object>> apiInfoMap = dataSourceManager.executeQuery(script.toString(),ApiInfo.builder().datasource(dataSourceManager.getStoreApiKey()).build(),null);
-        ApiInfo dbInfo = objectMapper.readValue(objectMapper.writeValueAsBytes(apiInfoMap.get(0)),ApiInfo.class);
+        ApiInfo dbInfo = getDbInfo(apiInfo);
 
         //入缓存
         this.cacheApiInfo.put(buildApiInfoKey(dbInfo),dbInfo);
 
         //注册mapping
         this.registerMappingForApiInfo(dbInfo);
+    }
+
+    public ApiInfo getDbInfo(ApiInfo apiInfo) throws IOException {
+        ApiParams apiParams = ApiParams.builder().param(apiInfo.toMap()).build();
+        StringBuilder script = new StringBuilder(dataSourceManager.getApiInfoScript());
+        parseService.buildParams(script,apiParams);
+
+        List<Map<String,Object>> apiInfoMap = dataSourceManager.executeQuery(script.toString(),ApiInfo.builder().datasource(dataSourceManager.getStoreApiKey()).build(),null);
+        return objectMapper.readValue(objectMapper.writeValueAsBytes(apiInfoMap.get(0)),ApiInfo.class);
     }
 
     private boolean exists(ApiInfo apiInfo) {
@@ -343,6 +347,7 @@ public class SQLRequestMappingFactory {
         Map<RequestMappingInfo, HandlerMethod> map = mapping.getHandlerMethods();
         List<ApiInfo> result = new ArrayList<>(map.size());
         for (RequestMappingInfo info : map.keySet()) {
+            String group = map.get(info).getBeanType().getSimpleName();
             for(String path : info.getPatternsCondition().getPatterns()){
 
                 String blankPath = blankList.stream().filter(item->path.startsWith(item)).findFirst().orElse(null);
@@ -357,10 +362,10 @@ public class SQLRequestMappingFactory {
                             .method("All")
                             .type(ApiType.Code.name())
                             .service(service)
-                            .group("公共API")
+                            .group(group)
                             .editor("admin")
                             .comment("")
-                            .datasource(dataSourceManager.getStoreApiKey())
+                            .datasource("")
                             .script("")
                             .params("")
                             .build());
@@ -371,10 +376,10 @@ public class SQLRequestMappingFactory {
                                 .method(method.name())
                                 .type(ApiType.Code.name())
                                 .service(service)
-                                .group("公共API")
+                                .group(group)
                                 .editor("admin")
                                 .comment("")
-                                .datasource(dataSourceManager.getStoreApiKey())
+                                .datasource("")
                                 .script("")
                                 .params("")
                                 .build());

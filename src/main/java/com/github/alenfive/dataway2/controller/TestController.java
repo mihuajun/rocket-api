@@ -3,10 +3,7 @@ package com.github.alenfive.dataway2.controller;
 import com.github.alenfive.dataway2.entity.ApiInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * @Description:
@@ -31,5 +28,13 @@ public class TestController {
                        @PathVariable String hello,
                        ApiInfo apiInfo){
         return jdbcTemplate.queryForList("select * from user");
+    }
+
+    @GetMapping(value = {"/hello/11"})
+    public Object test11(String id,
+                       String name,
+                       @PathVariable String hello,
+                       ApiInfo apiInfo){
+        return null;
     }
 }
