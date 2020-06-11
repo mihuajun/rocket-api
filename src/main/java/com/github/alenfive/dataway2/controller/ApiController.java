@@ -3,18 +3,16 @@ package com.github.alenfive.dataway2.controller;
 import com.github.alenfive.dataway2.config.SQLRequestMappingFactory;
 import com.github.alenfive.dataway2.entity.ApiInfo;
 import com.github.alenfive.dataway2.entity.ApiResult;
+import com.github.alenfive.dataway2.entity.vo.RenameGroupReq;
 import lombok.extern.slf4j.Slf4j;
-import org.bson.BSONEncoder;
-import org.bson.types.ObjectId;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.configurationprocessor.json.JSONObject;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
-import java.util.Base64;
 
 /**
  * @Description:
@@ -49,8 +47,17 @@ public class ApiController {
      * @return
      */
     @GetMapping("/api-info/{id}")
-    public ApiResult getPathList(@PathVariable String id) {
-        return  ApiResult.success(sqlRequestMapping.getPathList().stream().filter(item->item.getId().equals(id)).findFirst().orElse(null));
+    public ApiResult getPathList(@PathVariable String id) throws UnsupportedEncodingException {
+        ApiInfo apiInfo = sqlRequestMapping.getPathList().stream().filter(item->item.getId().equals(id)).findFirst().orElse(null);
+
+        if (apiInfo == null || StringUtils.isEmpty(apiInfo.getScript())){
+            return ApiResult.success(apiInfo);
+        }
+
+        ApiInfo resultInfo = new ApiInfo();
+        BeanUtils.copyProperties(apiInfo,resultInfo);
+        resultInfo.setScript(URLDecoder.decode(resultInfo.getScript(),"utf-8"));
+        return ApiResult.success(resultInfo);
     }
 
     /**
@@ -61,6 +68,11 @@ public class ApiController {
     public ApiResult saveOrUpdateApiInfo(@RequestBody ApiInfo apiInfo) {
 
         try {
+
+            if (!StringUtils.isEmpty(apiInfo.getScript())){
+                apiInfo.setScript(URLEncoder.encode(apiInfo.getScript(),"utf-8"));
+            }
+
             sqlRequestMapping.saveOrUpdateApiInfo(apiInfo);
 
             //返回主键ID
@@ -71,6 +83,17 @@ public class ApiController {
             return ApiResult.fail(e.getMessage());
         }
 
+    }
+
+    /**
+     * change group name
+     * @param renameGroupReq
+     * @return
+     */
+    @PutMapping("/api-info/group")
+    public ApiResult renameGroup(@RequestBody RenameGroupReq renameGroupReq){
+        sqlRequestMapping.renameGroup(renameGroupReq);
+        return ApiResult.success(null);
     }
 
     /**

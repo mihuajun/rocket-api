@@ -57,6 +57,7 @@ public class MysqlDataSource extends DataSourceDialect {
         return "delete from api_info where id = #{id}";
     }
 
+
     @Override
     public Object execute(String script, ApiInfo apiInfo, ApiParams apiParams) {
         jdbcTemplate.execute(script);

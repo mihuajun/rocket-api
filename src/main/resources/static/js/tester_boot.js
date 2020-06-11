@@ -26,6 +26,7 @@ let getApiUrl = "/dataway2/api-info/";
 let deleteApiUrl = "/dataway2/api-info";
 let getApiGroupNameUrl = "/dataway2/group-name-list";
 let getApiNameUrl = "/dataway2/api-name-list";
+let renameGroupUrl = "/dataway2/api-info/group";
 
 let indexUrl = "/api-ui";
 let detailUrl = "/api-ui/";
@@ -90,7 +91,37 @@ function closeConfirmModal() {
 }
 
 function moveApi(e,id) {
-    listGroup(id);
+    showDialogGroup(id);
+}
+
+function renameApi(e) {
+    $(".authenticated>.service").removeClass("renameing");
+    $(e).parents(".service").addClass("renameing");
+    let group = $(".authenticated .renameing").children(".name").attr("title");
+    $("#rename-dialog").show();
+    $("#rename-dialog").find(".newname").val(group);
+    $("#rename-dialog").find(".oldname").val(group);
+}
+
+function confirmRenameDialog(e) {
+    let newGroup = $("#rename-dialog").find(".newname").val();
+    let oldGroup = $("#rename-dialog").find(".oldname").val();
+    $.ajax({
+        type: "put",
+        url: renameGroupUrl,
+        contentType : "application/json",
+        data: JSON.stringify({"newGroup":newGroup,"oldGroup":oldGroup}),
+        success: function (data) {
+            data = unpackResult(data);
+            if (data.code !=200){
+                openMsgModal(data.msg);
+                return;
+            }
+            $(".authenticated .renameing").children(".name").attr("title",newGroup);
+            $(".authenticated .renameing").children(".name").children(".gwt-InlineHTML").text(newGroup);
+            cancelDialog('#rename-dialog');
+        }
+    });
 }
 
 function removeApi(e,id) {
@@ -187,7 +218,7 @@ function loadDetail(id,form) {
 }
 
 function saveAsEditor() {
-    listGroup();
+    showDialogGroup();
 }
 
 function closeModal() {
@@ -234,11 +265,12 @@ function cancelGroup() {
     $(".new-path>div").hide();
 }
 
-function cancelDialog() {
+function cancelDialogGroup() {
+    $("#modal-backdrop").hide();
     $("#save-dialog").hide();
 }
 
-function listGroup(id) {
+function showDialogGroup(id) {
     $("#save-dialog").attr("data-id",id);
     $("#save-dialog").show();
     $("#save-dialog .input-xlarge").val($("#editor-action .api-info-comment").val());
@@ -278,7 +310,7 @@ function saveEditor(form) {
     let id = $(form).find(".api-info-id").val();
 
     if (!id){
-        listGroup();
+        showDialogGroup();
         return;
     }
 
@@ -307,7 +339,7 @@ function saveExecuter(params) {
                 openMsgModal(data.msg);
                 return;
             }
-            cancelDialog();
+            cancelDialogGroup();
             loadDetail(data.data,"#editor-action")
         }
     });
@@ -349,7 +381,10 @@ function buildApiTree(list,collapsed) {
             '                                                    class="btn-mini dropdown-toggle" data-toggle="dropdown"\n' +
             '                                                    e2e-tag="drive|'+key+'|more"><i\n' +
             '                                                    class="sli-icon-options-vertical"></i></a>\n' +
-            '                                                <ul class="pull-right dropdown-menu"></ul>\n' +
+            '                                                <ul class="pull-right dropdown-menu">' +
+            '<li class="dropdown-item"><a><i class="fa fa-plus"></i><span class="gwt-InlineHTML">Add a request</span></a></li>' +
+            '<li class="dropdown-item" onclick="renameApi(this)"><a><i class="fa fa-edit"></i><span class="gwt-InlineHTML">Rename</span></a></li>' +
+            '</ul>\n' +
             '                                            </div>\n' +
             '                                        </div></li>');
 
@@ -369,7 +404,7 @@ function buildApiTree(list,collapsed) {
                 '                                                            class="btn-mini dropdown-toggle" data-toggle="dropdown"\n' +
                 '                                                            e2e-tag="drive|'+(item.comment?item.comment:item.path)+'|more"><i\n' +
                 '                                                            class="sli-icon-options-vertical"></i></a>\n' +
-                '                                                        <ul class="pull-right dropdown-menu"><li class="dropdown-item"  onclick="moveApi(this,\''+item.id+'\')"><a><i class="fa fa-random"></i><span class="gwt-InlineHTML">Move</span></a></li><li class="dropdown-item" onclick="removeApi(this,'+item.id+')"><a><i class="fa fa-trash-o" onclick="moveApi(this,'+item.id+')"></i><span class="gwt-InlineHTML">Remove</span></a></li></ul>\n' +
+                '                                                        <ul class="pull-right dropdown-menu"><li class="dropdown-item"  onclick="moveApi(this,\''+item.id+'\')"><a><i class="fa fa-random"></i><span class="gwt-InlineHTML">Move</span></a></li><li class="dropdown-item" onclick="removeApi(this,\''+item.id+'\')"><a><i class="fa fa-trash-o" onclick="moveApi(this,'+item.id+')"></i><span class="gwt-InlineHTML">Remove</span></a></li></ul>\n' +
                 '                                                    </div>\n' +
                 '                                                </div>' +
                 '</li>');
@@ -414,6 +449,9 @@ function collapsedTree(e) {
     }
 }
 
+function cancelDialog(e) {
+    $(e).hide();
+}
 
 function newRequest() {
     let form = "#editor-action";

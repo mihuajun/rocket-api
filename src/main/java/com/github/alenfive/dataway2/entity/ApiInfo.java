@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.bson.types.ObjectId;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
@@ -83,40 +84,6 @@ public class ApiInfo {
      * 更新时间
      */
     private Date updateTime;
-
-    public String getScript() {
-        if (this.script != null){
-            try {
-                return URLDecoder.decode(URLDecoder.decode(this.script,"utf-8"),"utf-8");
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-            }
-        }
-        return null;
-    }
-
-    public void setScript(String script) {
-        if (script != null){
-            try {
-                this.script = URLEncoder.encode(script,"utf-8");
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    public ApiType getType() {
-        return ApiType.valueOf(this.type);
-    }
-
-    public ApiParams getParams(ObjectMapper objectMapper){
-        try {
-            return objectMapper.readValue(this.params,ApiParams.class);
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
 
     public Map<String,Object> toMap(){
         Map<String,Object> result = new HashMap<>();

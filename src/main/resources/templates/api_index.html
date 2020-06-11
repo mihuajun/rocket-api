@@ -402,6 +402,32 @@
                                                                                                                    style="display: none;"></span></button>
     </div>
 </div>
+<!--输入确认框-->
+<div class="modal rename-dialog in" id="rename-dialog" aria-hidden="false" style="display: none">
+    <div class="modal-header"><a class="close" onclick="cancelDialog('#rename-dialog')" data-dismiss="modal">×</a>
+        <h3>Rename Group <small></small></h3></div>
+    <div class="modal-body">
+        <div class="form-horizontal">
+            <div class="repository-path-selector">
+                <div class="flex-container name-form">
+                    <div class="left-label"> Name</div>
+                    <div class="right-label">
+                        <input type="text" class="newname gwt-TextBox input-xlarge">
+                        <input type="text" style="display: none" class="oldname gwt-TextBox input-xlarge">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button class="r-btn" e2e-tag="modal-cancel" onclick="cancelDialog('#rename-dialog')">
+            <i class="fa fa-remove"></i><span>Cancel</span><span class="r-btn-indicator" aria-hidden="true"  style="display: none;"></span>
+        </button>
+        <button class="r-btn r-btn-primary" e2e-tag="modal-ok" onclick="confirmRenameDialog('#rename-dialog')">
+            <i class="fa fa-download"></i><span>Save</span><span class="r-btn-indicator" aria-hidden="true"  style="display: none;"></span>
+        </button>
+    </div>
+</div>
 <div id="modal-backdrop" class="modal-backdrop  in" style="display: none;"></div>
 
 <script type="text/javascript" src="/js/tester_boot.js"></script>

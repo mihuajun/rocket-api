@@ -99,7 +99,7 @@
 
     <!--save as-->
     <div class="modal save-dialog in" id="save-dialog" aria-hidden="false" style="display: none">
-        <div class="modal-header"><a class="close" data-dismiss="modal">×</a>
+        <div class="modal-header"><a class="close" onclick="cancelDialogGroup()" data-dismiss="modal">×</a>
             <h3>Save Request <small></small></h3></div>
         <div class="modal-body">
             <div class="form-horizontal">
@@ -118,7 +118,7 @@
                                     <li><a>My drive</a></li>
                                 </ul>
                                 <span class="colon">:</span>
-                                <div class="path-buttons" e2e-tag="drive-path"><a class="r-btn active" onclick="listGroup()">/</a></div>
+                                <div class="path-buttons" e2e-tag="drive-path"><a class="r-btn active" onclick="showDialogGroup()">/</a></div>
                             </div>
                         </div>
                     </div>
@@ -143,8 +143,8 @@
             </div>
         </div>
         <div class="modal-footer">
-            <button class="r-btn" e2e-tag="modal-cancel" onclick="cancelDialog()"><i class="fa fa-remove"></i><span>Cancel</span><span class="r-btn-indicator" aria-hidden="true"
-                                                                                                              style="display: none;"></span></button>
+            <button class="r-btn" e2e-tag="modal-cancel" onclick="cancelDialogGroup()"><i class="fa fa-remove"></i><span>Cancel</span><span class="r-btn-indicator" aria-hidden="true"
+                                                                                                                                            style="display: none;"></span></button>
             <button class="r-btn r-btn-primary" e2e-tag="modal-ok" onclick="confirmDialog('#editor-action')"><i class="fa fa-download"></i><span>Save</span><span class="r-btn-indicator" aria-hidden="true"
                                                                                                                         style="display: none;"></span></button>
         </div>

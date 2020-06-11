@@ -6,6 +6,7 @@ import com.github.alenfive.dataway2.entity.ApiInfo;
 import com.github.alenfive.dataway2.entity.ApiParams;
 import com.github.alenfive.dataway2.entity.ApiResultType;
 import com.github.alenfive.dataway2.entity.ApiType;
+import com.github.alenfive.dataway2.entity.vo.RenameGroupReq;
 import com.github.alenfive.dataway2.extend.ApiPagerInterface;
 import com.github.alenfive.dataway2.extend.DataSourceManager;
 import com.github.alenfive.dataway2.service.ScriptParseService;
@@ -227,7 +228,7 @@ public class SQLRequestMappingFactory {
      * @param apiInfo
      */
     private void registerMappingForApiInfo(ApiInfo apiInfo){
-        if (ApiType.Code.equals(apiInfo.getType())){
+        if (ApiType.Code.name().equals(apiInfo.getType())){
             return;
         }
         String pattern = apiInfo.getPath().replaceAll("/+","/");
@@ -244,7 +245,7 @@ public class SQLRequestMappingFactory {
      * @param apiInfo
      */
     private void unregisterMappingForApiInfo(ApiInfo apiInfo){
-        if (ApiType.Code.equals(apiInfo.getType())){
+        if (ApiType.Code.name().equals(apiInfo.getType())){
             return;
         }
         log.debug("unregister mapping [{}]{}",apiInfo.getMethod(),apiInfo.getPath());
@@ -398,5 +399,16 @@ public class SQLRequestMappingFactory {
     public Set<String> getApiNameList(String group) {
         return this.cacheApiInfo.values().stream().filter(item->group.equals(item.getGroup()))
                 .map(item->StringUtils.isEmpty(item.getComment())?item.getPath():item.getComment()).collect(Collectors.toSet());
+    }
+
+    public void renameGroup(RenameGroupReq renameGroupReq) {
+        List<ApiInfo> apiInfos = this.cacheApiInfo.values().stream().filter(item->item.getGroup().equals(renameGroupReq.getOldGroup())).collect(Collectors.toList());
+        for (ApiInfo apiInfo : apiInfos){
+            apiInfo.setGroup(renameGroupReq.getNewGroup());
+            StringBuilder script = new StringBuilder(dataSourceManager.updateApiInfoScript());
+            parseService.buildParams(script,ApiParams.builder().param(apiInfo.toMap()).build());
+            dataSourceManager.execute(script.toString(),ApiInfo.builder().datasource(dataSourceManager.getStoreApiKey()).build(),null);
+        }
+
     }
 }
