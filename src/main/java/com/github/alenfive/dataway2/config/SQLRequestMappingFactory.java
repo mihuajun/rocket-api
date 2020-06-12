@@ -115,13 +115,13 @@ public class SQLRequestMappingFactory {
 
         //注册mapping
         for (ApiInfo apiInfo : this.cacheApiInfo.values()){
-            registerMappingForApiInfo(apiInfo);
+            this.registerMappingForApiInfo(apiInfo);
         }
 
     }
 
     private String buildApiInfoKey(ApiInfo apiInfo) {
-        return apiInfo.getMethod() + apiInfo.getPath();
+        return apiInfo.getMethod() +" "+ apiInfo.getPath();
     }
 
 
@@ -231,6 +231,9 @@ public class SQLRequestMappingFactory {
         if (ApiType.Code.name().equals(apiInfo.getType())){
             return;
         }
+        if (StringUtils.isEmpty(apiInfo.getPath()) || apiInfo.getPath().startsWith("TEMP-")){
+            return;
+        }
         String pattern = apiInfo.getPath().replaceAll("/+","/");
         log.debug("register mapping [{}]{}",apiInfo.getMethod(),pattern);
         PatternsRequestCondition patternsRequestCondition = new PatternsRequestCondition(pattern);
@@ -246,6 +249,9 @@ public class SQLRequestMappingFactory {
      */
     private void unregisterMappingForApiInfo(ApiInfo apiInfo){
         if (ApiType.Code.name().equals(apiInfo.getType())){
+            return;
+        }
+        if (StringUtils.isEmpty(apiInfo.getPath()) || apiInfo.getScript().startsWith("TEMP-")){
             return;
         }
         log.debug("unregister mapping [{}]{}",apiInfo.getMethod(),apiInfo.getPath());

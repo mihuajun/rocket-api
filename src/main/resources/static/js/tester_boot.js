@@ -30,6 +30,7 @@ let renameGroupUrl = "/dataway2/api-info/group";
 
 let indexUrl = "/api-ui";
 let detailUrl = "/api-ui/";
+let editor = "admin";
 
 let sqlCodeMirror;
 let gdata = {
@@ -85,15 +86,49 @@ function openConfirmModal(msg,fun) {
     $("#modal-backdrop").show();
 }
 
+/**
+ * 关闭确认框
+ */
 function closeConfirmModal() {
     $("#confirmModal").hide();
     $("#modal-backdrop").hide();
 }
 
+//API移动
 function moveApi(e,id) {
     showDialogGroup(id);
 }
+function uuid() {
+    var s = [];
+    var hexDigits = "0123456789abcdef";
+    for (var i = 0; i < 36; i++) {
+        s[i] = hexDigits.substr(Math.floor(Math.random() * 0x10), 1);
+    }
+    s[14] = "4"; // bits 12-15 of the time_hi_and_version field to 0010
+    s[19] = hexDigits.substr((s[19] & 0x3) | 0x8, 1); // bits 6-7 of the clock_seq_hi_and_reserved to 01
+    s[8] = s[13] = s[18] = s[23] = "-";
 
+    var uuid = s.join("");
+    return uuid;
+}
+/**
+ * 添加一个请求
+ * @param e
+ */
+function addARequest(e) {
+    newRequest();
+    saveExecuter({
+        "method": "GET",
+        "datasource":$("#editor-action").find(".api-info-datasource").attr("default-value"),
+        "path": "TEMP-"+uuid(),
+        "group": $(e).parents(".service").children(".name").attr("title"),
+        "editor": editor,
+        "comment": "Request",
+        "script": "",
+    });
+}
+
+//重命名组
 function renameApi(e) {
     $(".authenticated>.service").removeClass("renameing");
     $(e).parents(".service").addClass("renameing");
@@ -102,7 +137,7 @@ function renameApi(e) {
     $("#rename-dialog").find(".newname").val(group);
     $("#rename-dialog").find(".oldname").val(group);
 }
-
+//确认重命名组
 function confirmRenameDialog(e) {
     let newGroup = $("#rename-dialog").find(".newname").val();
     let oldGroup = $("#rename-dialog").find(".oldname").val();
@@ -182,6 +217,7 @@ function loadDetail(id,form) {
     $(".request"+id).addClass("selected");
     $(".request"+id).parents(".service").addClass("parent-selected");
     $(".request"+id).parents(".service").removeClass("collapsed");
+    $(".request"+id).parents(".service").find(".fa-caret-right").addClass("fa-caret-down").removeClass("fa-caret-right");
     $('.draft-ribbon-text').text("Edit");
 
     let url = detailUrl+id;
@@ -191,7 +227,7 @@ function loadDetail(id,form) {
         $(form).find(".api-info-id").val(data.id);
         $(form).find(".api-info-method").val(data.method);
         $(form).find(".api-info-datasource").val(data.datasource),
-        $(form).find(".api-info-path").val(data.path);
+        $(form).find(".api-info-path").val(data.path.startsWith("TEMP-")?"":data.path);
         $(form).find(".api-info-group").val(data.group);
         $(form).find(".api-info-editor").val(data.editor);
         $(form).find(".api-info-comment").val(data.comment);
@@ -382,7 +418,7 @@ function buildApiTree(list,collapsed) {
             '                                                    e2e-tag="drive|'+key+'|more"><i\n' +
             '                                                    class="sli-icon-options-vertical"></i></a>\n' +
             '                                                <ul class="pull-right dropdown-menu">' +
-            '<li class="dropdown-item"><a><i class="fa fa-plus"></i><span class="gwt-InlineHTML">Add a request</span></a></li>' +
+            '<li class="dropdown-item" onclick="addARequest(this)"><a><i class="fa fa-plus"></i><span class="gwt-InlineHTML">Add a request</span></a></li>' +
             '<li class="dropdown-item" onclick="renameApi(this)"><a><i class="fa fa-edit"></i><span class="gwt-InlineHTML">Rename</span></a></li>' +
             '</ul>\n' +
             '                                            </div>\n' +
