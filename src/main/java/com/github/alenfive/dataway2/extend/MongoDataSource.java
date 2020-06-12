@@ -151,7 +151,7 @@ public class MongoDataSource extends DataSourceDialect {
                     try {
                         time = sdfDt.parse(timeStr);
                     } catch (ParseException exx) {
-                        throw new MissingFormatArgumentException("format ISODate error"+script.substring(startIndex,endIndex));
+                        throw new MissingFormatArgumentException("format ISODate error "+script.substring(startIndex,endIndex));
                     }
                 }
             }
@@ -179,4 +179,5 @@ public class MongoDataSource extends DataSourceDialect {
         }
         return map;
     }
+
 }

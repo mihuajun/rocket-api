@@ -44,9 +44,10 @@ public class ScriptParseService {
     public List<StringBuilder> extractExecutableScript(String script) throws UnsupportedEncodingException {
         script = URLDecoder.decode(script,"utf-8");
         String[] scriptArr = script
-                .replaceAll(" +"," ")
                 .replaceAll("//.*","")
-                .replaceAll("\n","").split(";");
+                .replaceAll("\n","")
+                .replaceAll("\t","")
+                .replaceAll(" {2,}"," ").split(";");
         return Stream.of(scriptArr).map(item->new StringBuilder(item.trim())).collect(Collectors.toList());
     }
 

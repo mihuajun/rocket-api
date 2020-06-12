@@ -162,7 +162,6 @@ public class SQLRequestMappingFactory {
         //脚本解析
         scriptList.forEach(item->{
             parseService.parse(item,apiParams);
-            log.debug("generate script:{}",item.toString());
         });
 
         return buildResult(scriptList,apiInfo,apiParams,reaultType);
@@ -173,11 +172,13 @@ public class SQLRequestMappingFactory {
 
         if (ApiResultType.first.name().equals(reaultType)){
             List<Map<String,Object>> resultList = dataSourceManager.executeQuery(scriptList.get(0),apiInfo,apiParams);
+            log.debug("generate script:{}",scriptList.get(0).toString());
             return resultList.size()==0?Collections.EMPTY_MAP:resultList.get(0);
         }
 
         if (ApiResultType.list.name().equals(reaultType)){
-            return dataSourceManager.executeQuery(scriptList.get(0),apiInfo,apiParams);
+            Object value = dataSourceManager.executeQuery(scriptList.get(0),apiInfo,apiParams);
+            log.debug("generate script:{}",scriptList.get(0).toString());
         }
 
         if (ApiResultType.page.name().equals(reaultType)){
@@ -185,12 +186,15 @@ public class SQLRequestMappingFactory {
                 throw new MissingFormatArgumentException("Lack of script size:"+scriptList.size());
             }
             Long totalRecords = dataSourceManager.executeCount(scriptList.get(0),apiInfo,apiParams);
+            log.debug("generate script:{}",scriptList.get(0).toString());
             List<Map<String,Object>> resultList = dataSourceManager.executeQuery(scriptList.get(1),apiInfo,apiParams);
+            log.debug("generate script:{}",scriptList.get(1).toString());
             return apiPager.buildPager(totalRecords,resultList,apiInfo,apiParams);
         }
 
         for (StringBuilder script : scriptList){
             dataSourceManager.execute(script,apiInfo,apiParams);
+            log.debug("generate script:{}",script.toString());
         }
         return null;
     }
