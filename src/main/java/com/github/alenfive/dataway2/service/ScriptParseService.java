@@ -7,6 +7,8 @@ import org.springframework.util.StringUtils;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -39,8 +41,10 @@ public class ScriptParseService {
      * 提取可执行脚本
      * 去掉注释
      */
-    public List<StringBuilder> extractExecutableScript(String script){
+    public List<StringBuilder> extractExecutableScript(String script) throws UnsupportedEncodingException {
+        script = URLDecoder.decode(script,"utf-8");
         String[] scriptArr = script
+                .replaceAll(" +"," ")
                 .replaceAll("//.*","")
                 .replaceAll("\n","").split(";");
         return Stream.of(scriptArr).map(item->new StringBuilder(item.trim())).collect(Collectors.toList());
@@ -66,8 +70,6 @@ public class ScriptParseService {
         Set<String> scopeSet = Stream.of(ParamScope.values()).map(ParamScope::name).collect(Collectors.toSet());
 
         //匹配参数#{}
-        Pattern r = Pattern.compile("#\\?\\{[A-Za-z0-9-_\\.]+\\}");
-
         do{
             int startIf = script.indexOf("#?{");
             if (startIf == -1){

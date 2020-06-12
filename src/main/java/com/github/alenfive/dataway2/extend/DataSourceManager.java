@@ -52,17 +52,17 @@ public abstract class DataSourceManager extends DataSourceDialect{
     }
 
     @Override
-    public Object execute(String script, ApiInfo apiInfo, ApiParams apiParams) {
+    public Object execute(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams) {
         return dialectMap.get(apiInfo.getDatasource()).execute(script,apiInfo,apiParams);
     }
 
     @Override
-    public List<Map<String, Object>> executeQuery(String script, ApiInfo apiInfo, ApiParams apiParams) {
+    public List<Map<String, Object>> executeQuery(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams) {
         return dialectMap.get(apiInfo.getDatasource()).executeQuery(script,apiInfo,apiParams);
     }
 
     @Override
-    public Long executeCount(String script, ApiInfo apiInfo, ApiParams apiParams) {
+    public Long executeCount(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams) {
         return dialectMap.get(apiInfo.getDatasource()).executeCount(script,apiInfo,apiParams);
     }
 

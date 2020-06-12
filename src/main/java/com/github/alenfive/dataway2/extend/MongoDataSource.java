@@ -5,8 +5,14 @@ import com.github.alenfive.dataway2.entity.ApiParams;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.DateOperators;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -95,16 +101,65 @@ public class MongoDataSource extends DataSourceDialect {
     }
 
     @Override
-    public Object execute(String script, ApiInfo apiInfo, ApiParams apiParams) {
-        mongoTemplate.executeCommand(script);
+    public Object execute(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams) {
+        formatISODate(script);
+        mongoTemplate.executeCommand(script.toString());
         return null;
     }
 
     @Override
-    public List<Map<String,Object>> executeQuery(String script, ApiInfo apiInfo, ApiParams apiParams) {
-        Document document = mongoTemplate.executeCommand(script);
+    public List<Map<String,Object>> executeQuery(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams) {
+        formatISODate(script);
+        Document document = mongoTemplate.executeCommand(script.toString());
         List<Document> documents = (List<Document>) ((Document)document.get("cursor")).get("firstBatch");
         return documents.stream().map(item->toMap(item)).collect(Collectors.toList());
+    }
+
+    @Override
+    public Long executeCount(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams) {
+        formatISODate(script);
+        Document document = mongoTemplate.executeCommand(script.toString());
+        return new Long(document.getInteger("n"));
+    }
+
+    public void formatISODate(StringBuilder script){
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        SimpleDateFormat sdfDt = new SimpleDateFormat("yyyy-MM-dd");
+        SimpleDateFormat sdfUtc = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.sss'Z'");
+        String flag = "ISODate(";
+        for (int i=0;i<script.length();i++){
+            int startIndex = script.indexOf(flag,i);
+            if (startIndex == -1){
+                break;
+            }
+
+            int endIndex = script.indexOf(")",startIndex+flag.length());
+            if (endIndex == -1){
+                throw new IllegalArgumentException("missed ISODate( close ')'");
+            }
+
+            String timeStr = script.substring(startIndex+flag.length()+1,endIndex-1);
+            Date time = null;
+            try {
+                sdfUtc.parse(timeStr);
+                i = endIndex;
+                continue;
+            } catch (ParseException e) {
+                try {
+                    time = sdf.parse(timeStr);
+                } catch (ParseException ex) {
+                    try {
+                        time = sdfDt.parse(timeStr);
+                    } catch (ParseException exx) {
+                        throw new MissingFormatArgumentException("format ISODate error"+script.substring(startIndex,endIndex));
+                    }
+                }
+            }
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(time);
+            calendar.add(Calendar.HOUR_OF_DAY,-8);
+            script = script.replace(startIndex+flag.length()+1,endIndex-1,sdfUtc.format(calendar.getTime()));
+        }
     }
 
     private Map<String,Object> toMap(Document item) {
@@ -124,12 +179,4 @@ public class MongoDataSource extends DataSourceDialect {
         }
         return map;
     }
-
-    @Override
-    public Long executeCount(String script, ApiInfo apiInfo, ApiParams apiParams) {
-        Document document = mongoTemplate.executeCommand(script);
-        return new Long(document.getInteger("n"));
-    }
-
-
 }

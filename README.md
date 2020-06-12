@@ -9,7 +9,9 @@
     <version>0.0.1-SNAPSHOT</version>
 </dependency>
 ```
-//版本查看: https://github.com/alenfive/dataway2/releases   
+
+版本查看: https://github.com/alenfive/dataway2/releases   
+
 2/配置数据源,继承`com.github.alenfive.dataway2.extend.DataSourceManager` 注入数据源
 ```java
 @Component

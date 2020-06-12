@@ -14,6 +14,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.StringUtils;
 
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -81,7 +82,7 @@ public class ApplicationTests {
     }
 
     @Test
-    public void testExtract(){
+    public void testExtract() throws UnsupportedEncodingException {
         String script  =
                 "//注释\n" +
                 "start11;\n" +

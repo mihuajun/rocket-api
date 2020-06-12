@@ -31,12 +31,17 @@ public abstract class DataSourceDialect {
     abstract String updateApiInfoScript();
     abstract String deleteApiInfoScript();
 
-    abstract Object execute(String script, ApiInfo apiInfo, ApiParams apiParams);
+    abstract Object execute(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams);
 
-    abstract List<Map<String,Object>> executeQuery(String script, ApiInfo apiInfo, ApiParams apiParams);
+    abstract List<Map<String,Object>> executeQuery(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams);
 
-    abstract Long executeCount(String script, ApiInfo apiInfo, ApiParams apiParams);
+    abstract Long executeCount(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams);
 
+    /**
+     * 替换key
+     * @param map
+     * @return
+     */
     protected Map<String,Object> toReplaceKeyLow(Map<String,Object> map){
         Map<String,Object> result = new HashMap<>(map.size());
         for(String key : map.keySet()){
@@ -45,6 +50,11 @@ public abstract class DataSourceDialect {
         return result;
     }
 
+    /**
+     * 下划线转驼峰
+     * @param name
+     * @return
+     */
     protected String underlineToCamel(String name){
         StringBuilder sb = new StringBuilder(name.length());
         for (int i = 0; i < name.length(); i++) {

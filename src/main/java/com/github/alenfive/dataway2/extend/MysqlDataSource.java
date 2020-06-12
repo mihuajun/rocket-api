@@ -59,20 +59,20 @@ public class MysqlDataSource extends DataSourceDialect {
 
 
     @Override
-    public Object execute(String script, ApiInfo apiInfo, ApiParams apiParams) {
-        jdbcTemplate.execute(script);
+    public Object execute(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams) {
+        jdbcTemplate.execute(script.toString());
         return null;
     }
 
     @Override
-    public List<Map<String,Object>> executeQuery(String script, ApiInfo apiInfo, ApiParams apiParams) {
-        List<Map<String,Object>> resultList = jdbcTemplate.queryForList(script);
+    public List<Map<String,Object>> executeQuery(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams) {
+        List<Map<String,Object>> resultList = jdbcTemplate.queryForList(script.toString());
         return resultList.stream().map(this::toReplaceKeyLow).collect(Collectors.toList());
     }
 
     @Override
-    public Long executeCount(String script, ApiInfo apiInfo, ApiParams apiParams) {
-        return jdbcTemplate.queryForObject(script,Long.class);
+    public Long executeCount(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams) {
+        return jdbcTemplate.queryForObject(script.toString(),Long.class);
     }
 
 }
