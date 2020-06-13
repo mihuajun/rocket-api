@@ -1,5 +1,18 @@
 # dataway2
 
+### 特性
+1/支持SQL脚本查询     
+2/支持mongodb command脚本查询     
+3/支持单个查询        
+4/支持列表查询        
+5/支持分页查询        
+6/支持增删改操作       
+7/支持变量作用域pathVar, param, body, header, cookie，当不指定变量使用域时，按此顺序依次查找,如#{pathVar.name},#{name}      
+8/支持简单的判空逻辑 #?{var,express}     
+9/多数据源支持,继承自com.github.alenfive.dataway2.extend.DataSourceDialect       
+10/动态注册request mapping      
+11/支持自定义分页返回，默认对象：com.github.alenfive.dataway2.extend.DefaultApiPager       
+
 ### 快速开始
 1/添加依赖
 ```$xml
