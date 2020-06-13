@@ -123,9 +123,10 @@ public class MongoDataSource extends DataSourceDialect {
     }
 
     public void formatISODate(StringBuilder script){
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        SimpleDateFormat sdfDt = new SimpleDateFormat("yyyy-MM-dd");
-        SimpleDateFormat sdfUtc = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.sss'Z'");
+        SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+        SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        SimpleDateFormat sdf3 = new SimpleDateFormat("yyyy-MM-dd");
+        SimpleDateFormat sdfUtc = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
         String flag = "ISODate(";
         for (int i=0;i<script.length();i++){
             int startIndex = script.indexOf(flag,i);
@@ -139,26 +140,41 @@ public class MongoDataSource extends DataSourceDialect {
             }
 
             String timeStr = script.substring(startIndex+flag.length()+1,endIndex-1);
-            Date time = null;
+
+
             try {
                 sdfUtc.parse(timeStr);
                 i = endIndex;
                 continue;
+            } catch (ParseException e) {}
+
+            boolean isLocal = timeStr.endsWith("+08:00");
+            if (isLocal){
+                timeStr = timeStr.replace("+08:00","").replace("T"," ");
+            }
+
+            Date time = null;
+            try {
+                time = sdf1.parse(timeStr);
             } catch (ParseException e) {
                 try {
-                    time = sdf.parse(timeStr);
+                    time = sdf2.parse(timeStr);
                 } catch (ParseException ex) {
                     try {
-                        time = sdfDt.parse(timeStr);
+                        time = sdf3.parse(timeStr);
                     } catch (ParseException exx) {
                         throw new MissingFormatArgumentException("format ISODate error "+script.substring(startIndex,endIndex));
                     }
                 }
             }
+
             Calendar calendar = Calendar.getInstance();
             calendar.setTime(time);
             calendar.add(Calendar.HOUR_OF_DAY,-8);
-            script = script.replace(startIndex+flag.length()+1,endIndex-1,sdfUtc.format(calendar.getTime()));
+
+            String newTime = sdfUtc.format(calendar.getTime());
+            i = startIndex+flag.length()+1 + newTime.length();
+            script = script.replace(startIndex+flag.length()+1,endIndex-1,newTime);
         }
     }
 
