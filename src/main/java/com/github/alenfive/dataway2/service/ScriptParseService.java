@@ -47,7 +47,7 @@ public class ScriptParseService {
                 .replaceAll("//.*","")
                 .replaceAll("\n","")
                 .replaceAll("\t","")
-                .replaceAll(" {2,}"," ").split(";");
+                .replaceAll(" {2,}"," ").split("---");
         return Stream.of(scriptArr).map(item->new StringBuilder(item.trim())).collect(Collectors.toList());
     }
 
