@@ -183,7 +183,7 @@ public class SQLRequestMappingFactory {
 
         if (ApiResultType.page.name().equals(reaultType)){
             if (scriptList.size()<2){
-                throw new MissingFormatArgumentException("Lack of script size:"+scriptList.size());
+                throw new MissingFormatArgumentException("Lack of script, size:"+scriptList.size());
             }
             Long totalRecords = dataSourceManager.executeCount(scriptList.get(0),apiInfo,apiParams);
             log.debug("generate script:{}",scriptList.get(0).toString());
