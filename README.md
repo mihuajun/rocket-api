@@ -185,9 +185,10 @@ select * from book where 1=1 #{name,and name=#{name}}
 ```
 select * from book where name = #{book.name} #{book.title,and title=#{book.title}}
 ```
-数组对象参数，自动识别，如：
+数组对象参数，自动识别，如[1,2,'a']：
 ```$xslt
 select * from book where id in (#{ids})
+select * from book where id in (1,2,'a')
 ```
 
 #### <a name="8">8. 变量作用域</a>
