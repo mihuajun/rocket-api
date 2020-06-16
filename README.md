@@ -200,7 +200,7 @@ select * from book where id in (1,2,'a')
 |  `header` |  HEADER参数 |
 |  `cookie` |  COOKIE参数 |
 
-当指定了变量作用域，如:`#{pathVar.id}`时，会在指定的变量`pathVar`域中查询，无值会抛出异常`IllegalArgumentException`
+当指定了变量作用域，如:`#{pathVar.id}`时，会在指定的变量`pathVar`域中查询，无值会抛出异常`IllegalArgumentException`     
 当不指定变量作用域时，如`#{id}`时，会按表格顺序从上到下依次去每个变量域中查询该变量，无值会抛出异常`IllegalArgumentException`
 
     
