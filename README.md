@@ -88,7 +88,7 @@ CREATE TABLE `api_info` (
 9. <a href="#8">变量作用域</a>
 
 ------------
-####<a name="1">1. 数据源配置</a>	
+#### <a name="1">1. 数据源配置</a>	
 
 继承抽象类`com.github.alenfive.dataway2.extend.DataSourceManager` 如下：	
 目前支持关系型数据库:`com.github.alenfive.dataway2.extend.MysqlDataSource`,非关系型数据库：`com.github.alenfive.dataway2.extend.MongoDataSource`,可通过抽象类：`com.github.alenfive.dataway2.extend.DataSourceDialect`进行扩展。	
@@ -113,7 +113,7 @@ public class DefaultDataSourceManager extends DataSourceManager {
     }
 }
 ```
-####<a name="2">2. 自定义分页实体</a>
+#### <a name="2">2. 自定义分页实体</a>
 继承抽象类:`com.github.alenfive.dataway2.extend.ApiPagerInterface`,如下：
 ```java
 @Component
@@ -158,19 +158,19 @@ public class DefaultApiPager implements ApiPagerInterface {
 }
 
 ```
-####<a name="3">3. 单个查询</a>
+#### <a name="3">3. 单个查询</a>
 定义PATH如：`/book/first`,以`/first`结尾表示返回单个对象`{}`
 
-####<a name="4">4. 列表查询</a>
+#### <a name="4">4. 列表查询</a>
 定义PATH如：`/book/list`,以`/list`结尾表示返回数组对象`[{}]`
 
-####<a name="5">5. 分页查询</a>
+#### <a name="5">5. 分页查询</a>
 定义PATH如：`/book/page`,以`/page`结尾表示返回分页对象`{totalRecords:1,data:[{}]}`
 
-####<a name="6">6. 更新/删除/修改</a>
+#### <a name="6">6. 更新/删除/修改</a>
 非以上三种定义的URL，无返回值
 
-####<a name="7">7. 入参变量</a>
+#### <a name="7">7. 入参变量</a>
 变量以`#{}`表示，与`mybatis`一致,如:
 ```
 select * from book where id = #{id}
@@ -186,7 +186,7 @@ select * from book where 1=1 #{name,and name=#{name}}
 select * from book where name = #{book.name} #{book.title,and title=#{book.title}}
 ```
 
-####<a name="8">8. 变量作用域</a>
+#### <a name="8">8. 变量作用域</a>
 |  作用域 | 说明  |
 | ------------ | ------------ |
 |  `pathVar` |  URL路径传参,如`/book/{id}` |
