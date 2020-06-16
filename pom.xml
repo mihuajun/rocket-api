@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.github.alenfive</groupId>
     <artifactId>dataway2-boot-starter</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>1.0.0.RELEASE</version>
     <name>dataway2</name>
     <description>Demo project for Spring Boot</description>
 
