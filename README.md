@@ -165,7 +165,7 @@ public class DefaultApiPager implements ApiPagerInterface {
 定义PATH如：`/book/list`,以`/list`结尾表示返回数组对象`[{}]`
 
 #### <a name="5">5. 分页查询</a>
-定义PATH如：`/book/page`,以`/page`结尾表示返回分页对象`{totalRecords:1,data:[{}]}`
+定义PATH如：`/book/page`,以`/page`结尾表示返回分页对象`{totalRecords:1,data:[{}]}`,由定义的<a href="#2">`ApiPagerInterface`</a>决定
 
 #### <a name="6">6. 更新/删除/修改</a>
 非以上三种定义的URL，无返回值
