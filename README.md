@@ -43,6 +43,28 @@ public class DefaultDataSourceManager extends DataSourceManager {
 }
 ```
 
-3/启动项目，访问地址:http://localhost:8080/api-ui
+3/关系型数据库建表，非关系型不用
+```$xslt
+CREATE TABLE `api_info` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `method` varchar(45) DEFAULT NULL,
+  `path` varchar(100) DEFAULT NULL,
+  `type` varchar(5) DEFAULT NULL COMMENT '类型：CODE,SQL',
+  `service` varchar(45) DEFAULT NULL,
+  `group` varchar(45) DEFAULT NULL,
+  `editor` varchar(45) DEFAULT NULL,
+  `comment` varchar(200) DEFAULT NULL,
+  `datasource` varchar(45) DEFAULT NULL,
+  `script` text,
+  `params` text,
+  `create_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `update_time` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `unique_path_method` (`path`,`method`)
+) ENGINE=InnoDB AUTO_INCREMENT=45 DEFAULT CHARSET=utf8mb4 COMMENT='路径明细';
+
+```
+
+4/启动项目，访问地址:http://localhost:8080/api-ui
 
 ![Image text](./src/main/resources/static/images/demo.png)
