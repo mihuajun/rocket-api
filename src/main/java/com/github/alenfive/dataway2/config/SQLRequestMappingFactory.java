@@ -162,10 +162,25 @@ public class SQLRequestMappingFactory {
         //脚本解析
         scriptList.forEach(item->{
             parseService.parse(item,apiParams);
+            buildAssertValidate(item);
         });
 
         return buildResult(scriptList,apiInfo,apiParams,reaultType);
 
+    }
+
+    /**
+     * 参数验证
+     * assert(equals(#{name},"abc")),1000,"不匹配");
+     * assert(isBlank(#{name}),1000,"不匹配");
+     * assert(isNull(#name),1000,"不匹配");
+     * assert(regex("^1/d{10}$",#{name}),1000，"不匹配");
+     * @param item
+     */
+    private void buildAssertValidate(StringBuilder item) {
+        if (!item.toString().startsWith("assert(")){
+            return;
+        }
     }
 
     private Object buildResult(List<StringBuilder> scriptList,ApiInfo apiInfo, ApiParams apiParams,String reaultType){
@@ -179,6 +194,7 @@ public class SQLRequestMappingFactory {
         if (ApiResultType.list.name().equals(reaultType)){
             Object value = dataSourceManager.executeQuery(scriptList.get(0),apiInfo,apiParams);
             log.debug("generate script:{}",scriptList.get(0).toString());
+            return value;
         }
 
         if (ApiResultType.page.name().equals(reaultType)){

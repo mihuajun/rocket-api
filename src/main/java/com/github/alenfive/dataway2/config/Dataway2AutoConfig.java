@@ -45,4 +45,11 @@ public class Dataway2AutoConfig {
     public ScriptParseService getScriptParseService(){
         return new ScriptParseService();
     }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public DefaultAssertException getDefaultAssertException(){
+        return new DefaultAssertException();
+    }
+
 }
