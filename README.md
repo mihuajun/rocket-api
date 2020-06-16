@@ -177,7 +177,7 @@ select * from book where id = #{id}
 ```
 非必选参数，通过#?{var,express}表示,如:
 ```
-select * from book where 1=1 #{name,and name=#{name}}
+select * from book where 1=1 #?{name,and name=#{name}}
 ```
 与 mybatis `if(var != null && var !=''){and name = #{name}}` if标签写法等值
 
