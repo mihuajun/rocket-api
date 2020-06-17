@@ -1,5 +1,9 @@
 # dataway2
 
+### 摘要
+快速开发API接口，不再定义Controller,Service,Dao,Mybatis xml,Entity等对象。
+实现原理，提供可视化界面，将入参封装到可执行的脚本上，脚本包含SQL语句，或者MONGODB查询语句，或者自定义扩展
+
 ### 特性
 1. 支持SQL脚本查询     
 2. 支持mongodb command脚本查询     
