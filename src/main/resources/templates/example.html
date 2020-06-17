@@ -81,31 +81,6 @@
                                 class="fa fa-sort-alpha-asc"></i><span></span><span class="r-btn-indicator" aria-hidden="true" style="display: none;"></span></button>
                     </div>
                     <div class="query-parameters-form-block">
-                        <div class="query-parameter-row" e2e-tag="query-parameter"><span class="gwt-CheckBox query-parameter-cell" title="Enable/Disable"
-                                                                                         e2e-tag="query-parameter-state"><input type="checkbox" value="on" id="gwt-uid-1426"
-                                                                                                                                tabindex="0" checked=""><label
-                                for="gwt-uid-1426"></label></span><span class="expression-input input-append query-parameter-cell-name query-parameter-cell"><input type="text"
-                                                                                                                                                                    class="gwt-TextBox"
-                                                                                                                                                                    id="gwt-uid-1427"
-                                                                                                                                                                    placeholder="name"
-                                                                                                                                                                    e2e-tag="query-parameter-name"><span
-                                class="add-on" data-original-title="" title=""><i class="icon-magic"></i></span></span><span
-                                class="gwt-InlineLabel query-parameter-cell">=</span><span
-                                class="expression-input input-append query-parameter-cell-value query-parameter-cell"><input type="text" class="gwt-TextBox" id="gwt-uid-1428"
-                                                                                                                             placeholder="value"
-                                                                                                                             e2e-tag="query-parameter-value"><span class="add-on"
-                                                                                                                                                                   data-original-title=""
-                                                                                                                                                                   title=""><i
-                                class="icon-magic"></i></span></span>
-                            <button class="r-btn r-btn-link query-parameter-cell" title="Remove" e2e-tag="query-parameter-remove"><i class="fa fa-times-thin"></i><span></span><span
-                                    class="r-btn-indicator" aria-hidden="true" style="display: none;"></span></button>
-                            <div class="btn-group ctrls dropdown-secondary query-parameter-encoding query-parameter-cell" e2e-tag="query-parameter-additional-actions"><a
-                                    class="btn-mini dropdown-toggle" data-toggle="dropdown"><i class="sli-icon-options-vertical"></i></a>
-                                <ul class="pull-right dropdown-menu">
-                                    <li class="dropdown-item" e2e-tag="query-parameter-encode"><a><i class="fa fa-check"></i> <span>Encode before sending</span></a></li>
-                                </ul>
-                            </div>
-                        </div>
                     </div>
                     <div class="query-parameters-btns-row">
                         <button class="list-action-add r-btn r-btn-small r-btn-rounded" onclick="queryParameterAdd()" title="Add a new query parameter." e2e-tag="query-parameter-add"><i
@@ -126,76 +101,23 @@
                             <ul class="nav nav-pills contextual-menu-in-title">
                                 <li class="dropdown right"><a href="javascript:;" class="dropdown-toggle" data-toggle="dropdown"><i></i> Form <span class="caret"></span></a>
                                     <ul class="dropdown-menu">
-                                        <li><a href="javascript:;"><i></i> Form </a></li>
-                                        <li><a href="javascript:;"><i></i> Raw </a></li>
+                                        <li><a href="javascript:;" onclick="showHeaderForm(this)"><i></i> Form </a></li>
+                                        <li><a href="javascript:;" onclick="showHeaderRaw(this)"><i></i> Raw </a></li>
                                     </ul>
                                 </li>
                             </ul>
                         </div>
-                        <div>
+                        <div class="mode-form">
                             <div class="headers-form-block">
-                                <div class="header-row" e2e-tag="header"><span class="gwt-CheckBox header-cell" title="Enable/Disable" e2e-tag="header-state"><input type="checkbox"
-                                                                                                                                                                     value="on"
-                                                                                                                                                                     id="gwt-uid-1412"
-                                                                                                                                                                     tabindex="0"
-                                                                                                                                                                     checked=""><label
-                                        for="gwt-uid-1412"></label></span><span class="gwt-InlineHTML header-cell-name header-name-ro header-cell" aria-hidden="true"
-                                                                                style="display: none;"><a href="http://tools.ietf.org/html/rfc7231#section-3.1.1.5" target="_blank"
-                                                                                                          class="header-link"><span
-                                        title="Content-Type">Content-Type</span></a></span><span class="expression-input input-append header-cell-name header-cell"><input
-                                        type="text" class="gwt-TextBox" id="gwt-uid-1413" placeholder="name" e2e-tag="header-name"><span class="add-on" data-original-title=""
-                                                                                                                                         title=""><i class="icon-magic"></i></span></span><span
-                                        class="gwt-InlineLabel header-cell">:</span><span class="expression-input input-append header-cell-value header-cell"><input type="text"
-                                                                                                                                                                     class="gwt-TextBox"
-                                                                                                                                                                     id="gwt-uid-1414"
-                                                                                                                                                                     placeholder="value"
-                                                                                                                                                                     e2e-tag="header-value"><span
-                                        class="add-on" data-original-title="" title=""><i class="icon-magic"></i></span></span>
-                                    <button class="btn-remove-header r-btn r-btn-link header-cell" title="Remove" e2e-tag="header-remove"><i
-                                            class="fa fa-times-thin"></i><span></span><span class="r-btn-indicator" aria-hidden="true" style="display: none;"></span></button>
-                                    <div class="header-cell-fixed-action header-cell">
-                                        <button class="r-btn r-btn-link hide" title="Edit" e2e-tag="header-edit"><i class="sli-icon-key"></i><span></span><span
-                                                class="r-btn-indicator" aria-hidden="true" style="display: none;"></span></button>
-                                        <button class="header-warning r-btn r-btn-link hide" title="Show warnings" e2e-tag="header-warning"><i
-                                                class="fa fa-exclamation-triangle"></i><span></span><span class="r-btn-indicator" aria-hidden="true" style="display: none;"></span>
-                                        </button>
-                                    </div>
-                                </div>
-                                <div class="header-row" e2e-tag="header"><span class="gwt-CheckBox header-cell" title="Enable/Disable" e2e-tag="header-state"><input type="checkbox"
-                                                                                                                                                                     value="on"
-                                                                                                                                                                     id="gwt-uid-1415"
-                                                                                                                                                                     tabindex="0"
-                                                                                                                                                                     checked=""><label
-                                        for="gwt-uid-1415"></label></span><span class="gwt-InlineHTML header-cell-name header-name-ro header-cell" aria-hidden="true"
-                                                                                style="display: none;"><span title=""></span></span><span
-                                        class="expression-input input-append header-cell-name header-cell"><input type="text" class="gwt-TextBox" id="gwt-uid-1416"
-                                                                                                                  placeholder="name" e2e-tag="header-name"><span class="add-on"
-                                                                                                                                                                 data-original-title=""
-                                                                                                                                                                 title=""><i
-                                        class="icon-magic"></i></span></span><span class="gwt-InlineLabel header-cell">:</span><span
-                                        class="expression-input input-append header-cell-value header-cell"><input type="text" class="gwt-TextBox" id="gwt-uid-1417"
-                                                                                                                   placeholder="value" e2e-tag="header-value"><span class="add-on"
-                                                                                                                                                                    data-original-title=""
-                                                                                                                                                                    title=""><i
-                                        class="icon-magic"></i></span></span>
-                                    <button class="btn-remove-header r-btn r-btn-link header-cell" title="Remove" e2e-tag="header-remove"><i
-                                            class="fa fa-times-thin"></i><span></span><span class="r-btn-indicator" aria-hidden="true" style="display: none;"></span></button>
-                                    <div class="header-cell-fixed-action header-cell">
-                                        <button class="r-btn r-btn-link hide" title="Edit" e2e-tag="header-edit"><i class="sli-icon-key"></i><span></span><span
-                                                class="r-btn-indicator" aria-hidden="true" style="display: none;"></span></button>
-                                        <button class="header-warning r-btn r-btn-link hide" title="Show warnings" e2e-tag="header-warning"><i
-                                                class="fa fa-exclamation-triangle"></i><span></span><span class="r-btn-indicator" aria-hidden="true" style="display: none;"></span>
-                                        </button>
-                                    </div>
-                                </div>
                             </div>
                         </div>
+                        <div class="mode-raw" style="display: none"><div><textarea class="gwt-TextArea request-raw-headers"></textarea><div class="headers-errors" aria-hidden="true" style="display: none;"></div></div></div>
                         <div class="headers-btns-row">
-                            <button class="list-action-add r-btn r-btn-small r-btn-rounded" title="" e2e-tag="header-add" data-original-title="Add a new header (Alt + H)"><i
+                            <button class="list-action-add r-btn r-btn-small r-btn-rounded" onclick="headerAdd()" title="" e2e-tag="header-add" data-original-title="Add a new header (Alt + H)"><i
                                     class="fa fa-plus"></i><span>Add header</span><span class="r-btn-indicator" aria-hidden="true" style="display: none;"></span></button>
                             <button class="r-btn r-btn-link" title="Add an authorization" e2e-tag="header-add-auth"><i class="sli-icon-key"></i><span>Add authorization</span><span
                                     class="r-btn-indicator" aria-hidden="true" style="display: none;"></span></button>
-                            <button class="list-action-remove-all r-btn r-btn-link" title="Remove all headers" e2e-tag="header-remove-all" tabindex="-1" style=""><i
+                            <button class="list-action-remove-all r-btn r-btn-link" title="Remove all headers" onclick="headRemoveAll()" e2e-tag="header-remove-all" tabindex="-1" style=""><i
                                     class="fa fa-trash-o"></i><span></span><span class="r-btn-indicator" aria-hidden="true" style="display: none;"></span></button>
                         </div>
                     </div>

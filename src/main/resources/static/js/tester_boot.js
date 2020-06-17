@@ -607,12 +607,12 @@ function queryParameterAdd(key,value) {
     key = key?key:"";
     value = value?value:"";
     let $form = $("#example-action");
-    $form.find(".query-parameters-form-block").append("<div class=\"query-parameter-row active\" e2e-tag=\"query-parameter\"><span class=\"gwt-CheckBox query-parameter-cell\" title=\"Enable/Disable\" e2e-tag=\"query-parameter-state\"><input type=\"checkbox\" value=\"on\" onclick='triggerEnable(this)'  tabindex=\"0\" checked=\"\"><label for=\"gwt-uid-2020\"></label></span><span class=\"expression-input input-append query-parameter-cell-name query-parameter-cell\"><input type=\"text\" class=\"gwt-TextBox key\" onchange='buildUrlInput()' value='"+key+"' placeholder=\"name\" e2e-tag=\"query-parameter-name\"><span class=\"add-on\" data-original-title=\"\" title=\"\"><i class=\"icon-magic\"></i></span></span><span class=\"gwt-InlineLabel query-parameter-cell\">=</span><span class=\"expression-input input-append query-parameter-cell-value query-parameter-cell\"><input type=\"text\" onchange='buildUrlInput()' class=\"gwt-TextBox value\" value='"+value+"' placeholder=\"value\" e2e-tag=\"query-parameter-value\"><span class=\"add-on\" data-original-title=\"\" title=\"\"><i class=\"icon-magic\"></i></span></span><button class=\"r-btn r-btn-link query-parameter-cell\" onclick='queryParameterRemove(this)' title=\"Remove\" e2e-tag=\"query-parameter-remove\"><i class=\"fa fa-times-thin\"></i><span></span><span class=\"r-btn-indicator\" aria-hidden=\"true\" style=\"display: none;\"></span></button><div class=\"btn-group ctrls dropdown-secondary query-parameter-encoding query-parameter-cell\" e2e-tag=\"query-parameter-additional-actions\"><a class=\"btn-mini dropdown-toggle\" data-toggle=\"dropdown\"><i class=\"sli-icon-options-vertical\"></i></a> <ul class=\"pull-right dropdown-menu\"><li class=\"dropdown-item\" e2e-tag=\"query-parameter-encode\"><a><i class=\"fa fa-check\"></i> <span>Encode before sending</span></a></li></ul></div></div>");
+    $form.find(".query-parameters-form-block").append("<div class=\"query-parameter-row active\" e2e-tag=\"query-parameter\"><span class=\"gwt-CheckBox query-parameter-cell\" title=\"Enable/Disable\" e2e-tag=\"query-parameter-state\"><input type=\"checkbox\" value=\"on\" onclick='urlTriggerEnable(this)'  tabindex=\"0\" checked=\"\"><label for=\"gwt-uid-2020\"></label></span><span class=\"expression-input input-append query-parameter-cell-name query-parameter-cell\"><input type=\"text\" class=\"gwt-TextBox key\" onchange='buildUrlInput()' value='"+key+"' placeholder=\"name\" e2e-tag=\"query-parameter-name\"><span class=\"add-on\" data-original-title=\"\" title=\"\"><i class=\"icon-magic\"></i></span></span><span class=\"gwt-InlineLabel query-parameter-cell\">=</span><span class=\"expression-input input-append query-parameter-cell-value query-parameter-cell\"><input type=\"text\" onchange='buildUrlInput()' class=\"gwt-TextBox value\" value='"+value+"' placeholder=\"value\" e2e-tag=\"query-parameter-value\"><span class=\"add-on\" data-original-title=\"\" title=\"\"><i class=\"icon-magic\"></i></span></span><button class=\"r-btn r-btn-link query-parameter-cell\" onclick='queryParameterRemove(this)' title=\"Remove\" e2e-tag=\"query-parameter-remove\"><i class=\"fa fa-times-thin\"></i><span></span><span class=\"r-btn-indicator\" aria-hidden=\"true\" style=\"display: none;\"></span></button><div class=\"btn-group ctrls dropdown-secondary query-parameter-encoding query-parameter-cell\" e2e-tag=\"query-parameter-additional-actions\"><a class=\"btn-mini dropdown-toggle\" data-toggle=\"dropdown\"><i class=\"sli-icon-options-vertical\"></i></a> <ul class=\"pull-right dropdown-menu\"><li class=\"dropdown-item\" e2e-tag=\"query-parameter-encode\"><a><i class=\"fa fa-check\"></i> <span>Encode before sending</span></a></li></ul></div></div>");
     $form.find(".query-parameters-form-block .query-parameter-row .key").focus();
     $("#example-action .subtitle-counter").text("["+$(".query-parameters-form-block>.active").length+"]");
 }
 
-function triggerEnable(e) {
+function urlTriggerEnable(e) {
     if ($(e).is(':checked')){
         $(e).parents(".query-parameter-row").addClass("active");
         $(e).parents(".query-parameter-row").find(".expression-input input").removeClass("disabled").removeAttr("disabled");
@@ -622,6 +622,71 @@ function triggerEnable(e) {
     }
     buildUrlInput();
     $("#example-action .subtitle-counter").text("["+$(".query-parameters-form-block>.active").length+"]");
+}
+
+function headerTriggerEnable(e) {
+    if ($(e).is(':checked')){
+        $(e).parents(".header-row").addClass("active");
+        $(e).parents(".header-row").find(".expression-input input").removeClass("disabled").removeAttr("disabled");
+    }else {
+        $(e).parents(".header-row").find(".expression-input input").addClass("disabled").attr("disabled","disabled");
+        $(e).parents(".header-row").removeClass("active");
+    }
+}
+
+function headRemoveAll() {
+    $("#example-action .headers-form-block").html("");
+}
+
+function headerRemove(e){
+    $(e).parents(".header-row").remove();
+}
+function headerAdd(key,value) {
+    $("#example-action .headers-form-block").append(buildHeadItem(key,value));
+}
+
+function buildHeadItem(key,value) {
+    key = key?key:"";
+    value = value?value:"";
+    return "<div class=\"header-row active\" e2e-tag=\"header\"><span class=\"gwt-CheckBox header-cell\" title=\"Enable/Disable\" e2e-tag=\"header-state\"><input type=\"checkbox\" value=\"on\" onclick='headerTriggerEnable(this)' tabindex=\"0\" checked=\"\"><label for=\"gwt-uid-1412\"></label></span><span class=\"gwt-InlineHTML header-cell-name header-name-ro header-cell\" aria-hidden=\"true\" style=\"display: none;\"><a href=\"http://tools.ietf.org/html/rfc7231#section-3.1.1.5\" target=\"_blank\" class=\"header-link\"><span title=\"Content-Type\">Content-Type</span></a></span><span class=\"expression-input input-append header-cell-name header-cell\"><input type=\"text\" class=\"gwt-TextBox key\" value='"+key+"' placeholder=\"name\" e2e-tag=\"header-name\"><span class=\"add-on\" data-original-title=\"\" title=\"\"><i class=\"icon-magic\"></i></span></span><span class=\"gwt-InlineLabel header-cell\">:</span><span class=\"expression-input input-append header-cell-value header-cell\"><input type=\"text\" class=\"gwt-TextBox value\" value='"+value+"' placeholder=\"value\" e2e-tag=\"header-value\"><span class=\"add-on\" data-original-title=\"\" title=\"\"><i class=\"icon-magic\"></i></span></span>\n" +
+        "                                    <button class=\"btn-remove-header r-btn r-btn-link header-cell\" onclick='headerRemove(this)' title=\"Remove\" e2e-tag=\"header-remove\"><i class=\"fa fa-times-thin\"></i><span></span><span class=\"r-btn-indicator\" aria-hidden=\"true\" style=\"display: none;\"></span></button>\n" +
+        "                                    <div class=\"header-cell-fixed-action header-cell\">\n" +
+        "                                        <button class=\"r-btn r-btn-link hide\" title=\"Edit\" e2e-tag=\"header-edit\"><i class=\"sli-icon-key\"></i><span></span><span class=\"r-btn-indicator\" aria-hidden=\"true\" style=\"display: none;\"></span></button>\n" +
+        "                                        <button class=\"header-warning r-btn r-btn-link hide\" title=\"Show warnings\" e2e-tag=\"header-warning\"><i class=\"fa fa-exclamation-triangle\"></i><span></span><span class=\"r-btn-indicator\" aria-hidden=\"true\" style=\"display: none;\"></span>\n" +
+        "                                        </button>\n" +
+        "                                    </div>\n" +
+        "                                </div>";
+}
+
+function showHeaderForm(e) {
+    $("#example-action .mode-form").show();
+    $("#example-action .mode-raw").hide();
+    $("#example-action .headers-form-block>.active").remove();
+    $(e).parents(".dropdown").children(".dropdown-toggle").html('<i></i> Form <span class="caret"></span>');
+    let activeHeader = "";
+    $.each($("#example-action .mode-raw textarea").val().split(/[(\r\n)\r\n]+/),function (index,item) {
+        let kv = item.split(":");
+        if (kv.length != 2){
+            return;
+        }
+        activeHeader += buildHeadItem(kv[0],kv[1])
+    });
+    $("#example-action .headers-form-block").prepend(activeHeader);
+}
+function showHeaderRaw(e) {
+    $("#example-action .mode-form").hide();
+    $("#example-action .mode-raw").show();
+    $("#example-action .headers-form-block")
+    $(e).parents(".dropdown").children(".dropdown-toggle").html('<i></i> Raw <span class="caret"></span>');
+    let content = "";
+    $.each($("#example-action .headers-form-block>.active"),function (index,item) {
+        content += $(item).find(".key").val();
+        content += ":";
+        content += $(item).find(".value").val();
+        content += "\r\n";
+    });
+    console.log(content);
+    $("#example-action .mode-raw textarea").val(content);
 }
 
 //--------------------------------example end -----------------------------------
