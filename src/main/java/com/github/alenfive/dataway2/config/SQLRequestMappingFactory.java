@@ -1,6 +1,5 @@
 package com.github.alenfive.dataway2.config;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.alenfive.dataway2.entity.ApiInfo;
 import com.github.alenfive.dataway2.entity.ApiParams;
@@ -13,7 +12,6 @@ import com.github.alenfive.dataway2.service.ScriptParseService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
@@ -63,9 +61,6 @@ public class SQLRequestMappingFactory {
 
     @Value("${spring.application.name}")
     private String service;
-
-    @Autowired
-    private ApplicationContext appContext;
 
     @Autowired
     private ApiPagerInterface apiPager;
@@ -371,8 +366,7 @@ public class SQLRequestMappingFactory {
      * @return
      */
     public List<ApiInfo> getPathListForCode(){
-        RequestMappingHandlerMapping mapping = appContext.getBean(RequestMappingHandlerMapping.class);
-        Map<RequestMappingInfo, HandlerMethod> map = mapping.getHandlerMethods();
+        Map<RequestMappingInfo, HandlerMethod> map = requestMappingHandlerMapping.getHandlerMethods();
         List<ApiInfo> result = new ArrayList<>(map.size());
         for (RequestMappingInfo info : map.keySet()) {
             String group = map.get(info).getBeanType().getSimpleName();

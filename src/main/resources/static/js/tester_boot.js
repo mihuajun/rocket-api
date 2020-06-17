@@ -509,3 +509,119 @@ function newRequest() {
     $(form).find(".api-info-datasource").removeAttr("readonly");
     $(form).find(".api-info-datasource").parent().removeClass("disabled");
 }
+
+
+
+
+//--------------------------------example start -----------------------------------
+function requestExample(){
+    let $form = $("#example-action");
+    let url = $form.find("#gwt-uid-349").val();
+    let type = $form.find("#gwt-uid-350").val();
+    let urlParam = {};
+    let bodyParam = {};
+    let headers = {};
+    $.ajax({
+        url:url,
+        type:type,
+        headers: headers,
+        success: function(data){
+
+        },error:function (req,msg,ex) {
+
+        }});
+}
+
+function triggerQueryParameterForm(e) {
+    let isCollapsed = $(e).parents(".query-parameters-form").hasClass("collapsed");
+    if (isCollapsed){
+        $(e).parents(".query-parameters-form").removeClass("collapsed");
+        $(e).parents(".query-parameters-form-title").removeClass("collapsed-title");
+        $(e).siblings(".fa").removeClass("fa-caret-right").addClass("fa-caret-down");
+        $(e).siblings(".r-btn-link").show();
+    }else{
+        $(e).parents(".query-parameters-form").addClass("collapsed");
+        $(e).parents(".query-parameters-form-title").addClass("collapsed-title");
+        $(e).siblings(".fa").removeClass("fa-caret-down").addClass("fa-caret-right");
+        $(e).siblings(".r-btn-link").hide();
+    }
+}
+
+function parseUrlInput(e) {
+    let $form = $("#example-action");
+    $form.find(".query-parameters-form-block").html("");
+
+
+    let path = $(e).val();
+    if (path.indexOf("http://") != 0){
+        path = "http://"+path;
+        $(e).val(path);
+    }
+
+    if (path.length == 7){
+        $(".uri-validation-error").show();
+    }else{
+        $(".uri-validation-error").hide();
+    }
+
+    if (path.indexOf("?") == -1){
+        return;
+    }
+    let paramList = path.substring(path.indexOf("?")+1).split("&");
+    if (!paramList || paramList.length == 0){
+        return;
+    }
+
+    $.each(paramList,function (index,item) {
+        let arr = item.split("=");
+        queryParameterAdd(arr[0],arr[1]);
+    })
+}
+
+function queryParameterRemove(e){
+    $(e).parents(".query-parameter-row").remove();
+    buildUrlInput();
+    $("#example-action .subtitle-counter").text("["+$(".query-parameters-form-block>.active").length+"]");
+}
+
+function buildUrlInput() {
+    let url = $("#gwt-uid-349").val();
+    url = url.substring(0,url.indexOf("?") == -1?url.length:url.indexOf("?"));
+    $.each($("#example-action .query-parameters-form-block>.active"),function (index,item) {
+        let key = $(item).find(".key").val();
+        if (key.length == 0){
+            return;
+        }
+        let value = $(item).find(".value").val();
+        if (index > 0){
+            url += "&";
+        }else{
+            url += "?";
+        }
+        url += (key + "=" + value);
+    })
+    $("#gwt-uid-349").val(url);
+}
+
+function queryParameterAdd(key,value) {
+    key = key?key:"";
+    value = value?value:"";
+    let $form = $("#example-action");
+    $form.find(".query-parameters-form-block").append("<div class=\"query-parameter-row active\" e2e-tag=\"query-parameter\"><span class=\"gwt-CheckBox query-parameter-cell\" title=\"Enable/Disable\" e2e-tag=\"query-parameter-state\"><input type=\"checkbox\" value=\"on\" onclick='triggerEnable(this)'  tabindex=\"0\" checked=\"\"><label for=\"gwt-uid-2020\"></label></span><span class=\"expression-input input-append query-parameter-cell-name query-parameter-cell\"><input type=\"text\" class=\"gwt-TextBox key\" onchange='buildUrlInput()' value='"+key+"' placeholder=\"name\" e2e-tag=\"query-parameter-name\"><span class=\"add-on\" data-original-title=\"\" title=\"\"><i class=\"icon-magic\"></i></span></span><span class=\"gwt-InlineLabel query-parameter-cell\">=</span><span class=\"expression-input input-append query-parameter-cell-value query-parameter-cell\"><input type=\"text\" onchange='buildUrlInput()' class=\"gwt-TextBox value\" value='"+value+"' placeholder=\"value\" e2e-tag=\"query-parameter-value\"><span class=\"add-on\" data-original-title=\"\" title=\"\"><i class=\"icon-magic\"></i></span></span><button class=\"r-btn r-btn-link query-parameter-cell\" onclick='queryParameterRemove(this)' title=\"Remove\" e2e-tag=\"query-parameter-remove\"><i class=\"fa fa-times-thin\"></i><span></span><span class=\"r-btn-indicator\" aria-hidden=\"true\" style=\"display: none;\"></span></button><div class=\"btn-group ctrls dropdown-secondary query-parameter-encoding query-parameter-cell\" e2e-tag=\"query-parameter-additional-actions\"><a class=\"btn-mini dropdown-toggle\" data-toggle=\"dropdown\"><i class=\"sli-icon-options-vertical\"></i></a> <ul class=\"pull-right dropdown-menu\"><li class=\"dropdown-item\" e2e-tag=\"query-parameter-encode\"><a><i class=\"fa fa-check\"></i> <span>Encode before sending</span></a></li></ul></div></div>");
+    $form.find(".query-parameters-form-block .query-parameter-row .key").focus();
+    $("#example-action .subtitle-counter").text("["+$(".query-parameters-form-block>.active").length+"]");
+}
+
+function triggerEnable(e) {
+    if ($(e).is(':checked')){
+        $(e).parents(".query-parameter-row").addClass("active");
+        $(e).parents(".query-parameter-row").find(".expression-input input").removeClass("disabled").removeAttr("disabled");
+    }else {
+        $(e).parents(".query-parameter-row").find(".expression-input input").addClass("disabled").attr("disabled","disabled");
+        $(e).parents(".query-parameter-row").removeClass("active");
+    }
+    buildUrlInput();
+    $("#example-action .subtitle-counter").text("["+$(".query-parameters-form-block>.active").length+"]");
+}
+
+//--------------------------------example end -----------------------------------
