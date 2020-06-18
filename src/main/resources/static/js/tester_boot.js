@@ -46,9 +46,12 @@ function loadCurrApi() {
     }
 }
 
+
+
 $(function(){
     loadApiList();
     loadEvent();
+
 
     $("#loader").hide();
     editorTextarea = CodeMirror.fromTextArea(document.getElementById('CodeMirror1'),{
@@ -122,6 +125,7 @@ function loadEvent() {
     loadSelectBoxEvent();
     loadInputTypeEvent();
     loadEditAbleEvent();
+    loadExampleMethodEvent();
 }
 
 function openConfirmModal(msg,fun) {
@@ -582,13 +586,13 @@ function triggerQueryParameterForm(e) {
     if (isCollapsed){
         $(e).parents(".query-parameters-form").removeClass("collapsed");
         $(e).parents(".query-parameters-form-title").removeClass("collapsed-title");
-        $(e).siblings(".fa").removeClass("fa-caret-right").addClass("fa-caret-down");
-        $(e).siblings(".r-btn-link").show();
+        $(e).parent().children(".fa").removeClass("fa-caret-right").addClass("fa-caret-down");
+        $(e).parent().children(".r-btn-link").show();
     }else{
         $(e).parents(".query-parameters-form").addClass("collapsed");
         $(e).parents(".query-parameters-form-title").addClass("collapsed-title");
-        $(e).siblings(".fa").removeClass("fa-caret-down").addClass("fa-caret-right");
-        $(e).siblings(".r-btn-link").hide();
+        $(e).parent().children(".fa").removeClass("fa-caret-down").addClass("fa-caret-right");
+        $(e).parent().children(".r-btn-link").hide();
     }
 }
 
@@ -681,14 +685,29 @@ function headerTriggerEnable(e) {
 
 function headRemoveAll() {
     $("#example-action .headers-form-block").html("");
+    $("#example-action .mode-raw textarea").val("");
+}
+
+function getHeaders() {
+    let headers = $("#example-action .mode-raw textarea").val().split(/[(\r\n)\r\n]+/);
+    let headerNews = [];
+    $.each(headers,function (index,item) {
+        item = item.trim();
+        if (item.length > 0 && item.indexOf(":")>0){
+            headerNews.push(item);
+        }
+    })
+    return headerNews;
 }
 
 function headerRemove(e){
     $(e).parents(".header-row").remove();
 }
+
 function headerAdd(key,value) {
     $("#example-action .headers-form-block").append(buildHeadItem(key,value));
 }
+
 
 function buildHeadItem(key,value) {
     key = key?key:"";
@@ -704,12 +723,19 @@ function buildHeadItem(key,value) {
 }
 
 function showHeaderForm(e) {
+    let isForm = $("#example-action .headers-form-title .dropdown-toggle").text().trim() == 'Form';
+    if (isForm){
+        return;
+    }
+
     $("#example-action .mode-form").show();
     $("#example-action .mode-raw").hide();
-    $("#example-action .headers-form-block>.active").remove();
     $(e).parents(".dropdown").children(".dropdown-toggle").html('<i></i> Form <span class="caret"></span>');
+    $("#example-action .headers-form-block>.active").remove();
+
+    let headers = $("#example-action .mode-raw textarea").val().split(/[(\r\n)\r\n]+/);
     let activeHeader = "";
-    $.each($("#example-action .mode-raw textarea").val().split(/[(\r\n)\r\n]+/),function (index,item) {
+    $.each(headers,function (index,item) {
         let kv = item.split(":");
         if (kv.length != 2){
             return;
@@ -717,14 +743,21 @@ function showHeaderForm(e) {
         activeHeader += buildHeadItem(kv[0],kv[1])
     });
     $("#example-action .headers-form-block").prepend(activeHeader);
+
 }
 function showHeaderRaw(e) {
+    let isForm = $("#example-action .headers-form-title .dropdown-toggle").text().trim() == 'Form';
+    if (!isForm){
+        return;
+    }
+
     $("#example-action .mode-form").hide();
     $("#example-action .mode-raw").show();
-    $("#example-action .headers-form-block")
     $(e).parents(".dropdown").children(".dropdown-toggle").html('<i></i> Raw <span class="caret"></span>');
+
     let content = "";
-    $.each($("#example-action .headers-form-block>.active"),function (index,item) {
+    let headers = $("#example-action .headers-form-block>.active");
+    $.each(headers,function (index,item) {
         content += $(item).find(".key").val();
         content += ":";
         content += $(item).find(".value").val();
@@ -746,5 +779,69 @@ function setModeExample(e,mode) {
 }
 function cleanExample() {
     exampleTextarea.setValue("");
+}
+
+function loadExampleMethodEvent() {
+    $("#example-action .uri-method .dropdown-menu>li").on("click",function () {
+        let option = $(this).text().trim();
+        let isJsonBody = false;
+        if (option == 'POST' || option == 'PUT'){
+            isJsonBody = true;
+        }
+
+        let isForm = $("#example-action .headers-form-title .dropdown-toggle").text().trim() == 'Form';
+        let key = "Content-Type";
+        let value = "application/json";
+
+        if (isJsonBody){
+            if (isForm){
+                let exists = false;
+                $.each($("#example-action .headers-form-block>.header-row"),function (index,item) {
+                    if ($(item).find(".key").val() == key){
+                        exists = true;
+                        $(item).find(".value").val(value);
+                    }
+                });
+                if (!exists){
+                    headerAdd(key,value);
+                }
+
+            }else{
+                let headers = getHeaders();
+                let exists = false;
+                for (let i=0;i<headers.length;i++){
+                    let item = headers[i];
+                    if (item.indexOf(key+":") == 0){
+                        headers[i] = key+":"+value;
+                        exists = true;
+                    }
+                }
+                if (!exists){
+                    headers.push(key+":"+value);
+                }
+                $("#example-action .mode-raw textarea").val(headers.join("\r\n"));
+            }
+        }else{
+            if (isForm){
+                $.each($("#example-action .headers-form-block input[value='"+key+"']"),function (index,item) {
+                    if ($(item).val() == key){
+                        $(item).parents(".header-row").remove();
+                    }
+                })
+
+            }else {
+                let headers = getHeaders();
+                let headerNews = [];
+                $.each(headers,function (index,item) {
+                    if (item.indexOf(key+":") == 0){
+                        return;
+                    }
+                    headerNews.push(item);
+                })
+                $("#example-action .mode-raw textarea").val(headerNews.join("\r\n"));
+            }
+        }
+
+    })
 }
 //--------------------------------example end -----------------------------------
