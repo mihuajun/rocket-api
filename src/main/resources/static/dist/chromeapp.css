@@ -14469,7 +14469,7 @@ body.free-edition .encourage-positive-review-banner.fake-extension-detected-bann
     position: relative;
 }
 .pane-request .draft-ribbon {
-    pointer-events: none;
+    cursor:pointer;
     position: absolute;
     top: -2px;
     left: -2px;

@@ -72,6 +72,8 @@ $(function(){
     editorTextarea.on("change", function(editor, change) {
     });
 
+    editorTextarea.setSize('100%','100%');
+
     exampleTextarea = CodeMirror.fromTextArea(document.getElementById('CodeMirror2'),{
         mode:"application/json",
         lineWrapping:false,
@@ -267,7 +269,7 @@ function loadDetail(id,form) {
     $(".request"+id).parents(".service").addClass("parent-selected");
     $(".request"+id).parents(".service").removeClass("collapsed");
     $(".request"+id).parents(".service").find(".fa-caret-right").addClass("fa-caret-down").removeClass("fa-caret-right");
-    $('.draft-ribbon-text').text("Edit");
+    $('#editor-action .draft-ribbon-text').text("Edit");
 
     let url = detailUrl+id;
     history.pushState(null,null,url);
@@ -843,5 +845,17 @@ function loadExampleMethodEvent() {
         }
 
     })
+}
+
+function triggerEditorPanel() {
+    $("#example-action").show();
+    $("#response").show();
+    $("#editor-action").hide();
+}
+
+function triggerExamplePanel() {
+    $("#example-action").hide();
+    $("#response").hide();
+    $("#editor-action").show();
 }
 //--------------------------------example end -----------------------------------
