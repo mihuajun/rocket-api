@@ -49,11 +49,11 @@ function loadCurrApi() {
 
 
 $(function(){
+
     loadApiList();
     loadEvent();
-
-
     $("#loader").hide();
+
     editorTextarea = CodeMirror.fromTextArea(document.getElementById('CodeMirror1'),{
         mode:"text/x-sql",
         scrollbarStyle:null,
@@ -857,5 +857,6 @@ function triggerExamplePanel() {
     $("#example-action").hide();
     $("#response").hide();
     $("#editor-action").show();
+    editorTextarea.refresh();
 }
 //--------------------------------example end -----------------------------------
