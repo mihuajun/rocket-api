@@ -32,7 +32,8 @@ let indexUrl = "/api-ui";
 let detailUrl = "/api-ui/";
 let editor = "admin";
 
-let sqlCodeMirror;
+let editorTextarea;
+let exampleTextarea;
 let gdata = {
 
 }
@@ -50,8 +51,7 @@ $(function(){
     loadEvent();
 
     $("#loader").hide();
-    let myTextarea = document.getElementById('CodeMirror1');
-    sqlCodeMirror = CodeMirror.fromTextArea(myTextarea,{
+    editorTextarea = CodeMirror.fromTextArea(document.getElementById('CodeMirror1'),{
         mode:"text/x-sql",
         scrollbarStyle:null,
         lineWrapping:true,
@@ -66,8 +66,53 @@ $(function(){
         }
     });
 
-    sqlCodeMirror.on("change", function(editor, change) {
+    editorTextarea.on("change", function(editor, change) {
     });
+
+    exampleTextarea = CodeMirror.fromTextArea(document.getElementById('CodeMirror2'),{
+        mode:"application/json",
+        lineWrapping:false,
+        foldGutter: true,
+        gutters:["CodeMirror-linenumbers", "CodeMirror-foldgutter","CodeMirror-lint-markers"],
+        //CodeMirror-lint-markers是实现语法报错功能
+        lint: true,
+        fullScreen:true,
+        matchBrackets:true,
+        lineNumbers: true,//是否显示行号
+        styleActiveLine:true,
+        matchBrackets: true,
+        autoRefresh: true,
+        theme:"eclipse",
+        smartIndent : true,  // 是否智能缩进
+        tabSize : 4,  // Tab缩进，默认4
+        extraKeys:{
+            "Alt-/": "autocomplete",
+            "Esc": function(cm) {
+                if (cm.getOption("fullScreen")) cm.setOption("fullScreen", false);
+            },
+            "Ctrl-/": "toggleComment",
+            "Ctrl-Z":function (editor) {
+                editor.undo();
+            },//undo
+            "F8":function (editor) {
+                editor.redo();
+            },//Redo
+            "F7": function autoFormat(cm) {
+                let totalLines = cm.lineCount();
+                cm.autoFormatRange({line:0, ch:0}, {line:totalLines});
+            }//代码格式化
+        }
+    });
+
+    exampleTextarea.setSize('100%','100%');
+
+    CodeMirror.commands.autocomplete = function(cm) {
+        cm.showHint({hint: CodeMirror.hint.anyword});
+    };
+
+    exampleTextarea.on("change", function(editor, change) {
+    });
+
 
 });
 
@@ -247,7 +292,7 @@ function loadDetail(id,form) {
         }
 
 
-        sqlCodeMirror.setValue(data.script);
+        editorTextarea.setValue(data.script);
     })
 
 
@@ -278,7 +323,7 @@ function confirmDialog(form) {
         "group": group?group:"公共API",
         "editor": $(form).find(".api-info-editor").val(),
         "comment": $(form).find("#save-dialog .input-xlarge").val(),
-        "script": sqlCodeMirror.getValue(),
+        "script": editorTextarea.getValue(),
     }
     saveExecuter(params);
 }
@@ -358,7 +403,7 @@ function saveEditor(form) {
         "group": $(form).find(".api-info-group").val(),
         "editor": $(form).find(".api-info-editor").val(),
         "comment": $(form).find(".api-info-comment").val(),
-        "script": sqlCodeMirror.getValue(),
+        "script": editorTextarea.getValue(),
     };
     saveExecuter(params);
 }
@@ -500,7 +545,7 @@ function newRequest() {
     $(form).find(".api-info-group").val("公共API");
     $(form).find(".api-info-editor").val("admin");
     $(form).find(".api-info-comment").val("Request");
-    sqlCodeMirror.setValue("");
+    editorTextarea.setValue("");
 
     //css
     $(form).find(".api-info-method").removeAttr("readonly");
@@ -685,8 +730,21 @@ function showHeaderRaw(e) {
         content += $(item).find(".value").val();
         content += "\r\n";
     });
-    console.log(content);
     $("#example-action .mode-raw textarea").val(content);
 }
 
+function formatExample() {
+    let totalLines = exampleTextarea.lineCount();
+    exampleTextarea.autoFormatRange({line:0, ch:0}, {line:totalLines});
+    exampleTextarea.setValue(exampleTextarea.getValue());
+}
+
+function setModeExample(e,mode) {
+    exampleTextarea.setOption("mode",mode);
+    $(e).siblings("button").removeClass("selected");
+    $(e).addClass("selected");
+}
+function cleanExample() {
+    exampleTextarea.setValue("");
+}
 //--------------------------------example end -----------------------------------

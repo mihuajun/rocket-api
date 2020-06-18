@@ -160,73 +160,30 @@
                         <div>
                             <div class="text-body">
                                 <div e2e-tag="text-body" class="gwt-TextArea text-body">
-                                    <div class="CodeMirror cm-s-default  " style="width: 100%; height: 240px;">
-                                        <div style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 4px; left: 33px;"><textarea autocorrect="off"
-                                                                                                                                                    autocapitalize="off"
-                                                                                                                                                    spellcheck="false" tabindex="0"
-                                                                                                                                                    style="position: absolute; padding: 0px; width: 1000px; height: 1em; outline: none;"></textarea>
-                                        </div>
-                                        <div class="CodeMirror-hscrollbar" style="left: 29px;">
-                                            <div style="height: 100%; min-height: 1px; width: 0px;"></div>
-                                        </div>
-                                        <div class="CodeMirror-vscrollbar">
-                                            <div style="min-width: 1px; height: 0px;"></div>
-                                        </div>
-                                        <div class="CodeMirror-scrollbar-filler"></div>
-                                        <div class="CodeMirror-gutter-filler"></div>
-                                        <div class="CodeMirror-scroll" tabindex="-1">
-                                            <div class="CodeMirror-sizer" style="margin-left: 29px; min-width: 7px; min-height: 24px;">
-                                                <div style="position: relative; top: 0px;">
-                                                    <div class="CodeMirror-lines">
-                                                        <div style="position: relative; outline: none;">
-                                                            <div class="CodeMirror-measure">
-                                                                <div class="CodeMirror-linenumber CodeMirror-gutter-elt">
-                                                                    <div>1</div>
-                                                                </div>
-                                                            </div>
-                                                            <div class="CodeMirror-measure"></div>
-                                                            <div style="position: relative; z-index: 1;"></div>
-                                                            <div class="CodeMirror-cursors" style="">
-                                                                <div class="CodeMirror-cursor" style="left: 4px; top: 0px; height: 16px;">&nbsp;</div>
-                                                            </div>
-                                                            <div class="CodeMirror-code">
-                                                                <div style="position: relative;">
-                                                                    <div class="CodeMirror-gutter-wrapper" style="position: absolute; left: -29px;">
-                                                                        <div class="CodeMirror-linenumber CodeMirror-gutter-elt" style="left: 0px; width: 20px;">1</div>
-                                                                    </div>
-                                                                    <pre class=""><span style="padding-right: 0.1px;"><span>&#8203;</span></span></pre>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div style="position: absolute; height: 30px; width: 1px; top: 24px;"></div>
-                                            <div class="CodeMirror-gutters" style="height: 240px;">
-                                                <div class="CodeMirror-gutter CodeMirror-linenumbers" style="width: 28px;"></div>
-                                            </div>
-                                        </div>
-                                    </div>
+                                    <textarea id="CodeMirror2" autocorrect="off"
+                                              autocapitalize="off"
+                                              spellcheck="false" tabindex="0"
+                                              style="position: absolute; padding: 0px; width: 1000px; height: 1em; outline: none;"></textarea>
                                     <div class="vertical-resizer resizer-for-body"></div>
                                 </div>
                                 <i class="icon-magic icon-light btn-expression-builder-textarea"></i></div>
                             <div class="text-body-bottom">
-                                <button class="text-body-content-type r-btn-small r-btn r-btn-link" e2e-tag="text-body-type-text-plain" title="Set Content-Type: text/plain"><i
+                                <button class="text-body-content-type r-btn-small r-btn r-btn-link" onclick="setModeExample(this,'text/javascript')" e2e-tag="text-body-type-text-plain" title="Set Content-Type: text/plain"><i
                                         class="fa fa-no-icon"></i><span>Text</span><span class="r-btn-indicator" aria-hidden="true" style="display: none;"></span></button>
-                                <button class="text-body-content-type r-btn-small r-btn r-btn-link selected" e2e-tag="text-body-type-json"
+                                <button class="text-body-content-type r-btn-small r-btn r-btn-link selected" onclick="setModeExample(this,'application/json')" e2e-tag="text-body-type-json"
                                         title="Set Content-Type: application/json"><i class="fa fa-no-icon"></i><span>JSON</span><span class="r-btn-indicator" aria-hidden="true"
                                                                                                                                        style="display: none;"></span></button>
-                                <button class="text-body-content-type r-btn-small r-btn r-btn-link" e2e-tag="text-body-type-xml" title="Set Content-Type: application/xml"><i
+                                <button class="text-body-content-type r-btn-small r-btn r-btn-link"  onclick="setModeExample(this,'application/xml')" e2e-tag="text-body-type-xml" title="Set Content-Type: application/xml"><i
                                         class="fa fa-no-icon"></i><span>XML</span><span class="r-btn-indicator" aria-hidden="true" style="display: none;"></span></button>
-                                <button class="text-body-content-type r-btn-small r-btn r-btn-link" e2e-tag="text-body-type-html" title="Set Content-Type: text/html"><i
+                                <button class="text-body-content-type r-btn-small r-btn r-btn-link" onclick="setModeExample(this,'text/html')" e2e-tag="text-body-type-html" title="Set Content-Type: text/html"><i
                                         class="fa fa-no-icon"></i><span>HTML</span><span class="r-btn-indicator" aria-hidden="true" style="display: none;"></span></button>
                                 <span class="body-format-separator">|</span>
-                                <button class="text-body-format r-btn-small r-btn r-btn-link" e2e-tag="text-body-btn-format"><i
+                                <button class="text-body-format r-btn-small r-btn r-btn-link" onclick="formatExample()" e2e-tag="text-body-btn-format"><i
                                         class="ti-icon ti-icon-format"></i><span>Format body</span><span class="r-btn-indicator" aria-hidden="true" style="display: none;"></span>
                                 </button>
                                 <span class="body-format-separator">|</span> <span class="gwt-CheckBox disable-evaluation" e2e-tag="text-body-disable-body-evaluation"><input
                                     type="checkbox" value="on" id="gwt-uid-787" tabindex="0" checked=""><label for="gwt-uid-787">Enable body evaluation</label></span>
-                                <button class="text-body-clear r-btn r-btn-link" title="Clear" e2e-tag="text-body-clear" tabindex="-1"><i
+                                <button class="text-body-clear r-btn r-btn-link" title="Clear" onclick="cleanExample()" e2e-tag="text-body-clear" tabindex="-1"><i
                                         class="fa fa-trash-o"></i><span></span><span class="r-btn-indicator" aria-hidden="true" style="display: none;"></span></button>
                                 <span class="gwt-InlineHTML text-body-length-label" title="Content-Length: 0">length: 0 byte</span></div>
                         </div>
