@@ -50,7 +50,18 @@ public abstract class DataSourceManager extends DataSourceDialect{
     public String deleteApiInfoScript(){
         return dialectMap.get(getStoreApiKey()).deleteApiInfoScript();
     }
-
+    @Override
+    public String saveApiExampleScript() {
+        return dialectMap.get(getStoreApiKey()).saveApiExampleScript();
+    }
+    @Override
+    public String lastApiExampleScript() {
+        return dialectMap.get(getStoreApiKey()).lastApiExampleScript();
+    }
+    @Override
+    public String deleteExampleScript() {
+        return dialectMap.get(getStoreApiKey()).deleteExampleScript();
+    }
     @Override
     public Object execute(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams) {
         return dialectMap.get(apiInfo.getDatasource()).execute(script,apiInfo,apiParams);

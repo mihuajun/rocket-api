@@ -1,10 +1,7 @@
 package com.github.alenfive.dataway2.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.alenfive.dataway2.entity.ApiInfo;
-import com.github.alenfive.dataway2.entity.ApiParams;
-import com.github.alenfive.dataway2.entity.ApiResultType;
-import com.github.alenfive.dataway2.entity.ApiType;
+import com.github.alenfive.dataway2.entity.*;
 import com.github.alenfive.dataway2.entity.vo.RenameGroupReq;
 import com.github.alenfive.dataway2.extend.ApiPagerInterface;
 import com.github.alenfive.dataway2.extend.DataSourceManager;
@@ -431,5 +428,26 @@ public class SQLRequestMappingFactory {
             dataSourceManager.execute(script,ApiInfo.builder().datasource(dataSourceManager.getStoreApiKey()).build(),null);
         }
 
+    }
+
+    public void saveExample(ApiExample apiExample) {
+        StringBuilder script = new StringBuilder(dataSourceManager.saveApiExampleScript());
+        parseService.buildParams(script,ApiParams.builder().param(apiExample.toMap()).build());
+        dataSourceManager.execute(script,ApiInfo.builder().datasource(dataSourceManager.getStoreApiKey()).build(),null);
+    }
+
+    public List<Map<String,Object>> lastApiExample(String apiInfoId, Integer limit) {
+        ApiParams apiParams = new ApiParams();
+        apiParams.putParam("apiInfoId",apiInfoId);
+        apiParams.putParam("limit",limit);
+        StringBuilder script = new StringBuilder(dataSourceManager.lastApiExampleScript());
+        parseService.buildParams(script,apiParams);
+        return dataSourceManager.executeQuery(script,ApiInfo.builder().datasource(dataSourceManager.getStoreApiKey()).build(),null);
+    }
+
+    public void deleteExampleList(ArrayList<ApiExample> apiExampleList) {
+        StringBuilder script = new StringBuilder(dataSourceManager.deleteExampleScript());
+        parseService.buildParams(script,new ApiParams().putParam("ids",apiExampleList.stream().map(ApiExample::getId).collect(Collectors.toSet())));
+        dataSourceManager.execute(script,ApiInfo.builder().datasource(dataSourceManager.getStoreApiKey()).build(),null);
     }
 }

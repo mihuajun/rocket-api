@@ -15,6 +15,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @Description:
@@ -95,7 +96,47 @@ public class MongoDataSource extends DataSourceDialect {
         return "{\n" +
                 "     delete: \"api_info\",\n" +
                 "     deletes: [\n" +
-                "     \t{q:{id:#{id},limit:1}}}\n" +
+                "     \t{q:{_id:ObjectId(#{id})},limit:1}\n" +
+                "     ]\n" +
+                "}";
+    }
+
+    @Override
+    String saveApiExampleScript() {
+        return "{\n" +
+                "\t\"insert\":\"api_example\",\n" +
+                "\t\"documents\":[{\n" +
+                "\t\t\"api_info_id\":ObjectId(#{apiInfoId}),\n" +
+                "\t\t\"method\":#{method},\n" +
+                "\t\t\"url\":#{url},\n" +
+                "\t\t\"request_header\":#{requestHeader},\n" +
+                "\t\t\"request_body\":#{requestBody},\n" +
+                "\t\t\"response_header\":#{responseHeader},\n" +
+                "\t\t\"response_body\":#{responseBody},\n" +
+                "\t\t\"status\":#{status},\n" +
+                "\t\t\"time\":#{time},\n" +
+                "\t\t\"options\":#{options},\n" +
+                "\t\t\"create_time\":ISODate(#{createTime})\n" +
+                "\t}]\n" +
+                "}";
+    }
+
+    @Override
+    String lastApiExampleScript() {
+        return "{\n" +
+                "     find: \"api_example\",\n" +
+                "     filter: { api_info_id: ObjectId(#{apiInfoId}) }," +
+                "     sort:{_id:-1},\n" +
+                "     limit: #{limit}\n" +
+                "}";
+    }
+
+    @Override
+    String deleteExampleScript() {
+        return "{\n" +
+                "     delete: \"api_example\",\n" +
+                "     deletes: [\n" +
+                "     \t{q:{id:{$in:[ObjectId(#{ids})]}},limit:0}\n" +
                 "     ]\n" +
                 "}";
     }
@@ -103,6 +144,7 @@ public class MongoDataSource extends DataSourceDialect {
     @Override
     public Object execute(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams) {
         formatISODate(script);
+        formatObjectIdList(script);
         mongoTemplate.executeCommand(script.toString());
         return null;
     }
@@ -110,6 +152,7 @@ public class MongoDataSource extends DataSourceDialect {
     @Override
     public List<Map<String,Object>> executeQuery(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams) {
         formatISODate(script);
+        formatObjectIdList(script);
         Document document = mongoTemplate.executeCommand(script.toString());
         List<Document> documents = (List<Document>) ((Document)document.get("cursor")).get("firstBatch");
         return documents.stream().map(item->toMap(item)).collect(Collectors.toList());
@@ -118,8 +161,34 @@ public class MongoDataSource extends DataSourceDialect {
     @Override
     public Long executeCount(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams) {
         formatISODate(script);
+        formatObjectIdList(script);
         Document document = mongoTemplate.executeCommand(script.toString());
         return new Long(document.getInteger("n"));
+    }
+
+    private void formatObjectIdList(StringBuilder script) {
+        String flag = "ObjectId(";
+        for (int i=0;i<script.length();i++){
+            int startIndex = script.indexOf(flag,i);
+            if (startIndex == -1){
+                break;
+            }
+
+            int endIndex = script.indexOf(")",startIndex+flag.length());
+            if (endIndex == -1){
+                throw new IllegalArgumentException("missed ObjectId( close ')'");
+            }
+
+            String objectIdStr = script.substring(startIndex+flag.length(),endIndex);
+            String[] objectIdArr = objectIdStr.split(",");
+            if (objectIdArr.length == 1){
+                i = endIndex;
+                continue;
+            }
+            String newObjectIds = Stream.of(objectIdArr).map(item->"ObjectId("+item+")").collect(Collectors.joining(","));
+            i = startIndex + newObjectIds.length();
+            script = script.replace(startIndex,endIndex+1,newObjectIds);
+        }
     }
 
     public void formatISODate(StringBuilder script){

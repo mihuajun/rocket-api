@@ -30,11 +30,10 @@ public class TestController {
         return jdbcTemplate.queryForList("select * from user");
     }
 
-    @GetMapping(value = {"/hello/11"})
+    @GetMapping(value = {"/hello/a112"})
     public Object test11(String id,
                        String name,
-                       @PathVariable String hello,
                        ApiInfo apiInfo){
-        return null;
+        return "hello";
     }
 }

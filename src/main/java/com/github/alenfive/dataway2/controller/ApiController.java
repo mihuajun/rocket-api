@@ -1,6 +1,7 @@
 package com.github.alenfive.dataway2.controller;
 
 import com.github.alenfive.dataway2.config.SQLRequestMappingFactory;
+import com.github.alenfive.dataway2.entity.ApiExample;
 import com.github.alenfive.dataway2.entity.ApiInfo;
 import com.github.alenfive.dataway2.entity.ApiResult;
 import com.github.alenfive.dataway2.entity.vo.RenameGroupReq;
@@ -13,6 +14,10 @@ import org.springframework.web.bind.annotation.*;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @Description:
@@ -128,5 +133,43 @@ public class ApiController {
     @GetMapping("/api-name-list")
     public ApiResult getApiNameList(String group){
         return ApiResult.success(sqlRequestMapping.getApiNameList(group));
+    }
+
+    /**
+     * 模拟参数保存
+     */
+    @PostMapping("/api-example")
+    public ApiResult saveExample(@RequestBody ApiExample apiExample){
+
+        if (StringUtils.isEmpty(apiExample.getMethod())
+                || StringUtils.isEmpty(apiExample.getUrl())
+                || StringUtils.isEmpty(apiExample.getRequestHeader())){
+            return ApiResult.fail("Send, then Save");
+        }
+
+        apiExample.setCreateTime(new Date());
+        sqlRequestMapping.saveExample(apiExample);
+        return ApiResult.success(null);
+    }
+
+    /**
+     * 查询最近一次模拟数据
+     * @param apiInfoId
+     * @return
+     */
+    @GetMapping("/api-example/last")
+    public ApiResult lastApiExample(String apiInfoId,Integer limit){
+        return ApiResult.success(sqlRequestMapping.lastApiExample(apiInfoId,limit));
+    }
+
+    /**
+     * 删除模拟数据
+     * @param apiExampleList
+     * @return
+     */
+    @DeleteMapping("/api-example")
+    private ApiResult deleteExampleList(@RequestBody ArrayList<ApiExample> apiExampleList){
+        sqlRequestMapping.deleteExampleList(apiExampleList);
+        return ApiResult.success(null);
     }
 }

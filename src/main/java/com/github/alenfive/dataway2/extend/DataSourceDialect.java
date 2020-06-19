@@ -30,6 +30,9 @@ public abstract class DataSourceDialect {
     abstract String saveApiInfoScript();
     abstract String updateApiInfoScript();
     abstract String deleteApiInfoScript();
+    abstract String saveApiExampleScript();
+    abstract String lastApiExampleScript();
+    abstract String deleteExampleScript();
 
     abstract Object execute(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams);
 
@@ -69,4 +72,6 @@ public abstract class DataSourceDialect {
         }
         return sb.toString();
     }
+
+
 }

@@ -54,6 +54,21 @@ public class MysqlDataSource extends DataSourceDialect {
         return "delete from api_info where id = #{id}";
     }
 
+    @Override
+    String saveApiExampleScript() {
+        return "insert into api_example(api_info_id,method,url,request_header,request_body,response_header,response_body,status,time,options,create_time) " +
+                "values(#{apiInfoId},#{method},#{url},#{requestHeader},#{requestBody},#{responseHeader},#{responseBody},#{status},#{time},#{options},#{createTime})";
+    }
+
+    @Override
+    String lastApiExampleScript() {
+        return "select id,api_info_id,method,url,request_header,request_body,response_header,response_body,status,time,options,create_time from where api_info_id = #{apiInfoId} order by id desc limit #{limit}";
+    }
+
+    @Override
+    String deleteExampleScript() {
+        return "delete api_info_id where id in (#{ids})";
+    }
 
     @Override
     public Object execute(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams) {

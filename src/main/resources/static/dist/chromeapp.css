@@ -14498,6 +14498,10 @@ body.free-edition .encourage-positive-review-banner.fake-extension-detected-bann
     -moz-box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.2);
     box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.2);
 }
+.pane-request .draft-ribbon .draft-ribbon-text:hover{
+    background-color:#4d66b5;
+    color:#fff;
+}
 .pane-request-header {
     display: flex;
     align-items: flex-end;
