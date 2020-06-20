@@ -14,4 +14,22 @@ CREATE TABLE `api_info` (
   `update_time` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `unique_path_method` (`path`,`method`)
-) ENGINE=InnoDB AUTO_INCREMENT=39 DEFAULT CHARSET=utf8mb4 COMMENT='路径明细';
+) ENGINE=InnoDB AUTO_INCREMENT=45 DEFAULT CHARSET=utf8mb4 COMMENT='路径明细';
+
+
+CREATE TABLE `api_example` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `api_info_id` int(11) NOT NULL,
+  `method` varchar(45) DEFAULT NULL,
+  `url` text,
+  `request_header` text,
+  `request_body` text,
+  `response_header` text,
+  `response_body` text,
+  `status` varchar(10) DEFAULT NULL,
+  `time` int(11) DEFAULT NULL,
+  `options` text,
+  `create_time` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `index_api_id` (`api_info_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8mb4 COMMENT='模拟数据';
