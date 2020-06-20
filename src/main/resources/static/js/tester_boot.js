@@ -292,7 +292,7 @@ function loadDetail(id,form) {
     $(".request"+id).parents(".service").addClass("parent-selected");
     $(".request"+id).parents(".service").removeClass("collapsed");
     $(".request"+id).parents(".service").find(".fa-caret-right").addClass("fa-caret-down").removeClass("fa-caret-right");
-    $('#editor-action .draft-ribbon-text').text("Edit");
+    $('#editor-action .draft-ribbon-text').text("Editor");
 
     let url = detailUrl+id;
     history.pushState(null,null,url);
@@ -602,6 +602,10 @@ function newRequest() {
 
 //--------------------------------example start -----------------------------------
 function loadExample(apiInfo) {
+
+    let $form = $("#example-action");
+    $form.find(".save-example-btn .changes-indicator").remove();
+
     //------构建example
     $.getJSON(lastExampleUrl+"?limit=1&apiInfoId="+$("#editor-action .api-info-id").val(),function (data) {
         data = unpackResult(data).data;
@@ -618,12 +622,14 @@ function loadExample(apiInfo) {
             time:0,
             options:{}
         };
-        let $form = $("#example-action");
         $form.find("#gwt-uid-350").val(currExample.method);
         $form.find("#gwt-uid-349").val(currExample.url).blur();
-        switchExampleMethod(currExample.method);
+
         //请求header
         setHeaderParams(JSON.parse(currExample.requestHeader));
+
+        switchExampleMethod(currExample.method);
+
         //请求体
         exampleTextarea.setValue(currExample.requestBody);
         formatExample();
@@ -636,6 +642,12 @@ function loadExample(apiInfo) {
         //响应体
         $("#response #responseBody").text(formatResponseBody(currExample.responseBody));
     })
+}
+
+function toNotSave() {
+    let $form = $("#example-action");
+    $form.find(".save-example-btn .changes-indicator").remove();
+    $form.find(".save-example-btn").append('<div class="changes-indicator"></div>');
 }
 
 function formatResponseBody(body){
@@ -659,6 +671,7 @@ function saveExample() {
                 openMsgModal(data.msg);
                 return;
             }
+            $("#example-action .save-example-btn .changes-indicator").remove();
         },complete:function () {
             hideSendNotify();
         }
@@ -670,6 +683,9 @@ function requextUrlExample(ableRedirect) {
     requestExample(url,ableRedirect);
 }
 function requestExample(url,ableRedirect){
+
+    toNotSave();
+
     let $form = $("#example-action");
     let type = $form.find("#gwt-uid-350").val();
     let bodyParam = (type == "POST" || type == "PUT")?exampleTextarea.getValue():"";
@@ -771,7 +787,7 @@ function triggerQueryParameterForm(e) {
 function parseUrlInput(e) {
     let $form = $("#example-action");
     $form.find(".query-parameters-form-block").html("");
-
+    $("#example-action .subtitle-counter").text("")
 
     let path = $(e).val();
     if (path.indexOf("http://") != 0){
@@ -1057,6 +1073,8 @@ function triggerEditorPanel() {
     $("#example-action").show();
     $("#response").show();
     $("#editor-action").hide();
+    /*let url = window.location.href.replace("#editor","")+"#example";
+    history.pushState(null,null,url);*/
 }
 
 function triggerExamplePanel() {
@@ -1064,5 +1082,7 @@ function triggerExamplePanel() {
     $("#response").hide();
     $("#editor-action").show();
     editorTextarea.refresh();
+    /*let url = window.location.href.replace("#example","")+"#editor";
+    history.pushState(null,null,url);*/
 }
 //--------------------------------example end -----------------------------------
