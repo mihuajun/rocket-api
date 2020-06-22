@@ -1,24 +1,21 @@
 package com.github.alenfive.dataway2;
 
 import com.github.alenfive.dataway2.entity.ApiParams;
-import com.github.alenfive.dataway2.extend.ApiPagerInterface;
-import com.github.alenfive.dataway2.extend.DataSourceManager;
+import com.github.alenfive.dataway2.extend.IApiPager;
 import com.github.alenfive.dataway2.service.ScriptParseService;
-import javafx.application.Application;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.StringUtils;
 
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @Description:
@@ -60,15 +57,31 @@ public class ApplicationTests {
     }
 
     @Test
+    public void testRandomArrayVar(){
+        StringBuilder script  = new StringBuilder("where id = #{idList[1].name}");
+        ApiParams apiParams = new ApiParams();
+        Map<String,Object> child = new HashMap<>();
+        child.put("name","王");
+
+        List<Object> list = new ArrayList<>();
+        list.add(1);
+        list.add(child);
+        apiParams.putParam("idList", list);
+        parseService.buildParams(script,apiParams);
+        log.info("testRandomArrayVar:{}",script);
+        assert script.toString().equals("where id = '王'");
+    }
+
+    @Test
     public void testIf(){
-        StringBuilder script  = new StringBuilder("where #?{id,and id=#{id}} and 1=1");
+        StringBuilder script  = new StringBuilder("where ?{id,and id=#{id}} and 1=1");
         ApiParams apiParams = new ApiParams();
         apiParams.putParam("id","123");
         parseService.buildIf(script,apiParams);
         log.info("testIf:{}",script.toString());
         assert script.toString().equals("where and id=#{id} and 1=1");
 
-        script  = new StringBuilder("where #?{id,and id=#{id}} and 1=1");
+        script  = new StringBuilder("where ?{id,and id=#{id}} and 1=1");
         apiParams = new ApiParams();
         parseService.buildIf(script,apiParams);
         log.info("testIf:{}",script.toString());
@@ -93,7 +106,7 @@ public class ApplicationTests {
     }
 
     @Autowired
-    private ApiPagerInterface apiPager;
+    private IApiPager apiPager;
 
     @Test
     public void testPager(){
@@ -127,5 +140,13 @@ public class ApplicationTests {
         log.info("testPager:{}",script.toString());
         assert script.toString().equals("select * from user limit 15,15");
 
+    }
+
+    @Test
+    public void jsScript() throws ScriptException {
+        String str = "4+5";
+        ScriptEngineManager manager = new ScriptEngineManager();
+        ScriptEngine engine = manager.getEngineByName("JavaScript");
+        System.out.println(engine.eval(str));
     }
 }

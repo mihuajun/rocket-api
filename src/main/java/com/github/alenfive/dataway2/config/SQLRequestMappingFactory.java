@@ -3,7 +3,7 @@ package com.github.alenfive.dataway2.config;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.alenfive.dataway2.entity.*;
 import com.github.alenfive.dataway2.entity.vo.RenameGroupReq;
-import com.github.alenfive.dataway2.extend.ApiPagerInterface;
+import com.github.alenfive.dataway2.extend.IApiPager;
 import com.github.alenfive.dataway2.extend.DataSourceManager;
 import com.github.alenfive.dataway2.service.ScriptParseService;
 import lombok.extern.slf4j.Slf4j;
@@ -60,7 +60,7 @@ public class SQLRequestMappingFactory {
     private String service;
 
     @Autowired
-    private ApiPagerInterface apiPager;
+    private IApiPager apiPager;
 
     @Autowired
     private RequestMappingHandlerMapping requestMappingHandlerMapping;

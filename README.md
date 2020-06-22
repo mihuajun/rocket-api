@@ -13,10 +13,10 @@
 6. 支持增删改操作       
 7. 支持入参变量替换符：`#{}`,自动识别参数类型为`Integer`,`String`,`List`，分别替换为`1`,`'a'`,`1,'a'`
 7. 支持变量作用域`pathVar(路径传参)`, `param(URL传参)`, `body(BODY JSON传参)`, `header(HEADER传参)`, `cookie(COOKIE传参)`
-8. 支持判空逻辑 `#?{var,express}`,与`mybatis`中`if`标签 `if(var != null && var !=''){express}`等值 
+8. 支持判空逻辑 `?{var,express}`,与`mybatis`中`if`标签 `if(var != null && var !=''){express}`等值 
 9. 多数据源支持,继承自com.github.alenfive.dataway2.extend.DataSourceDialect       
 10. 动态注册request mapping      
-11. 支持自定义分页返回，默认对象：com.github.alenfive.dataway2.extend.DefaultApiPager       
+11. 支持自定义分页返回，默认对象：DefaultIApiPager       
 12. 驼峰自动转换
 
 ### 快速开始
@@ -99,7 +99,7 @@ public class DefaultDataSourceManager extends DataSourceManager {
 }
 ```
 #### <a name="2">2. 自定义分页实体</a>
-继承抽象类:`com.github.alenfive.dataway2.extend.ApiPagerInterface`,如下：
+继承抽象类:`com.github.alenfive.dataway2.extend.IApiPager`,如下：
 ```java
 @Component
 public class DefaultApiPager implements ApiPagerInterface {
@@ -160,9 +160,9 @@ public class DefaultApiPager implements ApiPagerInterface {
 ```
 select * from book where id = #{id}
 ```
-非必选参数，通过#?{var,express}表示,如:
+非必选参数，通过?{var,express}表示,如:
 ```
-select * from book where 1=1 #?{name,and name=#{name}}
+select * from book where 1=1 ?{name,and name=#{name}}
 ```
 与 mybatis `if(var != null && var !=''){and name = #{name}}` if标签写法等值
 

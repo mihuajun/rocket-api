@@ -9,6 +9,7 @@ package com.github.alenfive.dataway2.extend;
  * @UpdateRemark: init
  * @Version: 1.0
  */
-public interface AssertExceptionInterface {
-    public void exception(String ... express);
+public interface IValidator {
+    String support();
+    Boolean validate(String... input);
 }

@@ -306,7 +306,7 @@ function loadDetail(id,form) {
         $(form).find(".api-info-id").val(data.id);
         $(form).find(".api-info-method").val(data.method);
         $(form).find(".api-info-datasource").val(data.datasource),
-        $(form).find(".api-info-path").val(data.path.startsWith("TEMP-")?"":data.path);
+        $(form).find(".api-info-path").val(data.path.startsWith("TEMP-")?"":data.path).blur();
         $(form).find(".api-info-group").val(data.group);
         $(form).find(".api-info-editor").val(data.editor);
         $(form).find(".api-info-comment").val(data.comment);

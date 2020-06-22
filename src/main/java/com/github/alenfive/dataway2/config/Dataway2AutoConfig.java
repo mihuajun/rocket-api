@@ -36,8 +36,8 @@ public class Dataway2AutoConfig {
 
     @Bean
     @ConditionalOnMissingBean
-    public DefaultApiPager getApiPager(){
-        return new DefaultApiPager();
+    public DefaultIApiPager getApiPager(){
+        return new DefaultIApiPager();
     }
 
     @Bean

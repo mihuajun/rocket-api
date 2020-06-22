@@ -19,7 +19,7 @@ import java.util.Map;
  * @menu 分页对象
  */
 @Component
-public class DefaultApiPager implements ApiPagerInterface {
+public class DefaultIApiPager implements IApiPager {
     @Override
     public Object buildPager(Long totalRecords, List data, ApiInfo apiInfo, ApiParams apiParams) {
         Map<String,Object> pager = new HashMap<>();

@@ -93,7 +93,12 @@
 
         <div class="code-body">
             <div id="editor-btns">
-
+                <div class="item" title="必填参数" express = "#{var}">#{}</div>
+                <div class="item" title="可选参数" express = "?{var,express}">?{}</div>
+                <div class="item" title="For循环" express = "for{var,express}">For</div>
+                <div class="item" title="参数验证" express = "assert{boolean express,msg}">Assert</div>
+                <div class="item" title="导出" express = 'var export = {"title","key"}'>Export</div>
+                <div class="item run" title="运行脚本"  >Run</div>
             </div>
             <textarea id="CodeMirror1" name="CodeMirror1" class="api-info-script cm-s-default"></textarea>
         </div>

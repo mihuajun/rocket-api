@@ -2,6 +2,7 @@ package com.github.alenfive.dataway2.service;
 
 import com.github.alenfive.dataway2.entity.ApiParams;
 import com.github.alenfive.dataway2.entity.ParamScope;
+import com.github.alenfive.dataway2.entity.vo.ArrVar;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -70,9 +71,10 @@ public class ScriptParseService {
     public void buildIf(StringBuilder script,ApiParams apiParams){
         Set<String> scopeSet = Stream.of(ParamScope.values()).map(ParamScope::name).collect(Collectors.toSet());
 
+        String flag = "?{";
         //匹配参数#{}
         do{
-            int startIf = script.indexOf("#?{");
+            int startIf = script.indexOf(flag);
             if (startIf == -1){
                 break;
             }
@@ -81,7 +83,7 @@ public class ScriptParseService {
             int ifClose = 1;
             int ifSplit = -1;
 
-            for(int i=startIf+3;i<script.length();i++){
+            for(int i=startIf+flag.length();i<script.length();i++){
                 char c = script.charAt(i);
                 if (c == '{'){
                     ifClose ++ ;
@@ -102,7 +104,7 @@ public class ScriptParseService {
             if (ifSplit == -1){
                 throw new IllegalArgumentException("missed if split ','");
             }
-            String varName = script.substring(startIf+3,ifSplit);
+            String varName = script.substring(startIf+flag.length(),ifSplit);
             Object value = buildParamItem(apiParams,varName);
             if (StringUtils.isEmpty(value)){
                 script = script.replace(startIf,endIf+1,"");
@@ -122,7 +124,7 @@ public class ScriptParseService {
     public void buildParams(StringBuilder script, ApiParams apiParams){
 
         //匹配参数#{}
-        Pattern r = Pattern.compile("#\\{[A-Za-z0-9-_\\.]+\\}");
+        Pattern r = Pattern.compile("#\\{[A-Za-z0-9-\\[\\]_\\.]+\\}");
 
         boolean find;
         do{
@@ -150,7 +152,7 @@ public class ScriptParseService {
         if (scopeSet.contains(paramArr[0])){
             switch (ParamScope.valueOf(paramArr[0])){
                 case pathVar:value = buildValueOfPathVar(apiParams.getPathVar(),paramArr[1]);break;
-                case param:value = buildValueOfParameter(apiParams.getParam(),paramArr[1]);break;
+                case param:value = buildValueOfParameter(apiParams.getParam(),paramArr,1);break;
                 case body:value = buildValueOfBody(apiParams.getBody(),paramArr,1);break;
                 case cookie:value = buildValueOfCookie(apiParams.getRequest(),paramArr[1]);break;
                 case header:value = buildValueOfHeader(apiParams.getRequest(),paramArr,1);break;
@@ -158,7 +160,7 @@ public class ScriptParseService {
         }else {
             value = buildValueOfPathVar(apiParams.getPathVar(),paramArr[0]);
             if (value == null) {
-                value = buildValueOfParameter(apiParams.getParam(), paramArr[0]);
+                value = buildValueOfParameter(apiParams.getParam(), paramArr,0);
             }
             if(value == null){
                 value = buildValueOfBody(apiParams.getBody(),paramArr, 0);
@@ -194,16 +196,50 @@ public class ScriptParseService {
 
     private Object buildValueOfBody(Map<String,Object> body, String[] paramArr,int index) {
         if (body == null)return null;
-        Object value = body.get(paramArr[index]);
+
+        Object value = buildObjectValue(body,paramArr[index]);
         if (paramArr.length-1 > index){
             return buildValueOfBody((Map<String, Object>) value,paramArr,++index);
         }
         return value;
     }
 
-    private Object buildValueOfParameter(Map<String,Object> params, String varName) {
+    private Object buildValueOfParameter(Map<String,Object> params, String[] paramArr,int index) {
         if (params == null)return null;
-        return params.get(varName);
+
+        Object value = buildObjectValue(params,paramArr[index]);
+        if (paramArr.length-1 > index){
+            return buildValueOfParameter((Map<String, Object>) value,paramArr,++index);
+        }
+        return value;
+    }
+
+    private Object buildObjectValue(Map<String,Object> params,String varName){
+        Object value = null;
+        ArrVar arrVar = isArrVar(varName);
+        if (arrVar != null){
+            Object collection = params.get(arrVar.getVarName());
+            if (!(collection instanceof Collection)){
+                throw new IllegalArgumentException("The "+arrVar.getVarName()+" parameter is not an array");
+            }
+
+            Collection list = ((Collection)collection);
+            if (arrVar.getIndex() >=list.size()){
+                throw new IllegalArgumentException("The parameter "+arrVar.getVarName()+" exceeds the array length");
+            }
+            value = list.toArray()[arrVar.getIndex()];
+        }else{
+            value = params.get(varName);
+        }
+        return value;
+    }
+
+    private ArrVar isArrVar(String varName){
+        boolean isArrVar = varName.matches(".+\\[\\d+\\]$");
+        if (!isArrVar)return null;
+        String varNameFinal = varName.substring(0,varName.indexOf("["));
+        Integer index = Integer.valueOf(varName.substring(varName.indexOf("[")+1,varName.length()-1));
+        return new ArrVar(varNameFinal,index);
     }
 
     private Object buildValueOfPathVar(Map<String,Object> pathVars, String varName) {

@@ -15,7 +15,7 @@ import java.util.List;
  * @Version: 1.0
  * @menu 分页返回
  */
-public interface ApiPagerInterface {
+public interface IApiPager {
 
     /**
      *
