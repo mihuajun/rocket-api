@@ -284,7 +284,6 @@ function loadSelectBoxEvent() {
 }
 
 function loadDetail(id,form) {
-
     //------构建editor
     $(".request").removeClass("selected");
     $(".service").removeClass("parent-selected");
@@ -294,8 +293,14 @@ function loadDetail(id,form) {
     $(".request"+id).parents(".service").find(".fa-caret-right").addClass("fa-caret-down").removeClass("fa-caret-right");
     $('#editor-action .draft-ribbon-text').text("Editor");
 
-    let url = detailUrl+id;
+    let url = detailUrl+id+"/"+(currPage?currPage:'example');
     history.pushState(null,null,url);
+    if (currPage == 'example'){
+        showExamplePanel();
+    }else{
+        showEditorPanel();
+    }
+
     $.getJSON(getApiUrl+id,function (data) {
         data = unpackResult(data).data;
         $(form).find(".api-info-id").val(data.id);
@@ -320,6 +325,7 @@ function loadDetail(id,form) {
             $(form).find(".api-info-datasource").parent().addClass("disabled");
         }
 
+        document.title = data.comment?data.comment:data.path;
 
         editorTextarea.setValue(data.script);
 
@@ -607,7 +613,7 @@ function loadExample(apiInfo) {
     $form.find(".save-example-btn .changes-indicator").remove();
 
     //------构建example
-    $.getJSON(lastExampleUrl+"?limit=1&apiInfoId="+$("#editor-action .api-info-id").val(),function (data) {
+    $.getJSON(lastExampleUrl+"?limit=1&apiInfoId="+apiInfo.id,function (data) {
         data = unpackResult(data).data;
         let basePath = window.location.href.substring(0,window.location.href.indexOf("/api-ui"));
         currExample = data[0]?data[0]:{
@@ -1069,20 +1075,30 @@ function loadExampleMethodEvent() {
     })
 }
 
-function triggerEditorPanel() {
+function showExamplePanel() {
     $("#example-action").show();
     $("#response").show();
     $("#editor-action").hide();
-    /*let url = window.location.href.replace("#editor","")+"#example";
-    history.pushState(null,null,url);*/
+    let url = window.location.href;
+    if(url.endsWith("/editor")){
+        url = url.replace("/editor","/example");
+        history.pushState(null,null,url);
+    }
+    currPage = "example";
 }
 
-function triggerExamplePanel() {
+function showEditorPanel() {
     $("#example-action").hide();
     $("#response").hide();
     $("#editor-action").show();
     editorTextarea.refresh();
-    /*let url = window.location.href.replace("#example","")+"#editor";
-    history.pushState(null,null,url);*/
+
+    let url = window.location.href;
+    if(url.endsWith("/example")){
+        url = url.replace("/example","/editor");
+        history.pushState(null,null,url);
+    }
+
+    currPage = "editor";
 }
 //--------------------------------example end -----------------------------------

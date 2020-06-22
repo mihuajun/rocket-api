@@ -9,13 +9,17 @@ spring:
     format:
       dateTime: yyyy-MM-dd HH:mm:ss
   datasource:
-    url: jdbc:mysql://mysql-test.app.gs:3306/dataway2?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai
-    username: dichantest
-    password: UmMtAvFl
+    url: jdbc:mysql://39.98.181.90:3306/dataway2?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai
+    username: dataway2
+    password: '$%3f6T48'
     driver-class-name: com.mysql.cj.jdbc.Driver
   data:
     mongodb:
-      uri: mongodb://test:test123456@mysql-test.app.gs:27017/customer_origin
+      host: 39.98.181.90
+      database: dataway2
+      username: dataway2
+      password: '$%3f6T48'
+      port: 27017
   thymeleaf:
     cache: false
     check-template: true
@@ -29,6 +33,3 @@ spring:
 logging:
   level:
     com.github.alenfive.dataway2: debug
-
-server:
-  port: 8081

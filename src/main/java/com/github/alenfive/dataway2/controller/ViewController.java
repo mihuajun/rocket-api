@@ -31,10 +31,11 @@ public class ViewController {
         return "api_index";
     }
 
-    @GetMapping("/{id}")
-    public String index(Model model, @PathVariable String id){
+    @GetMapping("/{id}/{page}")
+    public String index(Model model, @PathVariable String id,@PathVariable String page){
         model.addAttribute("dataSourceList",dataSourceManager.getDialectMap().keySet());
         model.addAttribute("currApi",id);
+        model.addAttribute("currPage",page);
         return "api_index";
     }
 }
