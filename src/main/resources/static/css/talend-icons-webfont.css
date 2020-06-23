@@ -1,6 +1,6 @@
 @font-face {
     font-family: "talendicons";
-    src: url("/fonts/talendicons.woff2") format("woff2");
+    src: url("../fonts/talendicons.woff2") format("woff2");
 }
 
 .ti-icon {

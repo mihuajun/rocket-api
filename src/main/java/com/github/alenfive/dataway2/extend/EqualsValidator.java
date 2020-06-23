@@ -1,5 +1,7 @@
 package com.github.alenfive.dataway2.extend;
 
+import java.util.Objects;
+
 /**
  * @Description:等值匹配
  * @Copyright: Copyright (c) 2019  ALL RIGHTS RESERVED.
@@ -10,6 +12,7 @@ package com.github.alenfive.dataway2.extend;
  * @Version: 1.0
  */
 public class EqualsValidator implements IValidator {
+
     @Override
     public String support() {
         return "equals";
@@ -22,14 +25,6 @@ public class EqualsValidator implements IValidator {
             throw new RuntimeException("Parameter length mismatch" + input.toString());
         }
 
-        if (input[0] == null && input[1] == null){
-            return true;
-        }
-
-        if (input[0] != null){
-            return input[0].equals(input[1]);
-        }
-
-        return input[1].equals(input[0]);
+        return Objects.equals(input[0],input[1]);
     }
 }

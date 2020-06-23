@@ -1,6 +1,6 @@
 @font-face {
     font-family: 'simple-line-icons';
-    src: url("/fonts/Simple-Line-Icons.woff2") format("woff2");
+    src: url("../fonts/Simple-Line-Icons.woff2") format("woff2");
     font-weight: normal;
     font-style: normal;
 }

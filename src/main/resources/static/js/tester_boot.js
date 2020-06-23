@@ -19,19 +19,18 @@ const readFavoriteLanguageCallback = function (result) {
 };
 
 window.localStorage.getItem('favoriteLanguage', readFavoriteLanguageCallback);*/
+let loadApiListUrl = ctxPath + "/dataway2/api-list";
+let saveApiUrl = ctxPath + "/dataway2/api-info";
+let getApiUrl = ctxPath + "/dataway2/api-info/";
+let deleteApiUrl = ctxPath + "/dataway2/api-info";
+let getApiGroupNameUrl = ctxPath + "/dataway2/group-name-list";
+let getApiNameUrl = ctxPath + "/dataway2/api-name-list";
+let renameGroupUrl = ctxPath + "/dataway2/api-info/group";
+let saveExampleUrl = ctxPath + "/dataway2/api-example";
+let lastExampleUrl = ctxPath + "/dataway2/api-example/last";
 
-let loadApiListUrl = "/dataway2/api-list";
-let saveApiUrl = "/dataway2/api-info";
-let getApiUrl = "/dataway2/api-info/";
-let deleteApiUrl = "/dataway2/api-info";
-let getApiGroupNameUrl = "/dataway2/group-name-list";
-let getApiNameUrl = "/dataway2/api-name-list";
-let renameGroupUrl = "/dataway2/api-info/group";
-let saveExampleUrl = "/dataway2/api-example";
-let lastExampleUrl = "/dataway2/api-example/last";
-
-let indexUrl = "/api-ui";
-let detailUrl = "/api-ui/";
+let indexUrl = ctxPath + "/api-ui";
+let detailUrl = ctxPath + "/api-ui/";
 let editor = "admin";
 
 //当前example
