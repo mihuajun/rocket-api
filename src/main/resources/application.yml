@@ -20,7 +20,6 @@ spring:
       username: dataway2
       password: '$%3f6T48'
       port: 27017
-
 logging:
   level:
     com.github.alenfive.dataway2: debug
