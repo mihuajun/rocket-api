@@ -1,4 +1,4 @@
-package com.github.alenfive.dataway2.extend;
+package com.github.alenfive.dataway2.datasource;
 
 import com.github.alenfive.dataway2.entity.ApiInfo;
 import com.github.alenfive.dataway2.entity.ApiParams;
@@ -34,11 +34,17 @@ public abstract class DataSourceDialect {
     abstract String lastApiExampleScript();
     abstract String deleteExampleScript();
 
-    abstract Object execute(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams);
+    //查询对象
+    abstract List<Map<String,Object>> find(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams);
 
-    abstract List<Map<String,Object>> executeQuery(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams);
+    //返回影响的行数
+    abstract Long update(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams);
 
-    abstract Long executeCount(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams);
+    //返回影响的行数
+    abstract Long remove(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams);
+
+    //返回主键
+    abstract Object insert(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams);
 
     /**
      * 替换key

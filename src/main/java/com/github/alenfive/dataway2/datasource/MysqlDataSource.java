@@ -1,10 +1,16 @@
-package com.github.alenfive.dataway2.extend;
+package com.github.alenfive.dataway2.datasource;
 
+import com.github.alenfive.dataway2.datasource.DataSourceDialect;
 import com.github.alenfive.dataway2.entity.ApiInfo;
 import com.github.alenfive.dataway2.entity.ApiParams;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.PreparedStatementCreator;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.PreparedStatement;
+import java.sql.Statement;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -71,20 +77,29 @@ public class MysqlDataSource extends DataSourceDialect {
     }
 
     @Override
-    public Object execute(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams) {
-        jdbcTemplate.execute(script.toString());
-        return null;
-    }
-
-    @Override
-    public List<Map<String,Object>> executeQuery(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams) {
+    public List<Map<String,Object>> find(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams) {
         List<Map<String,Object>> resultList = jdbcTemplate.queryForList(script.toString());
         return resultList.stream().map(this::toReplaceKeyLow).collect(Collectors.toList());
     }
 
     @Override
-    public Long executeCount(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams) {
-        return jdbcTemplate.queryForObject(script.toString(),Long.class);
+    Long update(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams) {
+        return Long.valueOf(jdbcTemplate.update(script.toString()));
     }
 
+    @Override
+    Long remove(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams) {
+        return Long.valueOf(jdbcTemplate.update(script.toString()));
+    }
+
+    @Override
+    Object insert(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams) {
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        PreparedStatementCreator preparedStatementCreator = con -> {
+            PreparedStatement ps = con.prepareStatement(script.toString(), Statement.RETURN_GENERATED_KEYS);
+            return ps;
+        };
+        jdbcTemplate.update(preparedStatementCreator, keyHolder);
+        return keyHolder.getKey();
+    }
 }

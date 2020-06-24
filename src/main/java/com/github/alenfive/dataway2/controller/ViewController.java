@@ -1,6 +1,6 @@
 package com.github.alenfive.dataway2.controller;
 
-import com.github.alenfive.dataway2.extend.DataSourceManager;
+import com.github.alenfive.dataway2.datasource.DataSourceManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;

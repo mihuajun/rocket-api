@@ -1,4 +1,4 @@
-package com.github.alenfive.dataway2.extend;
+package com.github.alenfive.dataway2.datasource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -30,8 +30,7 @@ public class DefaultDataSourceManager extends DataSourceManager {
 
     @PostConstruct
     public void init() {
-
-        Map<String,DataSourceDialect> dialects = new HashMap<>();
+        Map<String, DataSourceDialect> dialects = new HashMap<>();
         dialects.put("mysql",new MysqlDataSource(jdbcTemplate,false));
         dialects.put("mongodb",new MongoDataSource(mongoTemplate,true));
         super.setDialectMap(dialects);

@@ -42,14 +42,13 @@ public class ScriptParseService {
      * 提取可执行脚本
      * 去掉注释
      */
-    public List<StringBuilder> extractExecutableScript(String script) throws UnsupportedEncodingException {
+    public StringBuilder extractExecutableScript(String script) throws UnsupportedEncodingException {
         script = URLDecoder.decode(script,"utf-8");
-        String[] scriptArr = script
+        return  new StringBuilder(script
                 .replaceAll("//.*","")
-                .replaceAll("\n","")
-                .replaceAll("\t","")
-                .replaceAll(" {2,}"," ").split(";");
-        return Stream.of(scriptArr).map(item->new StringBuilder(item.trim())).collect(Collectors.toList());
+                /*.replaceAll("\n","")
+                .replaceAll("\t","")*/
+                .replaceAll(" {2,}"," "));
     }
 
     /**

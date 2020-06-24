@@ -1,18 +1,15 @@
-package com.github.alenfive.dataway2.extend;
+package com.github.alenfive.dataway2.datasource;
 
+import com.github.alenfive.dataway2.datasource.DataSourceDialect;
 import com.github.alenfive.dataway2.entity.ApiInfo;
 import com.github.alenfive.dataway2.entity.ApiParams;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.aggregation.DateOperators;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -141,16 +138,9 @@ public class MongoDataSource extends DataSourceDialect {
                 "}";
     }
 
-    @Override
-    public Object execute(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams) {
-        formatISODate(script);
-        formatObjectIdList(script);
-        mongoTemplate.executeCommand(script.toString());
-        return null;
-    }
 
     @Override
-    public List<Map<String,Object>> executeQuery(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams) {
+    public List<Map<String,Object>> find(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams) {
         formatISODate(script);
         formatObjectIdList(script);
         Document document = mongoTemplate.executeCommand(script.toString());
@@ -159,11 +149,27 @@ public class MongoDataSource extends DataSourceDialect {
     }
 
     @Override
-    public Long executeCount(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams) {
+    Long update(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams) {
         formatISODate(script);
         formatObjectIdList(script);
-        Document document = mongoTemplate.executeCommand(script.toString());
-        return new Long(document.getInteger("n"));
+        mongoTemplate.executeCommand(script.toString());
+        return null;
+    }
+
+    @Override
+    Long remove(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams) {
+        formatISODate(script);
+        formatObjectIdList(script);
+        mongoTemplate.executeCommand(script.toString());
+        return null;
+    }
+
+    @Override
+    Object insert(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams) {
+        formatISODate(script);
+        formatObjectIdList(script);
+        mongoTemplate.executeCommand(script.toString());
+        return null;
     }
 
     private void formatObjectIdList(StringBuilder script) {

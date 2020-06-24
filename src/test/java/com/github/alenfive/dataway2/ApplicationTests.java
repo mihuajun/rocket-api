@@ -101,7 +101,7 @@ public class ApplicationTests {
                 "start11;\n" +
                 "//单行注释\n" +
                 "end11;";
-        List<StringBuilder> scriptList = parseService.extractExecutableScript(script);
+        StringBuilder scriptList = parseService.extractExecutableScript(script);
         System.out.println(scriptList);
     }
 

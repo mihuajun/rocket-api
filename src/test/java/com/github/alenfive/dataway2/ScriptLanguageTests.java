@@ -1,8 +1,7 @@
 package com.github.alenfive.dataway2;
 
-import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
-import javax.script.ScriptException;
+import javax.script.*;
+import java.util.Collection;
 
 /**
  * @Description:
@@ -16,10 +15,12 @@ import javax.script.ScriptException;
  * @menu 脚本引擎测试
  */
 public class ScriptLanguageTests {
-    public static void main(String[] args) throws ScriptException {
-        ScriptEngineManager manager = new ScriptEngineManager();
-        ScriptEngine engine = manager.getEngineByName("JavaScript");
-        engine.eval("let list1 = java.util.Objects.equals('a','a');");
-        System.out.println(engine.get("list1"));
+    public static void main(String[] args) throws ScriptException, NoSuchMethodException {
+        ScriptEngineManager factory = new ScriptEngineManager();
+        ScriptEngine engine = factory.getEngineByName("js");
+        engine.eval("var fruits = [\"Banana\", \"Orange\", \"Apple\", \"Mango\"]; var d = fruits.toString();");
+        System.out.println(engine.get("fruits") instanceof Object[]);
+        System.out.println(engine.get("d").getClass());
+        System.out.println(engine.get("d"));
     }
 }
