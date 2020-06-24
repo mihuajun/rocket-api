@@ -74,4 +74,28 @@ public class DbFunction implements IFunction{
         return result;
     }
 
+    public Long count(String script){
+        return this.count(script,null);
+    }
+
+    public Map<String,Object> findOne(String script){
+        return this.findOne(script,null);
+    }
+
+    public List<Map<String,Object>> find(String script){
+        return this.find(script,null);
+    }
+
+    public Object insert(String script){
+        return this.insert(script,null);
+    }
+
+    public Object remove(String script){
+        return this.remove(script,null);
+    }
+
+    public Long update(String script){
+        return this.update(script,null);
+    }
+
 }

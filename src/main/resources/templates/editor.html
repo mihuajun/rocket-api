@@ -91,8 +91,8 @@
 
         </div>
 
-        <div class="code-body">
-            <div id="editor-btns">
+        <div class="code-body" >
+            <div id="editor-btns" style="height: 24px;border-bottom: 1px solid #ccc;">
                 <div class="item" title="必填参数" express = "#{var}">#{}</div>
                 <div class="item" title="可选参数" express = "?{var,express}">?{}</div>
                 <div class="item" title="For循环" express = "for{var,express}">For</div>
@@ -100,7 +100,8 @@
                 <div class="item" title="导出" express = 'var export = {"title","key"}'>Export</div>
                 <div class="item run" title="运行脚本"  >Run</div>
             </div>
-            <textarea id="CodeMirror1" name="CodeMirror1" class="api-info-script cm-s-default"></textarea>
+            <!--<textarea id="CodeMirror1" name="CodeMirror1" class="api-info-script cm-s-default"></textarea>-->
+            <div id="monaco-editor" style="width:100%;margin-top:10px;height: 600px"></div>
         </div>
     </div>
 
@@ -157,7 +158,7 @@
                                                                                                                         style="display: none;"></span></button>
         </div>
     </div>
-
 </section>
 </body>
 </html>
+

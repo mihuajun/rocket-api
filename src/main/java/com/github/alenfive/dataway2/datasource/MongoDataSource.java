@@ -99,7 +99,7 @@ public class MongoDataSource extends DataSourceDialect {
     }
 
     @Override
-    String saveApiExampleScript() {
+    public String saveApiExampleScript() {
         return "{\n" +
                 "\t\"insert\":\"api_example\",\n" +
                 "\t\"documents\":[{\n" +
@@ -119,7 +119,7 @@ public class MongoDataSource extends DataSourceDialect {
     }
 
     @Override
-    String lastApiExampleScript() {
+    public String lastApiExampleScript() {
         return "{\n" +
                 "     find: \"api_example\",\n" +
                 "     filter: { api_info_id: ObjectId(#{apiInfoId}) }," +
@@ -129,7 +129,7 @@ public class MongoDataSource extends DataSourceDialect {
     }
 
     @Override
-    String deleteExampleScript() {
+    public String deleteExampleScript() {
         return "{\n" +
                 "     delete: \"api_example\",\n" +
                 "     deletes: [\n" +
@@ -149,7 +149,7 @@ public class MongoDataSource extends DataSourceDialect {
     }
 
     @Override
-    Long update(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams) {
+    public Long update(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams) {
         formatISODate(script);
         formatObjectIdList(script);
         mongoTemplate.executeCommand(script.toString());
@@ -157,7 +157,7 @@ public class MongoDataSource extends DataSourceDialect {
     }
 
     @Override
-    Long remove(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams) {
+    public Long remove(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams) {
         formatISODate(script);
         formatObjectIdList(script);
         mongoTemplate.executeCommand(script.toString());
@@ -165,7 +165,7 @@ public class MongoDataSource extends DataSourceDialect {
     }
 
     @Override
-    Object insert(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams) {
+    public Object insert(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams) {
         formatISODate(script);
         formatObjectIdList(script);
         mongoTemplate.executeCommand(script.toString());

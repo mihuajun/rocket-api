@@ -69,7 +69,17 @@ $(function(){
     loadEvent();
     $("#loader").hide();
 
-    editorTextarea = CodeMirror.fromTextArea(document.getElementById('CodeMirror1'),{
+    editorTextarea = monaco.editor.create(document.getElementById('monaco-editor'), {
+        language: 'javascript',
+        wordWrap: 'on',  //自行换行
+        verticalHasArrows: true,
+        horizontalHasArrows: true,
+        minimap: {
+            enabled: false // 关闭小地图
+        }
+    });
+
+    /*editorTextarea = CodeMirror.fromTextArea(document.getElementById('CodeMirror1'),{
         mode:"text/x-sql",
         scrollbarStyle:null,
         lineWrapping:true,
@@ -87,7 +97,7 @@ $(function(){
     editorTextarea.on("change", function(editor, change) {
     });
 
-    editorTextarea.setSize('100%','100%');
+    editorTextarea.setSize('100%','100%');*/
 
     exampleTextarea = CodeMirror.fromTextArea(document.getElementById('CodeMirror2'),{
         mode:"application/json",
@@ -1090,7 +1100,6 @@ function showEditorPanel() {
     $("#example-action").hide();
     $("#response").hide();
     $("#editor-action").show();
-    editorTextarea.refresh();
 
     let url = window.location.href;
     if(url.endsWith("/example")){
