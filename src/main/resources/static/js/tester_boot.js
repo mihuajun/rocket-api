@@ -849,7 +849,7 @@ function buildHeaderJson(headerArrs) {
     let headers = {};
     $.each(headerArrs,function (index,item) {
         let arr = item.split(":");
-        headers[arr[0]] = arr[1];
+        headers[arr[0]] = arr[1]?arr[1].trim():"";
     })
     return headers;
 }
