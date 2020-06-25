@@ -44,11 +44,7 @@ public class ScriptParseService {
      */
     public StringBuilder extractExecutableScript(String script) throws UnsupportedEncodingException {
         script = URLDecoder.decode(script,"utf-8");
-        return  new StringBuilder(script
-                .replaceAll("//.*","")
-                /*.replaceAll("\n","")
-                .replaceAll("\t","")*/
-                .replaceAll(" {2,}"," "));
+        return  new StringBuilder(script);
     }
 
     /**
@@ -153,8 +149,8 @@ public class ScriptParseService {
                 case pathVar:value = buildValueOfPathVar(apiParams.getPathVar(),paramArr[1]);break;
                 case param:value = buildValueOfParameter(apiParams.getParam(),paramArr,1);break;
                 case body:value = buildValueOfBody(apiParams.getBody(),paramArr,1);break;
-                case cookie:value = buildValueOfCookie(apiParams.getRequest(),paramArr[1]);break;
-                case header:value = buildValueOfHeader(apiParams.getRequest(),paramArr,1);break;
+                case cookie:value = buildValueOfCookie(apiParams.getCookie(),apiParams.getRequest(),paramArr[1]);break;
+                case header:value = buildValueOfHeader(apiParams.getHeader(),apiParams.getRequest(),paramArr,1);break;
             }
         }else {
             value = buildValueOfPathVar(apiParams.getPathVar(),paramArr[0]);
@@ -165,31 +161,43 @@ public class ScriptParseService {
                 value = buildValueOfBody(apiParams.getBody(),paramArr, 0);
             }
             if(value == null){
-                value = buildValueOfCookie(apiParams.getRequest(), paramArr[0]);
+                value = buildValueOfCookie(apiParams.getCookie(),apiParams.getRequest(), paramArr[0]);
             }
             if(value == null){
-                value = buildValueOfHeader(apiParams.getRequest(),paramArr,0);
+                value = buildValueOfHeader(apiParams.getHeader(),apiParams.getRequest(),paramArr,0);
             }
         }
         return value;
     }
 
-    private Object buildValueOfHeader(HttpServletRequest request, String[] paramArr,int index) {
-        if (request == null)return null;
-        return request.getHeader(paramArr[index]);
+    private Object buildValueOfHeader(Map<String,String> header,HttpServletRequest request, String[] paramArr,int index) {
+        Object value  = null;
+        if (header != null){
+            value = header.get(paramArr[index]);
+        }
+        if (request != null && value == null){
+            value = request.getHeader(paramArr[index]);
+        }
+        return value;
     }
 
-    private Object buildValueOfCookie(HttpServletRequest request, String varName) {
-        if (request == null)return null;
-        Cookie[] cookies = request.getCookies();
-        if (cookies == null)return null;
+    private Object buildValueOfCookie(Map<String,Object> cookie,HttpServletRequest request, String varName) {
         Object value  = null;
-        for(Cookie cookie : cookies){
-            if(cookie.getName().equals(varName)){
-                value = cookie.getValue();
-                break;
+        if (cookie != null){
+            value = cookie.get(varName);
+        }
+
+        if (request != null && value == null){
+            Cookie[] cookies = request.getCookies();
+            if (cookies == null)return null;
+            for(Cookie item : cookies){
+                if(item.getName().equals(varName)){
+                    value = item.getValue();
+                    break;
+                }
             }
         }
+
         return value;
     }
 
@@ -241,7 +249,7 @@ public class ScriptParseService {
         return new ArrVar(varNameFinal,index);
     }
 
-    private Object buildValueOfPathVar(Map<String,Object> pathVars, String varName) {
+    private Object buildValueOfPathVar(Map<String,String> pathVars, String varName) {
         if (pathVars == null)return null;
         return pathVars.get(varName);
     }

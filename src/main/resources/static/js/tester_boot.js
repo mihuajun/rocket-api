@@ -23,6 +23,7 @@ let loadApiListUrl = ctxPath + "/dataway2/api-list";
 let saveApiUrl = ctxPath + "/dataway2/api-info";
 let getApiUrl = ctxPath + "/dataway2/api-info/";
 let deleteApiUrl = ctxPath + "/dataway2/api-info";
+let runApiUrl = ctxPath +"dataway2/api-info/run";
 let getApiGroupNameUrl = ctxPath + "/dataway2/group-name-list";
 let getApiNameUrl = ctxPath + "/dataway2/api-name-list";
 let renameGroupUrl = ctxPath + "/dataway2/api-info/group";
@@ -49,13 +50,15 @@ let currExample = {
 
 let editorTextarea;
 let exampleTextarea;
+let hasResponse;
+let hasConsole;
 let gdata = {
 
 }
 
 function loadCurrApi() {
     if (currApi){
-        loadDetail(currApi,"#editor-action")
+        loadDetail(currApi,"#editor-section")
     }else{
         newRequest();
     }
@@ -77,6 +80,10 @@ $(function(){
         minimap: {
             enabled: false // 关闭小地图
         }
+    });
+
+    editorTextarea.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, function () {
+        runApi();
     });
 
     /*editorTextarea = CodeMirror.fromTextArea(document.getElementById('CodeMirror1'),{
@@ -133,7 +140,6 @@ $(function(){
             }//代码格式化
         }
     });
-
     exampleTextarea.setSize('100%','100%');
 
     CodeMirror.commands.autocomplete = function(cm) {
@@ -142,6 +148,7 @@ $(function(){
 
     exampleTextarea.on("change", function(editor, change) {
     });
+
 
 
 });
@@ -195,7 +202,7 @@ function addARequest(e) {
     newRequest();
     saveExecuter({
         "method": "GET",
-        "datasource":$("#editor-action").find(".api-info-datasource").attr("default-value"),
+        "datasource":$("#editor-section").find(".api-info-datasource").attr("default-value"),
         "path": "TEMP-"+uuid(),
         "group": $(e).parents(".service").children(".name").attr("title"),
         "editor": editor,
@@ -260,6 +267,59 @@ function removeApi(e,id) {
     event.stopPropagation();    //  阻止事件冒泡
 }
 
+function buildExampleBodyJson() {
+    let exampleBodyStr = buildExampleBodyStr();
+    try {
+        return JSON.parse(exampleBodyStr);
+    }catch (e) {
+        return {};
+    }
+}
+
+function buildExampleBodyStr() {
+    let type = $("#example-section .example-method").val();
+    return (type == "POST" || type == "PUT")?exampleTextarea.getValue():"";
+}
+
+function runApi() {
+    let params = {
+        "script":editorTextarea.getValue(),
+        "datasource":$("#editor-section .api-info-datasource").val(),
+        "header": buildHeaderJson(getHeaderParams()),
+        "body" : buildExampleBodyJson(),
+        "pattern":$("#editor-section .api-info-path").val(),
+        "url":$("#example-section .example-url").val()
+    }
+
+    showSendNotify("Running api")
+    $("#console-section").show();
+    let startTime=new Date().getTime()
+    $.ajax({
+        type: "POST",
+        url: runApiUrl,
+        contentType : "application/json",
+        data: JSON.stringify(params),
+        success: function (data) {
+            data = unpackResult(data);
+            if (data.code == 200){
+                let content = data.data?data.data:"There is no return value";
+
+                $("#console-section .content").html(JSON.stringify(content,null, "\t"));
+            }else{
+                $("#console-section .content").text(data.msg);
+            }
+            //<div style="display: none;"><p class="note"> Not available, a request has not been sent
+            //             yet. </p></div>
+
+        },complete:function () {
+            hideSendNotify();
+            hasConsole = true;
+            let ms = (new Date().getTime()-startTime)+"ms";
+            $("#console-section .el-time").attr("title",ms).text("Elapsed time: "+ms);
+        }
+    });
+}
+
 //comment 编辑事件
 function loadEditAbleEvent() {
     $(".editable-input>input").on("click",function () {
@@ -293,6 +353,11 @@ function loadSelectBoxEvent() {
 }
 
 function loadDetail(id,form) {
+
+    //init curr data
+    hasConsole = null;
+    hasResponse = null;
+
     //------构建editor
     $(".request").removeClass("selected");
     $(".service").removeClass("parent-selected");
@@ -300,15 +365,11 @@ function loadDetail(id,form) {
     $(".request"+id).parents(".service").addClass("parent-selected");
     $(".request"+id).parents(".service").removeClass("collapsed");
     $(".request"+id).parents(".service").find(".fa-caret-right").addClass("fa-caret-down").removeClass("fa-caret-right");
-    $('#editor-action .draft-ribbon-text').text("Editor");
+    $('#editor-section .draft-ribbon-text').text("Editor");
 
     let url = detailUrl+id+"/"+(currPage?currPage:'example');
     history.pushState(null,null,url);
-    if (currPage == 'example'){
-        showExamplePanel();
-    }else{
-        showEditorPanel();
-    }
+
 
     $.getJSON(getApiUrl+id,function (data) {
         data = unpackResult(data).data;
@@ -325,6 +386,7 @@ function loadDetail(id,form) {
         $(form).find(".api-info-path").removeAttr("readonly");
         $(form).find(".api-info-datasource").removeAttr("readonly");
         $(form).find(".api-info-datasource").parent().removeClass("disabled");
+        $("#console-section").hide();
 
         if(data.type == 'Code'){
             $(form).find(".api-info-method").attr("readonly","readonly");
@@ -401,7 +463,7 @@ function cancelDialogGroup() {
 function showDialogGroup(id) {
     $("#save-dialog").attr("data-id",id);
     $("#save-dialog").show();
-    $("#save-dialog .input-xlarge").val($("#editor-action .api-info-comment").val());
+    $("#save-dialog .input-xlarge").val($("#editor-section .api-info-comment").val());
     $("#save-dialog .path-buttons .r-btn").addClass("active");
     $("#save-dialog .button-path-selector").remove();
 
@@ -476,7 +538,7 @@ function saveExecuter(params) {
                 return;
             }
             cancelDialogGroup();
-            loadDetail(data.data,"#editor-action")
+            loadDetail(data.data,"#editor-section")
         },complete:function (req,data) {
             hideSendNotify();
         }
@@ -528,7 +590,7 @@ function buildApiTree(list,collapsed) {
 
         let $lev2 = $('<ul></ul>');
         $.each(value,function (index,item) {
-            $lev2.append('<li class="'+collapsed+' request level2 request'+item.id+'" ><div class="name" onclick="loadDetail(\''+item.id+'\',\'#editor-action\')" title="'+(item.comment?item.comment:item.path)+'"><i\n' +
+            $lev2.append('<li class="'+collapsed+' request level2 request'+item.id+'" ><div class="name" onclick="loadDetail(\''+item.id+'\',\'#editor-section\')" title="'+(item.comment?item.comment:item.path)+'"><i\n' +
                 '                                                        class="fa fa-caret-right invisible" aria-hidden="true"\n' +
                 '                                                        e2e-tag="drive|'+(item.comment?item.comment:item.path)+'|expand"\n' +
                 '                                                        style="display: none;"></i>\n' +
@@ -592,7 +654,13 @@ function cancelDialog(e) {
 }
 
 function newRequest() {
-    let form = "#editor-action";
+    newEditor();
+    newExample();
+}
+
+function newEditor() {
+    //clean editor
+    let form = "#editor-section";
     history.pushState(null,null,indexUrl);
     $(form).find(".api-info-id").val("");
     $(form).find(".api-info-method").val("GET");
@@ -605,41 +673,65 @@ function newRequest() {
     editorTextarea.setValue("");
 
     //css
-    $(form).find(".api-info-method").removeAttr("readonly");
-    $(form).find(".api-info-method").parent().removeClass("disabled");
+    $(form).find(".api-info-method").parent().removeClass("disabled").removeAttr("readonly");
     $(form).find(".api-info-path").removeAttr("readonly");
     $(form).find(".api-info-datasource").removeAttr("readonly");
     $(form).find(".api-info-datasource").parent().removeClass("disabled");
+
+    $("#console-section").hide();
+
+    hasConsole = null;
+}
+
+function newExample() {
+    //clean example
+    let form = "#example-section";
+    $(form).find(".example-method").val("GET");
+    $(form).find(".example-url").val(buildDefaultUrl("")).blur();
+    $(form).find(".headers-form-block").html("");
+    exampleTextarea.setValue("");
+    setTimeout(() => {
+        exampleTextarea.refresh()
+    },50);
+    $("#response").hide();
+    currExample = {};
+    hasResponse = null;
 }
 
 
 
 
 //--------------------------------example start -----------------------------------
+function buildDefaultUrl(path) {
+    let basePath = window.location.href.substring(0,window.location.href.indexOf("/api-ui"));
+    return basePath+(path.indexOf("TEMP-") == 0?"":path);
+}
 function loadExample(apiInfo) {
 
-    let $form = $("#example-action");
+    let $form = $("#example-section");
     $form.find(".save-example-btn .changes-indicator").remove();
 
     //------构建example
     $.getJSON(lastExampleUrl+"?limit=1&apiInfoId="+apiInfo.id,function (data) {
         data = unpackResult(data).data;
-        let basePath = window.location.href.substring(0,window.location.href.indexOf("/api-ui"));
         currExample = data[0]?data[0]:{
             apiInfoId:apiInfo.id,
-            url:basePath+apiInfo.path,
+            url:buildDefaultUrl(apiInfo.path),
             method:apiInfo.method,
-            requestHeader:"[]",
+            requestHeader:"{}",
             requestBody:"",
-            responseHeader:"[]",
+            responseHeader:"{}",
             responseBody:"",
             status:200,
             time:0,
             options:{}
         };
-        $form.find("#gwt-uid-350").val(currExample.method);
-        $form.find("#gwt-uid-349").val(currExample.url).blur();
+        $form.find(".example-method").val(currExample.method);
+        $form.find(".example-url").val(currExample.url).blur();
 
+        if (data[0]){
+            hasResponse = true;
+        }
         //请求header
         setHeaderParams(JSON.parse(currExample.requestHeader));
 
@@ -656,11 +748,17 @@ function loadExample(apiInfo) {
         setResponseHeader(JSON.parse(currExample.responseHeader));
         //响应体
         $("#response #responseBody").text(formatResponseBody(currExample.responseBody));
+
+        if (currPage == 'example'){
+            showExamplePanel();
+        }else{
+            showEditorPanel();
+        }
     })
 }
 
 function toNotSave() {
-    let $form = $("#example-action");
+    let $form = $("#example-section");
     $form.find(".save-example-btn .changes-indicator").remove();
     $form.find(".save-example-btn").append('<div class="changes-indicator"></div>');
 }
@@ -674,45 +772,63 @@ function formatResponseBody(body){
 }
 
 function saveExample() {
+
+    let params = {
+        apiInfoId:$("#editor-section .api-info-id").val(),
+        url:$("#example-section .example-url").val(),
+        method:$("#example-section .example-method").val(),
+        requestHeader:JSON.stringify(buildHeaderJson(getHeaderParams())),
+        requestBody:buildExampleBodyStr(),
+        responseHeader:currExample.responseHeader,
+        responseBody:currExample.responseBody,
+        status:currExample.status,
+        time:currExample.time,
+        options:currExample.options
+    }
     showSendNotify("Saveing example")
     $.ajax({
         type: "POST",
         url: saveExampleUrl,
         contentType : "application/json",
-        data: JSON.stringify(currExample),
+        data: JSON.stringify(params),
         success: function (data) {
             data = unpackResult(data);
             if (data.code !=200){
                 openMsgModal(data.msg);
                 return;
             }
-            $("#example-action .save-example-btn .changes-indicator").remove();
+            $("#example-section .save-example-btn .changes-indicator").remove();
         },complete:function () {
             hideSendNotify();
         }
     });
 }
 function requextUrlExample(ableRedirect) {
-    let $form = $("#example-action");
-    let url = $form.find("#gwt-uid-349").val();
+    let $form = $("#example-section");
+    let url = $form.find(".example-url").val();
     requestExample(url,ableRedirect);
 }
-function requestExample(url,ableRedirect){
 
-    toNotSave();
-
-    let $form = $("#example-action");
-    let type = $form.find("#gwt-uid-350").val();
-    let bodyParam = (type == "POST" || type == "PUT")?exampleTextarea.getValue():"";
-    let headerArrs = getHeaderParams();
+function buildHeaderJson(headerArrs) {
     let headers = {};
     $.each(headerArrs,function (index,item) {
         let arr = item.split(":");
         headers[arr[0]] = arr[1];
     })
+    return headers;
+}
+
+function requestExample(url,ableRedirect){
+
+    toNotSave();
+
+    let bodyParam = buildExampleBodyJson();
+    let headers = buildHeaderJson(getHeaderParams());
+    let type = $("#example-section .example-method").val();
     let startTime = new Date().getTime();
+    $("#response").show();
     $("#response #responseBody").text("");
-    setResponseHeader([]);
+    setResponseHeader({});
     showSendNotify("Sending request");
     $.ajax({
         url:url,
@@ -728,15 +844,15 @@ function requestExample(url,ableRedirect){
 
         },complete:function (req,data) {
             hideSendNotify();
-            let responseHeader = req.getAllResponseHeaders().split("\r\n");
+            let responseHeader = buildHeaderJson(req.getAllResponseHeaders().split("\r\n"));
             let status = req.status;
             let currTime = new Date().getTime();
             currExample = {
-                apiInfoId:$("#editor-action .api-info-id").val(),
+                apiInfoId:$("#editor-section .api-info-id").val(),
                 url:url,
                 method:type,
-                requestHeader:JSON.stringify(headerArrs),
-                requestBody:bodyParam,
+                requestHeader:JSON.stringify(headers),
+                requestBody:JSON.stringify(bodyParam),
                 responseHeader:JSON.stringify(responseHeader),
                 responseBody:req.responseText,
                 status:status,
@@ -775,12 +891,11 @@ function buildResponseStatus(status) {
 
 function setResponseHeader(headers){
     $("#response .headers-form-table>tbody").html("");
-    $.each(headers,function (index,item) {
-        let arr = item.split(":");
-        if (arr[0].length == 0)return;
+    $.each(headers,function (key,value) {
+        if (key.length == 0)return;
         $("#response .headers-form-table>tbody").append('<tr>\n' +
-            '<td><a><span title="'+arr[0]+'">'+arr[0]+':</span></a></td>\n' +
-            '<td><span class="gwt-InlineHTML" title="'+arr[1]+'">'+arr[1]+'</span></td></tr>')
+            '<td><a><span title="'+key+'">'+key+':</span></a></td>\n' +
+            '<td><span class="gwt-InlineHTML" title="'+value+'">'+value+'</span></td></tr>')
     })
 }
 
@@ -800,9 +915,9 @@ function triggerQueryParameterForm(e) {
 }
 
 function parseUrlInput(e) {
-    let $form = $("#example-action");
+    let $form = $("#example-section");
     $form.find(".query-parameters-form-block").html("");
-    $("#example-action .subtitle-counter").text("")
+    $("#example-section .subtitle-counter").text("")
 
     let path = $(e).val();
     if (path.indexOf("http://") != 0){
@@ -833,13 +948,13 @@ function parseUrlInput(e) {
 function queryParameterRemove(e){
     $(e).parents(".query-parameter-row").remove();
     buildUrlInput();
-    $("#example-action .subtitle-counter").text("["+$(".query-parameters-form-block>.active").length+"]");
+    $("#example-section .subtitle-counter").text("["+$(".query-parameters-form-block>.active").length+"]");
 }
 
 function buildUrlInput() {
-    let url = $("#gwt-uid-349").val();
+    let url = $("#example-section .example-url").val();
     url = url.substring(0,url.indexOf("?") == -1?url.length:url.indexOf("?"));
-    $.each($("#example-action .query-parameters-form-block>.active"),function (index,item) {
+    $.each($("#example-section .query-parameters-form-block>.active"),function (index,item) {
         let key = $(item).find(".key").val();
         if (key.length == 0){
             return;
@@ -852,16 +967,16 @@ function buildUrlInput() {
         }
         url += (key + "=" + value);
     })
-    $("#gwt-uid-349").val(url);
+    $("#example-section .example-url").val(url);
 }
 
 function queryParameterAdd(key,value) {
     key = key?key:"";
     value = value?value:"";
-    let $form = $("#example-action");
+    let $form = $("#example-section");
     $form.find(".query-parameters-form-block").append("<div class=\"query-parameter-row active\" e2e-tag=\"query-parameter\"><span class=\"gwt-CheckBox query-parameter-cell\" title=\"Enable/Disable\" e2e-tag=\"query-parameter-state\"><input type=\"checkbox\" value=\"on\" onclick='urlTriggerEnable(this)'  tabindex=\"0\" checked=\"\"><label for=\"gwt-uid-2020\"></label></span><span class=\"expression-input input-append query-parameter-cell-name query-parameter-cell\"><input type=\"text\" class=\"gwt-TextBox key\" onchange='buildUrlInput()' value='"+key+"' placeholder=\"name\" e2e-tag=\"query-parameter-name\"><span class=\"add-on\" data-original-title=\"\" title=\"\"><i class=\"icon-magic\"></i></span></span><span class=\"gwt-InlineLabel query-parameter-cell\">=</span><span class=\"expression-input input-append query-parameter-cell-value query-parameter-cell\"><input type=\"text\" onchange='buildUrlInput()' class=\"gwt-TextBox value\" value='"+value+"' placeholder=\"value\" e2e-tag=\"query-parameter-value\"><span class=\"add-on\" data-original-title=\"\" title=\"\"><i class=\"icon-magic\"></i></span></span><button class=\"r-btn r-btn-link query-parameter-cell\" onclick='queryParameterRemove(this)' title=\"Remove\" e2e-tag=\"query-parameter-remove\"><i class=\"fa fa-times-thin\"></i><span></span><span class=\"r-btn-indicator\" aria-hidden=\"true\" style=\"display: none;\"></span></button><div class=\"btn-group ctrls dropdown-secondary query-parameter-encoding query-parameter-cell\" e2e-tag=\"query-parameter-additional-actions\"><a class=\"btn-mini dropdown-toggle\" data-toggle=\"dropdown\"><i class=\"sli-icon-options-vertical\"></i></a> <ul class=\"pull-right dropdown-menu\"><li class=\"dropdown-item\" e2e-tag=\"query-parameter-encode\"><a><i class=\"fa fa-check\"></i> <span>Encode before sending</span></a></li></ul></div></div>");
     $form.find(".query-parameters-form-block .query-parameter-row .key").focus();
-    $("#example-action .subtitle-counter").text("["+$(".query-parameters-form-block>.active").length+"]");
+    $("#example-section .subtitle-counter").text("["+$(".query-parameters-form-block>.active").length+"]");
 }
 
 function urlTriggerEnable(e) {
@@ -873,7 +988,7 @@ function urlTriggerEnable(e) {
         $(e).parents(".query-parameter-row").removeClass("active");
     }
     buildUrlInput();
-    $("#example-action .subtitle-counter").text("["+$(".query-parameters-form-block>.active").length+"]");
+    $("#example-section .subtitle-counter").text("["+$(".query-parameters-form-block>.active").length+"]");
 }
 
 function headerTriggerEnable(e) {
@@ -887,41 +1002,44 @@ function headerTriggerEnable(e) {
 }
 
 function headRemoveAll() {
-    $("#example-action .headers-form-block").html("");
-    $("#example-action .mode-raw textarea").val("");
+    $("#example-section .headers-form-block").html("");
+    $("#example-section .mode-raw textarea").val("");
 }
 
 function getHeaderParams() {
-    let isForm = $("#example-action .headers-form-title .dropdown-toggle").text().trim() == 'Form';
+    let isForm = $("#example-section .headers-form-title .dropdown-toggle").text().trim() == 'Form';
     let headersParams = [];
     if (isForm){
-        let headers = $("#example-action .headers-form-block>.active");
+        let headers = $("#example-section .headers-form-block>.active");
         $.each(headers,function (index,item) {
             let key = $(item).find(".key").val();
             let value = $(item).find(".value").val();
             headersParams.push(key+":"+value);
         });
     }else{
-        headersParams = $("#example-action .mode-raw textarea").val().split(/[(\r\n)\r\n]+/);
+        headersParams = $("#example-section .mode-raw textarea").val().split(/[(\r\n)\r\n]+/);
     }
     return headersParams;
 }
 
 function setHeaderParams(headersParams) {
-    let isForm = $("#example-action .headers-form-title .dropdown-toggle").text().trim() == 'Form';
+    let isForm = $("#example-section .headers-form-title .dropdown-toggle").text().trim() == 'Form';
     if (isForm){
-        $("#example-action .headers-form-block").html("");
-        $.each(headersParams,function (index,item) {
-            let arr = item.split(":");
-            headerAdd(arr[0],arr[1]);
+        $("#example-section .headers-form-block").html("");
+        $.each(headersParams,function (key,value) {
+            headerAdd(key,value);
         });
     }else{
-        $("#example-action .mode-raw textarea").val(headersParams.join("\r\n"));
+        let content = "";
+        $.each(headersParams,function (key,value) {
+            content +=(key+":"+value+"\r\n");
+        });
+        $("#example-section .mode-raw textarea").val(content);
     }
 }
 
 function getRawHeaders() {
-    let headers = $("#example-action .mode-raw textarea").val().split(/[(\r\n)\r\n]+/);
+    let headers = $("#example-section .mode-raw textarea").val().split(/[(\r\n)\r\n]+/);
     let headerNews = [];
     $.each(headers,function (index,item) {
         item = item.trim();
@@ -937,7 +1055,7 @@ function headerRemove(e){
 }
 
 function headerAdd(key,value) {
-    $("#example-action .headers-form-block").append(buildHeadItem(key,value));
+    $("#example-section .headers-form-block").append(buildHeadItem(key,value));
 }
 
 
@@ -955,17 +1073,17 @@ function buildHeadItem(key,value) {
 }
 
 function showHeaderForm(e) {
-    let isForm = $("#example-action .headers-form-title .dropdown-toggle").text().trim() == 'Form';
+    let isForm = $("#example-section .headers-form-title .dropdown-toggle").text().trim() == 'Form';
     if (isForm){
         return;
     }
 
-    $("#example-action .mode-form").show();
-    $("#example-action .mode-raw").hide();
+    $("#example-section .mode-form").show();
+    $("#example-section .mode-raw").hide();
     $(e).parents(".dropdown").children(".dropdown-toggle").html('<i></i> Form <span class="caret"></span>');
-    $("#example-action .headers-form-block>.active").remove();
+    $("#example-section .headers-form-block>.active").remove();
 
-    let headers = $("#example-action .mode-raw textarea").val().split(/[(\r\n)\r\n]+/);
+    let headers = $("#example-section .mode-raw textarea").val().split(/[(\r\n)\r\n]+/);
     let activeHeader = "";
     $.each(headers,function (index,item) {
         let kv = item.split(":");
@@ -974,28 +1092,28 @@ function showHeaderForm(e) {
         }
         activeHeader += buildHeadItem(kv[0],kv[1])
     });
-    $("#example-action .headers-form-block").prepend(activeHeader);
+    $("#example-section .headers-form-block").prepend(activeHeader);
 
 }
 function showHeaderRaw(e) {
-    let isForm = $("#example-action .headers-form-title .dropdown-toggle").text().trim() == 'Form';
+    let isForm = $("#example-section .headers-form-title .dropdown-toggle").text().trim() == 'Form';
     if (!isForm){
         return;
     }
 
-    $("#example-action .mode-form").hide();
-    $("#example-action .mode-raw").show();
+    $("#example-section .mode-form").hide();
+    $("#example-section .mode-raw").show();
     $(e).parents(".dropdown").children(".dropdown-toggle").html('<i></i> Raw <span class="caret"></span>');
 
     let content = "";
-    let headers = $("#example-action .headers-form-block>.active");
+    let headers = $("#example-section .headers-form-block>.active");
     $.each(headers,function (index,item) {
         content += $(item).find(".key").val();
         content += ":";
         content += $(item).find(".value").val();
         content += "\r\n";
     });
-    $("#example-action .mode-raw textarea").val(content);
+    $("#example-section .mode-raw textarea").val(content);
 }
 
 function formatExample() {
@@ -1018,17 +1136,19 @@ function switchExampleMethod(option) {
     if (option == 'POST' || option == 'PUT'){
         isJsonBody = true;
     }
-
-    let isForm = $("#example-action .headers-form-title .dropdown-toggle").text().trim() == 'Form';
+    let isForm = $("#example-section .headers-form-title .dropdown-toggle").text().trim() == 'Form';
     let key = "Content-Type";
     let value = "application/json";
 
     if (isJsonBody){
-        $("#example-action .note").hide();
-        $("#example-action .b-container").show();
+        $("#example-section .note").hide();
+        $("#example-section .b-container").show();
+        setTimeout(() => {
+            exampleTextarea.refresh()
+        },50)
         if (isForm){
             let exists = false;
-            $.each($("#example-action .headers-form-block>.header-row"),function (index,item) {
+            $.each($("#example-section .headers-form-block>.header-row"),function (index,item) {
                 if ($(item).find(".key").val() == key){
                     exists = true;
                     $(item).find(".value").val(value);
@@ -1051,14 +1171,14 @@ function switchExampleMethod(option) {
             if (!exists){
                 headers.push(key+":"+value);
             }
-            $("#example-action .mode-raw textarea").val(headers.join("\r\n"));
+            $("#example-section .mode-raw textarea").val(headers.join("\r\n"));
         }
     }else{
-        $("#example-action .note").show();
-        $("#example-action .note .note-method").text(option);
-        $("#example-action .b-container").hide();
+        $("#example-section .note").show();
+        $("#example-section .note .note-method").text(option);
+        $("#example-section .b-container").hide();
         if (isForm){
-            $.each($("#example-action .headers-form-block input[value='"+key+"']"),function (index,item) {
+            $.each($("#example-section .headers-form-block input[value='"+key+"']"),function (index,item) {
                 if ($(item).val() == key){
                     $(item).parents(".header-row").remove();
                 }
@@ -1073,40 +1193,56 @@ function switchExampleMethod(option) {
                 }
                 headerNews.push(item);
             })
-            $("#example-action .mode-raw textarea").val(headerNews.join("\r\n"));
+            $("#example-section .mode-raw textarea").val(headerNews.join("\r\n"));
         }
     }
 }
 
 function loadExampleMethodEvent() {
-    $("#example-action .uri-method .dropdown-menu>li").on("click",function () {
+    $("#example-section .uri-method .dropdown-menu>li").on("click",function () {
         switchExampleMethod($(this).text().trim());
     })
 }
 
 function showExamplePanel() {
-    $("#example-action").show();
-    $("#response").show();
-    $("#editor-action").hide();
+    $("#example-section").show();
+    $("#editor-section").hide();
+    $("#console-section").hide();
+
+    if (hasResponse){
+        $("#response").show();
+    }else{
+        $("#response").hide();
+    }
+
     let url = window.location.href;
     if(url.endsWith("/editor")){
         url = url.replace("/editor","/example");
         history.pushState(null,null,url);
     }
     currPage = "example";
+
+    setTimeout(() => {
+        exampleTextarea.refresh()
+    },50)
 }
 
 function showEditorPanel() {
-    $("#example-action").hide();
+    $("#example-section").hide();
     $("#response").hide();
-    $("#editor-action").show();
+    $("#editor-section").show();
+
+    if (hasConsole){
+        $("#console-section").show();
+    }else{
+        $("#console-section").hide();
+    }
 
     let url = window.location.href;
     if(url.endsWith("/example")){
         url = url.replace("/example","/editor");
         history.pushState(null,null,url);
     }
-
     currPage = "editor";
 }
 //--------------------------------example end -----------------------------------

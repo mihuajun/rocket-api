@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
 <body>
-<section id="example-action" class="pane pane-request request-common" style="display: none" th:fragment="example-section">
+<section id="example-section" class="pane pane-request request-common" style="display: none" th:fragment="example-section">
         <div class="draft-ribbon" style="" onclick="showEditorPanel()">
             <div class="draft-ribbon-text"> Example</div>
         </div>
@@ -34,7 +34,7 @@
                             <div class="uri-help"><a class="help-link" href="http://tools.ietf.org/html/rfc7231#section-4" tabindex="-1" target="_blank"> Method </a></div>
                             <div>
                                 <div class="btn-group input-append split-dropdown" e2e-tag="method-selector">
-                                    <div class="input-append dropdown-toggle" data-toggle="dropdown"><input type="text" id="gwt-uid-350" class="gwt-TextBox" value="GET" style="width: 85px;"><span
+                                    <div class="input-append dropdown-toggle" data-toggle="dropdown"><input type="text" class="gwt-TextBox example-method" value="GET" style="width: 85px;"><span
                                             class="add-on"><a href="javascript:;" class="btn btn-small btn-link split-dropdown-trigger" tabindex="-1"><i
                                             class="icon-caret-down"></i></a></span></div>
                                     <ul class="dropdown-menu">
@@ -54,7 +54,7 @@
                                     href="http://tools.ietf.org/html/rfc7230#section-2.7" tabindex="-1" target="_blank"> Host [ ":" Port ] [ Path [ "?" Query ]] </a></div>
                             <div class="uri-input">
                                 <div class="uri-input-lock"><i class="fa fa-lock"></i></div>
-                                <span class="expression-input input-append uri-path"><input type="text" onblur="parseUrlInput(this)" value="http://localhost:8081/book/page" class="gwt-TextBox" id="gwt-uid-349" spellcheck="false" autocomplete="off"
+                                <span class="expression-input input-append uri-path"><input type="text" onblur="parseUrlInput(this)" value="" class="gwt-TextBox example-url" spellcheck="false" autocomplete="off"
                                                                                             e2e-tag="uri-input" placeholder="Type an URI"><span class="add-on"
                                                                                                                                                 data-original-title="" title=""><i
                                         class="icon-magic"></i></span></span>

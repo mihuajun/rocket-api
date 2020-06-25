@@ -3,21 +3,24 @@ package com.github.alenfive.dataway2.controller;
 import com.github.alenfive.dataway2.config.SQLRequestMappingFactory;
 import com.github.alenfive.dataway2.entity.ApiExample;
 import com.github.alenfive.dataway2.entity.ApiInfo;
+import com.github.alenfive.dataway2.entity.ApiParams;
 import com.github.alenfive.dataway2.entity.ApiResult;
 import com.github.alenfive.dataway2.entity.vo.RenameGroupReq;
+import com.github.alenfive.dataway2.entity.vo.RunApiReq;
+import com.github.alenfive.dataway2.service.ScriptParseService;
 import lombok.extern.slf4j.Slf4j;
+import org.python.google.common.base.Splitter;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.AntPathMatcher;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @Description:
@@ -37,6 +40,8 @@ public class ApiController {
     @Autowired
     private SQLRequestMappingFactory sqlRequestMapping;
 
+    @Autowired
+    private ScriptParseService parseService;
 
     /**
      * LOAD API LIST
@@ -118,6 +123,55 @@ public class ApiController {
     }
 
     /**
+     * 脚本执行
+     * @param runApiReq
+     * @return
+     */
+    @PostMapping("/api-info/run")
+    public ApiResult runScript(@RequestBody RunApiReq runApiReq){
+        try {
+            ApiInfo apiInfo = ApiInfo.builder().datasource(runApiReq.getDatasource()).script(runApiReq.getScript()).build();
+            ApiParams apiParams = ApiParams.builder()
+                    .header(runApiReq.getHeader())
+                    .pathVar(getPathVar(runApiReq.getPattern(),runApiReq.getUrl()))
+                    .param(getParam(runApiReq.getUrl()))
+                    .body(runApiReq.getBody())
+                    .build();
+
+            StringBuilder scriptContent = parseService.extractExecutableScript(apiInfo.getScript());
+            parseService.parse(scriptContent,apiParams);
+            return ApiResult.success(sqlRequestMapping.runScript(scriptContent,apiInfo,apiParams));
+        }catch (Exception e){
+            return ApiResult.fail(e.getMessage());
+        }
+    }
+
+    private Map<String,String> getPathVar(String pattern,String url){
+        Integer beginIndex = url.indexOf("/",7);
+        if (beginIndex == -1){
+            return null;
+        }
+        Integer endIndex = url.indexOf("?") == -1?url.length():url.indexOf("?");
+        String path = url.substring(beginIndex,endIndex);
+        AntPathMatcher matcher = new AntPathMatcher();
+        if (matcher.match(pattern,path)){
+            return matcher.extractUriTemplateVariables(pattern,path);
+        }
+        return null;
+    }
+
+    private Map<String,Object> getParam(String url) {
+        Map<String,Object> result = new HashMap<>();
+        Integer index = url.indexOf("?");
+        if (StringUtils.isEmpty(url) || index == -1){
+            return result;
+        }
+        String params = url.substring(index + 1);
+        result.putAll(Splitter.on("&").withKeyValueSeparator("=").split(params));
+        return result;
+    }
+
+    /**
      * 组名获取
      * @return
      */
@@ -139,7 +193,7 @@ public class ApiController {
      * 模拟参数保存
      */
     @PostMapping("/api-example")
-    public ApiResult saveExample(@RequestBody ApiExample apiExample){
+    public ApiResult saveExample(@RequestBody ApiExample apiExample) throws UnsupportedEncodingException {
 
         if (StringUtils.isEmpty(apiExample.getMethod())
                 || StringUtils.isEmpty(apiExample.getUrl())
@@ -148,6 +202,11 @@ public class ApiController {
         }
 
         apiExample.setCreateTime(new Date());
+
+        if (!StringUtils.isEmpty(apiExample.getResponseBody())){
+            apiExample.setResponseBody(URLEncoder.encode(apiExample.getResponseBody(),"utf-8"));
+        }
+
         sqlRequestMapping.saveExample(apiExample);
         return ApiResult.success(null);
     }
@@ -159,7 +218,17 @@ public class ApiController {
      */
     @GetMapping("/api-example/last")
     public ApiResult lastApiExample(String apiInfoId,Integer limit){
-        return ApiResult.success(sqlRequestMapping.lastApiExample(apiInfoId,limit));
+        List<Map<String,Object>> result = sqlRequestMapping.lastApiExample(apiInfoId,limit);
+        result.forEach(item->{
+            if (!StringUtils.isEmpty(item.get("responseBody"))){
+                try {
+                    item.put("responseBody",URLDecoder.decode(item.get("responseBody").toString(),"utf-8"));
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        return ApiResult.success(result);
     }
 
     /**

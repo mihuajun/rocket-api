@@ -140,7 +140,7 @@ public class SQLRequestMappingFactory {
      * @return
      */
     @ResponseBody
-    public Object execute(@PathVariable(required = false) Map<String,Object> pathVar,
+    public Object execute(@PathVariable(required = false) Map<String,String> pathVar,
                           @RequestParam(required = false) Map<String,Object> param,
                           @RequestBody(required = false) Map<String,Object> body) throws UnsupportedEncodingException, ScriptException, NoSuchMethodException {
 
@@ -165,15 +165,21 @@ public class SQLRequestMappingFactory {
             apiParams.putParam(apiPager.getIndexVarName(),apiPager.getIndexVarValue(pageSize,pageNo));
         }
 
-        //注入变量
-        apiInfoContent.setApiInfo(apiInfo);
-        apiInfoContent.setApiParams(apiParams);
+
 
 
 
         //提取脚本
         StringBuilder scriptContent = parseService.extractExecutableScript(apiInfo.getScript());
         parseService.parse(scriptContent,apiParams);
+
+        return runScript(scriptContent,apiInfo,apiParams);
+    }
+
+    public Object runScript(StringBuilder scriptContent,ApiInfo apiInfo,ApiParams apiParams) throws ScriptException, NoSuchMethodException {
+        //注入变量
+        apiInfoContent.setApiInfo(apiInfo);
+        apiInfoContent.setApiParams(apiParams);
 
         //注入函数
         StringBuilder script = new StringBuilder();

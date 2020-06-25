@@ -124,6 +124,7 @@
                         </section>
 
                         <div th:replace="editor::editor-section"></div>
+                        <div th:replace="console::console-section"></div>
                         <div th:replace="example::example-section"></div>
                         <div th:replace="response::response-section"></div>
                     </div>
@@ -326,12 +327,12 @@
             height: auto;
             min-height: 300px;
         }
-        #example-action .CodeMirror-scroll {
+        #example-section .CodeMirror-scroll {
             height: 250px;
             overflow-y: auto;
             overflow-x: auto;
         }
-        #editor-action .CodeMirror-scroll {
+        #editor-section .CodeMirror-scroll {
             min-height: 500px;
             height: auto;
             overflow-y: auto;

@@ -24,7 +24,7 @@ import java.util.Map;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ApiParams {
-    private Map<String,Object> pathVar;
+    private Map<String,String> pathVar;
     private Map<String,String> header;
     private Map<String,Object> cookie;
     private Map<String,Object> param;

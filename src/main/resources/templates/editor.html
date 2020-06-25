@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
 <body>
-<section id="editor-action" class="pane pane-request request-common"  th:fragment="editor-section">
+<section id="editor-section" class="pane pane-request request-common" th:fragment="editor-section">
 
     <div class="draft-ribbon" style="" onclick="showExamplePanel()">
         <div class="draft-ribbon-text"> New</div>
@@ -77,14 +77,14 @@
                     </div>
                 </div>
                 <div class="btn-group send">
-                    <a href="javascript:;" id="save-editor-btn" onclick="saveEditor('#editor-action')" class="btn btn-send btn-primary"
+                    <a href="javascript:;" id="save-editor-btn" onclick="saveEditor('#editor-section')" class="btn btn-send btn-primary"
                        e2e-tag="btn-send"
                        title="save request (Alt + Enter)">
                         <i class="icon-send"></i> Save</a>
                     <a href="javascript:;" class="btn btn-primary btn-send dropdown-toggle" data-toggle="dropdown" e2e-tag="btn-send-additional-actions" tabindex="-1"><i
                             class="icon-caret-down"></i> </a>
                     <ul class="dropdown-menu pull-right">
-                        <li><a href="javascript:;" onclick="saveAsEditor('#editor-action')"><i></i> Save as </a></li>
+                        <li><a href="javascript:;" onclick="saveAsEditor('#editor-section')"><i></i> Save as </a></li>
                     </ul>
                 </div>
             </div>
@@ -95,13 +95,12 @@
             <div id="editor-btns" style="height: 24px;border-bottom: 1px solid #ccc;">
                 <div class="item" title="必填参数" express = "#{var}">#{}</div>
                 <div class="item" title="可选参数" express = "?{var,express}">?{}</div>
-                <div class="item" title="For循环" express = "for{var,express}">For</div>
                 <div class="item" title="参数验证" express = "assert{boolean express,msg}">Assert</div>
                 <div class="item" title="导出" express = 'var export = {"title","key"}'>Export</div>
-                <div class="item run" title="运行脚本"  >Run</div>
+                <div class="item run" title="运行脚本 快捷键Ctrl + Enter" onclick="runApi()" >Run</div>
             </div>
             <!--<textarea id="CodeMirror1" name="CodeMirror1" class="api-info-script cm-s-default"></textarea>-->
-            <div id="monaco-editor" style="width:100%;margin-top:10px;height: 600px"></div>
+            <div id="monaco-editor" style="width:100%;margin-top:10px;height: 400px"></div>
         </div>
     </div>
 
@@ -154,7 +153,7 @@
         <div class="modal-footer">
             <button class="r-btn" e2e-tag="modal-cancel" onclick="cancelDialogGroup()"><i class="fa fa-remove"></i><span>Cancel</span><span class="r-btn-indicator" aria-hidden="true"
                                                                                                                                             style="display: none;"></span></button>
-            <button class="r-btn r-btn-primary" e2e-tag="modal-ok" onclick="confirmDialog('#editor-action')"><i class="fa fa-download"></i><span>Save</span><span class="r-btn-indicator" aria-hidden="true"
+            <button class="r-btn r-btn-primary" e2e-tag="modal-ok" onclick="confirmDialog('#editor-section')"><i class="fa fa-download"></i><span>Save</span><span class="r-btn-indicator" aria-hidden="true"
                                                                                                                         style="display: none;"></span></button>
         </div>
     </div>
