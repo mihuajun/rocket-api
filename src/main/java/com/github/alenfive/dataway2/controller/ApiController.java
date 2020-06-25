@@ -138,7 +138,7 @@ public class ApiController {
                     .body(runApiReq.getBody())
                     .build();
 
-            StringBuilder scriptContent = parseService.extractExecutableScript(apiInfo.getScript());
+            StringBuilder scriptContent = new StringBuilder(apiInfo.getScript());
             parseService.parse(scriptContent,apiParams);
             return ApiResult.success(sqlRequestMapping.runScript(scriptContent,apiInfo,apiParams));
         }catch (Exception e){

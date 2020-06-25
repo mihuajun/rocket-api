@@ -418,21 +418,18 @@ function loadDetail(id,form) {
             $(form).find(".api-info-path").attr("readonly","readonly");
             $(form).find(".api-info-datasource").attr("readonly","readonly");
             $(form).find(".api-info-datasource").parent().addClass("disabled");
+
+            currPage = "example";
+            $(form).find(".draft-ribbon").hide();
+            $("#example-section .draft-ribbon").hide();
+        }else {
+            $("#editor-section .draft-ribbon").show();
+            $("#example-section .draft-ribbon").show();
         }
 
         document.title = data.comment?data.comment:data.path;
 
         editorTextarea.setValue(data.script);
-        /*if (data.script){
-        }else{
-            editorTextarea.setValue("return ");
-            //拿到光标位置
-            let position = editorTextarea.getPosition();
-            //往后移动一列
-            position.column += 8;
-            editorTextarea.setPosition(position);
-        }*/
-
         //构建example
         loadExample(data);
     })
@@ -712,6 +709,8 @@ function newEditor() {
     $(form).find(".api-info-datasource").parent().removeClass("disabled");
 
     $("#console-section").hide();
+    $("#editor-section .draft-ribbon").show();
+    $("#example-section .draft-ribbon").show();
 
     hasConsole = null;
 }
@@ -805,9 +804,13 @@ function formatResponseBody(body){
 }
 
 function saveExample() {
-
+    let apiInfoId = $("#editor-section .api-info-id").val();
+    if (apiInfoId == ""){
+        openMsgModal("API is not stored ");
+        return;
+    }
     let params = {
-        apiInfoId:$("#editor-section .api-info-id").val(),
+        apiInfoId:apiInfoId,
         url:$("#example-section .example-url").val(),
         method:$("#example-section .example-method").val(),
         requestHeader:JSON.stringify(buildHeaderJson(getHeaderParams())),
@@ -855,7 +858,7 @@ function requestExample(url,ableRedirect){
 
     toNotSave();
 
-    let bodyParam = buildExampleBodyJson();
+    let bodyParam = buildExampleBodyStr();
     let headers = buildHeaderJson(getHeaderParams());
     let type = $("#example-section .example-method").val();
     let startTime = new Date().getTime();
@@ -885,7 +888,7 @@ function requestExample(url,ableRedirect){
                 url:url,
                 method:type,
                 requestHeader:JSON.stringify(headers),
-                requestBody:JSON.stringify(bodyParam),
+                requestBody:bodyParam,
                 responseHeader:JSON.stringify(responseHeader),
                 responseBody:req.responseText,
                 status:status,
