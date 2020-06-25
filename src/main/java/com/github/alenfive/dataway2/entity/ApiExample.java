@@ -11,15 +11,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * @Description:
+ * @Description:模拟参数
  * @Copyright: Copyright (c) 2019  ALL RIGHTS RESERVED.
- * @Company: 成都国盛天丰技术有限责任公司
  * @Author: 米华军
  * @CreateDate: 2020/6/19 16:41
  * @UpdateDate: 2020/6/19 16:41
  * @UpdateRemark: init
  * @Version: 1.0
- * @menu 模拟参数
+ * @menu
  */
 @Data
 @Builder
