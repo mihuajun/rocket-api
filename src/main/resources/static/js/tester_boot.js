@@ -74,6 +74,7 @@ $(function(){
 
     editorTextarea = monaco.editor.create(document.getElementById('monaco-editor'), {
         language: 'javascript',
+        values:"return ",
         wordWrap: 'on',  //自行换行
         verticalHasArrows: true,
         horizontalHasArrows: true,
@@ -302,9 +303,9 @@ function runApi() {
         success: function (data) {
             data = unpackResult(data);
             if (data.code == 200){
-                let content = data.data?data.data:"There is no return value";
+                let content = (data.data == 0 || data.data)?data.data:"There is no return value";
 
-                $("#console-section .content").html(JSON.stringify(content,null, "\t"));
+                $("#console-section .content").html(buildJsonStr(content));
             }else{
                 $("#console-section .content").text(data.msg);
             }
@@ -318,6 +319,29 @@ function runApi() {
             $("#console-section .el-time").attr("title",ms).text("Elapsed time: "+ms);
         }
     });
+}
+
+function buildJsonStr(obj) {
+    if (typeof obj == "object"){
+        return  JSON.stringify(obj,null, "\t");
+    }
+    return obj;
+}
+
+function insertExample(e) {
+    let position = editorTextarea.getPosition();
+    let express = $(e).attr("express");
+    editorTextarea.executeEdits('', [
+        {
+            range: {
+                startLineNumber: position.lineNumber,
+                startColumn: position.column,
+                endLineNumber: position.lineNumber,
+                endColumn: position.column
+            },
+            text: express
+        }
+    ]);
 }
 
 //comment 编辑事件
@@ -399,6 +423,15 @@ function loadDetail(id,form) {
         document.title = data.comment?data.comment:data.path;
 
         editorTextarea.setValue(data.script);
+        /*if (data.script){
+        }else{
+            editorTextarea.setValue("return ");
+            //拿到光标位置
+            let position = editorTextarea.getPosition();
+            //往后移动一列
+            position.column += 8;
+            editorTextarea.setPosition(position);
+        }*/
 
         //构建example
         loadExample(data);
@@ -724,7 +757,7 @@ function loadExample(apiInfo) {
             responseBody:"",
             status:200,
             time:0,
-            options:{}
+            options:"{}"
         };
         $form.find(".example-method").val(currExample.method);
         $form.find(".example-url").val(currExample.url).blur();
