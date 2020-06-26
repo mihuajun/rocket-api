@@ -37,4 +37,12 @@ public class ApiResult {
         apiResult.setMsg(msg);
         return apiResult;
     }
+
+    public static ApiResult fail(String msg,Object data){
+        ApiResult apiResult = new ApiResult();
+        apiResult.setCode(-1);
+        apiResult.setMsg(msg);
+        apiResult.setData(data);
+        return apiResult;
+    }
 }

@@ -7,6 +7,8 @@ import com.github.alenfive.dataway2.entity.ApiParams;
 import com.github.alenfive.dataway2.entity.ApiResult;
 import com.github.alenfive.dataway2.entity.vo.RenameGroupReq;
 import com.github.alenfive.dataway2.entity.vo.RunApiReq;
+import com.github.alenfive.dataway2.entity.vo.RunApiRes;
+import com.github.alenfive.dataway2.extend.ApiInfoContent;
 import com.github.alenfive.dataway2.service.ScriptParseService;
 import lombok.extern.slf4j.Slf4j;
 import org.python.google.common.base.Splitter;
@@ -16,7 +18,6 @@ import org.springframework.util.AntPathMatcher;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
@@ -42,6 +43,9 @@ public class ApiController {
 
     @Autowired
     private ScriptParseService parseService;
+
+    @Autowired
+    private ApiInfoContent apiInfoContent;
 
     /**
      * LOAD API LIST
@@ -129,6 +133,7 @@ public class ApiController {
      */
     @PostMapping("/api-info/run")
     public ApiResult runScript(@RequestBody RunApiReq runApiReq){
+        RunApiRes runApiRes = new RunApiRes();
         try {
             ApiInfo apiInfo = ApiInfo.builder().datasource(runApiReq.getDatasource()).script(runApiReq.getScript()).build();
             decodeHeaderValue(runApiReq.getHeader());
@@ -141,9 +146,12 @@ public class ApiController {
 
             StringBuilder scriptContent = new StringBuilder(apiInfo.getScript());
             parseService.parse(scriptContent,apiParams);
-            return ApiResult.success(sqlRequestMapping.runScript(scriptContent,apiInfo,apiParams));
+            runApiRes.setData(sqlRequestMapping.runScript(scriptContent,apiInfo,apiParams));
+            return ApiResult.success(runApiRes);
         }catch (Exception e){
-            return ApiResult.fail(e.getMessage());
+            return ApiResult.fail(e.getMessage(),runApiRes);
+        }finally {
+            runApiRes.setLogs(apiInfoContent.getLogs());
         }
     }
 

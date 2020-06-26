@@ -302,16 +302,18 @@ function runApi() {
         data: JSON.stringify(params),
         success: function (data) {
             data = unpackResult(data);
-            if (data.code == 200){
-                let content = (data.data == 0 || data.data)?data.data:"There is no return value";
-
-                $("#console-section .content").html(buildJsonStr(content));
-            }else{
-                $("#console-section .content").text(data.msg);
+            let content = "";
+            if (data.logs){
+                $.each(data.logs,function (index,item) {
+                    content += item +"\r\n";
+                })
             }
-            //<div style="display: none;"><p class="note"> Not available, a request has not been sent
-            //             yet. </p></div>
+            content += data.msg +"\r\n--------------\r\n";
 
+            if (data.code == 200){
+                content += buildJsonStr((data.data.data == 0 || data.data.data)?data.data.data:"There is no return value");
+            }
+            $("#console-section .content").html(content);
         },complete:function () {
             hideSendNotify();
             hasConsole = true;
