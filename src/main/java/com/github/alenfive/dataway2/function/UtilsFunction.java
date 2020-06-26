@@ -23,6 +23,10 @@ public class UtilsFunction implements IFunction{
         return "Utils";
     }
 
+    public boolean isNotEmpty(Object input){
+        return !StringUtils.isEmpty(input);
+    }
+
     public boolean isEmpty(Object input){
         return StringUtils.isEmpty(input);
     }

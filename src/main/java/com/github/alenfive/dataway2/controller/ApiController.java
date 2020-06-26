@@ -149,6 +149,7 @@ public class ApiController {
             runApiRes.setData(sqlRequestMapping.runScript(scriptContent,apiInfo,apiParams));
             return ApiResult.success(runApiRes);
         }catch (Exception e){
+            e.printStackTrace();
             return ApiResult.fail(e.getMessage(),runApiRes);
         }finally {
             runApiRes.setLogs(apiInfoContent.getLogs());

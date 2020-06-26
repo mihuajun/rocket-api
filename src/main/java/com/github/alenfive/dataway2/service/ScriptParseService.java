@@ -61,8 +61,6 @@ public class ScriptParseService {
      * @return
      */
     public void buildIf(StringBuilder script,ApiParams apiParams){
-        Set<String> scopeSet = Stream.of(ParamScope.values()).map(ParamScope::name).collect(Collectors.toSet());
-
         String flag = "?{";
         //匹配参数#{}
         do{
@@ -106,15 +104,13 @@ public class ScriptParseService {
         }while (true);
 
     }
-
     /**
-     * 构建参数
+     * 构建参数 #{}
      * @param script
      * @param apiParams
      * @return
      */
     public void buildParams(StringBuilder script, ApiParams apiParams){
-
         //匹配参数#{}
         Pattern r = Pattern.compile("#\\{[A-Za-z0-9-\\[\\]_\\.]+\\}");
 
@@ -127,13 +123,29 @@ public class ScriptParseService {
                 String varName = group.replace("#{","").replace("}","");
                 Object value = buildParamItem(apiParams,varName);
                 if (value == null){
-                    throw new IllegalArgumentException("parameter '"+varName+"' not found");
+                    script = script.replace(m.start(),m.end(),"null");
+                }else{
+                    script = script.replace(m.start(),m.end(),buildValue(value));
                 }
-
-                script = script.replace(m.start(),m.end(),buildValue(value));
             }
         }while (find);
 
+        //匹配参数${}
+        r = Pattern.compile("\\$\\{[A-Za-z0-9-\\[\\]_\\.]+\\}");
+        do{
+            Matcher m = r.matcher(script);
+            find = m.find();
+            if (find){
+                String group = m.group();
+                String varName = group.replace("${","").replace("}","");
+                Object value = buildParamItem(apiParams,varName);
+                if (value == null){
+                    script = script.replace(m.start(),m.end(),"null");
+                }else{
+                    script = script.replace(m.start(),m.end(),buildSourceValue(value));
+                }
+            }
+        }while (find);
     }
 
     public Object buildParamItem(ApiParams apiParams, String varName) {
@@ -259,6 +271,16 @@ public class ScriptParseService {
         return pathVars.get(varName);
     }
 
+    private String buildSourceValue(Object val) {
+        if (val == null)return null;
+        StringBuilder valStr = new StringBuilder();
+        if (val instanceof Collection){
+            valStr.append(((Collection)val).stream().map(item->item.toString()).collect(Collectors.joining(",")));
+        }else {
+            valStr.append(val);
+        }
+        return valStr.toString();
+    }
 
     private String buildValue(Object val) {
         if (val == null)return null;

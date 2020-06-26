@@ -292,7 +292,7 @@ function runApi() {
         "url":$("#example-section .example-url").val()
     }
 
-    showSendNotify("Running api")
+    showSendNotify("Running script")
     $("#console-section").show();
     let startTime=new Date().getTime()
     $.ajax({
@@ -303,8 +303,8 @@ function runApi() {
         success: function (data) {
             data = unpackResult(data);
             let content = "";
-            if (data.logs){
-                $.each(data.logs,function (index,item) {
+            if (data.data && data.data.logs){
+                $.each(data.data.logs,function (index,item) {
                     content += item +"\r\n";
                 })
             }
