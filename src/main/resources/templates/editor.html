@@ -112,12 +112,12 @@ return Pager.build(total,list);'>Pager</div>
                 <div class="item" title="导出CSV" onclick="insertExample(this)"
 express = 'var title = {"id":"编号","name":"姓名","mock":"test","createTime":"创建时间"}
 var list = db.find("select * from user");
-if(true)return Export.csv("测试导出",title,list);'>Export.csv</div>
+return Export.csv("测试导出",title,list);'>Export.csv</div>
 
                 <div class="item" title="导出XLS" onclick="insertExample(this)"
                      express = 'var title = {"id":"编号","name":"姓名","mock":"test","createTime":"创建时间"}
 var list = db.find("select * from user");
-if(true)return Export.xls("测试导出",title,list);'>Export.xls</div>
+return Export.xls("测试导出",title,list);'>Export.xls</div>
 
                 <div class="item" title="日志输出：info,debug,warn,error,trace" onclick="insertExample(this)" express = 'log.info("日志信息:{}","变量");'>Log</div>
 
