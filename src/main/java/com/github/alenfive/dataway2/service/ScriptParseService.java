@@ -1,8 +1,11 @@
 package com.github.alenfive.dataway2.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.alenfive.dataway2.entity.ApiParams;
 import com.github.alenfive.dataway2.entity.ParamScope;
 import com.github.alenfive.dataway2.entity.vo.ArrVar;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -30,6 +33,9 @@ import java.util.stream.Stream;
 @Service
 public class ScriptParseService {
 
+    @Autowired
+    private ObjectMapper objectMapper;
+
     private Set<String> scopeSet = Stream.of(ParamScope.values()).map(ParamScope::name).collect(Collectors.toSet());
 
     public void parse(StringBuilder script,ApiParams apiParams){
@@ -37,15 +43,6 @@ public class ScriptParseService {
         buildParams(script,apiParams);
     }
 
-
-    /**
-     * 提取可执行脚本
-     * 去掉注释
-     */
-    public StringBuilder extractExecutableScript(String script) throws UnsupportedEncodingException {
-        script = URLDecoder.decode(script,"utf-8");
-        return  new StringBuilder(script);
-    }
 
     /**
      * 构建FOR语法
@@ -150,7 +147,7 @@ public class ScriptParseService {
                 case param:value = buildValueOfParameter(apiParams.getParam(),paramArr,1);break;
                 case body:value = buildValueOfBody(apiParams.getBody(),paramArr,1);break;
                 case cookie:value = buildValueOfCookie(apiParams.getCookie(),apiParams.getRequest(),paramArr[1]);break;
-                case header:value = buildValueOfHeader(apiParams.getHeader(),apiParams.getRequest(),paramArr,1);break;
+                case header:value = buildValueOfHeader(apiParams.getHeader(),paramArr,1);break;
             }
         }else {
             value = buildValueOfPathVar(apiParams.getPathVar(),paramArr[0]);
@@ -164,20 +161,28 @@ public class ScriptParseService {
                 value = buildValueOfCookie(apiParams.getCookie(),apiParams.getRequest(), paramArr[0]);
             }
             if(value == null){
-                value = buildValueOfHeader(apiParams.getHeader(),apiParams.getRequest(),paramArr,0);
+                value = buildValueOfHeader(apiParams.getHeader(),paramArr,0);
             }
         }
         return value;
     }
 
-    private Object buildValueOfHeader(Map<String,String> header,HttpServletRequest request, String[] paramArr,int index) {
-        Object value  = null;
+    private Object buildValueOfHeader(Map<String,String> header,String[] paramArr,int index) {
+        String value  = null;
         if (header != null){
             value = header.get(paramArr[index]);
         }
-        if (request != null && value == null){
-            value = request.getHeader(paramArr[index]);
+
+        if (value == null)return null;
+
+        if (paramArr.length-1 > index){
+            try {
+                return buildValueOfHeader(objectMapper.readValue(value,Map.class),paramArr,++index);
+            } catch (JsonProcessingException e) {
+                throw new IllegalArgumentException("Parameter '"+String.join(".",paramArr)+"' is not an object");
+            }
         }
+
         return value;
     }
 

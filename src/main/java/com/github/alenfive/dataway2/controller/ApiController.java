@@ -131,6 +131,7 @@ public class ApiController {
     public ApiResult runScript(@RequestBody RunApiReq runApiReq){
         try {
             ApiInfo apiInfo = ApiInfo.builder().datasource(runApiReq.getDatasource()).script(runApiReq.getScript()).build();
+            decodeHeaderValue(runApiReq.getHeader());
             ApiParams apiParams = ApiParams.builder()
                     .header(runApiReq.getHeader())
                     .pathVar(getPathVar(runApiReq.getPattern(),runApiReq.getUrl()))
@@ -143,6 +144,12 @@ public class ApiController {
             return ApiResult.success(sqlRequestMapping.runScript(scriptContent,apiInfo,apiParams));
         }catch (Exception e){
             return ApiResult.fail(e.getMessage());
+        }
+    }
+
+    private void decodeHeaderValue(Map<String,String> header) throws UnsupportedEncodingException {
+        for (String key : header.keySet()){
+            header.put(key,URLDecoder.decode(header.get(key),"utf-8"));
         }
     }
 

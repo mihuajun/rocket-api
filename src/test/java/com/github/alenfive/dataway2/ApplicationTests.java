@@ -94,16 +94,6 @@ public class ApplicationTests {
 
     }
 
-    @Test
-    public void testExtract() throws UnsupportedEncodingException {
-        String script  =
-                "//注释\n" +
-                "start11;\n" +
-                "//单行注释\n" +
-                "end11;";
-        StringBuilder scriptList = parseService.extractExecutableScript(script);
-        System.out.println(scriptList);
-    }
 
     @Autowired
     private IApiPager apiPager;

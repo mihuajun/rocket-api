@@ -29,6 +29,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Method;
+import java.net.URLDecoder;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
@@ -148,6 +149,7 @@ public class SQLRequestMappingFactory {
         String method = request.getMethod();
         ApiParams apiParams = ApiParams.builder()
                 .pathVar(pathVar)
+                .header(buildHeaderFormRequest())
                 .param(param)
                 .body(body)
                 .request(request)
@@ -165,15 +167,22 @@ public class SQLRequestMappingFactory {
             apiParams.putParam(apiPager.getIndexVarName(),apiPager.getIndexVarValue(pageSize,pageNo));
         }
 
-
-
-
-
         //提取脚本
-        StringBuilder scriptContent = parseService.extractExecutableScript(apiInfo.getScript());
+        StringBuilder scriptContent = new StringBuilder(URLDecoder.decode(apiInfo.getScript(),"utf-8"));
         parseService.parse(scriptContent,apiParams);
 
         return runScript(scriptContent,apiInfo,apiParams);
+    }
+
+    private Map<String, String> buildHeaderFormRequest() throws UnsupportedEncodingException {
+        Enumeration<String> headerKeys = request.getHeaderNames();
+        Map<String, String> result  = new HashMap<>();
+        while (headerKeys.hasMoreElements()){
+            String key = headerKeys.nextElement();
+            String value = request.getHeader(key);
+            result.put(key,URLDecoder.decode(value,"utf-8"));
+        }
+        return result;
     }
 
     public Object runScript(StringBuilder scriptContent,ApiInfo apiInfo,ApiParams apiParams) throws ScriptException, NoSuchMethodException {
