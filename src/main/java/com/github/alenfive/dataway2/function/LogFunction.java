@@ -29,26 +29,26 @@ public class LogFunction implements IFunction{
 
     public void info(String format,Object ... args){
         log.info(format,args);
-        apiInfoContent.putLog(MessageFormatter.arrayFormat(format, args).getMessage());
+        apiInfoContent.putLog("info:"+ MessageFormatter.arrayFormat(format, args).getMessage());
     }
 
     public void debug(String format,Object ... args){
         log.debug(format,args);
-        apiInfoContent.putLog(MessageFormatter.arrayFormat(format, args).getMessage());
+        apiInfoContent.putLog("debug: "+ MessageFormatter.arrayFormat(format, args).getMessage());
     }
 
     public void error(String format,Object ... args){
         log.error(format,args);
-        apiInfoContent.putLog(MessageFormatter.arrayFormat(format, args).getMessage());
+        apiInfoContent.putLog("error: "+ MessageFormatter.arrayFormat(format, args).getMessage());
     }
 
     public void warn(String format,Object ... args){
         log.error(format,args);
-        apiInfoContent.putLog(MessageFormatter.arrayFormat(format, args).getMessage());
+        apiInfoContent.putLog("warn: "+ MessageFormatter.arrayFormat(format, args).getMessage());
     }
 
     public void trace(String format,Object ... args){
         log.error(format,args);
-        apiInfoContent.putLog(MessageFormatter.arrayFormat(format, args).getMessage());
+        apiInfoContent.putLog("trace: "+ MessageFormatter.arrayFormat(format, args).getMessage());
     }
 }

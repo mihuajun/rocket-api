@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
@@ -203,6 +204,8 @@ public class SQLRequestMappingFactory {
             engine.put(function.getVarName(),function);
         }
 
+        buildScriptParams(engine,apiParams);
+
         engine.eval(script.toString());
         Invocable inv = (Invocable) engine;
         Object result = inv.invokeFunction("run");
@@ -214,6 +217,45 @@ public class SQLRequestMappingFactory {
             return som.values();
         }
         return som;
+    }
+
+    private void buildScriptParams(ScriptEngine engine, ApiParams apiParams) {
+        engine.put("pathVar",apiParams.getPathVar());
+        engine.put("param",apiParams.getParam());
+        engine.put("body",apiParams.getBody());
+        engine.put("header",apiParams.getHeader());
+        engine.put("cookie",apiParams.getCookie());
+
+        if (!CollectionUtils.isEmpty(apiParams.getCookie())){
+            apiParams.getCookie().forEach((key,value)->{
+                engine.put(key,value);
+            });
+        }
+
+        if (!CollectionUtils.isEmpty(apiParams.getHeader())){
+            apiParams.getHeader().forEach((key,value)->{
+                engine.put(key,value);
+            });
+        }
+
+        if (!CollectionUtils.isEmpty(apiParams.getBody())){
+            apiParams.getBody().forEach((key,value)->{
+                engine.put(key,value);
+            });
+        }
+
+        if (!CollectionUtils.isEmpty(apiParams.getParam())){
+            apiParams.getParam().forEach((key,value)->{
+                engine.put(key,value);
+            });
+        }
+
+        if (!CollectionUtils.isEmpty(apiParams.getPathVar())){
+            apiParams.getPathVar().forEach((key,value)->{
+                engine.put(key,value);
+            });
+        }
+
     }
 
     private Integer buildPagerNo(ApiParams apiParams) {

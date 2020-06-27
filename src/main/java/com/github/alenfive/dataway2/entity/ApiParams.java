@@ -25,10 +25,10 @@ import java.util.Map;
 @AllArgsConstructor
 public class ApiParams {
     private Map<String,String> pathVar;
-    private Map<String,String> header;
-    private Map<String,Object> cookie;
     private Map<String,Object> param;
     private Map<String,Object> body;
+    private Map<String,String> header;
+    private Map<String,Object> cookie;
     private HttpServletRequest request;
 
     public ApiParams putParam(String key,Object value){

@@ -95,7 +95,7 @@
             <div id="editor-btns" style="height: 24px;border-bottom: 1px solid #ccc;">
                 <div class="item" title="必填参数" onclick="insertExample(this)" express = '"#{name}"'>#{}</div>
                 <div class="item" title="可选参数" onclick="insertExample(this)" express = '"?{name,and name = #{name}}"'>?{}</div>
-                <div class="item" title="参数验证" onclick="insertExample(this)" express = 'Assert.is(false,"参数不足")'>Assert</div>
+                <div class="item" title="参数验证" onclick="insertExample(this)" express = 'Assert.isTrue(false,"参数不足")'>Assert</div>
                 <div class="item" title="统计查询" onclick="insertExample(this)" express = 'return db.count("select count(1) from user");'>Count</div>
                 <div class="item" title="单条查询" onclick="insertExample(this)" express = 'return db.findOne("select * from user where id = #{id}");'>FindOne</div>
                 <div class="item" title="多条查询" onclick="insertExample(this)" express = 'return db.find("select * from user");'>Find</div>
