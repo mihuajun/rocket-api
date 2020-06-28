@@ -10,6 +10,7 @@ import com.github.alenfive.dataway2.entity.vo.RunApiReq;
 import com.github.alenfive.dataway2.entity.vo.RunApiRes;
 import com.github.alenfive.dataway2.extend.ApiInfoContent;
 import com.github.alenfive.dataway2.service.ScriptParseService;
+import com.github.alenfive.dataway2.utils.RequestUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.python.google.common.base.Splitter;
 import org.springframework.beans.BeanUtils;
@@ -18,6 +19,7 @@ import org.springframework.util.AntPathMatcher;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
@@ -132,7 +134,7 @@ public class ApiController {
      * @return
      */
     @PostMapping("/api-info/run")
-    public ApiResult runScript(@RequestBody RunApiReq runApiReq){
+    public ApiResult runScript(@RequestBody RunApiReq runApiReq, HttpServletRequest request){
         RunApiRes runApiRes = new RunApiRes();
         try {
             ApiInfo apiInfo = ApiInfo.builder().datasource(runApiReq.getDatasource()).script(runApiReq.getScript()).build();
@@ -142,6 +144,7 @@ public class ApiController {
                     .pathVar(getPathVar(runApiReq.getPattern(),runApiReq.getUrl()))
                     .param(getParam(runApiReq.getUrl()))
                     .body(runApiReq.getBody())
+                    .session(RequestUtils.buildSessionParams(request))
                     .build();
 
             StringBuilder scriptContent = new StringBuilder(apiInfo.getScript());
@@ -155,6 +158,8 @@ public class ApiController {
             runApiRes.setLogs(apiInfoContent.getLogs());
         }
     }
+
+
 
     private void decodeHeaderValue(Map<String,String> header) throws UnsupportedEncodingException {
         for (String key : header.keySet()){

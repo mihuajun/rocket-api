@@ -29,6 +29,7 @@ public class ApiParams {
     private Map<String,Object> body;
     private Map<String,String> header;
     private Map<String,Object> cookie;
+    private Map<String,Object> session;
     private HttpServletRequest request;
 
     public ApiParams putParam(String key,Object value){

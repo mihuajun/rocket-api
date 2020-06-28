@@ -8,6 +8,7 @@ import com.github.alenfive.dataway2.extend.IApiPager;
 import com.github.alenfive.dataway2.datasource.DataSourceManager;
 import com.github.alenfive.dataway2.function.IFunction;
 import com.github.alenfive.dataway2.service.ScriptParseService;
+import com.github.alenfive.dataway2.utils.RequestUtils;
 import jdk.nashorn.api.scripting.ScriptObjectMirror;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -150,9 +151,10 @@ public class SQLRequestMappingFactory {
         String method = request.getMethod();
         ApiParams apiParams = ApiParams.builder()
                 .pathVar(pathVar)
-                .header(buildHeaderFormRequest())
+                .header(RequestUtils.buildHeaderParams(request))
                 .param(param)
                 .body(body)
+                .session(RequestUtils.buildSessionParams(request))
                 .request(request)
                 .build();
 
@@ -171,20 +173,10 @@ public class SQLRequestMappingFactory {
         //提取脚本
         StringBuilder scriptContent = new StringBuilder(URLDecoder.decode(apiInfo.getScript(),"utf-8"));
         parseService.parse(scriptContent,apiParams);
-
         return runScript(scriptContent,apiInfo,apiParams);
     }
 
-    private Map<String, String> buildHeaderFormRequest() throws UnsupportedEncodingException {
-        Enumeration<String> headerKeys = request.getHeaderNames();
-        Map<String, String> result  = new HashMap<>();
-        while (headerKeys.hasMoreElements()){
-            String key = headerKeys.nextElement();
-            String value = request.getHeader(key);
-            result.put(key,URLDecoder.decode(value,"utf-8"));
-        }
-        return result;
-    }
+
 
     public Object runScript(StringBuilder scriptContent,ApiInfo apiInfo,ApiParams apiParams) throws ScriptException, NoSuchMethodException {
         //注入变量
@@ -225,6 +217,13 @@ public class SQLRequestMappingFactory {
         engine.put("body",apiParams.getBody());
         engine.put("header",apiParams.getHeader());
         engine.put("cookie",apiParams.getCookie());
+        engine.put("session",apiParams.getSession());
+
+        if (!CollectionUtils.isEmpty(apiParams.getSession())){
+            apiParams.getSession().forEach((key,value)->{
+                engine.put(key,value);
+            });
+        }
 
         if (!CollectionUtils.isEmpty(apiParams.getCookie())){
             apiParams.getCookie().forEach((key,value)->{

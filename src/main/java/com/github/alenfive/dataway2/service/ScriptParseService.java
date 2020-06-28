@@ -208,6 +208,7 @@ public class ScriptParseService {
                 case body:value = buildValueOfBody(apiParams.getBody(),paramArr,1);break;
                 case cookie:value = buildValueOfCookie(apiParams.getCookie(),apiParams.getRequest(),paramArr[1]);break;
                 case header:value = buildValueOfHeader(apiParams.getHeader(),paramArr,1);break;
+                case session:value = buildValueOfSession(apiParams.getSession(),paramArr,1);break;
             }
         }else {
             value = buildValueOfPathVar(apiParams.getPathVar(),paramArr[0]);
@@ -223,7 +224,25 @@ public class ScriptParseService {
             if(value == null){
                 value = buildValueOfHeader(apiParams.getHeader(),paramArr,0);
             }
+            if(value == null){
+                value = buildValueOfSession(apiParams.getSession(),paramArr,0);
+            }
         }
+        return value;
+    }
+
+    public Object buildValueOfSession(Map<String,Object> session,String[] paramArr,int index) {
+        Object value  = null;
+        if (session != null){
+            value = session.get(paramArr[index]);
+        }
+
+        if (value == null)return null;
+
+        if (paramArr.length-1 > index){
+            return buildValueOfSession((Map<String, Object>) value,paramArr,++index);
+        }
+
         return value;
     }
 
