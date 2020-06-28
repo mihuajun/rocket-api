@@ -478,7 +478,7 @@ function runApi() {
             }
 
             if (data.code != 200){
-                content += "<a style='color:red;'>"+data.msg+"</a>";
+                content += "<pre style='color:red;'>"+data.msg+"</pre>";
             }else{
                 content += "<a style='color:green;'>"+data.msg+"</a>";
             }
