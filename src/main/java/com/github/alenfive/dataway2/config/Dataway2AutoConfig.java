@@ -5,6 +5,8 @@ import com.github.alenfive.dataway2.controller.ViewController;
 import com.github.alenfive.dataway2.datasource.DataSourceManager;
 import com.github.alenfive.dataway2.extend.*;
 import com.github.alenfive.dataway2.extend.DefaultAssertException;
+import com.github.alenfive.dataway2.script.GroovyScriptParse;
+import com.github.alenfive.dataway2.script.IScriptParse;
 import com.github.alenfive.dataway2.service.ScriptParseService;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -54,4 +56,9 @@ public class Dataway2AutoConfig {
         return new DefaultAssertException();
     }
 
+    @Bean
+    @ConditionalOnMissingBean
+    public IScriptParse getIScriptParse(){
+        return new GroovyScriptParse();
+    }
 }

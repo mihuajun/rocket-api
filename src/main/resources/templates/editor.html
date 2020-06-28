@@ -101,8 +101,8 @@
                 <div class="item" title="多条查询" onclick="insertExample(this)" express = 'return db.find("select * from user");'>Find</div>
 
                 <div class="item" title="分页查询" onclick="insertExample(this)"
-express = 'var total = db.count("select count(1) from user");
-var list = db.find("select * from user");
+express = 'total = db.count("select count(1) from user");
+list = db.find("select * from user");
 return Pager.build(total,list);'>Pager</div>
 
                 <div class="item" title="新增" onclick="insertExample(this)" express = 'return db.insert("insert into user(name) values(#{name})");'>Insert</div>
@@ -110,13 +110,13 @@ return Pager.build(total,list);'>Pager</div>
                 <div class="item" title="删除" onclick="insertExample(this)" express = 'return db.remove("delete from user where id = #{id}");'>Remove</div>
 
                 <div class="item" title="导出CSV" onclick="insertExample(this)"
-express = 'var title = {"id":"编号","name":"姓名","mock":"test","createTime":"创建时间"}
-var list = db.find("select * from user");
+express = 'title = {"id":"编号","name":"姓名","mock":"test","createTime":"创建时间"}
+list = db.find("select * from user");
 return Export.csv("测试导出",title,list);'>Export.csv</div>
 
                 <div class="item" title="导出XLS" onclick="insertExample(this)"
-                     express = 'var title = {"id":"编号","name":"姓名","mock":"test","createTime":"创建时间"}
-var list = db.find("select * from user");
+                     express = 'title = {"id":"编号","name":"姓名","mock":"test","createTime":"创建时间"}
+list = db.find("select * from user");
 return Export.xls("测试导出",title,list);'>Export.xls</div>
 
                 <div class="item" title="日志输出：info,debug,warn,error,trace" onclick="insertExample(this)" express = 'log.info("日志信息:{}","变量");'>Log</div>

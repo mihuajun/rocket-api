@@ -9,15 +9,18 @@ import com.github.alenfive.dataway2.entity.vo.RenameGroupReq;
 import com.github.alenfive.dataway2.entity.vo.RunApiReq;
 import com.github.alenfive.dataway2.entity.vo.RunApiRes;
 import com.github.alenfive.dataway2.extend.ApiInfoContent;
+import com.github.alenfive.dataway2.script.IScriptParse;
 import com.github.alenfive.dataway2.service.ScriptParseService;
 import com.github.alenfive.dataway2.utils.RequestUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.python.google.common.base.Splitter;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.AntPathMatcher;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.UnsupportedEncodingException;
@@ -48,6 +51,9 @@ public class ApiController {
 
     @Autowired
     private ApiInfoContent apiInfoContent;
+
+    @Autowired
+    private IScriptParse scriptParse;
 
     /**
      * LOAD API LIST
@@ -149,7 +155,7 @@ public class ApiController {
 
             StringBuilder scriptContent = new StringBuilder(apiInfo.getScript());
             parseService.parse(scriptContent,apiParams);
-            runApiRes.setData(sqlRequestMapping.runScript(scriptContent,apiInfo,apiParams));
+            runApiRes.setData(scriptParse.runScript(scriptContent,apiInfo,apiParams));
             return ApiResult.success(runApiRes);
         }catch (Exception e){
             e.printStackTrace();
@@ -184,13 +190,12 @@ public class ApiController {
 
     private Map<String,Object> getParam(String url) {
         Map<String,Object> result = new HashMap<>();
-        Integer index = url.indexOf("?");
-        if (StringUtils.isEmpty(url) || index == -1){
-            return result;
-        }
-        String params = url.substring(index + 1);
-        result.putAll(Splitter.on("&").withKeyValueSeparator("=").split(params));
-        return result;
+        MultiValueMap<String, String> urlMvp = UriComponentsBuilder.fromHttpUrl(url).build().getQueryParams();
+        urlMvp.forEach((key,value)->{
+            String firstValue = CollectionUtils.isEmpty(value)?null:value.get(0);
+            result.put(key,firstValue);
+        });
+        return  result;
     }
 
     /**

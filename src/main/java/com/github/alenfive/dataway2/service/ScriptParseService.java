@@ -40,7 +40,6 @@ public class ScriptParseService {
     private Set<String> scopeSet = Stream.of(ParamScope.values()).map(ParamScope::name).collect(Collectors.toSet());
 
     public void parse(StringBuilder script,ApiParams apiParams){
-        buildMutilStr(script);
         buildIf(script,apiParams);
         buildParams(script,apiParams);
     }

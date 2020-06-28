@@ -22,7 +22,7 @@ public class AssertFunction implements IFunction{
         return "Assert";
     }
 
-    public void isNotEmpty(String input,String ... msg){
+    public void isNotEmpty(Object input,String ... msg){
         boolean validate = !StringUtils.isEmpty(input);
         if (!validate){
             String throwMsg = msg.length>0?msg[0]:("`"+input+"` is empty");
@@ -30,7 +30,7 @@ public class AssertFunction implements IFunction{
         }
     }
 
-    public void isEmpty(String input,String ... msg){
+    public void isEmpty(Object input,String ... msg){
         boolean validate = StringUtils.isEmpty(input);
         if (!validate){
             String throwMsg = msg.length>0?msg[0]:("`"+input+"` is not empty");
@@ -38,7 +38,7 @@ public class AssertFunction implements IFunction{
         }
     }
 
-    public void equals(String input,String input2,String ... msg){
+    public void equals(Object input,Object input2,String ... msg){
         boolean validate = Objects.equals(input,input2);
         if (!validate){
             String throwMsg = msg.length>0?msg[0]:("`"+input+"` is not equals");

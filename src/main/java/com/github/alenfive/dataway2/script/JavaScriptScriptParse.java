@@ -1,0 +1,129 @@
+package com.github.alenfive.dataway2.script;
+
+/**
+ * @Description:
+ * @Copyright: Copyright (c) 2019  ALL RIGHTS RESERVED.
+ * @Company: 成都国盛天丰技术有限责任公司
+ * @Author: 米华军
+ * @CreateDate: 2020/6/28 14:31
+ * @UpdateDate: 2020/6/28 14:31
+ * @UpdateRemark: init
+ * @Version: 1.0
+ * @menu js脚本执行器
+ */
+
+import com.github.alenfive.dataway2.entity.ApiInfo;
+import com.github.alenfive.dataway2.entity.ApiParams;
+import com.github.alenfive.dataway2.extend.ApiInfoContent;
+import com.github.alenfive.dataway2.function.IFunction;
+import jdk.nashorn.api.scripting.ScriptObjectMirror;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
+
+import javax.annotation.PostConstruct;
+import javax.script.Invocable;
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
+import java.util.Collection;
+
+
+public class JavaScriptScriptParse implements IScriptParse{
+
+    @Autowired
+    private ApiInfoContent apiInfoContent;
+
+    @Autowired
+    private ApplicationContext context;
+
+    private Collection<IFunction> functionList;
+
+    @PostConstruct
+    public void init(){
+        //加载函数
+        functionList = context.getBeansOfType(IFunction.class).values();
+    }
+
+    @Override
+    public Object runScript(StringBuilder scriptContent, ApiInfo apiInfo, ApiParams apiParams) throws ScriptException, NoSuchMethodException {
+        //注入变量
+        apiInfoContent.setApiInfo(apiInfo);
+        apiInfoContent.setApiParams(apiParams);
+
+        //注入函数
+        StringBuilder script = new StringBuilder();
+
+        script.append("function run(){");
+        script.append(scriptContent.toString());
+        script.append("}");
+        ScriptEngineManager factory = new ScriptEngineManager();
+        ScriptEngine engine = factory.getEngineByName("js");
+
+        for(IFunction function : functionList){
+            engine.put(function.getVarName(),function);
+        }
+
+        //注入属性变量
+        buildScriptParams(engine,apiParams);
+
+        engine.eval(script.toString());
+        Invocable inv = (Invocable) engine;
+        Object result = inv.invokeFunction("run");
+        if (!(result instanceof ScriptObjectMirror)){
+            return result;
+        }
+        ScriptObjectMirror som = (ScriptObjectMirror)result ;
+        if (som.isArray()){
+            return som.values();
+        }
+        return som;
+    }
+
+    private void buildScriptParams(ScriptEngine engine, ApiParams apiParams) {
+        engine.put("pathVar",apiParams.getPathVar());
+        engine.put("param",apiParams.getParam());
+        engine.put("body",apiParams.getBody());
+        engine.put("header",apiParams.getHeader());
+        engine.put("cookie",apiParams.getCookie());
+        engine.put("session",apiParams.getSession());
+
+        if (!CollectionUtils.isEmpty(apiParams.getSession())){
+            apiParams.getSession().forEach((key,value)->{
+                engine.put(key,value);
+            });
+        }
+
+        if (!CollectionUtils.isEmpty(apiParams.getCookie())){
+            apiParams.getCookie().forEach((key,value)->{
+                engine.put(key,value);
+            });
+        }
+
+        if (!CollectionUtils.isEmpty(apiParams.getHeader())){
+            apiParams.getHeader().forEach((key,value)->{
+                engine.put(key,value);
+            });
+        }
+
+        if (!CollectionUtils.isEmpty(apiParams.getBody())){
+            apiParams.getBody().forEach((key,value)->{
+                engine.put(key,value);
+            });
+        }
+
+        if (!CollectionUtils.isEmpty(apiParams.getParam())){
+            apiParams.getParam().forEach((key,value)->{
+                engine.put(key,value);
+            });
+        }
+
+        if (!CollectionUtils.isEmpty(apiParams.getPathVar())){
+            apiParams.getPathVar().forEach((key,value)->{
+                engine.put(key,value);
+            });
+        }
+
+    }
+}

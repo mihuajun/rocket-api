@@ -7,6 +7,7 @@ import com.github.alenfive.dataway2.extend.ApiInfoContent;
 import com.github.alenfive.dataway2.extend.IApiPager;
 import com.github.alenfive.dataway2.datasource.DataSourceManager;
 import com.github.alenfive.dataway2.function.IFunction;
+import com.github.alenfive.dataway2.script.IScriptParse;
 import com.github.alenfive.dataway2.service.ScriptParseService;
 import com.github.alenfive.dataway2.utils.RequestUtils;
 import jdk.nashorn.api.scripting.ScriptObjectMirror;
@@ -77,15 +78,13 @@ public class SQLRequestMappingFactory {
     private RequestMappingHandlerMapping requestMappingHandlerMapping;
 
     @Autowired
+    private IScriptParse scriptParse;
+
+    @Autowired
     private ObjectMapper objectMapper;
 
     @Autowired
     private DataSourceManager dataSourceManager;
-
-    @Autowired
-    private ApplicationContext context;
-
-    private Collection<IFunction> functionList;
 
     private Map<String, ApiInfo> cacheApiInfo = new ConcurrentHashMap<>();
 
@@ -126,10 +125,6 @@ public class SQLRequestMappingFactory {
         for (ApiInfo apiInfo : this.cacheApiInfo.values()){
             this.registerMappingForApiInfo(apiInfo);
         }
-
-
-        //加载函数
-        functionList = context.getBeansOfType(IFunction.class).values();
     }
 
     private String buildApiInfoKey(ApiInfo apiInfo) {
@@ -174,91 +169,10 @@ public class SQLRequestMappingFactory {
         StringBuilder scriptContent = new StringBuilder(URLDecoder.decode(apiInfo.getScript(),"utf-8"));
         parseService.parse(scriptContent,apiParams);
         try {
-            return runScript(scriptContent,apiInfo,apiParams);
+            return scriptParse.runScript(scriptContent,apiInfo,apiParams);
         }finally {
             apiInfoContent.removeAll();
         }
-    }
-
-
-
-    public Object runScript(StringBuilder scriptContent,ApiInfo apiInfo,ApiParams apiParams) throws ScriptException, NoSuchMethodException {
-        //注入变量
-        apiInfoContent.setApiInfo(apiInfo);
-        apiInfoContent.setApiParams(apiParams);
-
-        //注入函数
-        StringBuilder script = new StringBuilder();
-
-        script.append("function run(){");
-        script.append(scriptContent.toString());
-        script.append("}");
-        ScriptEngineManager factory = new ScriptEngineManager();
-        ScriptEngine engine = factory.getEngineByName("js");
-
-        for(IFunction function : functionList){
-            engine.put(function.getVarName(),function);
-        }
-
-        buildScriptParams(engine,apiParams);
-
-        engine.eval(script.toString());
-        Invocable inv = (Invocable) engine;
-        Object result = inv.invokeFunction("run");
-        if (!(result instanceof ScriptObjectMirror)){
-            return result;
-        }
-        ScriptObjectMirror som = (ScriptObjectMirror)result ;
-        if (som.isArray()){
-            return som.values();
-        }
-        return som;
-    }
-
-    private void buildScriptParams(ScriptEngine engine, ApiParams apiParams) {
-        engine.put("pathVar",apiParams.getPathVar());
-        engine.put("param",apiParams.getParam());
-        engine.put("body",apiParams.getBody());
-        engine.put("header",apiParams.getHeader());
-        engine.put("cookie",apiParams.getCookie());
-        engine.put("session",apiParams.getSession());
-
-        if (!CollectionUtils.isEmpty(apiParams.getSession())){
-            apiParams.getSession().forEach((key,value)->{
-                engine.put(key,value);
-            });
-        }
-
-        if (!CollectionUtils.isEmpty(apiParams.getCookie())){
-            apiParams.getCookie().forEach((key,value)->{
-                engine.put(key,value);
-            });
-        }
-
-        if (!CollectionUtils.isEmpty(apiParams.getHeader())){
-            apiParams.getHeader().forEach((key,value)->{
-                engine.put(key,value);
-            });
-        }
-
-        if (!CollectionUtils.isEmpty(apiParams.getBody())){
-            apiParams.getBody().forEach((key,value)->{
-                engine.put(key,value);
-            });
-        }
-
-        if (!CollectionUtils.isEmpty(apiParams.getParam())){
-            apiParams.getParam().forEach((key,value)->{
-                engine.put(key,value);
-            });
-        }
-
-        if (!CollectionUtils.isEmpty(apiParams.getPathVar())){
-            apiParams.getPathVar().forEach((key,value)->{
-                engine.put(key,value);
-            });
-        }
-
     }
 
     private Integer buildPagerNo(ApiParams apiParams) {
