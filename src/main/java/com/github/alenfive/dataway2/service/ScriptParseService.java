@@ -39,8 +39,8 @@ public class ScriptParseService {
 
     private Set<String> scopeSet = Stream.of(ParamScope.values()).map(ParamScope::name).collect(Collectors.toSet());
 
-    public void parse(StringBuilder script,ApiParams apiParams){
-        buildMutilStr(scrip);t
+    public void parse(StringBuilder script,ApiParams apiParams){t
+        buildMutilStr(scrip);
         buildIf(script,apiParams);
         buildParams(script,apiParams);
     }
