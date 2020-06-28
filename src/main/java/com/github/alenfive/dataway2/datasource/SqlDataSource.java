@@ -26,11 +26,11 @@ import java.util.stream.Collectors;
  * @menu MYSQL数据源
  */
 @Transactional
-public class MysqlDataSource extends DataSourceDialect {
+public class SqlDataSource extends DataSourceDialect {
 
     private JdbcTemplate jdbcTemplate;
 
-    public MysqlDataSource(JdbcTemplate jdbcTemplate,boolean storeApi) {
+    public SqlDataSource(JdbcTemplate jdbcTemplate, boolean storeApi) {
         this.storeApi = storeApi;
         this.jdbcTemplate = jdbcTemplate;
     }

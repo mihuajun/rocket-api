@@ -49,4 +49,10 @@ public class ApiInfoContent {
     public void setApiParams(ApiParams apiParams) {
         this.apiParams.set(apiParams);
     }
+
+    public void removeAll(){
+        apiInfo.remove();
+        apiParams.remove();
+        logs.remove();
+    }
 }

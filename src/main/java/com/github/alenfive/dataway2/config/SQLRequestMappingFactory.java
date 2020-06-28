@@ -173,7 +173,11 @@ public class SQLRequestMappingFactory {
         //提取脚本
         StringBuilder scriptContent = new StringBuilder(URLDecoder.decode(apiInfo.getScript(),"utf-8"));
         parseService.parse(scriptContent,apiParams);
-        return runScript(scriptContent,apiInfo,apiParams);
+        try {
+            return runScript(scriptContent,apiInfo,apiParams);
+        }finally {
+            apiInfoContent.removeAll();
+        }
     }
 
 

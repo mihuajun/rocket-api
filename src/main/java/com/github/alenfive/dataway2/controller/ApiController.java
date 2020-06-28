@@ -156,6 +156,7 @@ public class ApiController {
             return ApiResult.fail(e.getMessage(),runApiRes);
         }finally {
             runApiRes.setLogs(apiInfoContent.getLogs());
+            apiInfoContent.removeAll();
         }
     }
 

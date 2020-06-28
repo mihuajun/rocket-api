@@ -459,7 +459,8 @@ function runApi() {
         "url":$("#example-section .example-url").val()
     }
 
-    showSendNotify("Running script")
+    showSendNotify("Running script");
+    $("#console-section .content").html("");
     $("#console-section").show();
     let startTime=new Date().getTime()
     $.ajax({

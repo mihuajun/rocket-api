@@ -76,7 +76,7 @@ public class DefaultDataSourceManager extends DataSourceManager {
 #### <a name="1">1. 数据源配置</a>	
 
 继承抽象类`com.github.alenfive.dataway2.datasource.DataSourceManager` 如下：	
-目前支持关系型数据库:`com.github.alenfive.dataway2.datasource.MysqlDataSource`,非关系型数据库：`com.github.alenfive.dataway2.datasource.MongoDataSource`,可通过抽象类：`com.github.alenfive.dataway2.datasource.DataSourceDialect`进行扩展。	
+目前支持关系型数据库:`com.github.alenfive.dataway2.datasource.SqlDataSource`,非关系型数据库：`com.github.alenfive.dataway2.datasource.MongoDataSource`,可通过抽象类：`com.github.alenfive.dataway2.datasource.DataSourceDialect`进行扩展。	
 `DataSourceDialect`的实现类中，其中成员变量:`storeApi` 有且只能有一个为`true`,表示API存储所在库
 ```java
 @Component
