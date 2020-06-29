@@ -43,12 +43,12 @@ public class LogFunction implements IFunction{
     }
 
     public void warn(Object format,Object ... args){
-        log.error(format.toString(),args);
+        log.warn(format.toString(),args);
         apiInfoContent.putLog("warn: "+ MessageFormatter.arrayFormat(format.toString(), args).getMessage());
     }
 
     public void trace(Object format,Object ... args){
-        log.error(format.toString(),args);
+        log.trace(format.toString(),args);
         apiInfoContent.putLog("trace: "+ MessageFormatter.arrayFormat(format.toString(), args).getMessage());
     }
 }
