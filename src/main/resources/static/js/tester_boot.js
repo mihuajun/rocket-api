@@ -597,8 +597,8 @@ function loadDetail(id,form) {
             $(form).find(".api-info-datasource").parent().addClass("disabled");
 
             currPage = "example";
-            $(form).find(".draft-ribbon").hide();
-            $("#example-section .draft-ribbon").hide();
+            //$(form).find(".draft-ribbon").hide();
+            //$("#example-section .draft-ribbon").hide();
         }else {
             $("#editor-section .draft-ribbon").show();
             $("#example-section .draft-ribbon").show();
