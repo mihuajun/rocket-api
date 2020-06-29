@@ -11,5 +11,5 @@ package com.github.alenfive.dataway2.entity;
  * @menu 参数域
  */
 public enum ParamScope {
-    pathVar, param, body, header, cookie,session
+    content,pathVar, param, body, header, cookie,session
 }

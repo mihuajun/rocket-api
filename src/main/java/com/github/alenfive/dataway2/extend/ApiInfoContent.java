@@ -4,6 +4,7 @@ import com.github.alenfive.dataway2.entity.ApiInfo;
 import com.github.alenfive.dataway2.entity.ApiParams;
 import org.springframework.stereotype.Component;
 
+import javax.script.ScriptEngine;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,6 +24,7 @@ public class ApiInfoContent {
     private ThreadLocal<ApiInfo> apiInfo = new ThreadLocal<>();
     private ThreadLocal<ApiParams> apiParams = new ThreadLocal<>();
     private ThreadLocal<List<String>> logs = new ThreadLocal<>();
+    private ThreadLocal<ScriptEngine> engine = new ThreadLocal<>();
 
     public List<String> getLogs(){
         return logs.get();
@@ -50,9 +52,18 @@ public class ApiInfoContent {
         this.apiParams.set(apiParams);
     }
 
+    public void setEngine(ScriptEngine engine) {
+        this.engine.set(engine);
+    }
+
+    public ScriptEngine getEngine() {
+        return engine.get();
+    }
+
     public void removeAll(){
         apiInfo.remove();
         apiParams.remove();
         logs.remove();
+        engine.remove();
     }
 }

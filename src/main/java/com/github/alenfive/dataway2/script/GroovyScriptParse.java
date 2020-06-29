@@ -12,6 +12,7 @@ package com.github.alenfive.dataway2.script;
 
 import com.github.alenfive.dataway2.entity.ApiInfo;
 import com.github.alenfive.dataway2.entity.ApiParams;
+import com.github.alenfive.dataway2.entity.vo.RunApiRes;
 import com.github.alenfive.dataway2.extend.ApiInfoContent;
 import com.github.alenfive.dataway2.function.IFunction;
 import jdk.nashorn.api.scripting.ScriptObjectMirror;
@@ -44,21 +45,23 @@ public class GroovyScriptParse implements IScriptParse{
     }
 
     @Override
-    public Object runScript(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams) throws ScriptException {
+    public Object runScript(String script, ApiInfo apiInfo, ApiParams apiParams) throws ScriptException {
+
+        ScriptEngineManager factory = new ScriptEngineManager();
+        ScriptEngine engine = factory.getEngineByName("groovy");
 
         //注入变量
         apiInfoContent.setApiInfo(apiInfo);
         apiInfoContent.setApiParams(apiParams);
+        apiInfoContent.setEngine(engine);
 
-        ScriptEngineManager factory = new ScriptEngineManager();
-        ScriptEngine engine = factory.getEngineByName("groovy");
         for(IFunction function : functionList){
             engine.put(function.getVarName(),function);
         }
 
         //注入属性变量
         buildScriptParams(engine,apiParams);
-        Object result = engine.eval(script.toString());
+        Object result = engine.eval(script);
         if (!(result instanceof ScriptObjectMirror)){
             return result;
         }
@@ -66,7 +69,7 @@ public class GroovyScriptParse implements IScriptParse{
         if (som.isArray()){
             return som.values();
         }
-        return som;
+        return result;
     }
 
     private void buildScriptParams(ScriptEngine engine, ApiParams apiParams) {

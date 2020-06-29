@@ -15,5 +15,5 @@ import javax.script.ScriptException;
  * @Version: 1.0
  */
 public interface IScriptParse {
-    public Object runScript(StringBuilder scriptContent, ApiInfo apiInfo, ApiParams apiParams) throws ScriptException, NoSuchMethodException;
+    public Object runScript(String script, ApiInfo apiInfo, ApiParams apiParams) throws ScriptException, NoSuchMethodException;
 }

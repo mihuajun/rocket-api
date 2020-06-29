@@ -47,9 +47,6 @@ public class ApiController {
     private SQLRequestMappingFactory sqlRequestMapping;
 
     @Autowired
-    private ScriptParseService parseService;
-
-    @Autowired
     private ApiInfoContent apiInfoContent;
 
     @Autowired
@@ -152,10 +149,8 @@ public class ApiController {
                     .body(runApiReq.getBody())
                     .session(RequestUtils.buildSessionParams(request))
                     .build();
-
-            StringBuilder scriptContent = new StringBuilder(apiInfo.getScript());
-            parseService.parse(scriptContent,apiParams);
-            runApiRes.setData(scriptParse.runScript(scriptContent,apiInfo,apiParams));
+            Object value = scriptParse.runScript(apiInfo.getScript(),apiInfo,apiParams);
+            runApiRes.setData(value);
             return ApiResult.success(runApiRes);
         }catch (Exception e){
             e.printStackTrace();

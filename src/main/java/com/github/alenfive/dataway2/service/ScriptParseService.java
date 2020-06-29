@@ -6,10 +6,12 @@ import com.github.alenfive.dataway2.entity.ApiParams;
 import com.github.alenfive.dataway2.entity.ParamScope;
 import com.github.alenfive.dataway2.entity.vo.ArrVar;
 import com.github.alenfive.dataway2.entity.vo.IndexScope;
+import com.github.alenfive.dataway2.extend.ApiInfoContent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import javax.script.ScriptContext;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import java.io.UnsupportedEncodingException;
@@ -36,6 +38,9 @@ public class ScriptParseService {
 
     @Autowired
     private ObjectMapper objectMapper;
+
+    @Autowired
+    private ApiInfoContent apiInfoContent;
 
     private Set<String> scopeSet = Stream.of(ParamScope.values()).map(ParamScope::name).collect(Collectors.toSet());
 
@@ -202,6 +207,7 @@ public class ScriptParseService {
         Object value = null;
         if (scopeSet.contains(paramArr[0])){
             switch (ParamScope.valueOf(paramArr[0])){
+                case content:value = buildValueOfScriptContent(apiInfoContent.getEngine() == null?null:apiInfoContent.getEngine().getContext(),null,paramArr,1);break;
                 case pathVar:value = buildValueOfPathVar(apiParams.getPathVar(),paramArr[1]);break;
                 case param:value = buildValueOfParameter(apiParams.getParam(),paramArr,1);break;
                 case body:value = buildValueOfBody(apiParams.getBody(),paramArr,1);break;
@@ -210,7 +216,10 @@ public class ScriptParseService {
                 case session:value = buildValueOfSession(apiParams.getSession(),paramArr,1);break;
             }
         }else {
-            value = buildValueOfPathVar(apiParams.getPathVar(),paramArr[0]);
+            value = buildValueOfScriptContent(apiInfoContent.getEngine() == null?null:apiInfoContent.getEngine().getContext(),null,paramArr,0);
+            if (value == null){
+                value = buildValueOfPathVar(apiParams.getPathVar(),paramArr[0]);
+            }
             if (value == null) {
                 value = buildValueOfParameter(apiParams.getParam(), paramArr,0);
             }
@@ -227,6 +236,23 @@ public class ScriptParseService {
                 value = buildValueOfSession(apiParams.getSession(),paramArr,0);
             }
         }
+        return value;
+    }
+
+    private Object buildValueOfScriptContent(ScriptContext context ,Map<String,Object> params, String[] paramArr, int index) {
+        if (context == null && params == null)return null;
+
+        Object value  = null;
+        if (context != null){
+            value = buildObjectValue(context,paramArr[index]);
+        }else{
+            value = buildObjectValue(params,paramArr[index]);
+        }
+
+        if (paramArr.length-1 > index){
+            return buildValueOfScriptContent(null,(Map<String, Object>) value,paramArr,++index);
+        }
+
         return value;
     }
 
@@ -300,6 +326,26 @@ public class ScriptParseService {
         Object value = buildObjectValue(params,paramArr[index]);
         if (paramArr.length-1 > index){
             return buildValueOfParameter((Map<String, Object>) value,paramArr,++index);
+        }
+        return value;
+    }
+
+    private Object buildObjectValue(ScriptContext context,String varName){
+        Object value = null;
+        ArrVar arrVar = isArrVar(varName);
+        if (arrVar != null){
+            Object collection = context.getAttribute(arrVar.getVarName());
+            if (!(collection instanceof Collection)){
+                throw new IllegalArgumentException("The "+arrVar.getVarName()+" parameter is not an array");
+            }
+
+            Collection list = ((Collection)collection);
+            if (arrVar.getIndex() >=list.size()){
+                throw new IllegalArgumentException("The parameter "+arrVar.getVarName()+" exceeds the array length");
+            }
+            value = list.toArray()[arrVar.getIndex()];
+        }else{
+            value = context.getAttribute(varName);
         }
         return value;
     }

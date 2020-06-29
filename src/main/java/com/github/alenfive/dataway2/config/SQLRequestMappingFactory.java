@@ -3,6 +3,7 @@ package com.github.alenfive.dataway2.config;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.alenfive.dataway2.entity.*;
 import com.github.alenfive.dataway2.entity.vo.RenameGroupReq;
+import com.github.alenfive.dataway2.entity.vo.RunApiRes;
 import com.github.alenfive.dataway2.extend.ApiInfoContent;
 import com.github.alenfive.dataway2.extend.IApiPager;
 import com.github.alenfive.dataway2.datasource.DataSourceManager;
@@ -166,13 +167,7 @@ public class SQLRequestMappingFactory {
         }
 
         //提取脚本
-        StringBuilder scriptContent = new StringBuilder(URLDecoder.decode(apiInfo.getScript(),"utf-8"));
-        parseService.parse(scriptContent,apiParams);
-        try {
-            return scriptParse.runScript(scriptContent,apiInfo,apiParams);
-        }finally {
-            apiInfoContent.removeAll();
-        }
+        return scriptParse.runScript(URLDecoder.decode(apiInfo.getScript(),"utf-8"),apiInfo,apiParams);
     }
 
     private Integer buildPagerNo(ApiParams apiParams) {

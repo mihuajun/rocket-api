@@ -1,15 +1,13 @@
 package com.github.alenfive.dataway2.script;
 
 /**
- * @Description:
+ * @Description: js脚本执行器
  * @Copyright: Copyright (c) 2019  ALL RIGHTS RESERVED.
- * @Company: 成都国盛天丰技术有限责任公司
  * @Author: 米华军
  * @CreateDate: 2020/6/28 14:31
  * @UpdateDate: 2020/6/28 14:31
  * @UpdateRemark: init
  * @Version: 1.0
- * @menu js脚本执行器
  */
 
 import com.github.alenfive.dataway2.entity.ApiInfo;
@@ -47,17 +45,17 @@ public class JavaScriptScriptParse implements IScriptParse{
     }
 
     @Override
-    public Object runScript(StringBuilder scriptContent, ApiInfo apiInfo, ApiParams apiParams) throws ScriptException, NoSuchMethodException {
+    public Object runScript(String script, ApiInfo apiInfo, ApiParams apiParams) throws ScriptException, NoSuchMethodException {
         //注入变量
         apiInfoContent.setApiInfo(apiInfo);
         apiInfoContent.setApiParams(apiParams);
 
         //注入函数
-        StringBuilder script = new StringBuilder();
+        StringBuilder scriptContent = new StringBuilder();
 
-        script.append("function run(){");
-        script.append(scriptContent.toString());
-        script.append("}");
+        scriptContent.append("function run(){");
+        scriptContent.append(script);
+        scriptContent.append("}");
         ScriptEngineManager factory = new ScriptEngineManager();
         ScriptEngine engine = factory.getEngineByName("js");
 
@@ -68,7 +66,7 @@ public class JavaScriptScriptParse implements IScriptParse{
         //注入属性变量
         buildScriptParams(engine,apiParams);
 
-        engine.eval(script.toString());
+        engine.eval(scriptContent.toString());
         Invocable inv = (Invocable) engine;
         Object result = inv.invokeFunction("run");
         if (!(result instanceof ScriptObjectMirror)){
