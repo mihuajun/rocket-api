@@ -5,6 +5,7 @@ import com.github.alenfive.dataway2.controller.ViewController;
 import com.github.alenfive.dataway2.datasource.DataSourceManager;
 import com.github.alenfive.dataway2.extend.*;
 import com.github.alenfive.dataway2.extend.DefaultAssertException;
+import com.github.alenfive.dataway2.function.*;
 import com.github.alenfive.dataway2.script.GroovyScriptParse;
 import com.github.alenfive.dataway2.script.IScriptParse;
 import com.github.alenfive.dataway2.service.ScriptParseService;
@@ -61,4 +62,54 @@ public class Dataway2AutoConfig {
     public IScriptParse getIScriptParse(){
         return new GroovyScriptParse();
     }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public ApiInfoContent getApiInfoContent(){
+        return new ApiInfoContent();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public AssertFunction getAssertFunction(){
+        return new AssertFunction();
+    }
+
+
+    @Bean
+    @ConditionalOnMissingBean
+    public DbFunction getDbFunction(){
+        return new DbFunction();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public EnvFunction getEnvFunction(){
+        return new EnvFunction();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public ExportFunction getExportFunction(){
+        return new ExportFunction();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public LogFunction getLogFunction(){
+        return new LogFunction();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public PagerFunction getPagerFunction(){
+        return new PagerFunction();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public UtilsFunction getUtilsFunction(){
+        return new UtilsFunction();
+    }
+
 }

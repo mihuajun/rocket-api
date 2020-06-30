@@ -73,12 +73,12 @@ public class SqlDataSource extends DataSourceDialect {
 
     @Override
     String lastApiExampleScript() {
-        return "select id,api_info_id,method,url,request_header,request_body,response_header,response_body,status,time,options,create_time from where api_info_id = #{apiInfoId} order by id desc limit #{limit}";
+        return "select id,api_info_id,method,url,request_header,request_body,response_header,response_body,status,time,options,create_time from api_example where api_info_id = #{apiInfoId} order by id desc limit #{limit}";
     }
 
     @Override
     String deleteExampleScript() {
-        return "delete api_info_id where id in (#{ids})";
+        return "delete from api_example where id in (#{ids})";
     }
 
     @Override
