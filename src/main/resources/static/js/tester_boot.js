@@ -568,7 +568,7 @@ function loadDetail(id,form) {
     $(".request"+id).parents(".service").addClass("parent-selected");
     $(".request"+id).parents(".service").removeClass("collapsed");
     $(".request"+id).parents(".service").find(".fa-caret-right").addClass("fa-caret-down").removeClass("fa-caret-right");
-    $('#editor-section .draft-ribbon-text').text("Editor");
+    $('#editor-section .draft-ribbon-text').text("Edit");
 
     let url = detailUrl+id+"/"+(currPage?currPage:'example');
     history.pushState(null,null,url);
@@ -584,8 +584,7 @@ function loadDetail(id,form) {
         $(form).find(".api-info-editor").val(data.editor);
         $(form).find(".api-info-comment").val(data.comment);
 
-        $(form).find(".api-info-method").removeAttr("readonly");
-        $(form).find(".api-info-method").parent().removeClass("disabled");
+        $(form).find(".api-info-method").removeAttr("readonly").parent().removeClass("disabled");
         $(form).find(".api-info-path").removeAttr("readonly");
         $(form).find(".api-info-datasource").removeAttr("readonly");
         $(form).find(".api-info-datasource").parent().removeClass("disabled");
@@ -597,13 +596,6 @@ function loadDetail(id,form) {
             $(form).find(".api-info-path").attr("readonly","readonly");
             $(form).find(".api-info-datasource").attr("readonly","readonly");
             $(form).find(".api-info-datasource").parent().addClass("disabled");
-
-            currPage = "example";
-            //$(form).find(".draft-ribbon").hide();
-            //$("#example-section .draft-ribbon").hide();
-        }else {
-            $("#editor-section .draft-ribbon").show();
-            $("#example-section .draft-ribbon").show();
         }
 
         document.title = data.comment?data.comment:data.path;
@@ -921,7 +913,8 @@ function newEditor() {
     removeAllQueryParameterForm(form);
 
     //css
-    $(form).find(".api-info-method").parent().removeClass("disabled").removeAttr("readonly");
+    $(form).find('.draft-ribbon-text').text("NEW");
+    $(form).find(".api-info-method").removeAttr("readonly").parent().removeClass("disabled");
     $(form).find(".api-info-path").removeAttr("readonly");
     $(form).find(".api-info-datasource").removeAttr("readonly");
     $(form).find(".api-info-datasource").parent().removeClass("disabled");
