@@ -19,6 +19,7 @@ import jdk.nashorn.api.scripting.ScriptObjectMirror;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.PostConstruct;
@@ -45,31 +46,41 @@ public class GroovyScriptParse implements IScriptParse{
     }
 
     @Override
-    public Object runScript(String script, ApiInfo apiInfo, ApiParams apiParams) throws ScriptException {
+    @Transactional(rollbackFor=Exception.class)
+    public Object runScript(String script, ApiInfo apiInfo, ApiParams apiParams) throws Throwable {
 
-        ScriptEngineManager factory = new ScriptEngineManager();
-        ScriptEngine engine = factory.getEngineByName("groovy");
+        try {
+            ScriptEngineManager factory = new ScriptEngineManager();
+            ScriptEngine engine = factory.getEngineByName("groovy");
 
-        //注入变量
-        apiInfoContent.setApiInfo(apiInfo);
-        apiInfoContent.setApiParams(apiParams);
-        apiInfoContent.setEngine(engine);
+            //注入变量
+            apiInfoContent.setApiInfo(apiInfo);
+            apiInfoContent.setApiParams(apiParams);
+            apiInfoContent.setEngine(engine);
 
-        for(IFunction function : functionList){
-            engine.put(function.getVarName(),function);
-        }
+            for(IFunction function : functionList){
+                engine.put(function.getVarName(),function);
+            }
 
-        //注入属性变量
-        buildScriptParams(engine,apiParams);
-        Object result = engine.eval(script);
-        if (!(result instanceof ScriptObjectMirror)){
+            //注入属性变量
+            buildScriptParams(engine,apiParams);
+            Object result = engine.eval(script);
+            if (!(result instanceof ScriptObjectMirror)){
+                return result;
+            }
+            ScriptObjectMirror som = (ScriptObjectMirror)result ;
+            if (som.isArray()){
+                return som.values();
+            }
             return result;
+        }catch (Exception e){
+            if (e.getCause() != null && e.getCause().getCause() != null){
+                throw e.getCause().getCause();
+            }else{
+                throw e;
+            }
         }
-        ScriptObjectMirror som = (ScriptObjectMirror)result ;
-        if (som.isArray()){
-            return som.values();
-        }
-        return result;
+
     }
 
     private void buildScriptParams(ScriptEngine engine, ApiParams apiParams) {

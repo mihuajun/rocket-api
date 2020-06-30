@@ -1,13 +1,12 @@
 package com.github.alenfive.dataway2.datasource;
 
-import com.github.alenfive.dataway2.datasource.DataSourceDialect;
 import com.github.alenfive.dataway2.entity.ApiInfo;
 import com.github.alenfive.dataway2.entity.ApiParams;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.stereotype.Component;
 
 import java.sql.PreparedStatement;
 import java.sql.Statement;
@@ -25,10 +24,16 @@ import java.util.stream.Collectors;
  * @Version: 1.0
  * @menu MYSQL数据源
  */
-@Transactional
+@Component
 public class SqlDataSource extends DataSourceDialect {
 
     private JdbcTemplate jdbcTemplate;
+
+    private SqlDataSource(){}
+
+    public SqlDataSource(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
+    }
 
     public SqlDataSource(JdbcTemplate jdbcTemplate, boolean storeApi) {
         this.storeApi = storeApi;

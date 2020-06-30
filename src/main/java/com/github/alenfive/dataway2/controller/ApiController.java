@@ -152,7 +152,7 @@ public class ApiController {
             Object value = scriptParse.runScript(apiInfo.getScript(),apiInfo,apiParams);
             runApiRes.setData(value);
             return ApiResult.success(runApiRes);
-        }catch (Exception e){
+        }catch (Throwable e){
             e.printStackTrace();
             return ApiResult.fail(e.getMessage(),runApiRes);
         }finally {

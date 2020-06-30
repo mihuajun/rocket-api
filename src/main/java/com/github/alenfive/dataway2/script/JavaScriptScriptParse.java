@@ -18,6 +18,7 @@ import jdk.nashorn.api.scripting.ScriptObjectMirror;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.PostConstruct;
@@ -45,38 +46,47 @@ public class JavaScriptScriptParse implements IScriptParse{
     }
 
     @Override
-    public Object runScript(String script, ApiInfo apiInfo, ApiParams apiParams) throws ScriptException, NoSuchMethodException {
-        //注入变量
-        apiInfoContent.setApiInfo(apiInfo);
-        apiInfoContent.setApiParams(apiParams);
+    @Transactional
+    public Object runScript(String script, ApiInfo apiInfo, ApiParams apiParams) throws Throwable {
+        try {
+            //注入变量
+            apiInfoContent.setApiInfo(apiInfo);
+            apiInfoContent.setApiParams(apiParams);
 
-        //注入函数
-        StringBuilder scriptContent = new StringBuilder();
+            //注入函数
+            StringBuilder scriptContent = new StringBuilder();
 
-        scriptContent.append("function run(){");
-        scriptContent.append(script);
-        scriptContent.append("}");
-        ScriptEngineManager factory = new ScriptEngineManager();
-        ScriptEngine engine = factory.getEngineByName("js");
+            scriptContent.append("function run(){");
+            scriptContent.append(script);
+            scriptContent.append("}");
+            ScriptEngineManager factory = new ScriptEngineManager();
+            ScriptEngine engine = factory.getEngineByName("js");
 
-        for(IFunction function : functionList){
-            engine.put(function.getVarName(),function);
+            for(IFunction function : functionList){
+                engine.put(function.getVarName(),function);
+            }
+
+            //注入属性变量
+            buildScriptParams(engine,apiParams);
+
+            engine.eval(scriptContent.toString());
+            Invocable inv = (Invocable) engine;
+            Object result = inv.invokeFunction("run");
+            if (!(result instanceof ScriptObjectMirror)){
+                return result;
+            }
+            ScriptObjectMirror som = (ScriptObjectMirror)result ;
+            if (som.isArray()){
+                return som.values();
+            }
+            return som;
+        }catch (Exception e){
+            if (e.getCause() != null && e.getCause().getCause() != null){
+                throw e.getCause().getCause();
+            }else{
+                throw e;
+            }
         }
-
-        //注入属性变量
-        buildScriptParams(engine,apiParams);
-
-        engine.eval(scriptContent.toString());
-        Invocable inv = (Invocable) engine;
-        Object result = inv.invokeFunction("run");
-        if (!(result instanceof ScriptObjectMirror)){
-            return result;
-        }
-        ScriptObjectMirror som = (ScriptObjectMirror)result ;
-        if (som.isArray()){
-            return som.values();
-        }
-        return som;
     }
 
     private void buildScriptParams(ScriptEngine engine, ApiParams apiParams) {

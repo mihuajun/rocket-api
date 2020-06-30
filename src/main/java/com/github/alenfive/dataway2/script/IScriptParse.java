@@ -2,6 +2,7 @@ package com.github.alenfive.dataway2.script;
 
 import com.github.alenfive.dataway2.entity.ApiInfo;
 import com.github.alenfive.dataway2.entity.ApiParams;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.script.ScriptException;
 
@@ -15,5 +16,5 @@ import javax.script.ScriptException;
  * @Version: 1.0
  */
 public interface IScriptParse {
-    public Object runScript(String script, ApiInfo apiInfo, ApiParams apiParams) throws ScriptException, NoSuchMethodException;
+    public Object runScript(String script, ApiInfo apiInfo, ApiParams apiParams) throws Throwable;
 }

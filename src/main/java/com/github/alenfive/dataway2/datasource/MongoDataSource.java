@@ -1,12 +1,11 @@
 package com.github.alenfive.dataway2.datasource;
 
-import com.github.alenfive.dataway2.datasource.DataSourceDialect;
 import com.github.alenfive.dataway2.entity.ApiInfo;
 import com.github.alenfive.dataway2.entity.ApiParams;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.stereotype.Component;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -24,12 +23,18 @@ import java.util.stream.Stream;
  * @Version: 1.0
  * @menu mongo数据源
  */
-@Transactional
+@Component
 public class MongoDataSource extends DataSourceDialect {
 
     private MongoTemplate mongoTemplate;
 
-    public MongoDataSource(MongoTemplate mongoTemplate,boolean storeApi) {
+    private MongoDataSource(){}
+
+    public MongoDataSource(MongoTemplate mongoTemplate) {
+        this.mongoTemplate = mongoTemplate;
+    }
+
+    public MongoDataSource(MongoTemplate mongoTemplate, boolean storeApi) {
         this.mongoTemplate = mongoTemplate;
         this.storeApi = storeApi;
     }

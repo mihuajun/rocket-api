@@ -141,7 +141,7 @@ public class SQLRequestMappingFactory {
     @ResponseBody
     public Object execute(@PathVariable(required = false) Map<String,String> pathVar,
                           @RequestParam(required = false) Map<String,Object> param,
-                          @RequestBody(required = false) Map<String,Object> body) throws UnsupportedEncodingException, ScriptException, NoSuchMethodException {
+                          @RequestBody(required = false) Map<String,Object> body) throws Throwable {
 
         String path = buildPattern(request);
         String method = request.getMethod();
