@@ -1,23 +1,18 @@
 package com.github.alenfive.dataway2.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.alenfive.dataway2.datasource.DataSourceManager;
 import com.github.alenfive.dataway2.entity.*;
 import com.github.alenfive.dataway2.entity.vo.RenameGroupReq;
-import com.github.alenfive.dataway2.entity.vo.RunApiRes;
-import com.github.alenfive.dataway2.extend.ApiInfoContent;
+import com.github.alenfive.dataway2.extend.ApiInfoInterceptor;
 import com.github.alenfive.dataway2.extend.IApiPager;
-import com.github.alenfive.dataway2.datasource.DataSourceManager;
-import com.github.alenfive.dataway2.function.IFunction;
 import com.github.alenfive.dataway2.script.IScriptParse;
 import com.github.alenfive.dataway2.service.ScriptParseService;
 import com.github.alenfive.dataway2.utils.RequestUtils;
-import jdk.nashorn.api.scripting.ScriptObjectMirror;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
-import org.springframework.util.CollectionUtils;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
@@ -28,10 +23,8 @@ import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
 import javax.annotation.PostConstruct;
-import javax.script.*;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Method;
 import java.net.URLDecoder;
 import java.util.*;
@@ -47,12 +40,12 @@ import java.util.stream.Collectors;
  * @UpdateDate: 2020/5/27 16:30
  * @UpdateRemark: init
  * @Version: 1.0
- * @menu SQL mapping 注册
+ * @menu mapping 注册
  */
 @SuppressWarnings("DuplicatedCode")
 @Slf4j
 @Component
-public class SQLRequestMappingFactory {
+public class QLRequestMappingFactory {
 
     @Autowired
     private HttpServletRequest request;
@@ -65,9 +58,6 @@ public class SQLRequestMappingFactory {
             "/error",
             "/api-ui"
     );
-
-    @Autowired
-    private ApiInfoContent apiInfoContent;
 
     @Value("${spring.application.name}")
     private String service;
@@ -86,6 +76,8 @@ public class SQLRequestMappingFactory {
 
     @Autowired
     private DataSourceManager dataSourceManager;
+
+    public List<ApiInfoInterceptor> interceptors = null;
 
     private Map<String, ApiInfo> cacheApiInfo = new ConcurrentHashMap<>();
 
@@ -166,8 +158,9 @@ public class SQLRequestMappingFactory {
             apiParams.putParam(apiPager.getIndexVarName(),apiPager.getIndexVarValue(pageSize,pageNo));
         }
 
-        //提取脚本
-        return scriptParse.runScript(URLDecoder.decode(apiInfo.getScript(),"utf-8"),apiInfo,apiParams);
+        StringBuilder script = new StringBuilder(URLDecoder.decode(apiInfo.getScript(),"utf-8"));
+
+        return scriptParse.runScript(script.toString(),apiInfo,apiParams);
     }
 
     private Integer buildPagerNo(ApiParams apiParams) {
@@ -188,7 +181,7 @@ public class SQLRequestMappingFactory {
         return Integer.valueOf(value.toString());
     }
 
-    private String buildPattern(HttpServletRequest request) {
+    public String buildPattern(HttpServletRequest request) {
         Set<RequestMappingInfo> infos = requestMappingHandlerMapping.getHandlerMethods().keySet();
         RequestMappingInfo currInfo = null;
         for (RequestMappingInfo info : infos){
@@ -349,7 +342,7 @@ public class SQLRequestMappingFactory {
                             .comment("")
                             .datasource("")
                             .script("")
-                            .params("")
+                            .options("")
                             .build());
                 }else{
                     for (RequestMethod method : methods){
@@ -363,7 +356,7 @@ public class SQLRequestMappingFactory {
                                 .comment("")
                                 .datasource("")
                                 .script("")
-                                .params("")
+                                .options("")
                                 .build());
                     }
                 }
@@ -412,5 +405,12 @@ public class SQLRequestMappingFactory {
         StringBuilder script = new StringBuilder(dataSourceManager.deleteExampleScript());
         parseService.buildParams(script,new ApiParams().putParam("ids",apiExampleList.stream().map(ApiExample::getId).collect(Collectors.toSet())));
         dataSourceManager.remove(script,ApiInfo.builder().datasource(dataSourceManager.getStoreApiKey()).build(),null);
+    }
+
+    public void addInterceptor(ApiInfoInterceptor interceptor){
+        if (this.interceptors == null){
+            this.interceptors = new ArrayList<>();
+        }
+        this.interceptors.add(interceptor);
     }
 }

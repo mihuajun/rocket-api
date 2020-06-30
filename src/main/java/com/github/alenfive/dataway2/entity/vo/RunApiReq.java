@@ -17,6 +17,7 @@ import java.util.Map;
 public class RunApiReq {
     private String pattern;
     private String url;
+    private String options;
     private Map<String,String> header;
     private Map<String,Object> body;
     private String datasource;

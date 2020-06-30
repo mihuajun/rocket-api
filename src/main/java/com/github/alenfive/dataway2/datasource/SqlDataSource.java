@@ -42,22 +42,22 @@ public class SqlDataSource extends DataSourceDialect {
 
     @Override
     public String listApiInfoScript() {
-        return "select id,method,path,datasource,`type`,`group`,editor,`comment`,script,params,create_time,update_time from api_info where service = #{service}";
+        return "select id,method,path,datasource,`type`,`group`,editor,`comment`,script,options,create_time,update_time from api_info where service = #{service}";
     }
 
     @Override
     public String getApiInfoScript() {
-        return "select id,method,path,datasource,`type`,`group`,editor,`comment`,script,params,create_time,update_time from api_info where method = #{method} and path = #{path}";
+        return "select id,method,path,datasource,`type`,`group`,editor,`comment`,script,options,create_time,update_time from api_info where method = #{method} and path = #{path}";
     }
 
     @Override
     public String saveApiInfoScript() {
-        return "insert into api_info(method,path,datasource,`type`,`service`,`group`,editor,`comment`,script,create_time,update_time) values(#{method},#{path},#{datasource},#{type},#{service},#{group},#{editor},#{comment},#{script},#{createTime},#{updateTime})";
+        return "insert into api_info(method,path,datasource,`type`,`service`,`group`,editor,`comment`,script,options,create_time,update_time) values(#{method},#{path},#{datasource},#{type},#{service},#{group},#{editor},#{comment},#{script},#{options},#{createTime},#{updateTime})";
     }
 
     @Override
     public String updateApiInfoScript() {
-        return "update api_info set method=#{method},path=#{path},datasource=#{datasource},`group`=#{group},editor=#{editor},`comment`=#{comment},script=#{script},update_time=#{updateTime} where id = #{id}";
+        return "update api_info set method=#{method},path=#{path},datasource=#{datasource},`group`=#{group},editor=#{editor},`comment`=#{comment},script=#{script},options=#{options},update_time=#{updateTime} where id = #{id}";
     }
 
     @Override

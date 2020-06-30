@@ -73,7 +73,7 @@
                     </div>
                 </div>
                 <div class="query-parameters-form collapsed in-request-view">
-                    <div class="query-parameters-form-title collapsed-title"><i class="fa fa-caret-right" onclick="triggerQueryParameterForm(this)" tabindex="0"></i> <span class="title-content" onclick="triggerQueryParameterForm(this)" e2e-tag="query-parameter-expand">Query parameters</span>
+                    <div class="query-parameters-form-title collapsed-title not-select"><i class="fa fa-caret-right" onclick="triggerQueryParameterForm(this)" tabindex="0"></i> <span class="title-content" onclick="triggerQueryParameterForm(this)" e2e-tag="query-parameter-expand">Query parameters</span>
                         <span class="subtitle-counter"></span>
                         <button class="r-btn r-btn-link" title="Sort query parameters" e2e-tag="query-parameter-sort" style="display: none"><i
                                 class="fa fa-sort-alpha-asc"></i><span></span><span class="r-btn-indicator" aria-hidden="true" style="display: none;"></span></button>
@@ -83,7 +83,7 @@
                     <div class="query-parameters-btns-row">
                         <button class="list-action-add r-btn r-btn-small r-btn-rounded" onclick="queryParameterAdd()" title="Add a new query parameter." e2e-tag="query-parameter-add"><i
                                 class="fa fa-plus"></i><span>Add query parameter</span><span class="r-btn-indicator" aria-hidden="true" style="display: none;"></span></button>
-                        <button class="list-action-remove-all r-btn r-btn-link" title="Remove all query parameters" e2e-tag="query-parameter-remove-all" tabindex="-1" style=""><i
+                        <button class="list-action-remove-all r-btn r-btn-link" onclick="removeAllQueryParameterForm('#example-section')" title="Remove all query parameters" e2e-tag="query-parameter-remove-all" tabindex="-1" style=""><i
                                 class="fa fa-trash-o"></i><span></span><span class="r-btn-indicator" aria-hidden="true" style="display: none;"></span></button>
                     </div>
                 </div>

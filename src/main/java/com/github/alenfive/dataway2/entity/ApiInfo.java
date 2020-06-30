@@ -1,17 +1,10 @@
 package com.github.alenfive.dataway2.entity;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.bson.types.ObjectId;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -43,9 +36,9 @@ public class ApiInfo {
      */
     private String method;
     /**
-     * 模拟参数
+     * API选项
      */
-    private String params;
+    private String options;
     /**
      * API模式，CODE/SQL，分别为代码模式，或SQL模式
      */
@@ -90,7 +83,7 @@ public class ApiInfo {
         result.put("id",id);
         result.put("method",method);
         result.put("path",path);
-        result.put("params",params);
+        result.put("options", options);
         result.put("type",type);
         result.put("comment",comment);
         result.put("datasource",datasource);

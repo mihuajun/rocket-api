@@ -72,6 +72,7 @@ public class MongoDataSource extends DataSourceDialect {
                 "\t\t\"comment\":#{comment},\n" +
                 "\t\t\"datasource\":#{datasource},\n" +
                 "\t\t\"script\":#{script},\n" +
+                "\t\t\"options\":#{options},\n" +
                 "\t\t\"create_time\":#{createTime},\n" +
                 "\t\t\"update_time\":#{updateTime}\n" +
                 "\t}]\n" +
@@ -85,7 +86,7 @@ public class MongoDataSource extends DataSourceDialect {
                 "     updates: \n" +
                 "     \t[{\n" +
                 "     \t\tq:{_id:ObjectId(#{id})},\n" +
-                "     \t\tu:{$set:{method:#{method},path:#{path},datasource:#{datasource},group:#{group},editor:#{editor},comment:#{comment},script:#{script},update_time:#{updateTime}}},\n" +
+                "     \t\tu:{$set:{method:#{method},path:#{path},datasource:#{datasource},group:#{group},editor:#{editor},comment:#{comment},script:#{script},options:#{options},update_time:#{updateTime}}},\n" +
                 "     \t\tupsert:false,\n" +
                 "     \t\tmulti:false\n" +
                 "     \t}]\n" +

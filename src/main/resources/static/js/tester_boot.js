@@ -376,6 +376,7 @@ function addARequest(e) {
         "editor": editor,
         "comment": "Request",
         "script": "",
+        "options":"{}"
     });
 }
 
@@ -456,6 +457,7 @@ function runApi() {
         "header": buildHeaderJson(getHeaderParams()),
         "body" : buildExampleBodyJson(),
         "pattern":$("#editor-section .api-info-path").val(),
+        "options":buildApiOptionsJsonStr(),
         "url":$("#example-section .example-url").val()
     }
 
@@ -570,7 +572,7 @@ function loadDetail(id,form) {
 
     let url = detailUrl+id+"/"+(currPage?currPage:'example');
     history.pushState(null,null,url);
-
+    removeAllQueryParameterForm("#editor-section");
 
     $.getJSON(getApiUrl+id,function (data) {
         data = unpackResult(data).data;
@@ -605,13 +607,22 @@ function loadDetail(id,form) {
         }
 
         document.title = data.comment?data.comment:data.path;
-
+        buildApiOptionsDom(data.options);
         editorTextarea.setValue(data.script);
         //构建example
         loadExample(data);
     })
 
 
+}
+
+function apiOptionAdd(key,value) {
+    key = key?key:"";
+    value = value?value:"";
+    let $form = $("#editor-section");
+    $form.find(".query-parameters-form-block").append("<div class=\"query-parameter-row active\" e2e-tag=\"query-parameter\"><span class=\"gwt-CheckBox query-parameter-cell\" title=\"Enable/Disable\" e2e-tag=\"query-parameter-state\"><input type=\"checkbox\" value=\"on\" onclick='urlTriggerEnable(this)'  tabindex=\"0\" checked=\"\"><label for=\"gwt-uid-2020\"></label></span><span class=\"expression-input input-append query-parameter-cell-name query-parameter-cell\"><input type=\"text\" class=\"gwt-TextBox key\" onchange='buildUrlInput()' value='"+key+"' placeholder=\"name\" e2e-tag=\"query-parameter-name\"><span class=\"add-on\" data-original-title=\"\" title=\"\"><i class=\"icon-magic\"></i></span></span><span class=\"gwt-InlineLabel query-parameter-cell\">=</span><span class=\"expression-input input-append query-parameter-cell-value query-parameter-cell\"><input type=\"text\" onchange='buildUrlInput()' class=\"gwt-TextBox value\" value='"+value+"' placeholder=\"value\" e2e-tag=\"query-parameter-value\"><span class=\"add-on\" data-original-title=\"\" title=\"\"><i class=\"icon-magic\"></i></span></span><button class=\"r-btn r-btn-link query-parameter-cell\" onclick='queryParameterRemove(this,\"#editor-section\")' title=\"Remove\" e2e-tag=\"query-parameter-remove\"><i class=\"fa fa-times-thin\"></i><span></span><span class=\"r-btn-indicator\" aria-hidden=\"true\" style=\"display: none;\"></span></button><div class=\"btn-group ctrls dropdown-secondary query-parameter-encoding query-parameter-cell\" e2e-tag=\"query-parameter-additional-actions\"><a class=\"btn-mini dropdown-toggle\" data-toggle=\"dropdown\"><i class=\"sli-icon-options-vertical\"></i></a> <ul class=\"pull-right dropdown-menu\"><li class=\"dropdown-item\" e2e-tag=\"query-parameter-encode\"><a><i class=\"fa fa-check\"></i> <span>Encode before sending</span></a></li></ul></div></div>");
+    $form.find(".query-parameters-form-block .query-parameter-row .key").focus();
+    $form.find(".subtitle-counter").text("["+$form.find(".query-parameters-form-block>.active").length+"]");
 }
 
 function saveAsEditor() {
@@ -640,8 +651,34 @@ function confirmDialog(form) {
         "editor": $(form).find(".api-info-editor").val(),
         "comment": $(form).find("#save-dialog .input-xlarge").val(),
         "script": editorTextarea.getValue(),
+        "options":buildApiOptionsJsonStr()
     }
     saveExecuter(params);
+}
+
+function buildApiOptionsJsonStr() {
+    let list = $("#editor-section .query-parameters-form-block>.active");
+    let map = {};
+    $.each(list,function (index,item) {
+        let key = $(item).find(".key").val();
+        if (!key)return;
+        let value = $(item).find(".value").val();
+        map[key] = value;
+    })
+    return JSON.stringify(map);
+}
+
+function buildApiOptionsDom(optionsJsonStr) {
+    if (!optionsJsonStr)return;
+    let map = JSON.parse(optionsJsonStr);
+    $.each(map,function (key,value) {
+        apiOptionAdd(key,value);
+    })
+}
+
+function removeAllQueryParameterForm(e) {
+    $(e).find(".query-parameters-form-block").html("");
+    $(e).find(".subtitle-counter").text("["+$(e).find(".query-parameters-form-block>.active").length+"]");
 }
 
 function confirmGroup() {
@@ -720,6 +757,7 @@ function saveEditor(form) {
         "editor": $(form).find(".api-info-editor").val(),
         "comment": $(form).find(".api-info-comment").val(),
         "script": editorTextarea.getValue(),
+        "options":buildApiOptionsJsonStr()
     };
     saveExecuter(params);
 }
@@ -878,6 +916,8 @@ function newEditor() {
     $(form).find(".api-info-editor").val("admin");
     $(form).find(".api-info-comment").val("Request");
     editorTextarea.setValue("");
+
+    removeAllQueryParameterForm(form);
 
     //css
     $(form).find(".api-info-method").parent().removeClass("disabled").removeAttr("readonly");
@@ -1161,10 +1201,10 @@ function parseUrlInput(e) {
     })
 }
 
-function queryParameterRemove(e){
+function queryParameterRemove(e,form){
     $(e).parents(".query-parameter-row").remove();
     buildUrlInput();
-    $("#example-section .subtitle-counter").text("["+$(".query-parameters-form-block>.active").length+"]");
+    $(form).find(".subtitle-counter").text("["+$(form).find(".query-parameters-form-block>.active").length+"]");
 }
 
 function buildUrlInput() {
@@ -1190,7 +1230,7 @@ function queryParameterAdd(key,value) {
     key = key?key:"";
     value = value?value:"";
     let $form = $("#example-section");
-    $form.find(".query-parameters-form-block").append("<div class=\"query-parameter-row active\" e2e-tag=\"query-parameter\"><span class=\"gwt-CheckBox query-parameter-cell\" title=\"Enable/Disable\" e2e-tag=\"query-parameter-state\"><input type=\"checkbox\" value=\"on\" onclick='urlTriggerEnable(this)'  tabindex=\"0\" checked=\"\"><label for=\"gwt-uid-2020\"></label></span><span class=\"expression-input input-append query-parameter-cell-name query-parameter-cell\"><input type=\"text\" class=\"gwt-TextBox key\" onchange='buildUrlInput()' value='"+key+"' placeholder=\"name\" e2e-tag=\"query-parameter-name\"><span class=\"add-on\" data-original-title=\"\" title=\"\"><i class=\"icon-magic\"></i></span></span><span class=\"gwt-InlineLabel query-parameter-cell\">=</span><span class=\"expression-input input-append query-parameter-cell-value query-parameter-cell\"><input type=\"text\" onchange='buildUrlInput()' class=\"gwt-TextBox value\" value='"+value+"' placeholder=\"value\" e2e-tag=\"query-parameter-value\"><span class=\"add-on\" data-original-title=\"\" title=\"\"><i class=\"icon-magic\"></i></span></span><button class=\"r-btn r-btn-link query-parameter-cell\" onclick='queryParameterRemove(this)' title=\"Remove\" e2e-tag=\"query-parameter-remove\"><i class=\"fa fa-times-thin\"></i><span></span><span class=\"r-btn-indicator\" aria-hidden=\"true\" style=\"display: none;\"></span></button><div class=\"btn-group ctrls dropdown-secondary query-parameter-encoding query-parameter-cell\" e2e-tag=\"query-parameter-additional-actions\"><a class=\"btn-mini dropdown-toggle\" data-toggle=\"dropdown\"><i class=\"sli-icon-options-vertical\"></i></a> <ul class=\"pull-right dropdown-menu\"><li class=\"dropdown-item\" e2e-tag=\"query-parameter-encode\"><a><i class=\"fa fa-check\"></i> <span>Encode before sending</span></a></li></ul></div></div>");
+    $form.find(".query-parameters-form-block").append("<div class=\"query-parameter-row active\" e2e-tag=\"query-parameter\"><span class=\"gwt-CheckBox query-parameter-cell\" title=\"Enable/Disable\" e2e-tag=\"query-parameter-state\"><input type=\"checkbox\" value=\"on\" onclick='urlTriggerEnable(this)'  tabindex=\"0\" checked=\"\"><label for=\"gwt-uid-2020\"></label></span><span class=\"expression-input input-append query-parameter-cell-name query-parameter-cell\"><input type=\"text\" class=\"gwt-TextBox key\" onchange='buildUrlInput()' value='"+key+"' placeholder=\"name\" e2e-tag=\"query-parameter-name\"><span class=\"add-on\" data-original-title=\"\" title=\"\"><i class=\"icon-magic\"></i></span></span><span class=\"gwt-InlineLabel query-parameter-cell\">=</span><span class=\"expression-input input-append query-parameter-cell-value query-parameter-cell\"><input type=\"text\" onchange='buildUrlInput()' class=\"gwt-TextBox value\" value='"+value+"' placeholder=\"value\" e2e-tag=\"query-parameter-value\"><span class=\"add-on\" data-original-title=\"\" title=\"\"><i class=\"icon-magic\"></i></span></span><button class=\"r-btn r-btn-link query-parameter-cell\" onclick='queryParameterRemove(this,\"#example-section\")' title=\"Remove\" e2e-tag=\"query-parameter-remove\"><i class=\"fa fa-times-thin\"></i><span></span><span class=\"r-btn-indicator\" aria-hidden=\"true\" style=\"display: none;\"></span></button><div class=\"btn-group ctrls dropdown-secondary query-parameter-encoding query-parameter-cell\" e2e-tag=\"query-parameter-additional-actions\"><a class=\"btn-mini dropdown-toggle\" data-toggle=\"dropdown\"><i class=\"sli-icon-options-vertical\"></i></a> <ul class=\"pull-right dropdown-menu\"><li class=\"dropdown-item\" e2e-tag=\"query-parameter-encode\"><a><i class=\"fa fa-check\"></i> <span>Encode before sending</span></a></li></ul></div></div>");
     $form.find(".query-parameters-form-block .query-parameter-row .key").focus();
     $("#example-section .subtitle-counter").text("["+$(".query-parameters-form-block>.active").length+"]");
 }
@@ -1204,7 +1244,7 @@ function urlTriggerEnable(e) {
         $(e).parents(".query-parameter-row").removeClass("active");
     }
     buildUrlInput();
-    $("#example-section .subtitle-counter").text("["+$(".query-parameters-form-block>.active").length+"]");
+    $(e).parents(".query-parameters-form").find(".subtitle-counter").text("["+$(e).parents(".query-parameters-form-block").find(">.active").length+"]");
 }
 
 function headerTriggerEnable(e) {

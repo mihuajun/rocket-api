@@ -1,6 +1,6 @@
 package com.github.alenfive.dataway2.controller;
 
-import com.github.alenfive.dataway2.config.SQLRequestMappingFactory;
+import com.github.alenfive.dataway2.config.QLRequestMappingFactory;
 import com.github.alenfive.dataway2.entity.ApiExample;
 import com.github.alenfive.dataway2.entity.ApiInfo;
 import com.github.alenfive.dataway2.entity.ApiParams;
@@ -10,7 +10,6 @@ import com.github.alenfive.dataway2.entity.vo.RunApiReq;
 import com.github.alenfive.dataway2.entity.vo.RunApiRes;
 import com.github.alenfive.dataway2.extend.ApiInfoContent;
 import com.github.alenfive.dataway2.script.IScriptParse;
-import com.github.alenfive.dataway2.service.ScriptParseService;
 import com.github.alenfive.dataway2.utils.RequestUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -44,7 +43,7 @@ import java.util.*;
 public class ApiController {
 
     @Autowired
-    private SQLRequestMappingFactory sqlRequestMapping;
+    private QLRequestMappingFactory mappingFactory;
 
     @Autowired
     private ApiInfoContent apiInfoContent;
@@ -58,7 +57,7 @@ public class ApiController {
      */
     @GetMapping("/api-list")
     public ApiResult getPathList(){
-        return  ApiResult.success(sqlRequestMapping.getPathList());
+        return  ApiResult.success(mappingFactory.getPathList());
     }
 
     /**
@@ -67,7 +66,7 @@ public class ApiController {
      */
     @GetMapping("/api-info/{id}")
     public ApiResult getPathList(@PathVariable String id) throws UnsupportedEncodingException {
-        ApiInfo apiInfo = sqlRequestMapping.getPathList().stream().filter(item->item.getId().equals(id)).findFirst().orElse(null);
+        ApiInfo apiInfo = mappingFactory.getPathList().stream().filter(item->item.getId().equals(id)).findFirst().orElse(null);
 
         if (apiInfo == null || StringUtils.isEmpty(apiInfo.getScript())){
             return ApiResult.success(apiInfo);
@@ -92,10 +91,10 @@ public class ApiController {
                 apiInfo.setScript(URLEncoder.encode(apiInfo.getScript(),"utf-8"));
             }
 
-            sqlRequestMapping.saveOrUpdateApiInfo(apiInfo);
+            mappingFactory.saveOrUpdateApiInfo(apiInfo);
 
             //返回主键ID
-            Object id = sqlRequestMapping.getPathList().stream().filter(item->item.getMethod().equals(apiInfo.getMethod()) && item.getPath().equals(apiInfo.getPath())).findFirst().orElse(null).getId();
+            Object id = mappingFactory.getPathList().stream().filter(item->item.getMethod().equals(apiInfo.getMethod()) && item.getPath().equals(apiInfo.getPath())).findFirst().orElse(null).getId();
             return ApiResult.success(id);
         }catch (Exception e){
             e.printStackTrace();
@@ -111,7 +110,7 @@ public class ApiController {
      */
     @PutMapping("/api-info/group")
     public ApiResult renameGroup(@RequestBody RenameGroupReq renameGroupReq){
-        sqlRequestMapping.renameGroup(renameGroupReq);
+        mappingFactory.renameGroup(renameGroupReq);
         return ApiResult.success(null);
     }
 
@@ -122,7 +121,7 @@ public class ApiController {
     @DeleteMapping("/api-info")
     public ApiResult deleteApiInfo(@RequestBody ApiInfo apiInfo){
         try {
-            sqlRequestMapping.deleteApiInfo(apiInfo);
+            mappingFactory.deleteApiInfo(apiInfo);
             return ApiResult.success(null);
         }catch (Exception e){
             e.printStackTrace();
@@ -140,7 +139,12 @@ public class ApiController {
     public ApiResult runScript(@RequestBody RunApiReq runApiReq, HttpServletRequest request){
         RunApiRes runApiRes = new RunApiRes();
         try {
-            ApiInfo apiInfo = ApiInfo.builder().datasource(runApiReq.getDatasource()).script(runApiReq.getScript()).build();
+            ApiInfo apiInfo = ApiInfo.builder()
+                    .path(runApiReq.getPattern())
+                    .options(runApiReq.getOptions())
+                    .datasource(runApiReq.getDatasource())
+                    .script(runApiReq.getScript())
+                    .build();
             decodeHeaderValue(runApiReq.getHeader());
             ApiParams apiParams = ApiParams.builder()
                     .header(runApiReq.getHeader())
@@ -199,7 +203,7 @@ public class ApiController {
      */
     @GetMapping("/group-name-list")
     public ApiResult getGroupNameList(){
-        return ApiResult.success(sqlRequestMapping.getGroupNameList());
+        return ApiResult.success(mappingFactory.getGroupNameList());
     }
 
     /**
@@ -208,7 +212,7 @@ public class ApiController {
      */
     @GetMapping("/api-name-list")
     public ApiResult getApiNameList(String group){
-        return ApiResult.success(sqlRequestMapping.getApiNameList(group));
+        return ApiResult.success(mappingFactory.getApiNameList(group));
     }
 
     /**
@@ -229,7 +233,7 @@ public class ApiController {
             apiExample.setResponseBody(URLEncoder.encode(apiExample.getResponseBody(),"utf-8"));
         }
 
-        sqlRequestMapping.saveExample(apiExample);
+        mappingFactory.saveExample(apiExample);
         return ApiResult.success(null);
     }
 
@@ -240,7 +244,7 @@ public class ApiController {
      */
     @GetMapping("/api-example/last")
     public ApiResult lastApiExample(String apiInfoId,Integer limit){
-        List<Map<String,Object>> result = sqlRequestMapping.lastApiExample(apiInfoId,limit);
+        List<Map<String,Object>> result = mappingFactory.lastApiExample(apiInfoId,limit);
         result.forEach(item->{
             if (!StringUtils.isEmpty(item.get("responseBody"))){
                 try {
@@ -260,7 +264,7 @@ public class ApiController {
      */
     @DeleteMapping("/api-example")
     private ApiResult deleteExampleList(@RequestBody ArrayList<ApiExample> apiExampleList){
-        sqlRequestMapping.deleteExampleList(apiExampleList);
+        mappingFactory.deleteExampleList(apiExampleList);
         return ApiResult.success(null);
     }
 

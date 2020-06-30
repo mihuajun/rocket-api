@@ -12,7 +12,6 @@ package com.github.alenfive.dataway2.script;
 
 import com.github.alenfive.dataway2.entity.ApiInfo;
 import com.github.alenfive.dataway2.entity.ApiParams;
-import com.github.alenfive.dataway2.entity.vo.RunApiRes;
 import com.github.alenfive.dataway2.extend.ApiInfoContent;
 import com.github.alenfive.dataway2.function.IFunction;
 import jdk.nashorn.api.scripting.ScriptObjectMirror;
@@ -25,7 +24,6 @@ import org.springframework.util.CollectionUtils;
 import javax.annotation.PostConstruct;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
-import javax.script.ScriptException;
 import java.util.Collection;
 
 @Component
@@ -64,7 +62,7 @@ public class GroovyScriptParse implements IScriptParse{
 
             //注入属性变量
             buildScriptParams(engine,apiParams);
-            Object result = engine.eval(script);
+            Object result = engine.eval(script.toString());
             if (!(result instanceof ScriptObjectMirror)){
                 return result;
             }
