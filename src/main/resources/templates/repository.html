@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
 <body>
-<section class="catalog" style="" th:fragment="repository-section">
+<section class="catalog" style="" id="repository" th:fragment="repository-section">
     <div class="search"><input type="text" class="gwt-TextBox filter" onkeyup="searchApi(this)" placeholder="Search"></div>
     <div class="tree-view">
         <div class="one-drive local-drive">
             <div class="drive-name"><i class="fa fa-caret-down"></i>
-                <div class="drive-name-label">My drive</div>
+                <div class="drive-name-label">My drive<span class="api-counter" style="margin-left: 5px;color: #888;">[0]</span></div>
                 <div class="btn-group ctrls dropdown-primary"><a class="btn-mini dropdown-toggle"
                                                                  data-toggle="dropdown"><i
                         class="sli-icon-options-vertical"></i></a>

@@ -813,6 +813,7 @@ function buildApiTree(list,collapsed) {
     });
     //if (true)return;
     $(".authenticated").html("");
+    $("#repository .api-counter").text("["+list.length+"]");
     //生成tree
     $.each(group,function (key,value) {
         let $lev1 = $('<li class="'+collapsed+' service level1"><div class="name" title="'+key+'"><i onclick="collapsedTree(this)" class="fa fa-caret-right"\n' +
