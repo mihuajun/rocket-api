@@ -9,16 +9,16 @@ spring:
     format:
       dateTime: yyyy-MM-dd HH:mm:ss
   datasource:
-    url: jdbc:mysql://39.98.181.90:3306/dataway2?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai
-    username: dataway2
-    password: '$%3f6T48'
+    url: jdbc:mysql://127.0.0.1:3306/dataway2?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai
+    username: root
+    password: 123456
     driver-class-name: com.mysql.cj.jdbc.Driver
   data:
     mongodb:
-      host: 39.98.181.90
+      host: 127.0.0.1
       database: dataway2
-      username: dataway2
-      password: '$%3f6T48'
+      username: root
+      password: 123456
       port: 27017
 
   thymeleaf:
