@@ -138,7 +138,7 @@
 
             <div th:replace="bottom::bottom-section"></div>
 
-            <div class="powered-by-talend">Powered by <img alt="" src="/images/logo-talend-colored.svg"></div>
+            <div class="powered-by-talend">Powered by mi</div>
         </div>
     </div>
 </div>
@@ -461,36 +461,9 @@
 
 <script type="text/javascript" src="js/jquery-1.12.2.min.js"></script>
 <script type="text/javascript" src="js/bootstrap-2.3.2.min.js"></script>
-<script type="text/javascript" src="js/select2-4.0.3.min.js"></script>
-
-<!-- js libs must be before `appBundle.js` in order store it on `APP` namespace -->
-<script type="text/javascript" src="dist/commons.vendor.js"></script>
-<script type="text/javascript" src="dist/commons.bundle.js"></script>
-<script type="text/javascript" src="dist/app.bundle.js"></script>
-
-<!--Compress code mirror files for prod distribution -->
-<script type="text/javascript" src="js/codemirror/codemirror.js"></script>
-<script type="text/javascript" src="js/codemirror/mode/javascript/javascript.js"></script>
-<script type="text/javascript" src="js/codemirror/mode/xml/xml.js"></script>
-<script type="text/javascript" src="js/codemirror/mode/sql/sql.js"></script>
-<script type="text/javascript" src="js/codemirror/mode/css/css.js"></script>
-<script type="text/javascript" src="js/codemirror/addons/formatting.js"></script>
-
-<!--
-<script type="text/javascript" src="js/codemirror/mode/http/http.js"></script>
--->
-<script type="text/javascript" src="js/codemirror/mode/htmlmixed/htmlmixed.js"></script>
-<script type="text/javascript" src="js/sha.js"></script>
-<script type="text/javascript" src="js/crypto/md5.js"></script>
-<script type="text/javascript" src="js/crypto/aes.js"></script>
-<script type="text/javascript" src="js/jsonpath.js"></script>
-<script type="text/javascript" src="js/markdown.js"></script>
-<script type="text/javascript" src="js/zip/zip.js"></script>
-<script type="text/javascript" src="js/base64.min.js"></script>
-<script type="text/javascript" src="js/prism.js"></script>
 <script type="text/javascript" src="js/tester_boot.js"></script>
 
-<script>var require = { paths: { 'vs': '/monaco-editor/min/vs' } };</script>
+<script>var require = { paths: { 'vs': 'monaco-editor/min/vs' } };</script>
 <script src="monaco-editor/min/vs/loader.js"></script>
 <script src="monaco-editor/min/vs/editor/editor.main.nls.js"></script>
 <script src="monaco-editor/min/vs/editor/editor.main.js"></script>

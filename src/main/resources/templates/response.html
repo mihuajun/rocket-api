@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
 <body>
-<section class="pane pane-response" id="response"  style="display: none" th:fragment="response-section">
+<section class="pane pane-response" id="response"  th:fragment="response-section">
     <div class="pane-response-header"><span> Response </span>
         <div class="pull-right"><a href="javascript:;" class="btn btn-mini btn-link"
                                    aria-hidden="true" style="display: none;"><i
@@ -61,16 +61,12 @@
                             class="body-subtitle"> Body <span class="subtitle-counter"></span> </span>
                     </div>
                 </div>
-                <div class="body" style="">
+                <div class="body" >
                     <div class="body-form-title"><span class="title-content"> Body </span> <i
                             class="sli-icon-question link-to-rfc" data-original-title=""
                             title=""></i>
                     </div>
-                    <div class="container-for-overflow">
-                        <div class="response-body-as-text line-nums-off" id="responseBody">
-
-                        </div>
-                    </div>
+                    <div class="response-body-as-text line-nums-off"  id="responseBody" ></div>
                 </div>
             </div>
         </div>

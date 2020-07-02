@@ -50,6 +50,7 @@ let currExample = {
 
 let editorTextarea;
 let exampleTextarea;
+
 let hasResponse;
 let hasConsole;
 let gdata = {
@@ -242,6 +243,8 @@ $(function(){
         wordWrap: 'on',  //自行换行
         verticalHasArrows: true,
         horizontalHasArrows: true,
+        scrollBeyondLastLine: false,
+        contextmenu:false,
         minimap: {
             enabled: false // 关闭小地图
         }
@@ -249,75 +252,26 @@ $(function(){
     });
 
 
-
     editorTextarea.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, function () {
         runApi();
     });
 
-    /*editorTextarea = CodeMirror.fromTextArea(document.getElementById('CodeMirror1'),{
-        mode:"text/x-sql",
-        scrollbarStyle:null,
-        lineWrapping:true,
-        lineNumbers: true,//是否显示行号
-        styleActiveLine:true,
-        matchBrackets: true,
-        autoRefresh: true,
-        smartIndent : true,  // 是否智能缩进
-        tabSize : 4,  // Tab缩进，默认4
-        extraKeys:{
-            "Alt-/": "autocomplete"
+
+    exampleTextarea = monaco.editor.create(document.getElementById('example-editor'), {
+        language: 'json',
+        values:"",
+        verticalHasArrows: true,
+        horizontalHasArrows: true,
+        links:true,
+        contextmenu:false,
+        fontSize:12,
+        lineHeight:18,
+        Index: 'Advanced',
+        scrollBeyondLastLine: false,
+        minimap: {
+            enabled: false // 关闭小地图
         }
     });
-
-    editorTextarea.on("change", function(editor, change) {
-    });
-
-    editorTextarea.setSize('100%','100%');*/
-
-    exampleTextarea = CodeMirror.fromTextArea(document.getElementById('CodeMirror2'),{
-        mode:"application/json",
-        lineWrapping:false,
-        foldGutter: true,
-        gutters:["CodeMirror-linenumbers", "CodeMirror-foldgutter","CodeMirror-lint-markers"],
-        //CodeMirror-lint-markers是实现语法报错功能
-        lint: true,
-        fullScreen:true,
-        matchBrackets:true,
-        lineNumbers: true,//是否显示行号
-        styleActiveLine:true,
-        matchBrackets: true,
-        autoRefresh: true,
-        theme:"eclipse",
-        smartIndent : true,  // 是否智能缩进
-        tabSize : 4,  // Tab缩进，默认4
-        extraKeys:{
-            "Alt-/": "autocomplete",
-            "Esc": function(cm) {
-                if (cm.getOption("fullScreen")) cm.setOption("fullScreen", false);
-            },
-            "Ctrl-/": "toggleComment",
-            "Ctrl-Z":function (editor) {
-                editor.undo();
-            },//undo
-            "F8":function (editor) {
-                editor.redo();
-            },//Redo
-            "F7": function autoFormat(cm) {
-                let totalLines = cm.lineCount();
-                cm.autoFormatRange({line:0, ch:0}, {line:totalLines});
-            }//代码格式化
-        }
-    });
-    exampleTextarea.setSize('100%','100%');
-
-    CodeMirror.commands.autocomplete = function(cm) {
-        cm.showHint({hint: CodeMirror.hint.anyword});
-    };
-
-    exampleTextarea.on("change", function(editor, change) {
-    });
-
-
 
 });
 
@@ -894,6 +848,7 @@ function cancelDialog(e) {
 function newRequest() {
     newEditor();
     newExample();
+    showEditorPanel();
 }
 
 function newEditor() {
@@ -933,9 +888,6 @@ function newExample() {
     $(form).find(".example-url").val(buildDefaultUrl("")).blur();
     $(form).find(".headers-form-block").html("");
     exampleTextarea.setValue("");
-    setTimeout(() => {
-        exampleTextarea.refresh()
-    },50);
     $("#response").hide();
     currExample = {};
     hasResponse = null;
@@ -990,7 +942,7 @@ function loadExample(apiInfo) {
         //响应header
         setResponseHeader(JSON.parse(currExample.responseHeader));
         //响应体
-        $("#response #responseBody").text(formatResponseBody(currExample.responseBody));
+        $("#response #responseBody").text(formatJson(currExample.responseBody));
 
         if (currPage == 'example'){
             showExamplePanel();
@@ -1006,7 +958,7 @@ function toNotSave() {
     $form.find(".save-example-btn").append('<div class="changes-indicator"></div>');
 }
 
-function formatResponseBody(body){
+function formatJson(body){
     try{
         return JSON.stringify(JSON.parse(body), null, "    ")
     }catch (e) {
@@ -1119,7 +1071,7 @@ function requestExample(url,ableRedirect){
             buildResponseStatus(status);
 
             setResponseHeader(responseHeader)
-            $("#response #responseBody").text(formatResponseBody(req.responseText));
+            $("#response #responseBody").text(formatJson(req.responseText));
         }});
 }
 
@@ -1367,9 +1319,7 @@ function showHeaderRaw(e) {
 }
 
 function formatExample() {
-    let totalLines = exampleTextarea.lineCount();
-    exampleTextarea.autoFormatRange({line:0, ch:0}, {line:totalLines});
-    exampleTextarea.setValue(exampleTextarea.getValue());
+    exampleTextarea.setValue(formatJson(exampleTextarea.getValue()));
 }
 
 function setModeExample(e,mode) {
@@ -1393,9 +1343,6 @@ function switchExampleMethod(option) {
     if (isJsonBody){
         $("#example-section .note").hide();
         $("#example-section .b-container").show();
-        setTimeout(() => {
-            exampleTextarea.refresh()
-        },50)
         if (isForm){
             let exists = false;
             $.each($("#example-section .headers-form-block>.header-row"),function (index,item) {
@@ -1472,9 +1419,6 @@ function showExamplePanel() {
     }
     currPage = "example";
 
-    setTimeout(() => {
-        exampleTextarea.refresh()
-    },50)
 }
 
 function showEditorPanel() {
@@ -1496,3 +1440,4 @@ function showEditorPanel() {
     currPage = "editor";
 }
 //--------------------------------example end -----------------------------------
+

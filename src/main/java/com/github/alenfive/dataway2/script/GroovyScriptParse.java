@@ -20,6 +20,8 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
+import sun.swing.StringUIClientPropertyKey;
 
 import javax.annotation.PostConstruct;
 import javax.script.ScriptEngine;
@@ -91,36 +93,42 @@ public class GroovyScriptParse implements IScriptParse{
 
         if (!CollectionUtils.isEmpty(apiParams.getSession())){
             apiParams.getSession().forEach((key,value)->{
+                if (StringUtils.isEmpty(key))return;
                 engine.put(key,value);
             });
         }
 
         if (!CollectionUtils.isEmpty(apiParams.getCookie())){
             apiParams.getCookie().forEach((key,value)->{
+                if (StringUtils.isEmpty(key))return;
                 engine.put(key,value);
             });
         }
 
         if (!CollectionUtils.isEmpty(apiParams.getHeader())){
             apiParams.getHeader().forEach((key,value)->{
+                if (StringUtils.isEmpty(key))return;
                 engine.put(key,value);
             });
         }
 
         if (!CollectionUtils.isEmpty(apiParams.getBody())){
             apiParams.getBody().forEach((key,value)->{
+                if (StringUtils.isEmpty(key))return;
                 engine.put(key,value);
             });
         }
 
         if (!CollectionUtils.isEmpty(apiParams.getParam())){
             apiParams.getParam().forEach((key,value)->{
+                if (StringUtils.isEmpty(key))return;
                 engine.put(key,value);
             });
         }
 
         if (!CollectionUtils.isEmpty(apiParams.getPathVar())){
             apiParams.getPathVar().forEach((key,value)->{
+                if (StringUtils.isEmpty(key))return;
                 engine.put(key,value);
             });
         }
