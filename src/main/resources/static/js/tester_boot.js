@@ -1110,7 +1110,7 @@ function setResponseHeader(headers){
         if (key.length == 0)return;
         $("#response .headers-form-table>tbody").append('<tr>\n' +
             '<td><a><span title="'+key+'">'+key+':</span></a></td>\n' +
-            '<td><span class="gwt-InlineHTML" title="'+decodeURI(value)+'">'+decodeURI(value)+'</span></td></tr>')
+            '<td><span class="gwt-InlineHTML" title="'+decodeURIComponent(value)+'">'+decodeURIComponent(value)+'</span></td></tr>')
     })
 }
 
@@ -1242,12 +1242,12 @@ function setHeaderParams(headersParams) {
     if (isForm){
         $("#example-section .headers-form-block").html("");
         $.each(headersParams,function (key,value) {
-            headerAdd(key,decodeURI(value));
+            headerAdd(key,decodeURIComponent(value));
         });
     }else{
         let content = "";
         $.each(headersParams,function (key,value) {
-            content +=(key+":"+decodeURI(value)+"\r\n");
+            content +=(key+":"+decodeURIComponent(value)+"\r\n");
         });
         $("#example-section .mode-raw textarea").val(content);
     }
@@ -1276,7 +1276,7 @@ function headerAdd(key,value) {
 
 function buildHeadItem(key,value) {
     key = key?key:"";
-    value = decodeURI(value?value:"");
+    value = decodeURIComponent(value?value:"");
     return "<div class=\"header-row active\" e2e-tag=\"header\"><span class=\"gwt-CheckBox header-cell\" title=\"Enable/Disable\" e2e-tag=\"header-state\"><input type=\"checkbox\" value=\"on\" onclick='headerTriggerEnable(this)' tabindex=\"0\" checked=\"\"><label for=\"gwt-uid-1412\"></label></span><span class=\"gwt-InlineHTML header-cell-name header-name-ro header-cell\" aria-hidden=\"true\" style=\"display: none;\"><a href=\"http://tools.ietf.org/html/rfc7231#section-3.1.1.5\" target=\"_blank\" class=\"header-link\"><span title=\"Content-Type\">Content-Type</span></a></span><span class=\"expression-input input-append header-cell-name header-cell\"><input type=\"text\" class=\"gwt-TextBox key\" value='"+key+"' placeholder=\"name\" e2e-tag=\"header-name\"><span class=\"add-on\" data-original-title=\"\" title=\"\"><i class=\"icon-magic\"></i></span></span><span class=\"gwt-InlineLabel header-cell\">:</span><span class=\"expression-input input-append header-cell-value header-cell\"><input type=\"text\" class=\"gwt-TextBox value\" value='"+value+"' placeholder=\"value\" e2e-tag=\"header-value\"><span class=\"add-on\" data-original-title=\"\" title=\"\"><i class=\"icon-magic\"></i></span></span>\n" +
         "                                    <button class=\"btn-remove-header r-btn r-btn-link header-cell\" onclick='headerRemove(this)' title=\"Remove\" e2e-tag=\"header-remove\"><i class=\"fa fa-times-thin\"></i><span></span><span class=\"r-btn-indicator\" aria-hidden=\"true\" style=\"display: none;\"></span></button>\n" +
         "                                    <div class=\"header-cell-fixed-action header-cell\">\n" +
