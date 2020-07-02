@@ -65,6 +65,12 @@ public class Dataway2AutoConfig {
 
     @Bean
     @ConditionalOnMissingBean
+    public IUserAuthorization getIUserAuthorization(){
+        return new DefaultUserAuthorization();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
     public ApiInfoContent getApiInfoContent(){
         return new ApiInfoContent();
     }

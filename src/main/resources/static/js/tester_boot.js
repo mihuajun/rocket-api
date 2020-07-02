@@ -29,6 +29,8 @@ let getApiNameUrl = ctxPath + "/dataway2/api-name-list";
 let renameGroupUrl = ctxPath + "/dataway2/api-info/group";
 let saveExampleUrl = ctxPath + "/dataway2/api-example";
 let lastExampleUrl = ctxPath + "/dataway2/api-example/last";
+let loginUrl = ctxPath + "/dataway2/login";
+let logoutUrl = ctxPath + "/dataway2/logout";
 
 let indexUrl = ctxPath + "/api-ui";
 let detailUrl = ctxPath + "/api-ui/";
@@ -66,12 +68,23 @@ function loadCurrApi() {
 }
 
 
+function initUser() {
+    if (user){
+        $("#top-section .login-btn").hide();
+        $("#top-section .login-info").show();
+        $("#top-section .login-info .name").text(user);
+    }else{
+        $("#top-section .login-btn").show();
+        $("#top-section .login-info").hide();
+    }
+}
 
 $(function(){
 
     loadApiList();
     loadEvent();
     $("#loader").hide();
+    initUser();
 
     monaco.languages.register({ id: 'custom-language' });
     monaco.languages.setMonarchTokensProvider('custom-language', {
@@ -441,7 +454,7 @@ function runApi() {
 
             content += "\r\n--------------\r\n";
 
-            content += buildJsonStr((data.data.data == 0 || data.data.data)?data.data.data:"There is no return value");
+            content += buildJsonStr((data.data && (data.data.data == 0 || data.data.data))?data.data.data:"There is no return value");
 
             $("#console-section .content").html(content);
 
@@ -1441,3 +1454,68 @@ function showEditorPanel() {
 }
 //--------------------------------example end -----------------------------------
 
+
+//--------------------------------login start -----------------------------------
+function hideLoginDialog() {
+    $("#top-section .login-dialog").hide();
+    $("#modal-backdrop").hide();
+}
+
+function showLoginDialog() {
+    $("#top-section .login-error-message").text("");
+    $("#top-section .login-dialog").show();
+    $("#modal-backdrop").show();
+}
+
+
+function logout() {
+
+    showSendNotify("logout ...");
+    $.ajax({
+        type: "post",
+        url: logoutUrl,
+        contentType : "application/json",
+        success: function (data) {
+            data = unpackResult(data);
+            if (data.code !=200){
+                openMsgModal(data.msg);
+                return;
+            }
+            $("#top-section .login-btn").show();
+            $("#top-section .login-info").hide();
+        },complete:function (req,data) {
+            hideSendNotify();
+        }
+    });
+}
+
+function login() {
+    let username = $("#top-section .username").val();
+    let password = $("#top-section .password").val();
+
+    showSendNotify("login ...");
+    $.ajax({
+        type: "post",
+        url: loginUrl,
+        contentType : "application/json",
+        data: JSON.stringify({
+            "username":username,
+            "password":password
+        }),
+        success: function (data) {
+            data = unpackResult(data);
+            if (data.code !=200){
+                $("#top-section .login-error-message").text(data.msg);
+                return;
+            }
+
+            $("#top-section .login-btn").hide();
+            $("#top-section .login-info").show();
+            $("#top-section .login-info .name").text(data.data);
+            hideLoginDialog();
+        },complete:function (req,data) {
+            hideSendNotify();
+        }
+    });
+}
+//--------------------------------login end -----------------------------------

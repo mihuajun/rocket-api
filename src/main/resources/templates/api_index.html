@@ -453,6 +453,7 @@
 <script th:inline="javascript" type="text/javascript">
     let currApi = [[${currApi}]];
     let currPage = [[${currPage}]];
+    let user = [[${user}]];
     let ctxPath  = [[@{/}]];
     if(ctxPath.endsWith("/")){
         ctxPath = ctxPath.substring(0,ctxPath.length-1);
