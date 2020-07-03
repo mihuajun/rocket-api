@@ -17,7 +17,6 @@ CREATE TABLE `api_info` (
 ) ENGINE=InnoDB AUTO_INCREMENT=45 DEFAULT CHARSET=utf8mb4  COMMENT='路径明细';
 
 
-
 CREATE TABLE `api_example` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `api_info_id` int(11) NOT NULL,
@@ -30,6 +29,7 @@ CREATE TABLE `api_example` (
   `status` varchar(10) DEFAULT NULL,
   `time` int(11) DEFAULT NULL,
   `options` text,
+  `editor` varchar(45) DEFAULT NULL,
   `create_time` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `index_api_id` (`api_info_id`)
