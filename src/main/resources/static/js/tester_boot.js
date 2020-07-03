@@ -575,7 +575,7 @@ function loadDetail(id,form) {
         editorTextarea.setValue(data.script);
 
         //构建history
-        loadHistory(data);
+        loadHistory(data,true);
     })
 
 
@@ -1562,11 +1562,13 @@ function showRepository() {
     $("#repository").show();
 }
 
-function loadHistory(apiInfo) {
+function loadHistory(apiInfo,isLoadExample) {
     $.getJSON(lastExampleUrl+"?limit=25&apiInfoId="+apiInfo.id,function (data) {
         data = unpackResult(data);
         gdata.exampleHistoryList = data.data;
-        loadExample(apiInfo,data.data.length>0?data.data[0]:null);
+        if (isLoadExample){
+            loadExample(apiInfo,data.data.length>0?data.data[0]:null);
+        }
         buildHistory();
     });
 
@@ -1574,13 +1576,14 @@ function loadHistory(apiInfo) {
 
 function buildHistory(filter) {
     let list = gdata.exampleHistoryList;
-    if (filter){
-
-    }
 
     let $form = $("#history-section");
     $form.find(".history tbody").html("");
+    console.log(filter);
     $.each(list,function (index,item) {
+        if (filter && (item.url.indexOf(filter) == -1 && item.editor.indexOf(filter) == -1 && item.method.indexOf(filter) == -1 && item.status.indexOf(filter) == -1)){
+            return;
+        }
         let template = buildHistoryItemStr(item);
         $form.find(".history tbody").append(template);
     })
@@ -1647,9 +1650,7 @@ function exampleRemove(exList) {
                     openMsgModal(data.msg);
                     return;
                 }
-                $.each(exList,function (index,item) {
-                    $(item).parents("tr").remove();
-                });
+                loadHistory(currApiInfo,false);
                 selectExampleItem();
             },complete:function () {
                 hideSendNotify();
@@ -1658,5 +1659,8 @@ function exampleRemove(exList) {
     });
 }
 
+function searchExample(e) {
+    buildHistory($(e).val())
+}
 
 //--------------------------------history end -----------------------------------
