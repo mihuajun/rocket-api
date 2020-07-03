@@ -836,7 +836,7 @@ function unpackResult(data){
     $.each(data,function (key,value) {
         if ($.isPlainObject(value)){
             data = unpackResult(value);
-            return;
+            return false;
         }
     })
     return data;
