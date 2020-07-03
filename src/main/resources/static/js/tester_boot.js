@@ -1579,9 +1579,13 @@ function buildHistory(filter) {
 
     let $form = $("#history-section");
     $form.find(".history tbody").html("");
-    console.log(filter);
     $.each(list,function (index,item) {
-        if (filter && (item.url.indexOf(filter) == -1 && item.editor.indexOf(filter) == -1 && item.method.indexOf(filter) == -1 && item.status.indexOf(filter) == -1)){
+        if (filter && (
+            item.url.indexOf(filter) == -1
+            && item.editor.indexOf(filter) == -1
+            && item.method.indexOf(filter) == -1
+            && item.status != filter
+        )){
             return;
         }
         let template = buildHistoryItemStr(item);
@@ -1632,12 +1636,17 @@ function exampleRemoveAll() {
 }
 
 function exampleRemove(exList) {
+
     let apiExampleList = [];
     $.each(exList,function (index,item) {
         apiExampleList.push({"id":$(item).attr("data-id")});
     })
 
     openConfirmModal("The request will be permanently deleted. Are you sure?",function () {
+        if (apiExampleList.length == 0){
+            closeConfirmModal();
+            return;
+        };
         showSendNotify("Removeing example");
         $.ajax({
             type: "delete",
