@@ -6,7 +6,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
-import org.springframework.stereotype.Component;
 
 import java.sql.PreparedStatement;
 import java.sql.Statement;
@@ -24,7 +23,6 @@ import java.util.stream.Collectors;
  * @Version: 1.0
  * @menu MYSQL数据源
  */
-@Component
 public class SqlDataSource extends DataSourceDialect {
 
     private JdbcTemplate jdbcTemplate;
@@ -67,13 +65,13 @@ public class SqlDataSource extends DataSourceDialect {
 
     @Override
     String saveApiExampleScript() {
-        return "insert into api_example(api_info_id,method,url,request_header,request_body,response_header,response_body,status,time,options,create_time) " +
-                "values(#{apiInfoId},#{method},#{url},#{requestHeader},#{requestBody},#{responseHeader},#{responseBody},#{status},#{time},#{options},#{createTime})";
+        return "insert into api_example(api_info_id,method,url,request_header,request_body,response_header,response_body,status,time,options,editor,create_time) " +
+                "values(#{apiInfoId},#{method},#{url},#{requestHeader},#{requestBody},#{responseHeader},#{responseBody},#{status},#{time},#{options},#{editor},#{createTime})";
     }
 
     @Override
     String lastApiExampleScript() {
-        return "select id,api_info_id,method,url,request_header,request_body,response_header,response_body,status,time,options,create_time from api_example where api_info_id = #{apiInfoId} order by id desc limit #{limit}";
+        return "select id,api_info_id,method,url,request_header,request_body,response_header,response_body,status,time,options,editor,create_time from api_example where api_info_id = #{apiInfoId} order by id desc limit #{limit}";
     }
 
     @Override

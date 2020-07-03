@@ -29,6 +29,7 @@ let getApiNameUrl = ctxPath + "/dataway2/api-name-list";
 let renameGroupUrl = ctxPath + "/dataway2/api-info/group";
 let saveExampleUrl = ctxPath + "/dataway2/api-example";
 let lastExampleUrl = ctxPath + "/dataway2/api-example/last";
+let deleteExampleUrl = ctxPath + "/dataway2/api-example";
 let loginUrl = ctxPath + "/dataway2/login";
 let logoutUrl = ctxPath + "/dataway2/logout";
 
@@ -36,6 +37,8 @@ let indexUrl = ctxPath + "/api-ui";
 let detailUrl = ctxPath + "/api-ui/";
 let editor = "admin";
 
+//当前apiInfo
+let currApiInfo = null;
 //当前example
 let currExample = {
     apiInfoId:null,
@@ -56,7 +59,8 @@ let exampleTextarea;
 let hasResponse;
 let hasConsole;
 let gdata = {
-
+    apiList:null,
+    exampleHistoryList:null
 }
 
 function loadCurrApi() {
@@ -543,6 +547,7 @@ function loadDetail(id,form) {
 
     $.getJSON(getApiUrl+id,function (data) {
         data = unpackResult(data).data;
+        currApiInfo = data;
         $(form).find(".api-info-id").val(data.id);
         $(form).find(".api-info-method").val(data.method);
         $(form).find(".api-info-datasource").val(data.datasource),
@@ -568,8 +573,9 @@ function loadDetail(id,form) {
         document.title = data.comment?data.comment:data.path;
         buildApiOptionsDom(data.options);
         editorTextarea.setValue(data.script);
-        //构建example
-        loadExample(data);
+
+        //构建history
+        loadHistory(data);
     })
 
 
@@ -914,55 +920,65 @@ function buildDefaultUrl(path) {
     let basePath = window.location.href.substring(0,window.location.href.indexOf("/api-ui"));
     return basePath+(path.indexOf("TEMP-") == 0?"":path);
 }
-function loadExample(apiInfo) {
+
+function loadExampleById(exampleId) {
+    let example = null;
+    for(let i=0;i<gdata.exampleHistoryList.length;i++){
+        if (gdata.exampleHistoryList[i].id == exampleId){
+            example = gdata.exampleHistoryList[i];
+            break;
+        }
+    }
+    loadExample(currApiInfo,example);
+}
+
+function loadExample(apiInfo,example) {
 
     let $form = $("#example-section");
     $form.find(".save-example-btn .changes-indicator").remove();
 
     //------构建example
-    $.getJSON(lastExampleUrl+"?limit=1&apiInfoId="+apiInfo.id,function (data) {
-        data = unpackResult(data).data;
-        currExample = data[0]?data[0]:{
-            apiInfoId:apiInfo.id,
-            url:buildDefaultUrl(apiInfo.path),
-            method:apiInfo.method,
-            requestHeader:"{}",
-            requestBody:"",
-            responseHeader:"{}",
-            responseBody:"",
-            status:200,
-            time:0,
-            options:"{}"
-        };
-        $form.find(".example-method").val(currExample.method);
-        $form.find(".example-url").val(currExample.url).blur();
+    currExample = example?example:{
+        apiInfoId:apiInfo.id,
+        url:buildDefaultUrl(apiInfo.path),
+        method:apiInfo.method,
+        requestHeader:"{}",
+        requestBody:"",
+        responseHeader:"{}",
+        responseBody:"",
+        status:200,
+        time:0,
+        options:"{}"
+    };
+    $form.find(".example-method").val(currExample.method);
+    $form.find(".example-url").val(currExample.url).blur();
 
-        if (data[0]){
-            hasResponse = true;
-        }
-        //请求header
-        setHeaderParams(JSON.parse(currExample.requestHeader));
+    if (example){
+        hasResponse = true;
+    }
+    //请求header
+    setHeaderParams(JSON.parse(currExample.requestHeader));
 
-        switchExampleMethod(currExample.method);
+    switchExampleMethod(currExample.method);
 
-        //请求体
-        exampleTextarea.setValue(currExample.requestBody);
-        formatExample();
-        //响应状态码
-        buildResponseStatus(currExample.status);
-        //耗时
-        $("#response .el-time").html('<span title="'+currExample.time+'ms">Elapsed time: '+currExample.time+'ms</span>');
-        //响应header
-        setResponseHeader(JSON.parse(currExample.responseHeader));
-        //响应体
-        $("#response #responseBody").text(formatJson(currExample.responseBody));
+    //请求体
+    exampleTextarea.setValue(currExample.requestBody);
+    formatExample();
+    //响应状态码
+    buildResponseStatus(currExample.status);
+    //耗时
+    $("#response .el-time").html('<span title="'+currExample.time+'ms">Elapsed time: '+currExample.time+'ms</span>');
+    //响应header
+    setResponseHeader(JSON.parse(currExample.responseHeader));
+    //响应体
+    $("#response #responseBody").text(formatJson(currExample.responseBody));
 
-        if (currPage == 'example'){
-            showExamplePanel();
-        }else{
-            showEditorPanel();
-        }
-    })
+    if (currPage == 'example'){
+        showExamplePanel();
+    }else{
+        showEditorPanel();
+    }
+
 }
 
 function toNotSave() {
@@ -1010,6 +1026,14 @@ function saveExample() {
                 return;
             }
             $("#example-section .save-example-btn .changes-indicator").remove();
+
+            //
+            params.id = data.data;
+            params.editor = user;
+            params.createTime = "now";
+            gdata.exampleHistoryList.splice(0,0,params);
+            let template = buildHistoryItemStr(params);
+            $("#history-section .history tbody").prepend(template);
         },complete:function () {
             hideSendNotify();
         }
@@ -1512,6 +1536,7 @@ function login() {
             $("#top-section .login-btn").hide();
             $("#top-section .login-info").show();
             $("#top-section .login-info .name").text(data.data);
+            user = data.data;
             hideLoginDialog();
         },complete:function (req,data) {
             hideSendNotify();
@@ -1519,3 +1544,119 @@ function login() {
     });
 }
 //--------------------------------login end -----------------------------------
+
+//--------------------------------history start -----------------------------------
+function showHistory() {
+    $("#left-side .history").addClass("active");
+    $("#history-section").show();
+
+    $("#left-side .repository").removeClass("active");
+    $("#repository").hide();
+}
+
+function showRepository() {
+    $("#left-side .history").removeClass("active");
+    $("#history-section").hide();
+
+    $("#left-side .repository").addClass("active");
+    $("#repository").show();
+}
+
+function loadHistory(apiInfo) {
+    $.getJSON(lastExampleUrl+"?limit=25&apiInfoId="+apiInfo.id,function (data) {
+        data = unpackResult(data);
+        gdata.exampleHistoryList = data.data;
+        loadExample(apiInfo,data.data.length>0?data.data[0]:null);
+        buildHistory();
+    });
+
+}
+
+function buildHistory(filter) {
+    let list = gdata.exampleHistoryList;
+    if (filter){
+
+    }
+
+    let $form = $("#history-section");
+    $form.find(".history tbody").html("");
+    $.each(list,function (index,item) {
+        let template = buildHistoryItemStr(item);
+        $form.find(".history tbody").append(template);
+    })
+}
+
+function buildHistoryItemStr(item){
+    return '<tr><td>' +
+        '<div class="item">' +
+        '   <label class="checkbox selector" >' +
+        '   <input type="checkbox" value="on" onclick="selectExampleItem()" data-id="'+item.id+'" tabindex="0"><span></span>' +
+        '   </label> ' +
+        '   <div class="method method-'+(item.method.toLowerCase())+'" title="GET">'+item.method+'</div> ' +
+        '   <div class="item-body"> ' +
+        '       <div> ' +
+        '           <a href="javascript:;" onclick="loadExampleById(\''+item.id+'\')" class="btn path btn-link" title="'+item.url+'"><i></i> '+item.url+' </a> ' +
+        '       </div> ' +
+        '       <div class="count">'+item.editor+'</div> ' +
+        '       <div class="el-time" title="'+item.time+'ms">'+item.time+'ms</div> ' +
+        '       <div class="el-time" title="'+item.createTime+'">'+item.createTime+'</div> ' +
+        '       <div class="status response-ok" title="'+item.status+'">'+item.status+'</div> ' +
+        '</div></div></td></tr>';
+}
+
+function selectExampleItem() {
+
+    let num = $("#history-section .history tbody .selector>input:checked").length;
+
+    if (num == 0){
+        $("#history-section .ellipsis").addClass("disabled");
+    }else{
+        $("#history-section .ellipsis").removeClass("disabled");
+    }
+}
+
+function exampleDeselect() {
+    $("#history-section .history tbody .selector>input:checked").removeAttr("checked")
+    selectExampleItem();
+}
+
+function exampleRemoveSelect() {
+    exampleRemove($("#history-section .history tbody .selector>input:checked"))
+}
+
+function exampleRemoveAll() {
+    exampleRemove($("#history-section .history tbody .selector>input"));
+}
+
+function exampleRemove(exList) {
+    let apiExampleList = [];
+    $.each(exList,function (index,item) {
+        apiExampleList.push({"id":$(item).attr("data-id")});
+    })
+
+    openConfirmModal("The request will be permanently deleted. Are you sure?",function () {
+        showSendNotify("Removeing example");
+        $.ajax({
+            type: "delete",
+            url: deleteExampleUrl,
+            contentType : "application/json",
+            data: JSON.stringify({"apiExampleList":apiExampleList}),
+            success: function (data) {
+                closeConfirmModal();
+                if (data.code !=200){
+                    openMsgModal(data.msg);
+                    return;
+                }
+                $.each(exList,function (index,item) {
+                    $(item).parents("tr").remove();
+                });
+                selectExampleItem();
+            },complete:function () {
+                hideSendNotify();
+            }
+        });
+    });
+}
+
+
+//--------------------------------history end -----------------------------------

@@ -2,9 +2,6 @@ package com.github.alenfive.dataway2.script;
 
 import com.github.alenfive.dataway2.entity.ApiInfo;
 import com.github.alenfive.dataway2.entity.ApiParams;
-import org.springframework.transaction.annotation.Transactional;
-
-import javax.script.ScriptException;
 
 /**
  * @Description: 脚本执行器

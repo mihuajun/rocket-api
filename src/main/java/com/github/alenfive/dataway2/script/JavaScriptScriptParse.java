@@ -17,7 +17,6 @@ import com.github.alenfive.dataway2.function.IFunction;
 import jdk.nashorn.api.scripting.ScriptObjectMirror;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
@@ -25,7 +24,6 @@ import javax.annotation.PostConstruct;
 import javax.script.Invocable;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
-import javax.script.ScriptException;
 import java.util.Collection;
 
 

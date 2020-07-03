@@ -4,7 +4,6 @@ import com.github.alenfive.dataway2.controller.ApiController;
 import com.github.alenfive.dataway2.controller.ViewController;
 import com.github.alenfive.dataway2.datasource.DataSourceManager;
 import com.github.alenfive.dataway2.extend.*;
-import com.github.alenfive.dataway2.extend.DefaultAssertException;
 import com.github.alenfive.dataway2.function.*;
 import com.github.alenfive.dataway2.script.GroovyScriptParse;
 import com.github.alenfive.dataway2.script.IScriptParse;

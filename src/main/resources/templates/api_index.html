@@ -90,13 +90,11 @@
     <section class="ui-lay-l left-pane flex-column" id="left-side" style="min-width: 420px; width: 420px;">
         <div class="left-pane-header">
             <ul class="nav nav-pills selector">
-                <li title="History" class=""><a> <i class="api-tester-icon api-tester-history"></i> History </a></li>
-                <li title="Repository" class="active"><a> <i class="api-tester-icon api-tester-repository"></i>
-                    Repository </a></li>
+                <li title="History" onclick="showHistory()" class=" history"><a> <i class="api-tester-icon api-tester-history"></i> History </a></li>
+                <li title="Repository" onclick="showRepository()" class=" active repository"><a> <i class="api-tester-icon api-tester-repository"></i> Repository </a></li>
             </ul>
-            <div class="left-pane-actions">
-                <button type="button" class="gwt-Button new-draft-action" onclick="newRequest(this)"
-                        e2e-tag="btn-new-draft"
+            <div class="left-pane-actions" style="position: absolute;right: 44px;">
+                <button type="button" class="gwt-Button new-draft-action" onclick="newRequest(this)" e2e-tag="btn-new-draft"
                         data-original-title="New draft request  (Alt + N)" title=""><i class="sli-icon-doc"></i>
                 </button>
             </div>
