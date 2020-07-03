@@ -35,16 +35,16 @@ public abstract class DataSourceDialect {
     abstract String deleteExampleScript();
 
     //查询对象
-    abstract List<Map<String,Object>> find(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams);
+    abstract List<Map<String,Object>> find(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams) throws Exception;
 
     //返回影响的行数
-    abstract Long update(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams);
+    abstract Long update(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams) throws Exception;
 
     //返回影响的行数
-    abstract Long remove(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams);
+    abstract Long remove(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams) throws Exception;
 
     //返回主键
-    abstract Object insert(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams);
+    abstract Object insert(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams) throws Exception;
 
     /**
      * 替换key

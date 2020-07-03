@@ -5,7 +5,7 @@ import com.github.alenfive.dataway2.entity.ApiParams;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -23,10 +23,10 @@ import java.util.stream.Stream;
  * @Version: 1.0
  * @menu mongo数据源
  */
-@Component
 public class MongoDataSource extends DataSourceDialect {
 
     private MongoTemplate mongoTemplate;
+
 
     private MongoDataSource(){}
 
@@ -34,7 +34,7 @@ public class MongoDataSource extends DataSourceDialect {
         this.mongoTemplate = mongoTemplate;
     }
 
-    public MongoDataSource(MongoTemplate mongoTemplate, boolean storeApi) {
+    public MongoDataSource(MongoTemplate mongoTemplate,boolean storeApi) {
         this.mongoTemplate = mongoTemplate;
         this.storeApi = storeApi;
     }
@@ -118,6 +118,7 @@ public class MongoDataSource extends DataSourceDialect {
                 "\t\t\"response_body\":#{responseBody},\n" +
                 "\t\t\"status\":#{status},\n" +
                 "\t\t\"time\":#{time},\n" +
+                "\t\t\"editor\":#{editor},\n" +
                 "\t\t\"options\":#{options},\n" +
                 "\t\t\"create_time\":ISODate(#{createTime})\n" +
                 "\t}]\n" +
@@ -139,14 +140,14 @@ public class MongoDataSource extends DataSourceDialect {
         return "{\n" +
                 "     delete: \"api_example\",\n" +
                 "     deletes: [\n" +
-                "     \t{q:{id:{$in:[ObjectId(#{ids})]}},limit:0}\n" +
+                "     \t{q:{_id:{$in:[ObjectId(#{ids})]}},limit:0}\n" +
                 "     ]\n" +
                 "}";
     }
 
 
     @Override
-    public List<Map<String,Object>> find(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams) {
+    public List<Map<String,Object>> find(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams)  throws Exception {
         formatISODate(script);
         formatObjectIdList(script);
         Document document = mongoTemplate.executeCommand(script.toString());
@@ -155,27 +156,42 @@ public class MongoDataSource extends DataSourceDialect {
     }
 
     @Override
-    public Long update(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams) {
+    public Long update(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams)  throws Exception {
         formatISODate(script);
         formatObjectIdList(script);
-        mongoTemplate.executeCommand(script.toString());
-        return null;
+        Document result = mongoTemplate.executeCommand(script.toString());
+        return Long.valueOf(result.getInteger("n"));
     }
 
     @Override
-    public Long remove(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams) {
+    public Long remove(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams) throws Exception {
         formatISODate(script);
         formatObjectIdList(script);
-        mongoTemplate.executeCommand(script.toString());
-        return null;
+        Document result = mongoTemplate.executeCommand(script.toString());
+        return Long.valueOf(result.getInteger("n"));
     }
 
     @Override
-    public Object insert(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams) {
+    public Object insert(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams) throws Exception {
         formatISODate(script);
         formatObjectIdList(script);
-        mongoTemplate.executeCommand(script.toString());
-        return null;
+        return batchInsert(script).get(0).toString();
+    }
+
+    private List<Object> batchInsert(StringBuilder script){
+        Document insertDoc = Document.parse(script.toString());
+        List<Document> docList = insertDoc.getList("documents",Document.class);
+        if (CollectionUtils.isEmpty(docList)){
+            throw new RuntimeException("insert documents is empty");
+        }
+        for (Document doc : docList ){
+            ObjectId id = doc.getObjectId("_id");
+            if (id == null){
+                doc.put("_id",ObjectId.get());
+            }
+        }
+        mongoTemplate.executeCommand(insertDoc);
+        return docList.stream().map(item->item.get("_id")).collect(Collectors.toList());
     }
 
     private void formatObjectIdList(StringBuilder script) {

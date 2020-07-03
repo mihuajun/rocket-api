@@ -43,8 +43,7 @@
     font-style: normal;
     font-weight: 400;
     src: local('Source Sans Pro'), local('SourceSansPro-Regular'),
-    url('../fonts/sourceSansPro/source-sans-pro-v9-latin-regular.woff2') format('woff2'),
-    url('../fonts/sourceSansPro/source-sans-pro-v9-latin-regular.woff') format('woff');
+    url('../fonts/source-sans-pro-v9-latin-regular.woff2') format('woff');
 }
 
 /* source-sans-pro-italic - latin */

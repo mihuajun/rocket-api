@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
 <body>
-<section id="example-section" class="pane pane-request request-common" style="display: none" th:fragment="example-section">
+<section id="example-section" class="pane pane-request request-common" th:fragment="example-section">
         <div class="draft-ribbon" style="" onclick="showEditorPanel()">
             <div class="draft-ribbon-text"> Example</div>
         </div>
@@ -153,17 +153,16 @@
                                 class="r-btn-indicator" aria-hidden="true" style="display: none;"></span></button>
                         <div aria-hidden="true" style="display: none;">or change a method definition in <a href="#settings:HTTP">Settings</a>.</div>
                     </div>
-                    <div class="b-container" style="display: none">
+
+                    <div class="b-container" >
                         <div>
                             <div class="text-body">
                                 <div e2e-tag="text-body" class="gwt-TextArea text-body">
-                                    <textarea id="CodeMirror2" autocorrect="off"
-                                              autocapitalize="off"
-                                              spellcheck="false" tabindex="0"
-                                              style="position: absolute; padding: 0px; width: 1000px; height: 1em; outline: none;"></textarea>
+                                    <div id="example-editor" style="width:100%;min-height:250px;height:100%;font-size: 12px;"></div>
                                     <div class="vertical-resizer resizer-for-body"></div>
                                 </div>
-                                <i class="icon-magic icon-light btn-expression-builder-textarea"></i></div>
+                                <i class="icon-magic icon-light btn-expression-builder-textarea"></i>
+                            </div>
                             <div class="text-body-bottom">
                                 <button class="text-body-content-type r-btn-small r-btn r-btn-link" onclick="setModeExample(this,'text/javascript')" e2e-tag="text-body-type-text-plain" title="Set Content-Type: text/plain"><i
                                         class="fa fa-no-icon"></i><span>Text</span><span class="r-btn-indicator" aria-hidden="true" style="display: none;"></span></button>
@@ -182,7 +181,8 @@
                                     type="checkbox" value="on" id="gwt-uid-787" tabindex="0" checked=""><label for="gwt-uid-787">Enable body evaluation</label></span>
                                 <button class="text-body-clear r-btn r-btn-link" title="Clear" onclick="cleanExample()" e2e-tag="text-body-clear" tabindex="-1"><i
                                         class="fa fa-trash-o"></i><span></span><span class="r-btn-indicator" aria-hidden="true" style="display: none;"></span></button>
-                                <span class="gwt-InlineHTML text-body-length-label" title="Content-Length: 0">length: 0 byte</span></div>
+                                <span class="gwt-InlineHTML text-body-length-label" title="Content-Length: 0">length: 0 byte</span>
+                            </div>
                         </div>
                     </div>
                 </div>

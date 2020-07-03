@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
 <body>
-<div class="top-bar" th:fragment="top-section">
+<div class="top-bar" id="top-section" th:fragment="top-section">
     <div class="fake-extension-detected-bar"></div>
     <div class="encourage-positive-review-bar"><span> Enjoying Talend API Tester? Help us make it better, leave a review! <button
             class="rate-us">Rate us</button> </span>
@@ -65,41 +65,50 @@
             <li class="separator">
                 <div>|</div>
             </li>
-            <li class="user"><a data-toggle="dropdown" style="visibility: visible;"> <i
+            <li class="user login-info" style="display: none">
+                <a data-toggle="dropdown" style="visibility: visible;"> <i
                     class="ti-icon ti-icon-user-circle"></i>
                 <div class="name">Free Edition</div>
                 <span class="caret"></span> </a>
                 <ul class="drop">
-                    <li class="show-for-free-edition"><a> <span
-                            class="whats-new-circle whats-new-circle-menu"></span> What's new </a></li>
-                    <li><a> <span>About Talend API Tester - Free Edition</span> </a></li>
-                    <li class="restricted-access"><a> Learn more about scenarios </a></li>
-                    <hr>
-                    <li><a class="gwt-Anchor" href="https://community.talend.com/" target="_blank">Community</a>
-                    </li>
-                    <li class="show-for-free-edition"><a> Support </a></li>
-                    <li class="hide-for-free-edition"><a class="gwt-Anchor"
-                                                         href="https://www.talend.com/services/technical-support/"
-                                                         target="_blank">Support</a></li>
-                    <hr aria-hidden="true" style="display: none;">
-                    <li aria-hidden="true" style="display: none;"><a>Restore data from Restlet Client</a></li>
-                    <hr>
-                    <li class="restricted-access" e2e-tag="header-bar-settings"><a> API Tester settings </a></li>
-                    <hr class="hide-for-free-edition">
-                    <li class="hide-for-free-edition"><a class="gwt-Anchor"
-                                                         href="https://portal.us.cloud.talend.com/user"
-                                                         target="_blank">Profile preferences</a></li>
-                    <li class="hide-for-free-edition"><a class="gwt-Anchor"
-                                                         href="https://portal.us.cloud.talend.com/download"
-                                                         target="_blank">Downloads</a></li>
-                    <li class="hide-for-free-edition"><a> Logout </a></li>
+                    <li class="show-for-free-edition" onclick="logout()" style=" width: 166px;"><a> Logout </a></li>
                 </ul>
             </li>
-            <li class="user" aria-hidden="true" style="display: none;"><a> Sign in </a></li>
+            <li class="user login-btn" aria-hidden="true" onclick="showLoginDialog()" ><a> Sign in </a></li>
         </ul>
     </div>
     <div class="offline-ribbon hide-for-free-edition">Trying to synchronize... You can still work on your projects
         in the meantime.
+    </div>
+
+    <div class="modal login-dialog in" aria-hidden="false" style="display: none">
+        <div class="modal-header"><a class="close" onclick="hideLoginDialog()" data-dismiss="modal">×</a>
+            <h3>Sign in <small></small></h3></div>
+        <div class="modal-body">
+            <div class="form-horizontal">
+                <fieldset>
+                    <div class="control-group">
+                        <label class="control-label"> <span class="gwt-InlineHTML"> username </span> </label>
+                        <div class="controls">
+                            <input type="text" class="username" maxlength="256" placeholder="Enter username" e2e-tag="project-creation-dialog-name-input">
+                            <div class="error-message"></div>
+                        </div>
+                        <label class="control-label" style="margin-top:15px;"> <span class="gwt-InlineHTML"> password </span> </label>
+                        <div class="controls" style="margin-top:20px;">
+                            <input type="password" class="password" maxlength="256" placeholder="Enter password" e2e-tag="project-creation-dialog-name-input">
+                            <div class="error-message"></div>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <div class="error-message login-error-message" style="float: left;"></div>
+            <button class="r-btn" e2e-tag="modal-cancel" onclick="hideLoginDialog()"><i class="fa fa-remove"></i><span>Cancel</span><span class="r-btn-indicator" aria-hidden="true"
+                                                                                                              style="display: none;"></span></button>
+            <button class="r-btn r-btn-primary" onclick="login()" e2e-tag="modal-ok"><i class="fa fa-plus"></i><span>Login</span><span class="r-btn-indicator" aria-hidden="true"
+                                                                                                                                          style="display: none;"></span></button>
+        </div>
     </div>
 </div>
 </body>

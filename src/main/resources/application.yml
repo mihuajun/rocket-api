@@ -33,4 +33,6 @@ spring:
 logging:
   level:
     com.github.alenfive.dataway2: debug
-
+server:
+  servlet:
+    context-path: /dataway2

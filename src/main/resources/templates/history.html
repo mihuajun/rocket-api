@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
 <body>
-<div class="history-left" style="display: none;" aria-hidden="true" th:fragment="history-section">
-    <div class="search"><input type="text" class="gwt-TextBox filter" placeholder="Search"></div>
+<div class="history-left" id="history-section" style="display: none" aria-hidden="true" th:fragment="history-section">
+    <div class="search"><input type="text" class="gwt-TextBox filter" placeholder="Search" onkeyup="searchExample(this)"></div>
     <div style="display: none;"><p class="note">Loading history entries</p></div>
     <div class="records" style="overflow: auto; position: absolute; zoom: 1;">
         <div style="position: relative; zoom: 1;">
@@ -11,45 +11,16 @@
                     <col>
                 </colgroup>
                 <tbody>
-                <tr>
-                    <td>
-                        <div title="http://localhost:8080" class="category">http://localhost:8080</div>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <div class="item"><label class="checkbox selector" for="gwt-uid-3699"><input
-                                type="checkbox" value="on" id="gwt-uid-3699"
-                                tabindex="0"><span></span></label>
-                            <div class="method method-post" title="POST">POST</div>
-                            <div class="item-body">
-                                <div><a href="javascript:;" class="btn path btn-link"
-                                        title="http://localhost:8080/org/mini-program-template"><i></i>
-                                    /org/mini-program-template </a></div>
-                                <div class="count"></div>
-                                <div class="el-time" title="17ms">17ms</div>
-                                <div class="status response-error" title="404">404</div>
-                            </div>
-                        </div>
-                    </td>
-                </tr>
+
                 </tbody>
             </table>
         </div>
     </div>
     <div class="buttons">
-        <div class="top-row"><a class="btn btn-left ellipsis btn-small btn-link disabled"
-                                title="Deselect all requests"><i class="icon-check-empty"></i> Deselect </a>
-            <a class="btn btn-left ellipsis btn-small btn-link disabled" title="Remove selected requests"><i
-                    class="icon-remove"></i> Remove </a> <a class="btn btn-right btn-small btn-link"
-                                                            title="Clear all history content"><i
-                    class="icon-trash"></i> Remove all </a></div>
-        <div class="bottom-row">
-            <div class="history-save-selected" title="Save selected requests to a scenario">
-                <div><i class="api-tester-icon api-tester-repository"></i> <span>Save to repository</span>
-                </div>
-            </div>
-        </div>
+        <div class="top-row">
+            <a class="btn btn-left ellipsis btn-small btn-link disabled" onclick="exampleDeselect()" title="Deselect all requests"><i class="icon-check-empty"></i> Deselect </a>
+            <a class="btn btn-left ellipsis btn-small btn-link disabled" onclick="exampleRemoveSelect()" title="Remove selected requests"><i class="icon-remove"></i> Remove </a>
+            <a class="btn btn-right btn-small btn-link"  onclick="exampleRemoveAll()" title="Clear all history content"><i class="icon-trash"></i> Remove all </a></div>
     </div>
 </div>
 </body>

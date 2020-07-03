@@ -90,13 +90,11 @@
     <section class="ui-lay-l left-pane flex-column" id="left-side" style="min-width: 420px; width: 420px;">
         <div class="left-pane-header">
             <ul class="nav nav-pills selector">
-                <li title="History" class=""><a> <i class="api-tester-icon api-tester-history"></i> History </a></li>
-                <li title="Repository" class="active"><a> <i class="api-tester-icon api-tester-repository"></i>
-                    Repository </a></li>
+                <li title="History" onclick="showHistory()" class=" history"><a> <i class="api-tester-icon api-tester-history"></i> History </a></li>
+                <li title="Repository" onclick="showRepository()" class=" active repository"><a> <i class="api-tester-icon api-tester-repository"></i> Repository </a></li>
             </ul>
-            <div class="left-pane-actions">
-                <button type="button" class="gwt-Button new-draft-action" onclick="newRequest(this)"
-                        e2e-tag="btn-new-draft"
+            <div class="left-pane-actions" style="position: absolute;right: 44px;">
+                <button type="button" class="gwt-Button new-draft-action" onclick="newRequest(this)" e2e-tag="btn-new-draft"
                         data-original-title="New draft request  (Alt + N)" title=""><i class="sli-icon-doc"></i>
                 </button>
             </div>
@@ -138,7 +136,7 @@
 
             <div th:replace="bottom::bottom-section"></div>
 
-            <div class="powered-by-talend">Powered by <img alt="" src="/images/logo-talend-colored.svg"></div>
+            <div class="powered-by-talend">Powered by mi</div>
         </div>
     </div>
 </div>
@@ -453,6 +451,7 @@
 <script th:inline="javascript" type="text/javascript">
     let currApi = [[${currApi}]];
     let currPage = [[${currPage}]];
+    let user = [[${user}]];
     let ctxPath  = [[@{/}]];
     if(ctxPath.endsWith("/")){
         ctxPath = ctxPath.substring(0,ctxPath.length-1);
@@ -461,36 +460,9 @@
 
 <script type="text/javascript" src="js/jquery-1.12.2.min.js"></script>
 <script type="text/javascript" src="js/bootstrap-2.3.2.min.js"></script>
-<script type="text/javascript" src="js/select2-4.0.3.min.js"></script>
-
-<!-- js libs must be before `appBundle.js` in order store it on `APP` namespace -->
-<script type="text/javascript" src="dist/commons.vendor.js"></script>
-<script type="text/javascript" src="dist/commons.bundle.js"></script>
-<script type="text/javascript" src="dist/app.bundle.js"></script>
-
-<!--Compress code mirror files for prod distribution -->
-<script type="text/javascript" src="js/codemirror/codemirror.js"></script>
-<script type="text/javascript" src="js/codemirror/mode/javascript/javascript.js"></script>
-<script type="text/javascript" src="js/codemirror/mode/xml/xml.js"></script>
-<script type="text/javascript" src="js/codemirror/mode/sql/sql.js"></script>
-<script type="text/javascript" src="js/codemirror/mode/css/css.js"></script>
-<script type="text/javascript" src="js/codemirror/addons/formatting.js"></script>
-
-<!--
-<script type="text/javascript" src="js/codemirror/mode/http/http.js"></script>
--->
-<script type="text/javascript" src="js/codemirror/mode/htmlmixed/htmlmixed.js"></script>
-<script type="text/javascript" src="js/sha.js"></script>
-<script type="text/javascript" src="js/crypto/md5.js"></script>
-<script type="text/javascript" src="js/crypto/aes.js"></script>
-<script type="text/javascript" src="js/jsonpath.js"></script>
-<script type="text/javascript" src="js/markdown.js"></script>
-<script type="text/javascript" src="js/zip/zip.js"></script>
-<script type="text/javascript" src="js/base64.min.js"></script>
-<script type="text/javascript" src="js/prism.js"></script>
 <script type="text/javascript" src="js/tester_boot.js"></script>
 
-<script>var require = { paths: { 'vs': '/monaco-editor/min/vs' } };</script>
+<script>var require = { paths: { 'vs': 'monaco-editor/min/vs' } };</script>
 <script src="monaco-editor/min/vs/loader.js"></script>
 <script src="monaco-editor/min/vs/editor/editor.main.nls.js"></script>
 <script src="monaco-editor/min/vs/editor/editor.main.js"></script>

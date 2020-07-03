@@ -11940,7 +11940,7 @@ body.free-edition .encourage-positive-review-banner.fake-extension-detected-bann
     margin: 10px 0;
 }
 .chromeapp .history-left .records {
-    bottom: 84px;
+    bottom: 41px;
     padding-left: 10px;
     top: 80px;
 }
@@ -14442,7 +14442,7 @@ body.free-edition .encourage-positive-review-banner.fake-extension-detected-bann
     padding: 0;
 }
 .layout-for-headers-and-body .body .text-body textarea {
-    padding: 7px;
+
 }
 .layout-for-headers-and-body .body .text-body .CodeMirror {
     width: 100%;

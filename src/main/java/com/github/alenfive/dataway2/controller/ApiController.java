@@ -5,11 +5,11 @@ import com.github.alenfive.dataway2.entity.ApiExample;
 import com.github.alenfive.dataway2.entity.ApiInfo;
 import com.github.alenfive.dataway2.entity.ApiParams;
 import com.github.alenfive.dataway2.entity.ApiResult;
-import com.github.alenfive.dataway2.entity.vo.RenameGroupReq;
-import com.github.alenfive.dataway2.entity.vo.RunApiReq;
-import com.github.alenfive.dataway2.entity.vo.RunApiRes;
+import com.github.alenfive.dataway2.entity.vo.*;
 import com.github.alenfive.dataway2.extend.ApiInfoContent;
+import com.github.alenfive.dataway2.extend.IUserAuthorization;
 import com.github.alenfive.dataway2.script.IScriptParse;
+import com.github.alenfive.dataway2.utils.LoginUtils;
 import com.github.alenfive.dataway2.utils.RequestUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -25,7 +25,10 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @Description:
@@ -50,6 +53,9 @@ public class ApiController {
 
     @Autowired
     private IScriptParse scriptParse;
+
+    @Autowired
+    private IUserAuthorization userAuthorization;
 
     /**
      * LOAD API LIST
@@ -83,10 +89,15 @@ public class ApiController {
      * @param apiInfo
      */
     @PostMapping("/api-info")
-    public ApiResult saveOrUpdateApiInfo(@RequestBody ApiInfo apiInfo) {
+    public ApiResult saveOrUpdateApiInfo(@RequestBody ApiInfo apiInfo,HttpServletRequest request) {
 
+        String user = LoginUtils.getUser(request);
+        if(StringUtils.isEmpty(user)){
+            return ApiResult.fail("Permission denied");
+        }
+
+        apiInfo.setEditor(user);
         try {
-
             if (!StringUtils.isEmpty(apiInfo.getScript())){
                 apiInfo.setScript(URLEncoder.encode(apiInfo.getScript(),"utf-8"));
             }
@@ -109,9 +120,12 @@ public class ApiController {
      * @return
      */
     @PutMapping("/api-info/group")
-    public ApiResult renameGroup(@RequestBody RenameGroupReq renameGroupReq){
-        mappingFactory.renameGroup(renameGroupReq);
-        return ApiResult.success(null);
+    public ApiResult renameGroup(@RequestBody RenameGroupReq renameGroupReq,HttpServletRequest request) throws Exception {
+        String user = LoginUtils.getUser(request);
+        if(StringUtils.isEmpty(user)){
+            return ApiResult.fail("Permission denied");
+        }
+        return ApiResult.success(mappingFactory.renameGroup(renameGroupReq));
     }
 
     /**
@@ -119,10 +133,14 @@ public class ApiController {
      * @param apiInfo
      */
     @DeleteMapping("/api-info")
-    public ApiResult deleteApiInfo(@RequestBody ApiInfo apiInfo){
+    public ApiResult deleteApiInfo(@RequestBody ApiInfo apiInfo,HttpServletRequest request){
+        String user = LoginUtils.getUser(request);
+        if(StringUtils.isEmpty(user)){
+            return ApiResult.fail("Permission denied");
+        }
+
         try {
-            mappingFactory.deleteApiInfo(apiInfo);
-            return ApiResult.success(null);
+            return ApiResult.success(mappingFactory.deleteApiInfo(apiInfo));
         }catch (Exception e){
             e.printStackTrace();
             return ApiResult.fail(e.getMessage());
@@ -137,6 +155,12 @@ public class ApiController {
      */
     @PostMapping("/api-info/run")
     public ApiResult runScript(@RequestBody RunApiReq runApiReq, HttpServletRequest request){
+
+        String user = LoginUtils.getUser(request);
+        if(StringUtils.isEmpty(user)){
+            return ApiResult.fail("Permission denied");
+        }
+
         RunApiRes runApiRes = new RunApiRes();
         try {
             ApiInfo apiInfo = ApiInfo.builder()
@@ -219,22 +243,26 @@ public class ApiController {
      * 模拟参数保存
      */
     @PostMapping("/api-example")
-    public ApiResult saveExample(@RequestBody ApiExample apiExample) throws UnsupportedEncodingException {
+    public ApiResult saveExample(@RequestBody ApiExample apiExample,HttpServletRequest request) throws Exception {
+
+        String user = LoginUtils.getUser(request);
+        if(StringUtils.isEmpty(user)){
+            return ApiResult.fail("Permission denied");
+        }
 
         if (StringUtils.isEmpty(apiExample.getMethod())
                 || StringUtils.isEmpty(apiExample.getUrl())
                 || StringUtils.isEmpty(apiExample.getRequestHeader())){
             return ApiResult.fail("Send, then Save");
         }
-
+        apiExample.setEditor(user);
         apiExample.setCreateTime(new Date());
 
         if (!StringUtils.isEmpty(apiExample.getResponseBody())){
             apiExample.setResponseBody(URLEncoder.encode(apiExample.getResponseBody(),"utf-8"));
         }
 
-        mappingFactory.saveExample(apiExample);
-        return ApiResult.success(null);
+        return ApiResult.success(mappingFactory.saveExample(apiExample));
     }
 
     /**
@@ -243,7 +271,7 @@ public class ApiController {
      * @return
      */
     @GetMapping("/api-example/last")
-    public ApiResult lastApiExample(String apiInfoId,Integer limit){
+    public ApiResult lastApiExample(String apiInfoId,Integer limit) throws Exception {
         List<Map<String,Object>> result = mappingFactory.lastApiExample(apiInfoId,limit);
         result.forEach(item->{
             if (!StringUtils.isEmpty(item.get("responseBody"))){
@@ -259,12 +287,42 @@ public class ApiController {
 
     /**
      * 删除模拟数据
-     * @param apiExampleList
+     * @param deleteExamleReq
      * @return
      */
     @DeleteMapping("/api-example")
-    private ApiResult deleteExampleList(@RequestBody ArrayList<ApiExample> apiExampleList){
-        mappingFactory.deleteExampleList(apiExampleList);
+    private ApiResult deleteExampleList(@RequestBody DeleteExamleReq deleteExamleReq, HttpServletRequest request) throws Exception {
+        String user = LoginUtils.getUser(request);
+        if(StringUtils.isEmpty(user)){
+            return ApiResult.fail("Permission denied");
+        }
+        return ApiResult.success(mappingFactory.deleteExampleList(deleteExamleReq.getApiExampleList()));
+    }
+
+    /**
+     * 用户登录
+     * @param loginReq
+     * @param request
+     * @return
+     */
+    @PostMapping("/login")
+    public ApiResult login(@RequestBody LoginReq loginReq,HttpServletRequest request){
+        String user = userAuthorization.validate(loginReq.getUsername(),loginReq.getPassword());
+        if (!StringUtils.isEmpty(user)){
+            LoginUtils.setUser(request,user);
+            return ApiResult.success(user);
+        }
+        return ApiResult.fail("Incorrect user name or password");
+    }
+
+    /**
+     * 注销登录
+     * @param request
+     * @return
+     */
+    @PostMapping("/logout")
+    public ApiResult login(HttpServletRequest request){
+        LoginUtils.setUser(request,null);
         return ApiResult.success(null);
     }
 
