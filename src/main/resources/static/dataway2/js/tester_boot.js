@@ -19,23 +19,23 @@ const readFavoriteLanguageCallback = function (result) {
 };
 
 window.localStorage.getItem('favoriteLanguage', readFavoriteLanguageCallback);*/
-let loadApiListUrl = ctxPath + "/dataway2/api-list";
-let saveApiUrl = ctxPath + "/dataway2/api-info";
-let getApiUrl = ctxPath + "/dataway2/api-info/";
-let lastApiUrl = ctxPath + "/dataway2/api-info/last";
-let deleteApiUrl = ctxPath + "/dataway2/api-info";
-let runApiUrl = ctxPath +"/dataway2/api-info/run";
-let getApiGroupNameUrl = ctxPath + "/dataway2/group-name-list";
-let getApiNameUrl = ctxPath + "/dataway2/api-name-list";
-let renameGroupUrl = ctxPath + "/dataway2/api-info/group";
-let saveExampleUrl = ctxPath + "/dataway2/api-example";
-let lastExampleUrl = ctxPath + "/dataway2/api-example/last";
-let deleteExampleUrl = ctxPath + "/dataway2/api-example";
-let loginUrl = ctxPath + "/dataway2/login";
-let logoutUrl = ctxPath + "/dataway2/logout";
+let loadApiListUrl = ctxPath + "/api-list";
+let saveApiUrl = ctxPath + "/api-info";
+let getApiUrl = ctxPath + "/api-info/";
+let lastApiUrl = ctxPath + "/api-info/last";
+let deleteApiUrl = ctxPath + "/api-info";
+let runApiUrl = ctxPath +"/api-info/run";
+let getApiGroupNameUrl = ctxPath + "/group-name-list";
+let getApiNameUrl = ctxPath + "/api-name-list";
+let renameGroupUrl = ctxPath + "/api-info/group";
+let saveExampleUrl = ctxPath + "/api-example";
+let lastExampleUrl = ctxPath + "/api-example/last";
+let deleteExampleUrl = ctxPath + "/api-example";
+let loginUrl = ctxPath + "/login";
+let logoutUrl = ctxPath + "/logout";
 
-let indexUrl = ctxPath + "/api-ui";
-let detailUrl = ctxPath + "/api-ui/";
+let indexUrl = ctxPath;
+let detailUrl = ctxPath + "/";
 let editor = "admin";
 
 //当前apiInfo
@@ -410,9 +410,14 @@ function removeApi(e,id) {
             contentType : "application/json",
             data: JSON.stringify({"id":id}),
             success: function (data) {
+                closeConfirmModal();
+                data = unpackResult(data);
+                if (data.code !=200){
+                    openMsgModal(data.msg);
+                    return;
+                }
                 $(e).parents(".request").remove();
                 history.pushState(null,null,indexUrl);
-                closeConfirmModal();
             },complete:function () {
                 hideSendNotify();
             }
@@ -959,7 +964,7 @@ function newExample() {
 
 //--------------------------------example start -----------------------------------
 function buildDefaultUrl(path) {
-    let basePath = window.location.href.substring(0,window.location.href.indexOf("/api-ui"));
+    let basePath = window.location.href.substring(0,window.location.href.indexOf(ctxPath.substring(ctxPath.lastIndexOf("/"),ctxPath.length)));
     return basePath+(path.indexOf("TEMP-") == 0?"":path);
 }
 

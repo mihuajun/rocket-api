@@ -1,5 +1,6 @@
 package com.github.alenfive.dataway2.controller;
 
+import com.github.alenfive.dataway2.config.Dataway2Properties;
 import com.github.alenfive.dataway2.datasource.DataSourceManager;
 import com.github.alenfive.dataway2.utils.LoginUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,11 +24,14 @@ import javax.servlet.http.HttpServletRequest;
  * @menu 页面显示
  */
 @Controller
-@RequestMapping("/api-ui")
+@RequestMapping("${spring.dataway2.base-path}")
 public class ViewController {
 
     @Autowired
     private DataSourceManager dataSourceManager;
+
+    @Autowired
+    private Dataway2Properties properties;
 
     @Value("${spring.application.name}")
     private String service;
@@ -37,7 +41,8 @@ public class ViewController {
         model.addAttribute("dataSourceList",dataSourceManager.getDialectMap().keySet());
         model.addAttribute("user", LoginUtils.getUser(request));
         model.addAttribute("service", service);
-        return "api_index";
+        model.addAttribute("basePath",buildBasePath(request));
+        return "dataway2/api-index";
     }
 
     @GetMapping("/{id}/{page}")
@@ -47,6 +52,16 @@ public class ViewController {
         model.addAttribute("currPage",page);
         model.addAttribute("user", LoginUtils.getUser(request));
         model.addAttribute("service", service);
-        return "api_index";
+        model.addAttribute("basePath",buildBasePath(request));
+        return "dataway2/api-index";
+    }
+
+    private String buildBasePath(HttpServletRequest request){
+        String basePath = request.getContextPath()+properties.getBasePath();
+        basePath = basePath.replace("//","/");
+        if (basePath.endsWith("/")){
+            basePath = basePath.substring(0,basePath.length()-1);
+        }
+        return basePath;
     }
 }

@@ -11,22 +11,28 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * @Description:
+ * @Description: 路径历史记录实体
  * @Copyright: Copyright (c) 2019  ALL RIGHTS RESERVED.
  * @Author: 米华军
  * @CreateDate: 2020/5/22 12:45
  * @UpdateDate: 2020/5/22 12:45
  * @UpdateRemark: init
  * @Version: 1.0
- * @menu 路径实体
+ * @menu
  */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ApiInfo {
+public class ApiInfoHistory {
+
 
     private String id;
+
+    /**
+     * api info id
+     */
+    private String apiInfoId;
     /**
      * 路径
      */
@@ -73,14 +79,11 @@ public class ApiInfo {
      * 创建时间
      */
     private Date createTime;
-    /**
-     * 更新时间
-     */
-    private Date updateTime;
 
     public Map<String,Object> toMap(){
         Map<String,Object> result = new HashMap<>();
         result.put("id",id);
+        result.put("apiInfoId",apiInfoId);
         result.put("method",method);
         result.put("path",path);
         result.put("options", options);
@@ -94,9 +97,6 @@ public class ApiInfo {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         if (createTime != null){
             result.put("createTime",sdf.format(createTime));
-        }
-        if (updateTime != null){
-            result.put("updateTime",sdf.format(updateTime));
         }
         return result;
     }

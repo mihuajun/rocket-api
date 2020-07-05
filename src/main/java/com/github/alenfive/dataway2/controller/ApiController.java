@@ -1,10 +1,7 @@
 package com.github.alenfive.dataway2.controller;
 
 import com.github.alenfive.dataway2.config.QLRequestMappingFactory;
-import com.github.alenfive.dataway2.entity.ApiExample;
-import com.github.alenfive.dataway2.entity.ApiInfo;
-import com.github.alenfive.dataway2.entity.ApiParams;
-import com.github.alenfive.dataway2.entity.ApiResult;
+import com.github.alenfive.dataway2.entity.*;
 import com.github.alenfive.dataway2.entity.vo.*;
 import com.github.alenfive.dataway2.extend.ApiInfoContent;
 import com.github.alenfive.dataway2.extend.IUserAuthorization;
@@ -42,7 +39,7 @@ import java.util.Map;
  */
 @Slf4j
 @RestController
-@RequestMapping("/dataway2")
+@RequestMapping("${spring.dataway2.base-path}")
 public class ApiController {
 
     @Autowired
@@ -82,6 +79,20 @@ public class ApiController {
         BeanUtils.copyProperties(apiInfo,resultInfo);
         resultInfo.setScript(URLDecoder.decode(resultInfo.getScript(),"utf-8"));
         return ApiResult.success(resultInfo);
+    }
+
+    /**
+     * 历史记录查询
+     * @return
+     */
+    @GetMapping("/api-info/last")
+    public ApiResult lastApiInfo(String apiInfoId,Integer pageSize,Integer pageNo) throws Exception {
+        Integer index = (pageNo-1)*pageSize;
+        List<ApiInfoHistory> historyList = mappingFactory.lastApiInfo(apiInfoId,index,pageSize);
+        for (ApiInfoHistory history : historyList) {
+            history.setScript(URLDecoder.decode(history.getScript(),"utf-8"));
+        }
+        return  ApiResult.success(historyList);
     }
 
     /**

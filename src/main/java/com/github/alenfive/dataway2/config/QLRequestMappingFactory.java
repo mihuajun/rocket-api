@@ -10,6 +10,7 @@ import com.github.alenfive.dataway2.script.IScriptParse;
 import com.github.alenfive.dataway2.service.ScriptParseService;
 import com.github.alenfive.dataway2.utils.RequestUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -24,6 +25,7 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandl
 
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.URLDecoder;
 import java.util.*;
@@ -52,12 +54,6 @@ public class QLRequestMappingFactory {
     @Autowired
     private ScriptParseService parseService;
 
-    private final List<String> blankList = Arrays.asList(
-            "/dataway2",
-            "/error",
-            "/api-ui"
-    );
-
     @Value("${spring.application.name}")
     private String service;
 
@@ -75,6 +71,9 @@ public class QLRequestMappingFactory {
 
     @Autowired
     private DataSourceManager dataSourceManager;
+
+    @Autowired
+    private Dataway2Properties properties;
 
     public List<ApiInfoInterceptor> interceptors = null;
 
@@ -271,6 +270,18 @@ public class QLRequestMappingFactory {
 
         //注册mapping
         this.registerMappingForApiInfo(dbInfo);
+
+        //存储历史
+        ApiInfoHistory history = new ApiInfoHistory();
+        BeanUtils.copyProperties(dbInfo,history);
+        history.setApiInfoId(dbInfo.getId());
+        history.setId(null);
+        history.setCreateTime(new Date());
+        ApiParams apiParams = ApiParams.builder().param(history.toMap()).build();
+        StringBuilder script = new StringBuilder(dataSourceManager.saveApiInfoHistoryScript());
+        parseService.buildParams(script,apiParams);
+        dataSourceManager.insert(script,ApiInfo.builder().datasource(dataSourceManager.getStoreApiKey()).build(),null);
+
     }
 
     public ApiInfo getDbInfo(ApiInfo apiInfo) throws Exception {
@@ -325,8 +336,8 @@ public class QLRequestMappingFactory {
             String group = map.get(info).getBeanType().getSimpleName();
             for(String path : info.getPatternsCondition().getPatterns()){
 
-                String blankPath = blankList.stream().filter(item->path.startsWith(item)).findFirst().orElse(null);
-                if (!StringUtils.isEmpty(blankPath)){
+                //过滤本身的类
+                if (path.indexOf(properties.getBasePath()) == 0 || path.equals("/error")){
                     continue;
                 }
 
@@ -412,5 +423,23 @@ public class QLRequestMappingFactory {
             this.interceptors = new ArrayList<>();
         }
         this.interceptors.add(interceptor);
+    }
+
+    public List<ApiInfoHistory> lastApiInfo(String apiInfoId,Integer index, Integer pageSize) throws Exception {
+        StringBuilder script = new StringBuilder(dataSourceManager.lastApiInfoHistoryScript());
+        ApiParams apiParams = new ApiParams();
+        apiParams.putParam("apiInfoId",apiInfoId);
+        apiParams.putParam("pageSize",pageSize);
+        apiParams.putParam("index",index);
+        parseService.parse(script,apiParams);
+        return dataSourceManager.find(script,ApiInfo.builder().datasource(dataSourceManager.getStoreApiKey()).build(),null)
+                .stream().map(item-> {
+            try {
+                return objectMapper.readValue(objectMapper.writeValueAsBytes(item),ApiInfoHistory.class);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }).collect(Collectors.toList());
     }
 }

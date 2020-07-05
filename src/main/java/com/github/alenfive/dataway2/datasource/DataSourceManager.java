@@ -32,6 +32,17 @@ public abstract class DataSourceManager extends DataSourceDialect{
     public String listApiInfoScript(){
         return dialectMap.get(getStoreApiKey()).listApiInfoScript();
     }
+
+    @Override
+    public String lastApiInfoHistoryScript() {
+        return dialectMap.get(getStoreApiKey()).lastApiInfoHistoryScript();
+    }
+
+    @Override
+    public String saveApiInfoHistoryScript() {
+        return dialectMap.get(getStoreApiKey()).saveApiInfoHistoryScript();
+    }
+
     @Override
     public String getApiInfoScript(){
         return dialectMap.get(getStoreApiKey()).getApiInfoScript();

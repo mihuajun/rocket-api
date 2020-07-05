@@ -50,6 +50,40 @@ public class MongoDataSource extends DataSourceDialect {
     }
 
     @Override
+    String lastApiInfoHistoryScript() {
+        return "{\n" +
+                "\t\"find\":\"api_info_history\",\n" +
+                "\t\"filter\":{\n" +
+                "\t\t?{apiInfoId,\"api_info_id\":ObjectId(#{apiInfoId})}\n" +
+                "\t}," +
+                "sort:{_id:-1},\n" +
+                "skip:#{index}\n" +
+                "limit:#{pageSize}\n" +
+                "}";
+    }
+
+    @Override
+    public String saveApiInfoHistoryScript() {
+        return "{\n" +
+                "\t\"insert\":\"api_info_history\",\n" +
+                "\t\"documents\":[{\n" +
+                "\t\t\"api_info_id\":ObjectId(#{apiInfoId}),\n" +
+                "\t\t\"method\":#{method},\n" +
+                "\t\t\"path\":#{path},\n" +
+                "\t\t\"type\":#{type},\n" +
+                "\t\t\"service\":#{service},\n" +
+                "\t\t\"group\":#{group},\n" +
+                "\t\t\"editor\":#{editor},\n" +
+                "\t\t\"comment\":#{comment},\n" +
+                "\t\t\"datasource\":#{datasource},\n" +
+                "\t\t\"script\":#{script},\n" +
+                "\t\t\"options\":#{options},\n" +
+                "\t\t\"create_time\":#{createTime},\n" +
+                "\t}]\n" +
+                "}";
+    }
+
+    @Override
     public String getApiInfoScript() {
         return "{\n" +
                 "     find: \"api_info\",\n" +
