@@ -22,6 +22,7 @@ window.localStorage.getItem('favoriteLanguage', readFavoriteLanguageCallback);*/
 let loadApiListUrl = ctxPath + "/dataway2/api-list";
 let saveApiUrl = ctxPath + "/dataway2/api-info";
 let getApiUrl = ctxPath + "/dataway2/api-info/";
+let lastApiUrl = ctxPath + "/dataway2/api-info/last";
 let deleteApiUrl = ctxPath + "/dataway2/api-info";
 let runApiUrl = ctxPath +"/dataway2/api-info/run";
 let getApiGroupNameUrl = ctxPath + "/dataway2/group-name-list";
@@ -60,12 +61,15 @@ let hasResponse;
 let hasConsole;
 let gdata = {
     apiList:null,
-    exampleHistoryList:null
+    exampleHistoryList:null,
+    apiHistoryList:null,
+    historyCurrPageNo:1
 }
 
 function loadCurrApi() {
     if (currApi){
-        loadDetail(currApi,"#editor-section")
+        loadDetailById(currApi,"#editor-section")
+        //构建api history
     }else{
         newRequest();
     }
@@ -85,6 +89,7 @@ function initUser() {
 
 $(function(){
 
+    //加载API列表
     loadApiList();
     loadEvent();
     $("#loader").hide();
@@ -293,12 +298,22 @@ $(function(){
 });
 
 
+function loadHistoryScrollEvent() {
+    $("#history-api-section .records").unbind("scroll").bind("scroll", function (e) {
+        var sum = this.scrollHeight;
+        if (sum <= $(this).scrollTop() + $(this).height()) {
+            gdata.historyCurrPageNo = gdata.historyCurrPageNo +1;
+            loadApiHistory(currApiInfo.id,gdata.historyCurrPageNo);
+        }
+    });
+}
 
 function loadEvent() {
     loadSelectBoxEvent();
     loadInputTypeEvent();
     loadEditAbleEvent();
     loadExampleMethodEvent();
+    loadHistoryScrollEvent();
 }
 
 function openConfirmModal(msg,fun) {
@@ -526,57 +541,81 @@ function loadSelectBoxEvent() {
     });
 }
 
-function loadDetail(id,form) {
+function loadDetailByHistoryId(id, form) {
+    showEditorPanel();
+
+    let apiHistory = null;
+    for(let i=0;i<gdata.apiHistoryList.length;i++){
+        if (gdata.apiHistoryList[i].id == id){
+            apiHistory = jQuery.extend(true, {}, gdata.apiHistoryList[i]);
+            break;
+        }
+    }
+    apiHistory.id = apiHistory.apiInfoId;
+
+    loadDetail(apiHistory,form);
+}
+
+function loadDetailById(id,form) {
+    $.getJSON(getApiUrl+id,function (data) {
+        data = unpackResult(data).data;
+        loadDetail(data,form);
+    });
+
+}
+
+function loadDetail(apiInfo,form) {
 
     //init curr data
     hasConsole = null;
     hasResponse = null;
+    currApiInfo = apiInfo;
 
     //------构建editor
     $(".request").removeClass("selected");
     $(".service").removeClass("parent-selected");
-    $(".request"+id).addClass("selected");
-    $(".request"+id).parents(".service").addClass("parent-selected");
-    $(".request"+id).parents(".service").removeClass("collapsed");
-    $(".request"+id).parents(".service").find(".fa-caret-right").addClass("fa-caret-down").removeClass("fa-caret-right");
+    $(".request"+currApiInfo.id).addClass("selected");
+    $(".request"+currApiInfo.id).parents(".service").addClass("parent-selected");
+    $(".request"+currApiInfo.id).parents(".service").removeClass("collapsed");
+    $(".request"+currApiInfo.id).parents(".service").find(".fa-caret-right").addClass("fa-caret-down").removeClass("fa-caret-right");
     $('#editor-section .draft-ribbon-text').text("Edit");
 
-    let url = detailUrl+id+"/"+(currPage?currPage:'example');
+    let url = detailUrl+currApiInfo.id+"/"+(currPage?currPage:'example');
     history.pushState(null,null,url);
     removeAllQueryParameterForm("#editor-section");
 
-    $.getJSON(getApiUrl+id,function (data) {
-        data = unpackResult(data).data;
-        currApiInfo = data;
-        $(form).find(".api-info-id").val(data.id);
-        $(form).find(".api-info-method").val(data.method);
-        $(form).find(".api-info-datasource").val(data.datasource),
-        $(form).find(".api-info-path").val(data.path.startsWith("TEMP-")?"":data.path).blur();
-        $(form).find(".api-info-group").val(data.group);
-        $(form).find(".api-info-editor").val(data.editor);
-        $(form).find(".api-info-comment").val(data.comment);
+    $(form).find(".api-info-id").val(currApiInfo.id);
+    $(form).find(".api-info-method").val(currApiInfo.method);
+    $(form).find(".api-info-datasource").val(currApiInfo.datasource),
+    $(form).find(".api-info-path").val(currApiInfo.path.startsWith("TEMP-")?"":currApiInfo.path).blur();
+    $(form).find(".api-info-group").val(currApiInfo.group);
+    $(form).find(".api-info-editor").val(currApiInfo.editor);
+    $(form).find(".api-info-comment").val(currApiInfo.comment);
 
-        $(form).find(".api-info-method").removeAttr("readonly").parent().removeClass("disabled");
-        $(form).find(".api-info-path").removeAttr("readonly");
-        $(form).find(".api-info-datasource").removeAttr("readonly");
-        $(form).find(".api-info-datasource").parent().removeClass("disabled");
-        $("#console-section").hide();
+    $(form).find(".api-info-method").removeAttr("readonly").parent().removeClass("disabled");
+    $(form).find(".api-info-path").removeAttr("readonly");
+    $(form).find(".api-info-datasource").removeAttr("readonly");
+    $(form).find(".api-info-datasource").parent().removeClass("disabled");
+    $("#console-section").hide();
 
-        if(data.type == 'Code'){
-            $(form).find(".api-info-method").attr("readonly","readonly");
-            $(form).find(".api-info-method").parent().addClass("disabled");
-            $(form).find(".api-info-path").attr("readonly","readonly");
-            $(form).find(".api-info-datasource").attr("readonly","readonly");
-            $(form).find(".api-info-datasource").parent().addClass("disabled");
-        }
+    if(currApiInfo.type == 'Code'){
+        $(form).find(".api-info-method").attr("readonly","readonly");
+        $(form).find(".api-info-method").parent().addClass("disabled");
+        $(form).find(".api-info-path").attr("readonly","readonly");
+        $(form).find(".api-info-datasource").attr("readonly","readonly");
+        $(form).find(".api-info-datasource").parent().addClass("disabled");
+    }
 
-        document.title = data.comment?data.comment:data.path;
-        buildApiOptionsDom(data.options);
-        editorTextarea.setValue(data.script);
+    document.title = currApiInfo.comment?currApiInfo.comment:currApiInfo.path;
+    buildApiOptionsDom(currApiInfo.options);
+    editorTextarea.setValue(currApiInfo.script);
 
-        //构建history
-        loadHistory(data,true);
-    })
+    //构建example history
+    loadExampleHistory(currApiInfo,true);
+
+    //构建 api history
+    loadApiHistory(currApiInfo.id,1);
+
 
 
 }
@@ -748,7 +787,8 @@ function saveExecuter(params) {
                 return;
             }
             cancelDialogGroup();
-            loadDetail(data.data,"#editor-section")
+            loadDetailById(data.data,"#editor-section")
+            loadApiHistory(data.data,1);
         },complete:function (req,data) {
             hideSendNotify();
         }
@@ -801,7 +841,7 @@ function buildApiTree(list,collapsed) {
 
         let $lev2 = $('<ul></ul>');
         $.each(value,function (index,item) {
-            $lev2.append('<li class="'+collapsed+' request level2 request'+item.id+'" ><div class="name" onclick="loadDetail(\''+item.id+'\',\'#editor-section\')" title="'+(item.comment?item.comment:item.path)+'"><i\n' +
+            $lev2.append('<li class="'+collapsed+' request level2 request'+item.id+'" ><div class="name" onclick="loadDetailById(\''+item.id+'\',\'#editor-section\')" title="'+(item.comment?item.comment:item.path)+'"><i\n' +
                 '                                                        class="fa fa-caret-right invisible" aria-hidden="true"\n' +
                 '                                                        e2e-tag="drive|'+(item.comment?item.comment:item.path)+'|expand"\n' +
                 '                                                        style="display: none;"></i>\n' +
@@ -868,6 +908,7 @@ function newRequest() {
     newEditor();
     newExample();
     showEditorPanel();
+    loadApiHistory(null,1);
 }
 
 function newEditor() {
@@ -898,6 +939,7 @@ function newEditor() {
     $("#example-section .draft-ribbon").show();
 
     hasConsole = null;
+    currApiInfo = {};
 }
 
 function newExample() {
@@ -1545,10 +1587,11 @@ function login() {
 }
 //--------------------------------login end -----------------------------------
 
-//--------------------------------history start -----------------------------------
+//--------------------------------example history start -----------------------------------
 function showHistory() {
     $("#left-side .history").addClass("active");
-    $("#history-section").show();
+    //$("#history-section").show();
+    $("#history-api-section").show();
 
     $("#left-side .repository").removeClass("active");
     $("#repository").hide();
@@ -1556,25 +1599,26 @@ function showHistory() {
 
 function showRepository() {
     $("#left-side .history").removeClass("active");
-    $("#history-section").hide();
+    //$("#history-section").hide();
+    $("#history-api-section").hide();
 
     $("#left-side .repository").addClass("active");
     $("#repository").show();
 }
 
-function loadHistory(apiInfo,isLoadExample) {
-    $.getJSON(lastExampleUrl+"?limit=25&apiInfoId="+apiInfo.id,function (data) {
+function loadExampleHistory(apiInfo, isLoadExample) {
+    $.getJSON(lastExampleUrl+"?limit=1&apiInfoId="+apiInfo.id,function (data) {
         data = unpackResult(data);
         gdata.exampleHistoryList = data.data;
         if (isLoadExample){
             loadExample(apiInfo,data.data.length>0?data.data[0]:null);
         }
-        buildHistory();
+        //buildExampleHistory();
     });
 
 }
 
-function buildHistory(filter) {
+function buildExampleHistory(filter) {
     let list = gdata.exampleHistoryList;
 
     let $form = $("#history-section");
@@ -1659,7 +1703,7 @@ function exampleRemove(exList) {
                     openMsgModal(data.msg);
                     return;
                 }
-                loadHistory(currApiInfo,false);
+                loadExampleHistory(currApiInfo,false);
                 selectExampleItem();
             },complete:function () {
                 hideSendNotify();
@@ -1669,7 +1713,67 @@ function exampleRemove(exList) {
 }
 
 function searchExample(e) {
-    buildHistory($(e).val())
+    buildExampleHistory($(e).val())
 }
 
-//--------------------------------history end -----------------------------------
+//--------------------------------example history end -----------------------------------
+
+//--------------------------------api history start -----------------------------------
+
+function loadApiHistory(apiInfoId,pageNo) {
+    if (!apiInfoId){
+        apiInfoId = "";
+    }
+    gdata.historyCurrPageNo = pageNo;
+    $.getJSON(lastApiUrl+"?pageSize=30&pageNo="+pageNo+"&apiInfoId="+apiInfoId,function (data) {
+        data = unpackResult(data);
+        if (pageNo == 1){
+            gdata.apiHistoryList = [];
+            $("#history-api-section .history tbody").html("");
+        }
+        $.each(data.data,function (index,item) {
+            gdata.apiHistoryList.push(item);
+        })
+        buildApiHistory(data.data,null);
+    });
+
+}
+
+function buildApiHistory(list,filter) {
+    let $form = $("#history-api-section");
+    $.each(list,function (index,item) {
+        if (filter && (
+            item.path.indexOf(filter) == -1
+            && item.editor.indexOf(filter) == -1
+            && item.method.indexOf(filter) == -1
+            && item.datasource.indexOf(filter) == -1
+        )){
+            return;
+        }
+        let template = buildApiHistoryItemStr(item);
+        $form.find(".history tbody").append(template);
+    })
+}
+
+function buildApiHistoryItemStr(item){
+    return '<tr><td>' +
+        '<div class="item">' +
+        '   <label class="checkbox selector" >' +
+        '   <input type="checkbox" value="on" style="display: none" data-id="'+item.id+'" tabindex="0"><span></span>' +
+        '   </label> ' +
+        '   <div class="method method-'+(item.method.toLowerCase())+'" title="GET">'+item.method+'</div> ' +
+        '   <div class="item-body"> ' +
+        '       <div> ' +
+        '           <a href="javascript:;" onclick="loadDetailByHistoryId(\''+item.id+'\',\'#editor-section\')" class="btn path btn-link" title="'+item.path+'"><i></i> '+item.path+' </a> ' +
+        '       </div> ' +
+        '       <div class="el-time" title="'+item.createTime+'">'+item.createTime+'</div> ' +
+        '       <div class="count">'+item.editor+'</div> ' +
+        '       <div class="status response-ok" title="'+item.datasource+'">'+item.datasource+'</div> ' +
+        '</div></div></td></tr>';
+}
+
+function searchApiHistory(e) {
+    $("#history-api-section .history tbody").html("");
+    buildApiHistory(gdata.apiHistoryList,$(e).val())
+}
+//--------------------------------api history end -----------------------------------

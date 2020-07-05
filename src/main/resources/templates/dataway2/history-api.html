@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<body>
+<div class="history-left" id="history-api-section" style="display: none" aria-hidden="true" th:fragment="history-api-section">
+    <div class="search"><input type="text" class="gwt-TextBox filter" placeholder="Search" onkeyup="searchApiHistory(this)"></div>
+    <div style="display: none;"><p class="note">Loading history entries</p></div>
+    <div class="records" style="overflow: auto; position: absolute; zoom: 1;">
+        <div style="position: relative; zoom: 1;">
+            <table class="history">
+                <colgroup>
+                    <col>
+                </colgroup>
+                <tbody>
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</body>
+</html>
