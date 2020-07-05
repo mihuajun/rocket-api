@@ -56,7 +56,7 @@ public class Dataway2AutoConfig {
 
     @Bean
     @ConditionalOnMissingBean
-    public QLRequestMappingFactory getApiInfoMappingFactory(){
+    public QLRequestMappingFactory getQLRequestMappingFactory(){
         return new QLRequestMappingFactory();
     }
 

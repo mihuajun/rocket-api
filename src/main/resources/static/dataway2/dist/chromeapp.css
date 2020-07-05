@@ -2383,7 +2383,7 @@ table th[class*="span"],
     *margin-right: 0.3em;
     line-height: 14px;
     vertical-align: text-top;
-    background-image: url("/images/bootstrap/glyphicons-halflings.png");
+    background-image: url("/static/dataway2/images/bootstrap/glyphicons-halflings.png");
     background-position: 14px 14px;
     background-repeat: no-repeat;
     margin-top: 1px;
@@ -2406,7 +2406,7 @@ table th[class*="span"],
 .dropdown-submenu:focus > a > [class^="icon-"],
 .dropdown-submenu:hover > a > [class*=" icon-"],
 .dropdown-submenu:focus > a > [class*=" icon-"] {
-    background-image: url("/images/bootstrap/glyphicons-halflings-white.png");
+    background-image: url("/static/dataway2/images/bootstrap/glyphicons-halflings-white.png");
 }
 .icon-glass {
     background-position: 0      0;
@@ -8213,7 +8213,7 @@ body:not(.free-edition) .show-for-free-edition {
     padding: 12vh 0 0 40vh;
     height: 60vh;
     background-repeat: no-repeat;
-    background-image: url(/images/error/error-403.svg);
+    background-image: url(/static/dataway2/images/error/error-403.svg);
     background-size: 34vh;
     background-position: 6vh 2vh;
     margin-left: 10vw;

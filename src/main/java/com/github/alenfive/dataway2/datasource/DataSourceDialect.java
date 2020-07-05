@@ -26,6 +26,10 @@ public abstract class DataSourceDialect {
     }
 
     abstract String listApiInfoScript();
+    abstract String lastApiInfoHistoryScript();
+
+    public abstract String saveApiInfoHistoryScript();
+
     abstract String getApiInfoScript();
     abstract String saveApiInfoScript();
     abstract String updateApiInfoScript();

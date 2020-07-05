@@ -44,6 +44,16 @@ public class SqlDataSource extends DataSourceDialect {
     }
 
     @Override
+    String lastApiInfoHistoryScript() {
+        return "select id,api_info_id,method,path,datasource,`type`,`group`,editor,`comment`,script,options,create_time,update_time from api_info where service = #{service} ?{apiInfoId,and api_info_id = #{apiInfoId}} order by id desc limit #{index},#{pageSize}";
+    }
+
+    @Override
+    public String saveApiInfoHistoryScript() {
+        return "insert into api_info_history(api_info_id,method,path,datasource,`type`,`service`,`group`,editor,`comment`,script,options,create_time) values(#{apiInfoId},#{method},#{path},#{datasource},#{type},#{service},#{group},#{editor},#{comment},#{script},#{options},#{createTime})";
+    }
+
+    @Override
     public String getApiInfoScript() {
         return "select id,method,path,datasource,`type`,`group`,editor,`comment`,script,options,create_time,update_time from api_info where method = #{method} and path = #{path}";
     }

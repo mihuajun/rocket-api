@@ -20,5 +20,5 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Dataway2Properties {
-    private Integer id;
+    private String basePath = "/api-ui";
 }
