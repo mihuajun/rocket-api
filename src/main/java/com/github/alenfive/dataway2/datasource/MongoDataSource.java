@@ -13,6 +13,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static java.lang.String.format;
+
 /**
  * @Description:
  * @Copyright: Copyright (c) 2019  ALL RIGHTS RESERVED.
@@ -54,7 +56,8 @@ public class MongoDataSource extends DataSourceDialect {
         return "{\n" +
                 "\t\"find\":\"api_info_history\",\n" +
                 "\t\"filter\":{\n" +
-                "\t\t?{apiInfoId,\"api_info_id\":ObjectId(#{apiInfoId})}\n" +
+                "\t\t\"service\":#{service}\n" +
+                "\t\t,?{apiInfoId,\"api_info_id\":ObjectId(#{apiInfoId})}\n" +
                 "\t}," +
                 "sort:{_id:-1},\n" +
                 "skip:#{index}\n" +
@@ -214,7 +217,7 @@ public class MongoDataSource extends DataSourceDialect {
 
     private List<Object> batchInsert(StringBuilder script){
         Document insertDoc = Document.parse(script.toString());
-        List<Document> docList = insertDoc.getList("documents",Document.class);
+        List<Document> docList = getList(insertDoc,"documents",Document.class,null);
         if (CollectionUtils.isEmpty(docList)){
             throw new RuntimeException("insert documents is empty");
         }
@@ -226,6 +229,20 @@ public class MongoDataSource extends DataSourceDialect {
         }
         mongoTemplate.executeCommand(insertDoc);
         return docList.stream().map(item->item.get("_id")).collect(Collectors.toList());
+    }
+
+    private <T> List<T> getList(Document document,final Object key, final Class<T> clazz, final List<T> defaultValue) {
+        List<?> value = document.get(key, List.class);
+        if (value == null) {
+            return defaultValue;
+        }
+
+        for (Object item : value) {
+            if (!clazz.isAssignableFrom(item.getClass())) {
+                throw new ClassCastException(format("List element cannot be cast to %s", clazz.getName()));
+            }
+        }
+        return (List<T>) value;
     }
 
     private void formatObjectIdList(StringBuilder script) {

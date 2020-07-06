@@ -40,12 +40,12 @@ public class SqlDataSource extends DataSourceDialect {
 
     @Override
     public String listApiInfoScript() {
-        return "select id,method,path,datasource,`type`,`group`,editor,`comment`,script,options,create_time,update_time from api_info where service = #{service}";
+        return "select id,method,path,datasource,`type`,`service`,`group`,editor,`comment`,script,options,create_time,update_time from api_info where service = #{service}";
     }
 
     @Override
     String lastApiInfoHistoryScript() {
-        return "select id,api_info_id,method,path,datasource,`type`,`group`,editor,`comment`,script,options,create_time,update_time from api_info where service = #{service} ?{apiInfoId,and api_info_id = #{apiInfoId}} order by id desc limit #{index},#{pageSize}";
+        return "select id,api_info_id,method,path,datasource,`type`,`service`,`group`,editor,`comment`,script,options,create_time from api_info_history where service = #{service} ?{apiInfoId,and api_info_id = #{apiInfoId}} order by id desc limit #{index},#{pageSize}";
     }
 
     @Override
@@ -55,7 +55,7 @@ public class SqlDataSource extends DataSourceDialect {
 
     @Override
     public String getApiInfoScript() {
-        return "select id,method,path,datasource,`type`,`group`,editor,`comment`,script,options,create_time,update_time from api_info where method = #{method} and path = #{path}";
+        return "select id,method,path,datasource,`type`,`service`,`group`,editor,`comment`,script,options,create_time,update_time from api_info where method = #{method} and path = #{path}";
     }
 
     @Override
@@ -65,7 +65,7 @@ public class SqlDataSource extends DataSourceDialect {
 
     @Override
     public String updateApiInfoScript() {
-        return "update api_info set method=#{method},path=#{path},datasource=#{datasource},`group`=#{group},editor=#{editor},`comment`=#{comment},script=#{script},options=#{options},update_time=#{updateTime} where id = #{id}";
+        return "update api_info set method=#{method},path=#{path},datasource=#{datasource},`service`=#{service},`group`=#{group},editor=#{editor},`comment`=#{comment},script=#{script},options=#{options},update_time=#{updateTime} where id = #{id}";
     }
 
     @Override

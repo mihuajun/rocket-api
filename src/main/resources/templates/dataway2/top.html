@@ -62,14 +62,20 @@
                                           title="A new version is available, click to upgrade!"></i> <span
                     class="new-version-label" title="A new version is available, click to upgrade!"> A new version is available </span>
             </li>
+            <li class = "no_hover"><a style="padding: 0px 20px;" th:text="${version}"></a></li>
+            <li style="padding: 0px 20px;display: none" class="no_hover center-version">最新版本：<span ></span></li>
+
+            <li class = "no_hover" style="padding: 0px 20px;"><img alt="GitHub stars" src="https://img.shields.io/github/stars/alenfive/dataway2?style=social"></li>
+            <li ><a style="padding: 0px 20px;" target="_blank" href="https://gitee.com/mihuajun/dataway2/wikis"> 帮助文档 </a></li>
             <li class="separator">
                 <div>|</div>
             </li>
             <li class="user login-info" style="display: none">
-                <a data-toggle="dropdown" style="visibility: visible;"> <i
-                    class="ti-icon ti-icon-user-circle"></i>
-                <div class="name">Free Edition</div>
-                <span class="caret"></span> </a>
+                <a data-toggle="dropdown" style="visibility: visible;">
+                    <i  class="ti-icon ti-icon-user-circle"></i>
+                    <div class="name">Free Edition</div>
+                    <span class="caret"></span>
+                </a>
                 <ul class="drop">
                     <li class="show-for-free-edition" onclick="logout()" style=" width: 166px;"><a> Logout </a></li>
                 </ul>

@@ -14,7 +14,6 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.method.HandlerMethod;
@@ -194,7 +193,7 @@ public class QLRequestMappingFactory {
      * 注册mapping
      * @param apiInfo
      */
-    private void registerMappingForApiInfo(ApiInfo apiInfo){
+    private void registerMappingForApiInfo(ApiInfo apiInfo) throws NoSuchMethodException {
         if (ApiType.Code.name().equals(apiInfo.getType())){
             return;
         }
@@ -206,8 +205,8 @@ public class QLRequestMappingFactory {
         PatternsRequestCondition patternsRequestCondition = new PatternsRequestCondition(pattern);
         RequestMethodsRequestCondition methodsRequestCondition = new RequestMethodsRequestCondition(RequestMethod.valueOf(apiInfo.getMethod()));
         RequestMappingInfo mappingInfo = new RequestMappingInfo(patternsRequestCondition,methodsRequestCondition,null,null,null,null,null);
-        Method targetMethod = ReflectionUtils.findMethod(this.getClass(), "execute",Map.class,Map.class,Map.class);
-        requestMappingHandlerMapping.registerMapping(mappingInfo,this.getClass().getSimpleName(), targetMethod);
+        Method targetMethod = QLRequestMappingFactory.class.getDeclaredMethod("execute", Map.class, Map.class, Map.class);
+        requestMappingHandlerMapping.registerMapping(mappingInfo,this, targetMethod);
     }
 
     /**
@@ -250,7 +249,7 @@ public class QLRequestMappingFactory {
             dataSourceManager.insert(script,ApiInfo.builder().datasource(dataSourceManager.getStoreApiKey()).build(),null);
         }else{
             ApiInfo dbInfo = this.cacheApiInfo.values().stream().filter(item->item.getId().equals(apiInfo.getId())).findFirst().orElse(null);
-
+            apiInfo.setService(service);
             ApiParams apiParams = ApiParams.builder().param(apiInfo.toMap()).build();
             StringBuilder script = new StringBuilder(dataSourceManager.updateApiInfoScript());
             parseService.buildParams(script,apiParams);
@@ -431,6 +430,7 @@ public class QLRequestMappingFactory {
         apiParams.putParam("apiInfoId",apiInfoId);
         apiParams.putParam("pageSize",pageSize);
         apiParams.putParam("index",index);
+        apiParams.putParam("service",service);
         parseService.parse(script,apiParams);
         return dataSourceManager.find(script,ApiInfo.builder().datasource(dataSourceManager.getStoreApiKey()).build(),null)
                 .stream().map(item-> {
