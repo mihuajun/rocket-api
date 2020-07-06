@@ -1,5 +1,6 @@
 package com.github.alenfive.dataway2.controller;
 
+import com.github.alenfive.dataway2.Dataway2Application;
 import com.github.alenfive.dataway2.config.Dataway2Properties;
 import com.github.alenfive.dataway2.datasource.DataSourceManager;
 import com.github.alenfive.dataway2.utils.LoginUtils;
@@ -42,6 +43,7 @@ public class ViewController {
         model.addAttribute("user", LoginUtils.getUser(request));
         model.addAttribute("service", service);
         model.addAttribute("basePath",buildBasePath(request));
+        model.addAttribute("version", getVersion());
         return "dataway2/api-index";
     }
 
@@ -53,7 +55,13 @@ public class ViewController {
         model.addAttribute("user", LoginUtils.getUser(request));
         model.addAttribute("service", service);
         model.addAttribute("basePath",buildBasePath(request));
+        model.addAttribute("version",getVersion());
         return "dataway2/api-index";
+    }
+
+    public static String getVersion() {
+        Package pkg = Dataway2Application.class.getPackage();
+        return (pkg != null ? pkg.getImplementationVersion() : null);
     }
 
     private String buildBasePath(HttpServletRequest request){

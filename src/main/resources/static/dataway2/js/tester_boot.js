@@ -87,6 +87,15 @@ function initUser() {
     }
 }
 
+//版本检测
+function versionCheck() {
+    let url = "https://img.shields.io/maven-central/v/com.github.alenfive/dataway2-boot-starter.json";
+    $.getJSON(url,function (data) {
+        $("#top-section .center-version").show();
+        $("#top-section .center-version span").text(data.value);
+    });
+}
+
 $(function(){
 
     //加载API列表
@@ -94,6 +103,7 @@ $(function(){
     loadEvent();
     $("#loader").hide();
     initUser();
+    versionCheck();
 
     monaco.languages.register({ id: 'custom-language' });
     monaco.languages.setMonarchTokensProvider('custom-language', {

@@ -204,7 +204,7 @@ public class ApiController {
 
     private void decodeHeaderValue(Map<String,String> header) throws UnsupportedEncodingException {
         for (String key : header.keySet()){
-            header.put(key,URLDecoder.decode(header.get(key),"utf-8"));
+            header.put(key.toLowerCase(),URLDecoder.decode(header.get(key),"utf-8"));
         }
     }
 
