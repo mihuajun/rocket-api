@@ -128,6 +128,7 @@ public class QLRequestMappingFactory {
      * @return
      */
     @ResponseBody
+    @RequestMapping
     public Object execute(@PathVariable(required = false) Map<String,String> pathVar,
                           @RequestParam(required = false) Map<String,Object> param,
                           @RequestBody(required = false) Map<String,Object> body) throws Throwable {
