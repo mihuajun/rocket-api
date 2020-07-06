@@ -250,7 +250,7 @@ public class QLRequestMappingFactory {
             dataSourceManager.insert(script,ApiInfo.builder().datasource(dataSourceManager.getStoreApiKey()).build(),null);
         }else{
             ApiInfo dbInfo = this.cacheApiInfo.values().stream().filter(item->item.getId().equals(apiInfo.getId())).findFirst().orElse(null);
-
+            apiInfo.setService(service);
             ApiParams apiParams = ApiParams.builder().param(apiInfo.toMap()).build();
             StringBuilder script = new StringBuilder(dataSourceManager.updateApiInfoScript());
             parseService.buildParams(script,apiParams);
@@ -431,6 +431,7 @@ public class QLRequestMappingFactory {
         apiParams.putParam("apiInfoId",apiInfoId);
         apiParams.putParam("pageSize",pageSize);
         apiParams.putParam("index",index);
+        apiParams.putParam("service",service);
         parseService.parse(script,apiParams);
         return dataSourceManager.find(script,ApiInfo.builder().datasource(dataSourceManager.getStoreApiKey()).build(),null)
                 .stream().map(item-> {

@@ -54,7 +54,8 @@ public class MongoDataSource extends DataSourceDialect {
         return "{\n" +
                 "\t\"find\":\"api_info_history\",\n" +
                 "\t\"filter\":{\n" +
-                "\t\t?{apiInfoId,\"api_info_id\":ObjectId(#{apiInfoId})}\n" +
+                "\t\t\"service\":#{service}\n" +
+                "\t\t,?{apiInfoId,\"api_info_id\":ObjectId(#{apiInfoId})}\n" +
                 "\t}," +
                 "sort:{_id:-1},\n" +
                 "skip:#{index}\n" +

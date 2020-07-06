@@ -24,7 +24,7 @@ import javax.servlet.http.HttpServletRequest;
  * @menu 页面显示
  */
 @Controller
-@RequestMapping("${spring.dataway2.base-path}")
+@RequestMapping("${spring.dataway2.base-path:/api-ui}")
 public class ViewController {
 
     @Autowired

@@ -39,7 +39,7 @@ import java.util.Map;
  */
 @Slf4j
 @RestController
-@RequestMapping("${spring.dataway2.base-path}")
+@RequestMapping("${spring.dataway2.base-path:/api-ui}")
 public class ApiController {
 
     @Autowired
