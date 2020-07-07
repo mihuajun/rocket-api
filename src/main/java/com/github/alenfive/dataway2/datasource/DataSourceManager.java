@@ -32,6 +32,17 @@ public abstract class DataSourceManager extends DataSourceDialect{
     public String listApiInfoScript(){
         return dialectMap.get(getStoreApiKey()).listApiInfoScript();
     }
+
+    @Override
+    public String lastApiInfoHistoryScript() {
+        return dialectMap.get(getStoreApiKey()).lastApiInfoHistoryScript();
+    }
+
+    @Override
+    public String saveApiInfoHistoryScript() {
+        return dialectMap.get(getStoreApiKey()).saveApiInfoHistoryScript();
+    }
+
     @Override
     public String getApiInfoScript(){
         return dialectMap.get(getStoreApiKey()).getApiInfoScript();
@@ -62,41 +73,41 @@ public abstract class DataSourceManager extends DataSourceDialect{
     }
 
     @Override
-    public List<Map<String, Object>> find(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams) {
+    public List<Map<String, Object>> find(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams) throws Exception {
         return this.find(script,apiInfo,apiParams,null);
     }
 
     @Override
-    public Long update(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams) {
+    public Long update(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams) throws Exception {
         return this.update(script,apiInfo,apiParams,null);
     }
 
     @Override
-    public Long remove(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams) {
+    public Long remove(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams) throws Exception {
         return this.remove(script,apiInfo,apiParams,null);
     }
 
     @Override
-    public Object insert(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams) {
+    public Object insert(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams)throws Exception {
         return this.insert(script,apiInfo,apiParams,null);
     }
 
-    public List<Map<String, Object>> find(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams, String specifyDataSource) {
+    public List<Map<String, Object>> find(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams, String specifyDataSource) throws Exception {
         DataSourceDialect dataSourceDialect = buildDataSourceDialect(apiInfo.getDatasource(),specifyDataSource);
         return dataSourceDialect.find(script,apiInfo,apiParams);
     }
 
-    public Long remove(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams,String specifyDataSource) {
+    public Long remove(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams,String specifyDataSource) throws Exception {
         DataSourceDialect dataSourceDialect = buildDataSourceDialect(apiInfo.getDatasource(),specifyDataSource);
         return dataSourceDialect.remove(script,apiInfo,apiParams);
     }
 
-    public Object insert(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams,String specifyDataSource) {
+    public Object insert(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams,String specifyDataSource) throws Exception {
         DataSourceDialect dataSourceDialect = buildDataSourceDialect(apiInfo.getDatasource(),specifyDataSource);
         return dataSourceDialect.insert(script,apiInfo,apiParams);
     }
 
-    public Long update(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams,String specifyDataSource) {
+    public Long update(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams,String specifyDataSource) throws Exception {
         DataSourceDialect dataSourceDialect = buildDataSourceDialect(apiInfo.getDatasource(),specifyDataSource);
         return dataSourceDialect.update(script,apiInfo,apiParams);
     }

@@ -5,13 +5,15 @@ import com.github.alenfive.dataway2.entity.ApiParams;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static java.lang.String.format;
 
 /**
  * @Description:
@@ -23,10 +25,10 @@ import java.util.stream.Stream;
  * @Version: 1.0
  * @menu mongo数据源
  */
-@Component
 public class MongoDataSource extends DataSourceDialect {
 
     private MongoTemplate mongoTemplate;
+
 
     private MongoDataSource(){}
 
@@ -34,7 +36,7 @@ public class MongoDataSource extends DataSourceDialect {
         this.mongoTemplate = mongoTemplate;
     }
 
-    public MongoDataSource(MongoTemplate mongoTemplate, boolean storeApi) {
+    public MongoDataSource(MongoTemplate mongoTemplate,boolean storeApi) {
         this.mongoTemplate = mongoTemplate;
         this.storeApi = storeApi;
     }
@@ -46,6 +48,41 @@ public class MongoDataSource extends DataSourceDialect {
                 "\t\"filter\":{\n" +
                 "\t\t\"service\":#{service}\n" +
                 "\t}\n" +
+                "}";
+    }
+
+    @Override
+    String lastApiInfoHistoryScript() {
+        return "{\n" +
+                "\t\"find\":\"api_info_history\",\n" +
+                "\t\"filter\":{\n" +
+                "\t\t\"service\":#{service}\n" +
+                "\t\t,?{apiInfoId,\"api_info_id\":ObjectId(#{apiInfoId})}\n" +
+                "\t}," +
+                "sort:{_id:-1},\n" +
+                "skip:#{index}\n" +
+                "limit:#{pageSize}\n" +
+                "}";
+    }
+
+    @Override
+    public String saveApiInfoHistoryScript() {
+        return "{\n" +
+                "\t\"insert\":\"api_info_history\",\n" +
+                "\t\"documents\":[{\n" +
+                "\t\t\"api_info_id\":ObjectId(#{apiInfoId}),\n" +
+                "\t\t\"method\":#{method},\n" +
+                "\t\t\"path\":#{path},\n" +
+                "\t\t\"type\":#{type},\n" +
+                "\t\t\"service\":#{service},\n" +
+                "\t\t\"group\":#{group},\n" +
+                "\t\t\"editor\":#{editor},\n" +
+                "\t\t\"comment\":#{comment},\n" +
+                "\t\t\"datasource\":#{datasource},\n" +
+                "\t\t\"script\":#{script},\n" +
+                "\t\t\"options\":#{options},\n" +
+                "\t\t\"create_time\":#{createTime},\n" +
+                "\t}]\n" +
                 "}";
     }
 
@@ -118,6 +155,7 @@ public class MongoDataSource extends DataSourceDialect {
                 "\t\t\"response_body\":#{responseBody},\n" +
                 "\t\t\"status\":#{status},\n" +
                 "\t\t\"time\":#{time},\n" +
+                "\t\t\"editor\":#{editor},\n" +
                 "\t\t\"options\":#{options},\n" +
                 "\t\t\"create_time\":ISODate(#{createTime})\n" +
                 "\t}]\n" +
@@ -139,14 +177,14 @@ public class MongoDataSource extends DataSourceDialect {
         return "{\n" +
                 "     delete: \"api_example\",\n" +
                 "     deletes: [\n" +
-                "     \t{q:{id:{$in:[ObjectId(#{ids})]}},limit:0}\n" +
+                "     \t{q:{_id:{$in:[ObjectId(#{ids})]}},limit:0}\n" +
                 "     ]\n" +
                 "}";
     }
 
 
     @Override
-    public List<Map<String,Object>> find(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams) {
+    public List<Map<String,Object>> find(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams)  throws Exception {
         formatISODate(script);
         formatObjectIdList(script);
         Document document = mongoTemplate.executeCommand(script.toString());
@@ -155,27 +193,56 @@ public class MongoDataSource extends DataSourceDialect {
     }
 
     @Override
-    public Long update(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams) {
+    public Long update(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams)  throws Exception {
         formatISODate(script);
         formatObjectIdList(script);
-        mongoTemplate.executeCommand(script.toString());
-        return null;
+        Document result = mongoTemplate.executeCommand(script.toString());
+        return Long.valueOf(result.getInteger("n"));
     }
 
     @Override
-    public Long remove(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams) {
+    public Long remove(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams) throws Exception {
         formatISODate(script);
         formatObjectIdList(script);
-        mongoTemplate.executeCommand(script.toString());
-        return null;
+        Document result = mongoTemplate.executeCommand(script.toString());
+        return Long.valueOf(result.getInteger("n"));
     }
 
     @Override
-    public Object insert(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams) {
+    public Object insert(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams) throws Exception {
         formatISODate(script);
         formatObjectIdList(script);
-        mongoTemplate.executeCommand(script.toString());
-        return null;
+        return batchInsert(script).get(0).toString();
+    }
+
+    private List<Object> batchInsert(StringBuilder script){
+        Document insertDoc = Document.parse(script.toString());
+        List<Document> docList = getList(insertDoc,"documents",Document.class,null);
+        if (CollectionUtils.isEmpty(docList)){
+            throw new RuntimeException("insert documents is empty");
+        }
+        for (Document doc : docList ){
+            ObjectId id = doc.getObjectId("_id");
+            if (id == null){
+                doc.put("_id",ObjectId.get());
+            }
+        }
+        mongoTemplate.executeCommand(insertDoc);
+        return docList.stream().map(item->item.get("_id")).collect(Collectors.toList());
+    }
+
+    private <T> List<T> getList(Document document,final Object key, final Class<T> clazz, final List<T> defaultValue) {
+        List<?> value = document.get(key, List.class);
+        if (value == null) {
+            return defaultValue;
+        }
+
+        for (Object item : value) {
+            if (!clazz.isAssignableFrom(item.getClass())) {
+                throw new ClassCastException(format("List element cannot be cast to %s", clazz.getName()));
+            }
+        }
+        return (List<T>) value;
     }
 
     private void formatObjectIdList(StringBuilder script) {

@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<body>
+<section class="catalog" id="repository" th:fragment="repository-section">
+    <div class="search"><input type="text" class="gwt-TextBox filter" onkeyup="searchApi(this)" placeholder="Search"></div>
+    <div class="tree-view">
+        <div class="one-drive local-drive">
+            <div class="drive-name"><i class="fa fa-caret-down"></i>
+                <div class="drive-name-label"><span th:text="${service}"></span><span class="api-counter" style="margin-left: 5px;color: #888;">[0]</span></div>
+                <div class="btn-group ctrls dropdown-primary"><a class="btn-mini dropdown-toggle"
+                                                                 data-toggle="dropdown"><i
+                        class="sli-icon-options-vertical"></i></a>
+                    <ul class="pull-right dropdown-menu">
+                        <li class="dropdown-item"><a><i class="fa fa-plus"></i><span class="gwt-InlineHTML">Add a project</span></a>
+                        </li>
+                        <li class="dropdown-item"><a><i class="fa fa-download"></i><span
+                                class="gwt-InlineHTML">Export</span></a></li>
+                        <li class="dropdown-item"><a><i class="fa fa-upload"></i><span
+                                class="gwt-InlineHTML">Import</span></a></li>
+                        <li class="dropdown-item"><a><i class="fa fa-trash"></i><span
+                                class="gwt-InlineHTML">Erase</span></a></li>
+                    </ul>
+                </div>
+            </div>
+            <ul class="authenticated">
+                <ul></ul>
+            </ul>
+        </div>
+    </div>
+</section>
+</body>
+</html>

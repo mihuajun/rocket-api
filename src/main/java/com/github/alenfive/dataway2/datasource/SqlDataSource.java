@@ -6,7 +6,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
-import org.springframework.stereotype.Component;
 
 import java.sql.PreparedStatement;
 import java.sql.Statement;
@@ -24,7 +23,6 @@ import java.util.stream.Collectors;
  * @Version: 1.0
  * @menu MYSQL数据源
  */
-@Component
 public class SqlDataSource extends DataSourceDialect {
 
     private JdbcTemplate jdbcTemplate;
@@ -42,12 +40,22 @@ public class SqlDataSource extends DataSourceDialect {
 
     @Override
     public String listApiInfoScript() {
-        return "select id,method,path,datasource,`type`,`group`,editor,`comment`,script,options,create_time,update_time from api_info where service = #{service}";
+        return "select id,method,path,datasource,`type`,`service`,`group`,editor,`comment`,script,options,create_time,update_time from api_info where service = #{service}";
+    }
+
+    @Override
+    String lastApiInfoHistoryScript() {
+        return "select id,api_info_id,method,path,datasource,`type`,`service`,`group`,editor,`comment`,script,options,create_time from api_info_history where service = #{service} ?{apiInfoId,and api_info_id = #{apiInfoId}} order by id desc limit #{index},#{pageSize}";
+    }
+
+    @Override
+    public String saveApiInfoHistoryScript() {
+        return "insert into api_info_history(api_info_id,method,path,datasource,`type`,`service`,`group`,editor,`comment`,script,options,create_time) values(#{apiInfoId},#{method},#{path},#{datasource},#{type},#{service},#{group},#{editor},#{comment},#{script},#{options},#{createTime})";
     }
 
     @Override
     public String getApiInfoScript() {
-        return "select id,method,path,datasource,`type`,`group`,editor,`comment`,script,options,create_time,update_time from api_info where method = #{method} and path = #{path}";
+        return "select id,method,path,datasource,`type`,`service`,`group`,editor,`comment`,script,options,create_time,update_time from api_info where method = #{method} and path = #{path}";
     }
 
     @Override
@@ -57,7 +65,7 @@ public class SqlDataSource extends DataSourceDialect {
 
     @Override
     public String updateApiInfoScript() {
-        return "update api_info set method=#{method},path=#{path},datasource=#{datasource},`group`=#{group},editor=#{editor},`comment`=#{comment},script=#{script},options=#{options},update_time=#{updateTime} where id = #{id}";
+        return "update api_info set method=#{method},path=#{path},datasource=#{datasource},`service`=#{service},`group`=#{group},editor=#{editor},`comment`=#{comment},script=#{script},options=#{options},update_time=#{updateTime} where id = #{id}";
     }
 
     @Override
@@ -67,13 +75,13 @@ public class SqlDataSource extends DataSourceDialect {
 
     @Override
     String saveApiExampleScript() {
-        return "insert into api_example(api_info_id,method,url,request_header,request_body,response_header,response_body,status,time,options,create_time) " +
-                "values(#{apiInfoId},#{method},#{url},#{requestHeader},#{requestBody},#{responseHeader},#{responseBody},#{status},#{time},#{options},#{createTime})";
+        return "insert into api_example(api_info_id,method,url,request_header,request_body,response_header,response_body,status,time,options,editor,create_time) " +
+                "values(#{apiInfoId},#{method},#{url},#{requestHeader},#{requestBody},#{responseHeader},#{responseBody},#{status},#{time},#{options},#{editor},#{createTime})";
     }
 
     @Override
     String lastApiExampleScript() {
-        return "select id,api_info_id,method,url,request_header,request_body,response_header,response_body,status,time,options,create_time from api_example where api_info_id = #{apiInfoId} order by id desc limit #{limit}";
+        return "select id,api_info_id,method,url,request_header,request_body,response_header,response_body,status,time,options,editor,create_time from api_example where api_info_id = #{apiInfoId} order by id desc limit #{limit}";
     }
 
     @Override

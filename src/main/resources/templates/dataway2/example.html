@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<body>
+<section id="example-section" class="pane pane-request request-common" th:fragment="example-section">
+        <div class="draft-ribbon" style="" onclick="showEditorPanel()">
+            <div class="draft-ribbon-text"> Example</div>
+        </div>
+        <div class="pane-request-header">
+            <div class="editable-input-container request-name" aria-hidden="true" style="display: none;">
+                <div class="editable-input input-append read-only"><input type="text" class="gwt-TextBox gwt-TextBox-readonly" readonly="" required="true" maxlength="256"><span
+                        class="add-on"><i class="icon-pencil"></i></span></div>
+                <div class="editable-input-error" title=""></div>
+            </div>
+            <div class="request-name-not-editable" style="">
+                <div class="request-name-not-editable-text"></div>
+                <button class="request-name-not-editable-link r-btn-small r-btn r-btn-link" disabled="disabled" title="Request doesn't exist in repository" aria-hidden="true"
+                        style="display: none;"><i class="fa fa-external-link"></i><span></span><span class="r-btn-indicator" aria-hidden="true" style="display: none;"></span>
+                </button>
+            </div>
+            <div class="btn-group btn-save-rp"><a class="save-example-btn gwt-Anchor btn btn-default btn-save-primary" href="javascript:;" onclick="saveExample()">Save
+
+            </a> <a href="javascript:;" class="btn btn-default btn-save-primary dropdown-toggle" e2e-tag="btn-save-more" data-toggle="dropdown"><i class="icon-caret-down"></i></a>
+                <ul class="dropdown-menu pull-right">
+                    <li data-original-title="Save request as (Alt + Shift + S)" title="" aria-hidden="true" style="display: none;"><a href="javascript:;"><i></i> Save as </a></li>
+                    <li data-original-title="Copy as cURL (Alt + G)" title=""><a href="javascript:;"><i></i> Copy as cURL </a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="content" style="margin-top: 22px;">
+            <div class="service">
+                <div class="row-uri-in-request-view">
+                    <div class="row-uri">
+                        <div class="uri-method">
+                            <div class="uri-help"><a class="help-link" href="http://tools.ietf.org/html/rfc7231#section-4" tabindex="-1" target="_blank"> Method </a></div>
+                            <div>
+                                <div class="btn-group input-append split-dropdown" e2e-tag="method-selector">
+                                    <div class="input-append dropdown-toggle" data-toggle="dropdown"><input type="text" class="gwt-TextBox example-method" value="GET" style="width: 85px;"><span
+                                            class="add-on"><a href="javascript:;" class="btn btn-small btn-link split-dropdown-trigger" tabindex="-1"><i
+                                            class="icon-caret-down"></i></a></span></div>
+                                    <ul class="dropdown-menu">
+                                        <li><a href="javascript:;"><i></i> GET </a></li>
+                                        <li><a href="javascript:;"><i></i> POST </a></li>
+                                        <li><a href="javascript:;"><i></i> PUT </a></li>
+                                        <li><a href="javascript:;"><i></i> DELETE </a></li>
+                                        <li><a href="javascript:;"><i></i> HEAD </a></li>
+                                        <li><a href="javascript:;"><i></i> OPTIONS </a></li>
+                                        <li><a href="javascript:;"><i></i> PATCH </a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="uri-editor">
+                            <div class="uri-help"><a href="http://tools.ietf.org/html/rfc3986#page-17" tabindex="-1" target="_blank"> Scheme </a> :// <a
+                                    href="http://tools.ietf.org/html/rfc7230#section-2.7" tabindex="-1" target="_blank"> Host [ ":" Port ] [ Path [ "?" Query ]] </a></div>
+                            <div class="uri-input">
+                                <div class="uri-input-lock"><i class="fa fa-lock"></i></div>
+                                <span class="expression-input input-append uri-path"><input type="text" onblur="parseUrlInput(this)" value="" class="gwt-TextBox example-url" spellcheck="false" autocomplete="off"
+                                                                                            e2e-tag="uri-input" placeholder="Type an URI"><span class="add-on"
+                                                                                                                                                data-original-title="" title=""><i
+                                        class="icon-magic"></i></span></span>
+                                <div class="uri-length" title="length: 9 byte(s)" style="display: inline;"></div>
+                            </div>
+                            <div class="uri-validation-error show-error" style="display: none">Missing URI</div>
+                        </div>
+                    </div>
+                    <div class="btn-group send"><a href="javascript:;" onclick="requextUrlExample(false)" class="btn btn-send btn-primary" e2e-tag="btn-send" data-original-title="Send request (Alt + Enter)"
+                                                   title=""><i class="icon-send"></i> Send </a> <a href="javascript:;" class="btn btn-send dropdown-toggle btn-primary"
+                                                                                                   data-toggle="dropdown" e2e-tag="btn-send-additional-actions" tabindex="-1"><i
+                            class="icon-caret-down"></i> </a>
+                        <ul class="dropdown-menu pull-right">
+                            <li><a href="javascript:;" onclick="requextUrlExample(true)"><i></i> Follow redirects </a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="query-parameters-form collapsed in-request-view">
+                    <div class="query-parameters-form-title collapsed-title not-select"><i class="fa fa-caret-right" onclick="triggerQueryParameterForm(this)" tabindex="0"></i> <span class="title-content" onclick="triggerQueryParameterForm(this)" e2e-tag="query-parameter-expand">Query parameters</span>
+                        <span class="subtitle-counter"></span>
+                        <button class="r-btn r-btn-link" title="Sort query parameters" e2e-tag="query-parameter-sort" style="display: none"><i
+                                class="fa fa-sort-alpha-asc"></i><span></span><span class="r-btn-indicator" aria-hidden="true" style="display: none;"></span></button>
+                    </div>
+                    <div class="query-parameters-form-block">
+                    </div>
+                    <div class="query-parameters-btns-row">
+                        <button class="list-action-add r-btn r-btn-small r-btn-rounded" onclick="queryParameterAdd()" title="Add a new query parameter." e2e-tag="query-parameter-add"><i
+                                class="fa fa-plus"></i><span>Add query parameter</span><span class="r-btn-indicator" aria-hidden="true" style="display: none;"></span></button>
+                        <button class="list-action-remove-all r-btn r-btn-link" onclick="removeAllQueryParameterForm('#example-section')" title="Remove all query parameters" e2e-tag="query-parameter-remove-all" tabindex="-1" style=""><i
+                                class="fa fa-trash-o"></i><span></span><span class="r-btn-indicator" aria-hidden="true" style="display: none;"></span></button>
+                    </div>
+                </div>
+            </div>
+            <div class="layout-for-headers-and-body">
+                <div class="headers">
+                    <div class="headers-form">
+                        <div class="headers-form-title"><span class="title-content"> Headers </span> <i class="sli-icon-question link-to-rfc" data-original-title="" title=""></i>
+                            <button class="r-btn r-btn-link" title="Sort headers" e2e-tag="header-sort" style=""><i class="fa fa-sort-alpha-asc"></i><span></span><span
+                                    class="r-btn-indicator" aria-hidden="true" style="display: none;"></span></button>
+                            <button class="header-warning r-btn r-btn-link" aria-hidden="true" title="Show warnings" style="display: none;"><i
+                                    class="fa fa-exclamation-triangle"></i><span></span><span class="r-btn-indicator" aria-hidden="true" style="display: none;"></span></button>
+                            <ul class="nav nav-pills contextual-menu-in-title">
+                                <li class="dropdown right"><a href="javascript:;" class="dropdown-toggle" data-toggle="dropdown"><i></i> Form <span class="caret"></span></a>
+                                    <ul class="dropdown-menu">
+                                        <li><a href="javascript:;" class="show-form-btn" onclick="showHeaderForm(this)"><i></i> Form </a></li>
+                                        <li><a href="javascript:;" class="show-raw-btn" onclick="showHeaderRaw(this)"><i></i> Raw </a></li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="mode-form">
+                            <div class="headers-form-block">
+                            </div>
+                        </div>
+                        <div class="mode-raw" style="display: none"><div><textarea class="gwt-TextArea request-raw-headers"></textarea><div class="headers-errors" aria-hidden="true" style="display: none;"></div></div></div>
+                        <div class="headers-btns-row">
+                            <button class="list-action-add r-btn r-btn-small r-btn-rounded" onclick="headerAdd()" title="" e2e-tag="header-add" data-original-title="Add a new header (Alt + H)"><i
+                                    class="fa fa-plus"></i><span>Add header</span><span class="r-btn-indicator" aria-hidden="true" style="display: none;"></span></button>
+                            <button class="r-btn r-btn-link" title="Add an authorization" e2e-tag="header-add-auth"><i class="sli-icon-key"></i><span>Add authorization</span><span
+                                    class="r-btn-indicator" aria-hidden="true" style="display: none;"></span></button>
+                            <button class="list-action-remove-all r-btn r-btn-link" title="Remove all headers" onclick="headRemoveAll()" e2e-tag="header-remove-all" tabindex="-1" style=""><i
+                                    class="fa fa-trash-o"></i><span></span><span class="r-btn-indicator" aria-hidden="true" style="display: none;"></span></button>
+                        </div>
+                    </div>
+                </div>
+                <div class="resizer-for-headers-and-body">
+                    <div class="resizer-pane"><i class="fa fa-caret-left" style="visibility: visible;"></i> <span class="headers-subtitle"> Headers <span class="subtitle-counter">[1]</span> </span>
+                    </div>
+                    <div class="resizer">
+                        <div class="resizer-line"></div>
+                    </div>
+                    <div class="resizer-pane"><i class="fa fa-caret-right" style="visibility: visible;"></i> <span class="body-subtitle"> Body <span class="subtitle-counter"
+                                                                                                                                                     style="display: none;"></span> </span>
+                    </div>
+                </div>
+                <div class="body body-content body-form">
+                    <div class="body-form-title"><span class="title-content"> Body </span> <i class="sli-icon-question link-to-rfc" data-original-title="" title=""></i>
+                        <button class="r-btn r-btn-link" title="Sort items" e2e-tag="body-sort" aria-hidden="true" style="display: none;"><i
+                                class="fa fa-sort-alpha-asc"></i><span></span><span class="r-btn-indicator" aria-hidden="true" style="display: none;"></span></button>
+                        <ul class="nav nav-pills contextual-menu-in-title">
+                            <li class="dropdown right" e2e-tag="body-type" style=""><a href="javascript:;" class="dropdown-toggle" data-toggle="dropdown"><i></i> Text <span
+                                    class="caret"></span></a>
+                                <ul class="dropdown-menu">
+                                    <li><a href="javascript:;"><i></i> Text </a></li>
+                                    <li><a href="javascript:;"><i></i> File </a></li>
+                                    <li><a href="javascript:;"><i></i> Form </a></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="note" aria-hidden="true">
+                        <div><a target="_blank" href="http://www.w3.org/TR/XMLHttpRequest/#the-send()-method">XHR</a> does not allow payloads for <a class="note-method">GET</a>
+                            request.
+                        </div>
+                        <button class="btn-open-body-editor r-btn r-btn-link" aria-hidden="true" style="display: none;"><i class="fa fa-no-icon"></i><span>Click here to open an entity-body editor.</span><span
+                                class="r-btn-indicator" aria-hidden="true" style="display: none;"></span></button>
+                        <div aria-hidden="true" style="display: none;">or change a method definition in <a href="#settings:HTTP">Settings</a>.</div>
+                    </div>
+
+                    <div class="b-container" >
+                        <div>
+                            <div class="text-body">
+                                <div e2e-tag="text-body" class="gwt-TextArea text-body">
+                                    <div id="example-editor" style="width:100%;min-height:250px;height:100%;font-size: 12px;"></div>
+                                    <div class="vertical-resizer resizer-for-body"></div>
+                                </div>
+                                <i class="icon-magic icon-light btn-expression-builder-textarea"></i>
+                            </div>
+                            <div class="text-body-bottom">
+                                <button class="text-body-content-type r-btn-small r-btn r-btn-link" onclick="setModeExample(this,'text/javascript')" e2e-tag="text-body-type-text-plain" title="Set Content-Type: text/plain"><i
+                                        class="fa fa-no-icon"></i><span>Text</span><span class="r-btn-indicator" aria-hidden="true" style="display: none;"></span></button>
+                                <button class="text-body-content-type r-btn-small r-btn r-btn-link selected" onclick="setModeExample(this,'application/json')" e2e-tag="text-body-type-json"
+                                        title="Set Content-Type: application/json"><i class="fa fa-no-icon"></i><span>JSON</span><span class="r-btn-indicator" aria-hidden="true"
+                                                                                                                                       style="display: none;"></span></button>
+                                <button class="text-body-content-type r-btn-small r-btn r-btn-link"  onclick="setModeExample(this,'application/xml')" e2e-tag="text-body-type-xml" title="Set Content-Type: application/xml"><i
+                                        class="fa fa-no-icon"></i><span>XML</span><span class="r-btn-indicator" aria-hidden="true" style="display: none;"></span></button>
+                                <button class="text-body-content-type r-btn-small r-btn r-btn-link" onclick="setModeExample(this,'text/html')" e2e-tag="text-body-type-html" title="Set Content-Type: text/html"><i
+                                        class="fa fa-no-icon"></i><span>HTML</span><span class="r-btn-indicator" aria-hidden="true" style="display: none;"></span></button>
+                                <span class="body-format-separator">|</span>
+                                <button class="text-body-format r-btn-small r-btn r-btn-link" onclick="formatExample()" e2e-tag="text-body-btn-format"><i
+                                        class="ti-icon ti-icon-format"></i><span>Format body</span><span class="r-btn-indicator" aria-hidden="true" style="display: none;"></span>
+                                </button>
+                                <span class="body-format-separator">|</span> <span class="gwt-CheckBox disable-evaluation" e2e-tag="text-body-disable-body-evaluation"><input
+                                    type="checkbox" value="on" id="gwt-uid-787" tabindex="0" checked=""><label for="gwt-uid-787">Enable body evaluation</label></span>
+                                <button class="text-body-clear r-btn r-btn-link" title="Clear" onclick="cleanExample()" e2e-tag="text-body-clear" tabindex="-1"><i
+                                        class="fa fa-trash-o"></i><span></span><span class="r-btn-indicator" aria-hidden="true" style="display: none;"></span></button>
+                                <span class="gwt-InlineHTML text-body-length-label" title="Content-Length: 0">length: 0 byte</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</body>
+</html>
+
+<script type="javascript">
+
+</script>

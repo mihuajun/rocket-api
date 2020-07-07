@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<body>
+<div class="history-left" id="history-example-section" style="display: none" aria-hidden="true" th:fragment="history-example-section">
+    <div class="search"><input type="text" class="gwt-TextBox filter" placeholder="Search" onkeyup="searchExample(this)"></div>
+    <div style="display: none;"><p class="note">Loading history entries</p></div>
+    <div class="records" style="overflow: auto; position: absolute; zoom: 1;">
+        <div style="position: relative; zoom: 1;">
+            <table class="history">
+                <colgroup>
+                    <col>
+                </colgroup>
+                <tbody>
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="buttons">
+        <div class="top-row">
+            <a class="btn btn-left ellipsis btn-small btn-link disabled" onclick="exampleDeselect()" title="Deselect all requests"><i class="icon-check-empty"></i> Deselect </a>
+            <a class="btn btn-left ellipsis btn-small btn-link disabled" onclick="exampleRemoveSelect()" title="Remove selected requests"><i class="icon-remove"></i> Remove </a>
+            <a class="btn btn-right btn-small btn-link"  onclick="exampleRemoveAll()" title="Clear all history content"><i class="icon-trash"></i> Remove all </a></div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<body>
+<section class="pane pane-response" id="response"  th:fragment="response-section">
+    <div class="pane-response-header"><span> Response </span>
+        <div class="pull-right"><a href="javascript:;" class="btn btn-mini btn-link"
+                                   aria-hidden="true" style="display: none;"><i
+                class="icon-lock"></i> SSL certificates </a> <a href="javascript:;"
+                                                                class="btn btn-mini btn-link"
+                                                                aria-hidden="true"
+                                                                style="display: none;"><i></i>
+            raw communication </a> <span class="el-time"><span
+                title="0ms">Elapsed time: 0ms</span></span></div>
+    </div>
+    <div class="content">
+        <div style="display: none;"><p class="note"> Not available, a request has not been sent
+            yet. </p></div>
+        <div style="display: block;">
+            <div class="response-status-line">
+                <div class="status"></div>
+            </div>
+            <div class="h-container layout-for-headers-and-body" style="">
+                <div class="headers">
+                    <div class="headers-form-title"><span class="title-content"> Headers </span>
+                        <i class="sli-icon-question link-to-rfc" data-original-title=""
+                           title=""></i>
+                        <ul class="nav nav-pills contextual-menu-in-title">
+                            <li class="dropdown types right"><a href="javascript:;"
+                                                                class="dropdown-toggle"
+                                                                data-toggle="dropdown"><i></i>
+                                Pretty <span class="caret"></span></a>
+                                <ul class="dropdown-menu">
+                                    <li><a href="javascript:;"><i></i> Pretty </a></li>
+                                    <li><a href="javascript:;"><i></i> Raw </a></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="container-for-overflow">
+                        <div class="h-container">
+                            <table class="headers-form-table">
+                                <colgroup>
+                                    <col>
+                                </colgroup>
+                                <tbody>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="resizer-for-headers-and-body">
+                    <div class="resizer-pane"><i class="fa fa-caret-left"
+                                                 style="visibility: visible;"></i> <span
+                            class="headers-subtitle"> Headers <span
+                            class="subtitle-counter">[8]</span> </span></div>
+                    <div class="resizer">
+                        <div class="resizer-line"></div>
+                    </div>
+                    <div class="resizer-pane"><i class="fa fa-caret-right"
+                                                 style="visibility: visible;"></i> <span
+                            class="body-subtitle"> Body <span class="subtitle-counter"></span> </span>
+                    </div>
+                </div>
+                <div class="body" >
+                    <div class="body-form-title"><span class="title-content"> Body </span> <i
+                            class="sli-icon-question link-to-rfc" data-original-title=""
+                            title=""></i>
+                    </div>
+                    <div class="response-body-as-text line-nums-off"  id="responseBody" ></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="clearfix"></div>
+</section>
+</body>
+</html>

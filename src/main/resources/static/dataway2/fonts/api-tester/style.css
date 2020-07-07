@@ -1,0 +1,52 @@
+@font-face {
+    font-family: 'api-tester';
+    src:
+            url('../api-tester.ttf?i6761g') format('truetype'),
+            url('../api-tester.woff?i6761g') format('woff'),
+            url('../api-tester.svg?i6761g#api-tester') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+
+.api-tester-icon {
+    /* use !important to prevent issues with browser extensions that change fonts */
+    font-family: 'api-tester' !important;
+    speak: none;
+    font-style: normal;
+    font-weight: normal;
+    font-variant: normal;
+    text-transform: none;
+    line-height: 1;
+
+    /* Better Font Rendering =========== */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+.api-tester-history:before {
+    content: "\e900";
+}
+.api-tester-drive:before {
+    content: "\e901";
+}
+.api-tester-project:before {
+    content: "\e902";
+}
+.api-tester-service:before {
+    content: "\e903";
+}
+.api-tester-repository:before {
+    content: "\e904";
+}
+.api-tester-request:before {
+    content: "\e905";
+}
+.api-tester-scenario:before {
+    content: "\e906";
+}
+.api-tester-multi-plus:before {
+    content: "\e907";
+}
+.api-tester-shared-project:before {
+    content: "\e908";
+}

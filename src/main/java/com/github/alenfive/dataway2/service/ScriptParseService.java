@@ -1,6 +1,5 @@
 package com.github.alenfive.dataway2.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.alenfive.dataway2.entity.ApiParams;
 import com.github.alenfive.dataway2.entity.ParamScope;
@@ -14,9 +13,9 @@ import org.springframework.util.StringUtils;
 import javax.script.ScriptContext;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import java.util.*;
+import java.util.Collection;
+import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -249,7 +248,12 @@ public class ScriptParseService {
             value = buildObjectValue(params,paramArr[index]);
         }
 
+        if (index == 0 && value == null){
+            return null;
+        }
+
         if (paramArr.length-1 > index){
+            if (!(value instanceof Map))return null;
             return buildValueOfScriptContent(null,(Map<String, Object>) value,paramArr,++index);
         }
 
@@ -273,16 +277,19 @@ public class ScriptParseService {
 
     private Object buildValueOfHeader(Map<String,String> header,String[] paramArr,int index) {
         String value  = null;
+        String key = index == 0?paramArr[index].toLowerCase():paramArr[index];
         if (header != null){
-            value = header.get(paramArr[index]);
+            value = header.get(key);
         }
 
-        if (value == null)return null;
+        if (index == 0 && value == null){
+            return null;
+        }
 
         if (paramArr.length-1 > index){
             try {
                 return buildValueOfHeader(objectMapper.readValue(value,Map.class),paramArr,++index);
-            } catch (JsonProcessingException e) {
+            } catch (Exception e) {
                 throw new IllegalArgumentException("Parameter '"+String.join(".",paramArr)+"' is not an object");
             }
         }
@@ -314,6 +321,11 @@ public class ScriptParseService {
         if (body == null)return null;
 
         Object value = buildObjectValue(body,paramArr[index]);
+
+        if (index == 0 && value == null){
+            return null;
+        }
+
         if (paramArr.length-1 > index){
             return buildValueOfBody((Map<String, Object>) value,paramArr,++index);
         }
@@ -324,6 +336,9 @@ public class ScriptParseService {
         if (params == null)return null;
 
         Object value = buildObjectValue(params,paramArr[index]);
+        if (index == 0 && value == null){
+            return null;
+        }
         if (paramArr.length-1 > index){
             return buildValueOfParameter((Map<String, Object>) value,paramArr,++index);
         }

@@ -1,6 +1,5 @@
 package com.github.alenfive.dataway2.extend;
 
-import com.github.alenfive.dataway2.extend.IAssertException;
 import org.springframework.stereotype.Component;
 
 /**
