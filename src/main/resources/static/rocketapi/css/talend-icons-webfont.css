@@ -1,0 +1,1146 @@
+@font-face {
+    font-family: "talendicons";
+    src: url("../fonts/talendicons.woff2") format("woff2");
+}
+
+.ti-icon {
+    display: inline-block;
+    font: normal normal normal 14px/1 talendicons;
+    font-size: inherit;
+    text-rendering: auto;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    vertical-align: middle;
+}
+
+.ti-icon:before {
+    display: block;
+}
+
+.ti-icon-activemq:before {
+    content: "\F101";
+}
+
+.ti-icon-apache:before {
+    content: "\F102";
+}
+
+.ti-icon-aws-kinesis:before {
+    content: "\F103";
+}
+
+.ti-icon-azure-dynamics:before {
+    content: "\F104";
+}
+
+.ti-icon-azure:before {
+    content: "\F105";
+}
+
+.ti-icon-beam:before {
+    content: "\F106";
+}
+
+.ti-icon-cassandra:before {
+    content: "\F107";
+}
+
+.ti-icon-cloudstorage:before {
+    content: "\F108";
+}
+
+.ti-icon-couchbase:before {
+    content: "\F109";
+}
+
+.ti-icon-elastic:before {
+    content: "\F10A";
+}
+
+.ti-icon-flink-o:before {
+    content: "\F10B";
+}
+
+.ti-icon-flink:before {
+    content: "\F10C";
+}
+
+.ti-icon-google-dataflow:before {
+    content: "\F10D";
+}
+
+.ti-icon-hadoop:before {
+    content: "\F10E";
+}
+
+.ti-icon-jms:before {
+    content: "\F10F";
+}
+
+.ti-icon-kafka:before {
+    content: "\F110";
+}
+
+.ti-icon-marketo:before {
+    content: "\F111";
+}
+
+.ti-icon-mongodb:before {
+    content: "\F112";
+}
+
+.ti-icon-netsuite:before {
+    content: "\F113";
+}
+
+.ti-icon-postgresql:before {
+    content: "\F114";
+}
+
+.ti-icon-pubsub:before {
+    content: "\F115";
+}
+
+.ti-icon-python:before {
+    content: "\F116";
+}
+
+.ti-icon-spark:before {
+    content: "\F117";
+}
+
+.ti-icon-workday:before {
+    content: "\F118";
+}
+
+.ti-icon-calendar-move:before {
+    content: "\F119";
+}
+
+.ti-icon-column-chooser:before {
+    content: "\F11A";
+}
+
+.ti-icon-datagrid:before {
+    content: "\F11B";
+}
+
+.ti-icon-drag-and-drop:before {
+    content: "\F11C";
+}
+
+.ti-icon-drag:before {
+    content: "\F11D";
+}
+
+.ti-icon-empty-calendar:before {
+    content: "\F11E";
+}
+
+.ti-icon-empty-cell:before {
+    content: "\F11F";
+}
+
+.ti-icon-empty-char:before {
+    content: "\F120";
+}
+
+.ti-icon-empty-space:before {
+    content: "\F121";
+}
+
+.ti-icon-raw-data:before {
+    content: "\F122";
+}
+
+.ti-icon-rest:before {
+    content: "\F123";
+}
+
+.ti-icon-abc:before {
+    content: "\F124";
+}
+
+.ti-icon-activity:before {
+    content: "\F125";
+}
+
+.ti-icon-arrow-left:before {
+    content: "\F126";
+}
+
+.ti-icon-arrow-right:before {
+    content: "\F127";
+}
+
+.ti-icon-badge-outline:before {
+    content: "\F128";
+}
+
+.ti-icon-badge:before {
+    content: "\F129";
+}
+
+.ti-icon-bell-notification:before {
+    content: "\F12A";
+}
+
+.ti-icon-bell:before {
+    content: "\F12B";
+}
+
+.ti-icon-block:before {
+    content: "\F12C";
+}
+
+.ti-icon-board:before {
+    content: "\F12D";
+}
+
+.ti-icon-boolean:before {
+    content: "\F12E";
+}
+
+.ti-icon-broom:before {
+    content: "\F12F";
+}
+
+.ti-icon-bubbles:before {
+    content: "\F130";
+}
+
+.ti-icon-burger:before {
+    content: "\F131";
+}
+
+.ti-icon-campaigns:before {
+    content: "\F132";
+}
+
+.ti-icon-caret-down:before {
+    content: "\F133";
+}
+
+.ti-icon-carriage-return:before {
+    content: "\F134";
+}
+
+.ti-icon-chain:before {
+    content: "\F135";
+}
+
+.ti-icon-character:before {
+    content: "\F136";
+}
+
+.ti-icon-charts:before {
+    content: "\F137";
+}
+
+.ti-icon-check-circle:before {
+    content: "\F138";
+}
+
+.ti-icon-check-plus:before {
+    content: "\F139";
+}
+
+.ti-icon-check:before {
+    content: "\F13A";
+}
+
+.ti-icon-chevron-end:before {
+    content: "\F13B";
+}
+
+.ti-icon-chevron-left:before {
+    content: "\F13C";
+}
+
+.ti-icon-classify:before {
+    content: "\F13D";
+}
+
+.ti-icon-clock:before {
+    content: "\F13E";
+}
+
+.ti-icon-cloud-engine:before {
+    content: "\F13F";
+}
+
+.ti-icon-cloud-upgrade:before {
+    content: "\F140";
+}
+
+.ti-icon-cluster:before {
+    content: "\F141";
+}
+
+.ti-icon-cog:before {
+    content: "\F142";
+}
+
+.ti-icon-comment:before {
+    content: "\F143";
+}
+
+.ti-icon-component-negative:before {
+    content: "\F144";
+}
+
+.ti-icon-component-positive:before {
+    content: "\F145";
+}
+
+.ti-icon-connections:before {
+    content: "\F146";
+}
+
+.ti-icon-conversion:before {
+    content: "\F147";
+}
+
+.ti-icon-credits-engine:before {
+    content: "\F148";
+}
+
+.ti-icon-cross-circle:before {
+    content: "\F149";
+}
+
+.ti-icon-cross:before {
+    content: "\F14A";
+}
+
+.ti-icon-crosshairs:before {
+    content: "\F14B";
+}
+
+.ti-icon-cut:before {
+    content: "\F14C";
+}
+
+.ti-icon-data-models:before {
+    content: "\F14D";
+}
+
+.ti-icon-datasets:before {
+    content: "\F14E";
+}
+
+.ti-icon-datastore:before {
+    content: "\F14F";
+}
+
+.ti-icon-download:before {
+    content: "\F150";
+}
+
+.ti-icon-dropper:before {
+    content: "\F151";
+}
+
+.ti-icon-ellipsis:before {
+    content: "\F152";
+}
+
+.ti-icon-environment:before {
+    content: "\F153";
+}
+
+.ti-icon-expanded:before {
+    content: "\F154";
+}
+
+.ti-icon-export-history:before {
+    content: "\F155";
+}
+
+.ti-icon-eye-slash:before {
+    content: "\F156";
+}
+
+.ti-icon-eye:before {
+    content: "\F157";
+}
+
+.ti-icon-fieldglass:before {
+    content: "\F158";
+}
+
+.ti-icon-filter:before {
+    content: "\F159";
+}
+
+.ti-icon-flag:before {
+    content: "\F15A";
+}
+
+.ti-icon-folder-closed:before {
+    content: "\F15B";
+}
+
+.ti-icon-folder-shared-owner:before {
+    content: "\F15C";
+}
+
+.ti-icon-folder-shared-user:before {
+    content: "\F15D";
+}
+
+.ti-icon-folder-shared:before {
+    content: "\F15E";
+}
+
+.ti-icon-folder:before {
+    content: "\F15F";
+}
+
+.ti-icon-format:before {
+    content: "\F160";
+}
+
+.ti-icon-fullscreen:before {
+    content: "\F161";
+}
+
+.ti-icon-group-circle:before {
+    content: "\F162";
+}
+
+.ti-icon-grouping:before {
+    content: "\F163";
+}
+
+.ti-icon-hand-pointer:before {
+    content: "\F164";
+}
+
+.ti-icon-hierarchical-view:before {
+    content: "\F165";
+}
+
+.ti-icon-history:before {
+    content: "\F166";
+}
+
+.ti-icon-home:before {
+    content: "\F167";
+}
+
+.ti-icon-info-circle:before {
+    content: "\F168";
+}
+
+.ti-icon-launch:before {
+    content: "\F169";
+}
+
+.ti-icon-launcher:before {
+    content: "\F16A";
+}
+
+.ti-icon-license:before {
+    content: "\F16B";
+}
+
+.ti-icon-line-charts:before {
+    content: "\F16C";
+}
+
+.ti-icon-link:before {
+    content: "\F16D";
+}
+
+.ti-icon-list:before {
+    content: "\F16E";
+}
+
+.ti-icon-local-storage:before {
+    content: "\F16F";
+}
+
+.ti-icon-lock:before {
+    content: "\F170";
+}
+
+.ti-icon-locked:before {
+    content: "\F171";
+}
+
+.ti-icon-mask:before {
+    content: "\F172";
+}
+
+.ti-icon-maths:before {
+    content: "\F173";
+}
+
+.ti-icon-merge:before {
+    content: "\F174";
+}
+
+.ti-icon-minus-circle:before {
+    content: "\F175";
+}
+
+.ti-icon-most-trusted:before {
+    content: "\F176";
+}
+
+.ti-icon-network:before {
+    content: "\F177";
+}
+
+.ti-icon-note:before {
+    content: "\F178";
+}
+
+.ti-icon-numbers:before {
+    content: "\F179";
+}
+
+.ti-icon-opener:before {
+    content: "\F17A";
+}
+
+.ti-icon-overview:before {
+    content: "\F17B";
+}
+
+.ti-icon-panel-opener-bottom:before {
+    content: "\F17C";
+}
+
+.ti-icon-panel-opener-right:before {
+    content: "\F17D";
+}
+
+.ti-icon-pause:before {
+    content: "\F17E";
+}
+
+.ti-icon-pencil:before {
+    content: "\F17F";
+}
+
+.ti-icon-phone:before {
+    content: "\F180";
+}
+
+.ti-icon-pie-charts:before {
+    content: "\F181";
+}
+
+.ti-icon-pin:before {
+    content: "\F182";
+}
+
+.ti-icon-placeholder:before {
+    content: "\F183";
+}
+
+.ti-icon-play:before {
+    content: "\F184";
+}
+
+.ti-icon-plus-circle:before {
+    content: "\F185";
+}
+
+.ti-icon-plus:before {
+    content: "\F186";
+}
+
+.ti-icon-power-off:before {
+    content: "\F187";
+}
+
+.ti-icon-projects:before {
+    content: "\F188";
+}
+
+.ti-icon-promotion-pipelines:before {
+    content: "\F189";
+}
+
+.ti-icon-question-circle:before {
+    content: "\F18A";
+}
+
+.ti-icon-quotes:before {
+    content: "\F18B";
+}
+
+.ti-icon-re-cluster:before {
+    content: "\F18C";
+}
+
+.ti-icon-redo:before {
+    content: "\F18D";
+}
+
+.ti-icon-refresh:before {
+    content: "\F18E";
+}
+
+.ti-icon-remote-engine:before {
+    content: "\F18F";
+}
+
+.ti-icon-replicate:before {
+    content: "\F190";
+}
+
+.ti-icon-roles:before {
+    content: "\F191";
+}
+
+.ti-icon-sample:before {
+    content: "\F192";
+}
+
+.ti-icon-scheduler:before {
+    content: "\F193";
+}
+
+.ti-icon-search:before {
+    content: "\F194";
+}
+
+.ti-icon-semantic:before {
+    content: "\F195";
+}
+
+.ti-icon-send:before {
+    content: "\F196";
+}
+
+.ti-icon-share-alt:before {
+    content: "\F197";
+}
+
+.ti-icon-sharing-default:before {
+    content: "\F198";
+}
+
+.ti-icon-sharing-owner:before {
+    content: "\F199";
+}
+
+.ti-icon-sharing-user:before {
+    content: "\F19A";
+}
+
+.ti-icon-shield-full-check:before {
+    content: "\F19B";
+}
+
+.ti-icon-shield-full:before {
+    content: "\F19C";
+}
+
+.ti-icon-shield:before {
+    content: "\F19D";
+}
+
+.ti-icon-show_unassigned_tasks:before {
+    content: "\F19E";
+}
+
+.ti-icon-sliders:before {
+    content: "\F19F";
+}
+
+.ti-icon-smiley-angry:before {
+    content: "\F1A0";
+}
+
+.ti-icon-smiley-enthusiast:before {
+    content: "\F1A1";
+}
+
+.ti-icon-smiley-neutral:before {
+    content: "\F1A2";
+}
+
+.ti-icon-smiley-satisfied:before {
+    content: "\F1A3";
+}
+
+.ti-icon-smiley-sleep:before {
+    content: "\F1A4";
+}
+
+.ti-icon-smiley-unhappy:before {
+    content: "\F1A5";
+}
+
+.ti-icon-sort-19:before {
+    content: "\F1A6";
+}
+
+.ti-icon-sort-91:before {
+    content: "\F1A7";
+}
+
+.ti-icon-sort-asc:before {
+    content: "\F1A8";
+}
+
+.ti-icon-sort-az:before {
+    content: "\F1A9";
+}
+
+.ti-icon-sort-desc:before {
+    content: "\F1AA";
+}
+
+.ti-icon-sort-za:before {
+    content: "\F1AB";
+}
+
+.ti-icon-sort:before {
+    content: "\F1AC";
+}
+
+.ti-icon-star:before {
+    content: "\F1AD";
+}
+
+.ti-icon-stop:before {
+    content: "\F1AE";
+}
+
+.ti-icon-streams:before {
+    content: "\F1AF";
+}
+
+.ti-icon-table:before {
+    content: "\F1B0";
+}
+
+.ti-icon-tags:before {
+    content: "\F1B1";
+}
+
+.ti-icon-tasks:before {
+    content: "\F1B2";
+}
+
+.ti-icon-text:before {
+    content: "\F1B3";
+}
+
+.ti-icon-tiles:before {
+    content: "\F1B4";
+}
+
+.ti-icon-trash:before {
+    content: "\F1B5";
+}
+
+.ti-icon-undo:before {
+    content: "\F1B6";
+}
+
+.ti-icon-union:before {
+    content: "\F1B7";
+}
+
+.ti-icon-unlocked:before {
+    content: "\F1B8";
+}
+
+.ti-icon-upload:before {
+    content: "\F1B9";
+}
+
+.ti-icon-user-circle:before {
+    content: "\F1BA";
+}
+
+.ti-icon-variable:before {
+    content: "\F1BB";
+}
+
+.ti-icon-versioning:before {
+    content: "\F1BC";
+}
+
+.ti-icon-warning:before {
+    content: "\F1BD";
+}
+
+.ti-icon-webhook:before {
+    content: "\F1BE";
+}
+
+.ti-icon-word:before {
+    content: "\F1BF";
+}
+
+.ti-icon-workspaces:before {
+    content: "\F1C0";
+}
+
+.ti-icon-world:before {
+    content: "\F1C1";
+}
+
+.ti-icon-wrench:before {
+    content: "\F1C2";
+}
+
+.ti-icon-zoomin:before {
+    content: "\F1C3";
+}
+
+.ti-icon-zoomout:before {
+    content: "\F1C4";
+}
+
+.ti-icon-file-cog:before {
+    content: "\F1C5";
+}
+
+.ti-icon-file-compressed:before {
+    content: "\F1C6";
+}
+
+.ti-icon-file-connect-o:before {
+    content: "\F1C7";
+}
+
+.ti-icon-file-csv-o:before {
+    content: "\F1C8";
+}
+
+.ti-icon-file-database-o:before {
+    content: "\F1C9";
+}
+
+.ti-icon-file-hdfs-o:before {
+    content: "\F1CA";
+}
+
+.ti-icon-file-job-o:before {
+    content: "\F1CB";
+}
+
+.ti-icon-file-json-o:before {
+    content: "\F1CC";
+}
+
+.ti-icon-file-move:before {
+    content: "\F1CD";
+}
+
+.ti-icon-file-o:before {
+    content: "\F1CE";
+}
+
+.ti-icon-file-s3-o:before {
+    content: "\F1CF";
+}
+
+.ti-icon-file-salesforce:before {
+    content: "\F1D0";
+}
+
+.ti-icon-file-txt-o:before {
+    content: "\F1D1";
+}
+
+.ti-icon-file-xls-o:before {
+    content: "\F1D2";
+}
+
+.ti-icon-file-xlsx-o:before {
+    content: "\F1D3";
+}
+
+.ti-icon-file-xml-o:before {
+    content: "\F1D4";
+}
+
+.ti-icon-files-o:before {
+    content: "\F1D5";
+}
+
+.ti-icon-flow-o:before {
+    content: "\F1D6";
+}
+
+.ti-icon-flow-source-o:before {
+    content: "\F1D7";
+}
+
+.ti-icon-flow-source-target:before {
+    content: "\F1D8";
+}
+
+.ti-icon-flow-step-o:before {
+    content: "\F1D9";
+}
+
+.ti-icon-flow-target-o:before {
+    content: "\F1DA";
+}
+
+.ti-icon-flow-under-plan:before {
+    content: "\F1DB";
+}
+
+.ti-icon-flow-unfinished:before {
+    content: "\F1DC";
+}
+
+.ti-icon-flow:before {
+    content: "\F1DD";
+}
+
+.ti-icon-between:before {
+    content: "\F1DE";
+}
+
+.ti-icon-contains:before {
+    content: "\F1DF";
+}
+
+.ti-icon-ends-with:before {
+    content: "\F1E0";
+}
+
+.ti-icon-equal:before {
+    content: "\F1E1";
+}
+
+.ti-icon-greater-than-equal:before {
+    content: "\F1E2";
+}
+
+.ti-icon-greater-than:before {
+    content: "\F1E3";
+}
+
+.ti-icon-less-than-equal:before {
+    content: "\F1E4";
+}
+
+.ti-icon-less-than:before {
+    content: "\F1E5";
+}
+
+.ti-icon-not-contains:before {
+    content: "\F1E6";
+}
+
+.ti-icon-not-equal:before {
+    content: "\F1E7";
+}
+
+.ti-icon-regex:before {
+    content: "\F1E8";
+}
+
+.ti-icon-starts-with:before {
+    content: "\F1E9";
+}
+
+.ti-icon-aggregate:before {
+    content: "\F1EA";
+}
+
+.ti-icon-azure-blob:before {
+    content: "\F1EB";
+}
+
+.ti-icon-azure-datalake:before {
+    content: "\F1EC";
+}
+
+.ti-icon-azure-event-hubs:before {
+    content: "\F1ED";
+}
+
+.ti-icon-bigquery:before {
+    content: "\F1EE";
+}
+
+.ti-icon-db-input:before {
+    content: "\F1EF";
+}
+
+.ti-icon-field-selector:before {
+    content: "\F1F0";
+}
+
+.ti-icon-filter-column:before {
+    content: "\F1F1";
+}
+
+.ti-icon-filter-row:before {
+    content: "\F1F2";
+}
+
+.ti-icon-ftp:before {
+    content: "\F1F3";
+}
+
+.ti-icon-hash-knife:before {
+    content: "\F1F4";
+}
+
+.ti-icon-normalize:before {
+    content: "\F1F5";
+}
+
+.ti-icon-transformer-window:before {
+    content: "\F1F6";
+}
+
+.ti-icon-type-converter:before {
+    content: "\F1F7";
+}
+
+.ti-icon-window:before {
+    content: "\F1F8";
+}
+
+.ti-icon-api-designer-colored:before {
+    content: "\F1F9";
+}
+
+.ti-icon-api-designer-negative:before {
+    content: "\F1FA";
+}
+
+.ti-icon-api-designer-positive:before {
+    content: "\F1FB";
+}
+
+.ti-icon-api-tester-colored:before {
+    content: "\F1FC";
+}
+
+.ti-icon-api-tester-negative:before {
+    content: "\F1FD";
+}
+
+.ti-icon-api-tester-positive:before {
+    content: "\F1FE";
+}
+
+.ti-icon-component-kit-negative:before {
+    content: "\F1FF";
+}
+
+.ti-icon-component-kit-positive:before {
+    content: "\F200";
+}
+
+.ti-icon-data-fabric-colored:before {
+    content: "\F201";
+}
+
+.ti-icon-dataprep:before {
+    content: "\F202";
+}
+
+.ti-icon-datastreams-colored:before {
+    content: "\F203";
+}
+
+.ti-icon-datastreams-negative:before {
+    content: "\F204";
+}
+
+.ti-icon-datastreams-positive:before {
+    content: "\F205";
+}
+
+.ti-icon-logo-colored:before {
+    content: "\F206";
+}
+
+.ti-icon-logo-square:before {
+    content: "\F122";
+}
+
+.ti-icon-logo:before {
+    content: "\F208";
+}
+
+.ti-icon-mdm-colored:before {
+    content: "\F209";
+}
+
+.ti-icon-mdm-negative:before {
+    content: "\F20A";
+}
+
+.ti-icon-mdm-positive:before {
+    content: "\F20B";
+}
+
+.ti-icon-tdc-colored:before {
+    content: "\F20C";
+}
+
+.ti-icon-tdc-negative:before {
+    content: "\F20D";
+}
+
+.ti-icon-tdc-positive:before {
+    content: "\F20E";
+}
+
+.ti-icon-tdp-colored:before {
+    content: "\F20F";
+}
+
+.ti-icon-tdp-negative:before {
+    content: "\F210";
+}
+
+.ti-icon-tdp-positive:before {
+    content: "\F211";
+}
+
+.ti-icon-tds-colored:before {
+    content: "\F212";
+}
+
+.ti-icon-tds-negative:before {
+    content: "\F213";
+}
+
+.ti-icon-tds-positive:before {
+    content: "\F214";
+}
+
+.ti-icon-tic-colored:before {
+    content: "\F215";
+}
+
+.ti-icon-tic-negative:before {
+    content: "\F216";
+}
+
+.ti-icon-tic-positive:before {
+    content: "\F217";
+}
+
+.ti-icon-tmc-colored:before {
+    content: "\F218";
+}
+
+.ti-icon-tmc-negative:before {
+    content: "\F219";
+}
+
+.ti-icon-tmc-positive:before {
+    content: "\F21A";
+}
