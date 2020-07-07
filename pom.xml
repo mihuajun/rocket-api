@@ -144,12 +144,12 @@
         <repository>
             <id>nexus-releases</id>
             <name>nexus</name>
-            <url>http://maven.source3g.com:8086/nexus/content/repositories/releases/</url>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
         </repository>
         <snapshotRepository>
             <id>nexus-snapshots</id>
             <name>nexus</name>
-            <url>http://maven.source3g.com:8086/nexus/content/repositories/snapshots/</url>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
         </snapshotRepository>
     </distributionManagement>
 
