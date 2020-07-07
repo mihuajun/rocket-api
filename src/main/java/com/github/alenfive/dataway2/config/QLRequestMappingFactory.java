@@ -56,8 +56,6 @@ public class QLRequestMappingFactory {
     @Value("${spring.application.name}")
     private String service;
 
-    @Autowired
-    private IApiPager apiPager;
 
     @Autowired
     private RequestMappingHandlerMapping requestMappingHandlerMapping;
@@ -147,37 +145,12 @@ public class QLRequestMappingFactory {
 
         ApiInfo apiInfo = cacheApiInfo.get(buildApiInfoKey(ApiInfo.builder().method(method).path(path).build()));
 
-        String reaultType = apiInfo.getPath().substring(apiInfo.getPath().lastIndexOf("/")+1);
-        if (ApiResultType.page.name().equals(reaultType)){
-            Integer pageNo = buildPagerNo(apiParams);
-            Integer pageSize = buildPagerSize(apiParams);
-            apiParams.putParam(apiPager.getPageNoVarName(),pageNo);
-            apiParams.putParam(apiPager.getPageSizeVarName(),pageSize);
-            apiParams.putParam(apiPager.getIndexVarName(),apiPager.getIndexVarValue(pageSize,pageNo));
-        }
-
         StringBuilder script = new StringBuilder(URLDecoder.decode(apiInfo.getScript(),"utf-8"));
 
         return scriptParse.runScript(script.toString(),apiInfo,apiParams);
     }
 
-    private Integer buildPagerNo(ApiParams apiParams) {
-        Object value = parseService.buildParamItem(apiParams,apiPager.getPageNoVarName());
-        if (StringUtils.isEmpty(value)){
-            apiParams.putParam(apiPager.getPageNoVarName(),apiPager.getPageNoDefaultValue());
-            return apiPager.getPageNoDefaultValue();
-        }
-        return Integer.valueOf(value.toString());
-    }
 
-    private Integer buildPagerSize(ApiParams apiParams) {
-        Object value = parseService.buildParamItem(apiParams,apiPager.getPageSizeVarName());
-        if (StringUtils.isEmpty(value)){
-            apiParams.putParam(apiPager.getPageSizeVarName(),apiPager.getPageSizeDefaultValue());
-            return apiPager.getPageSizeDefaultValue();
-        }
-        return Integer.valueOf(value.toString());
-    }
 
     public String buildPattern(HttpServletRequest request) {
         Set<RequestMappingInfo> infos = requestMappingHandlerMapping.getHandlerMethods().keySet();

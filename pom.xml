@@ -90,14 +90,8 @@
                 <configuration>
                     <addResources>true</addResources>
                     <mainClass>com.github.alenfive.dataway2.Dataway2Application</mainClass>
+                    <classifier>exec</classifier>
                 </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>repackage</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -148,14 +142,14 @@
 
     <distributionManagement>
         <repository>
-            <id>oss-nexus-releases</id>
+            <id>nexus-releases</id>
             <name>nexus</name>
-            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
+            <url>http://maven.source3g.com:8086/nexus/content/repositories/releases/</url>
         </repository>
         <snapshotRepository>
-            <id>oss-nexus-snapshots</id>
+            <id>nexus-snapshots</id>
             <name>nexus</name>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+            <url>http://maven.source3g.com:8086/nexus/content/repositories/snapshots/</url>
         </snapshotRepository>
     </distributionManagement>
 

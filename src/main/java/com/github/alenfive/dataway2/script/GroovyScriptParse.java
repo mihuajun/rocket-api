@@ -13,7 +13,9 @@ package com.github.alenfive.dataway2.script;
 import com.github.alenfive.dataway2.entity.ApiInfo;
 import com.github.alenfive.dataway2.entity.ApiParams;
 import com.github.alenfive.dataway2.extend.ApiInfoContent;
+import com.github.alenfive.dataway2.extend.IApiPager;
 import com.github.alenfive.dataway2.function.IFunction;
+import com.github.alenfive.dataway2.service.ScriptParseService;
 import jdk.nashorn.api.scripting.ScriptObjectMirror;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -36,6 +38,12 @@ public class GroovyScriptParse implements IScriptParse{
     @Autowired
     private ApplicationContext context;
 
+    @Autowired
+    private ScriptParseService parseService;
+
+    @Autowired
+    private IApiPager apiPager;
+
     private Collection<IFunction> functionList;
 
     @PostConstruct
@@ -47,6 +55,12 @@ public class GroovyScriptParse implements IScriptParse{
     @Override
     @Transactional(rollbackFor=Exception.class)
     public Object runScript(String script, ApiInfo apiInfo, ApiParams apiParams) throws Throwable {
+
+        Integer pageNo = buildPagerNo(apiParams);
+        Integer pageSize = buildPagerSize(apiParams);
+        apiParams.putParam(apiPager.getPageNoVarName(),pageNo);
+        apiParams.putParam(apiPager.getPageSizeVarName(),pageSize);
+        apiParams.putParam(apiPager.getIndexVarName(),apiPager.getIndexVarValue(pageSize,pageNo));
 
         try {
             ScriptEngineManager factory = new ScriptEngineManager();
@@ -80,6 +94,24 @@ public class GroovyScriptParse implements IScriptParse{
             }
         }
 
+    }
+
+    private Integer buildPagerNo(ApiParams apiParams) {
+        Object value = parseService.buildParamItem(apiParams,apiPager.getPageNoVarName());
+        if (StringUtils.isEmpty(value)){
+            apiParams.putParam(apiPager.getPageNoVarName(),apiPager.getPageNoDefaultValue());
+            return apiPager.getPageNoDefaultValue();
+        }
+        return Integer.valueOf(value.toString());
+    }
+
+    private Integer buildPagerSize(ApiParams apiParams) {
+        Object value = parseService.buildParamItem(apiParams,apiPager.getPageSizeVarName());
+        if (StringUtils.isEmpty(value)){
+            apiParams.putParam(apiPager.getPageSizeVarName(),apiPager.getPageSizeDefaultValue());
+            return apiPager.getPageSizeDefaultValue();
+        }
+        return Integer.valueOf(value.toString());
     }
 
     private void buildScriptParams(ScriptEngine engine, ApiParams apiParams) {
