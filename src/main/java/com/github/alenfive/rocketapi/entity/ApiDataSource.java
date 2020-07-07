@@ -8,14 +8,7 @@ import lombok.NoArgsConstructor;
 import javax.sql.DataSource;
 
 /**
- * @Description:
- * @Copyright: Copyright (c) 2019  ALL RIGHTS RESERVED.
- * @Author: 米华军
- * @CreateDate: 6/6/2020 4:32 PM
- * @UpdateDate: 6/6/2020 4:32 PM
- * @UpdateRemark: init
- * @Version: 1.0
- * @menu API数据源
+ * API数据源实体对象
  */
 
 @Data

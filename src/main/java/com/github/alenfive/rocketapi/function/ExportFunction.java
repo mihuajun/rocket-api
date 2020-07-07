@@ -17,13 +17,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * @Description:导出
- * @Copyright: Copyright (c) 2019  ALL RIGHTS RESERVED.
- * @Author: 米华军
- * @CreateDate: 2020/6/23 17:58
- * @UpdateDate: 2020/6/23 17:58
- * @UpdateRemark: init
- * @Version: 1.0
+ * 文件导出函数
  */
 @SuppressWarnings("DuplicatedCode")
 @Component

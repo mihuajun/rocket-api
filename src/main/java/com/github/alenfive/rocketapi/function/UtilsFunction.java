@@ -6,13 +6,7 @@ import org.springframework.util.StringUtils;
 import java.util.Objects;
 
 /**
- * @Description: 工具类函数
- * @Copyright: Copyright (c) 2019  ALL RIGHTS RESERVED.
- * @Author: 米华军
- * @CreateDate: 2020/6/23 17:58
- * @UpdateDate: 2020/6/23 17:58
- * @UpdateRemark: init
- * @Version: 1.0
+ * 常用工具类函数
  */
 @Component
 public class UtilsFunction implements IFunction{

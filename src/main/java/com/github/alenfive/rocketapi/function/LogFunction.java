@@ -7,13 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
- * @Description:日志输出
- * @Copyright: Copyright (c) 2019  ALL RIGHTS RESERVED.
- * @Author: 米华军
- * @CreateDate: 2020/6/23 17:58
- * @UpdateDate: 2020/6/23 17:58
- * @UpdateRemark: init
- * @Version: 1.0
+ * 日志输出函数
  */
 @Component
 @Slf4j

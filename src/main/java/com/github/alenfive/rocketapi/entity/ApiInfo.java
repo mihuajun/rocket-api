@@ -11,14 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * @Description:
- * @Copyright: Copyright (c) 2019  ALL RIGHTS RESERVED.
- * @Author: 米华军
- * @CreateDate: 2020/5/22 12:45
- * @UpdateDate: 2020/5/22 12:45
- * @UpdateRemark: init
- * @Version: 1.0
- * @menu 路径实体
+ * API 实体对象
  */
 @Data
 @Builder

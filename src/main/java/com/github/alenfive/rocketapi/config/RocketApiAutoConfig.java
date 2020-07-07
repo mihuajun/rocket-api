@@ -17,7 +17,9 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
-
+/**
+ * 自动配置类
+ */
 @Configuration
 @EnableConfigurationProperties({RocketApiProperties.class})
 @ConditionalOnBean(DataSourceManager.class)

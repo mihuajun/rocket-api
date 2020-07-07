@@ -8,14 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * @Description:
- * @Copyright: Copyright (c) 2019  ALL RIGHTS RESERVED.
- * @Author: 米华军
- * @CreateDate: 2020/5/27 17:16
- * @UpdateDate: 2020/5/27 17:16
- * @UpdateRemark: init
- * @Version: 1.0
- * @menu 数据源方言抽象类
+ * 数据源方言抽象类
  */
 public abstract class DataSourceDialect {
 

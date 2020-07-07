@@ -14,14 +14,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * @Description:
- * @Copyright: Copyright (c) 2019  ALL RIGHTS RESERVED.
- * @Author: 米华军
- * @CreateDate: 2020/5/27 17:19
- * @UpdateDate: 2020/5/27 17:19
- * @UpdateRemark: init
- * @Version: 1.0
- * @menu MYSQL数据源
+ * 关系型数据源，`JdbcTemplate`所操作的数据源
  */
 public class SqlDataSource extends DataSourceDialect {
 

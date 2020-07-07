@@ -11,14 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * @Description:模拟参数
- * @Copyright: Copyright (c) 2019  ALL RIGHTS RESERVED.
- * @Author: 米华军
- * @CreateDate: 2020/6/19 16:41
- * @UpdateDate: 2020/6/19 16:41
- * @UpdateRemark: init
- * @Version: 1.0
- * @menu
+ * 模拟参数实体对象
  */
 @Data
 @Builder

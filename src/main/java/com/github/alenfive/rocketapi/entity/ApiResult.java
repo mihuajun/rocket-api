@@ -6,14 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * @Description:
- * @Copyright: Copyright (c) 2019  ALL RIGHTS RESERVED.
- * @Author: 米华军
- * @CreateDate: 2020/6/3 16:57
- * @UpdateDate: 2020/6/3 16:57
- * @UpdateRemark: init
- * @Version: 1.0
- * @menu 返回实体
+ * api ui 界面接口返回实体
  */
 @Data
 @Builder

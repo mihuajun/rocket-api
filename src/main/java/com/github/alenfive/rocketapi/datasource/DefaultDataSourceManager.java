@@ -10,14 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * @Description:
- * @Copyright: Copyright (c) 2019  ALL RIGHTS RESERVED.
- * @Author: 米华军
- * @CreateDate: 6/6/2020 4:28 PM
- * @UpdateDate: 6/6/2020 4:28 PM
- * @UpdateRemark: init
- * @Version: 1.0
- * @menu 默认数据源管理器
+ * 默认数据源管理器
  */
 @Component
 public class DefaultDataSourceManager extends DataSourceManager {

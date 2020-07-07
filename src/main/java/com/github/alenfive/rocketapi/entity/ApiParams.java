@@ -10,14 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * @Description:
- * @Copyright: Copyright (c) 2019  ALL RIGHTS RESERVED.
- * @Author: 米华军
- * @CreateDate: 2020/5/22 16:26
- * @UpdateDate: 2020/5/22 16:26
- * @UpdateRemark: init
- * @Version: 1.0
- * @menu 入参
+ * api 接口入参实体
  */
 @Data
 @Builder

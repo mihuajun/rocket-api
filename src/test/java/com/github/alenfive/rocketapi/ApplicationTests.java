@@ -17,14 +17,7 @@ import javax.script.ScriptException;
 import java.util.*;
 
 /**
- * @Description:
- * @Copyright: Copyright (c) 2019  ALL RIGHTS RESERVED.
- * @Author: 米华军
- * @CreateDate: 2020/5/28 16:01
- * @UpdateDate: 2020/5/28 16:01
- * @UpdateRemark: init
- * @Version: 1.0
- * @menu test
+ * 数据为操作解析器测试
  */
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes={RocketAPIApplication.class})// 指定启动类

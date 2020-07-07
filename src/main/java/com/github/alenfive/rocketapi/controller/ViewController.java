@@ -15,14 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import javax.servlet.http.HttpServletRequest;
 
 /**
- * @Description:
- * @Copyright: Copyright (c) 2019  ALL RIGHTS RESERVED.
- * @Author: 米华军
- * @CreateDate: 2020/5/22 9:37
- * @UpdateDate: 2020/5/22 9:37
- * @UpdateRemark: init
- * @Version: 1.0
- * @menu 页面显示
+ * Api ui 页面显示
  */
 @Controller
 @RequestMapping("${spring.rocket-api.base-path:/api-ui}")

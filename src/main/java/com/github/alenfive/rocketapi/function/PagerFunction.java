@@ -9,14 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * @Description: 分页封装
- * @Copyright: Copyright (c) 2019  ALL RIGHTS RESERVED.
- * @Author: 米华军
- * @CreateDate: 2020/6/23 18:51
- * @UpdateDate: 2020/6/23 18:51
- * @UpdateRemark: init
- * @Version: 1.0
- * @menu
+ * 分页封装函数
  */
 @Component
 public class PagerFunction implements IFunction{
