@@ -1109,7 +1109,7 @@ function buildHeaderJson(headerArrs) {
         if (split == -1)return;
         let key = item.substring(0,split);
         let value = item.substring(split + 1);
-        headers[key] = encodeURIComponent(value);
+        headers[key] = encodeURI(value);
     })
     return headers;
 }
@@ -1406,7 +1406,7 @@ function showHeaderRaw(e) {
     $.each(headers,function (index,item) {
         content += $(item).find(".key").val();
         content += ":";
-        content += encodeURIComponent($(item).find(".value").val());
+        content += encodeURI($(item).find(".value").val());
         content += "\r\n";
     });
     $("#example-section .mode-raw textarea").val(content);

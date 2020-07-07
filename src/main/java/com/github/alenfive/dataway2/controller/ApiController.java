@@ -180,9 +180,8 @@ public class ApiController {
                     .datasource(runApiReq.getDatasource())
                     .script(runApiReq.getScript())
                     .build();
-            decodeHeaderValue(runApiReq.getHeader());
             ApiParams apiParams = ApiParams.builder()
-                    .header(runApiReq.getHeader())
+                    .header(decodeHeaderValue(runApiReq.getHeader()))
                     .pathVar(getPathVar(runApiReq.getPattern(),runApiReq.getUrl()))
                     .param(getParam(runApiReq.getUrl()))
                     .body(runApiReq.getBody())
@@ -202,10 +201,12 @@ public class ApiController {
 
 
 
-    private void decodeHeaderValue(Map<String,String> header) throws UnsupportedEncodingException {
+    private Map<String,String> decodeHeaderValue(Map<String,String> header) throws UnsupportedEncodingException {
+        Map<String,String> newHeader = new HashMap<>(header.size());
         for (String key : header.keySet()){
-            header.put(key.toLowerCase(),URLDecoder.decode(header.get(key),"utf-8"));
+            newHeader.put(key.toLowerCase(),URLDecoder.decode(header.get(key),"utf-8"));
         }
+        return newHeader;
     }
 
     private Map<String,String> getPathVar(String pattern,String url){
