@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<!-- saved from url=(0071)/index.html#requests -->
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <base th:href="@{/}">
+    <base th:src="@{/}">
+    <meta name="viewport" content="initial-scale=1, minimum-scale=1, width=device-width">
+    <meta name="twitter:widgets:csp" content="on">
+    <link rel="stylesheet" type="text/css" href="./rocketapi/css/prism.css">
+    <link rel="stylesheet" type="text/css" href="./rocketapi/css/sourceSansPro.css">
+    <link rel="stylesheet" type="text/css" href="./rocketapi/css/simple-line-icons.css">
+    <link rel="stylesheet" type="text/css" href="./rocketapi/css/talend-icons-webfont.css">
+    <link rel="stylesheet" type="text/css" href="./rocketapi/css/select2-4.0.3.min.css">
+    <link rel="stylesheet" type="text/css" href="./rocketapi/fonts/api-tester/style.css">
+    <!-- the following order is very important -->
+    <link rel="stylesheet" type="text/css" href="./rocketapi/dist/chromeapp.css">
+    <link rel="stylesheet" type="text/css" href="./rocketapi/css/font-awesome.4.2.0.min.css">
+    <link rel="stylesheet" type="text/css" href="./rocketapi/css/font-awesome.3.2.1.enriched-for-client.css">
+    <link rel="stylesheet" data-name="vs/editor/editor.main" href="./rocketapi/monaco-editor/min/vs/editor/editor.main.css">
+    <link rel="shortcut icon"
+          href="data:image/svg+xml;base64, PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGlkPSJhcGktdGVzdGVyLWNvbG9yZWQiPjxzdmcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB2aWV3Qm94PSIwIDAgMTYgMTYiPgoJCTxwYXRoIGZpbGw9IiM2NjY0RDEiIGQ9Ik0xNiw3Ljk4OSBDMTYsMTIuNDAxIDEyLjQyMywxNS45NzggOC4wMTEsMTUuOTc4IEMzLjU5OSwxNS45NzggMC4wMjIsMTIuNDAxIDAuMDIyLDcuOTg5IEMwLjAyMiwzLjU3NyAzLjU5OSwwIDguMDExLDAgQzEyLjQyMywwIDE2LDMuNTc3IDE2LDcuOTg5Ij48L3BhdGg+CgkJPHBhdGggZmlsbD0iI0ZGRiIgZD0iTTE0LjA1MjcgNy4yNDE0QzEzLjYxOTcgNy4yNDE0IDEzLjI2OTcgNy41OTI0IDEzLjI2OTcgOC4wMjU0IDEzLjI2OTcgOC40NTc0IDEzLjYxOTcgOC44MDg0IDE0LjA1MjcgOC44MDg0IDE0LjQ4NTcgOC44MDg0IDE0LjgzNjcgOC40NTc0IDE0LjgzNjcgOC4wMjU0IDE0LjgzNjcgNy41OTI0IDE0LjQ4NTcgNy4yNDE0IDE0LjA1MjcgNy4yNDE0TTIuNzcyNCA3Ljk5NjNDMi43NzI0IDcuNTYzMyAyLjQyMTQgNy4yMTIzIDEuOTg5NCA3LjIxMjMgMS41NTY0IDcuMjEyMyAxLjIwNTQgNy41NjMzIDEuMjA1NCA3Ljk5NjMgMS4yMDU0IDguNDI5MyAxLjU1NjQgOC43ODAzIDEuOTg5NCA4Ljc4MDMgMi40MjE0IDguNzgwMyAyLjc3MjQgOC40MjkzIDIuNzcyNCA3Ljk5NjNNMi4xNDc5IDUuOTUyNEMyLjI1OTkgNS45NTI0IDIuMzU1OSA1Ljg4NTQgMi4zOTk5IDUuNzg5NCAyLjM5OTkgNS43ODg0IDIuNDAwOSA1Ljc4ODQgMi40MDA5IDUuNzg3NCAyLjQwMTkgNS43ODQ0IDIuNDAyOSA1Ljc4MjQgMi40MDQ5IDUuNzc5NCAzLjMwMDkgMy41NDM0IDUuNDk1OSAxLjk3MDQgOC4wMDk5IDEuOTY0NEw4LjAwOTkgMi43NTM0IDguODc2OSAyLjAyNzRDMTEuMDA2OSAyLjMyNzQgMTIuODE1OSAzLjczMTQgMTMuNjI0OSA1LjcyMDQgMTMuNjcxOSA1Ljg0NjQgMTMuNzY2OSA1Ljk0ODQgMTMuOTAzOSA1Ljk0ODQgMTQuMDU3OSA1Ljk0ODQgMTQuMTgxOSA1LjgyNDQgMTQuMTgxOSA1LjY3MTQgMTQuMTgxOSA1LjYxODQgMTQuMTQ0OSA1LjUyNjQgMTQuMTQ0OSA1LjUyNjQgMTMuMjYzOSAzLjM0NzQgMTEuMjg2OSAxLjgwNzQgOC45NTU5IDEuNDc5NEw4LjAwOTkuNjg4NCA4LjAwOTkgMS40MTA0QzUuMjY3OSAxLjQxNTQgMi44ODA5IDMuMTIxNCAxLjg5NzkgNS41NTI0TDEuODk5OSA1LjU1MzRDMS44ODE5IDUuNTkwNCAxLjg3MDkgNS42MzE0IDEuODcwOSA1LjY3NTQgMS44NzA5IDUuODI4NCAxLjk5NDkgNS45NTI0IDIuMTQ3OSA1Ljk1MjRNMTMuOTA5MiAxMC4wODI3QzEzLjc5NzIgMTAuMDgyNyAxMy43MDAyIDEwLjE0OTcgMTMuNjU3MiAxMC4yNDU3IDEzLjY1NjIgMTAuMjQ2NyAxMy42NTYyIDEwLjI0NzcgMTMuNjU2MiAxMC4yNDc3IDEzLjY1NTIgMTAuMjUwNyAxMy42NTMyIDEwLjI1MjcgMTMuNjUyMiAxMC4yNTU3IDEyLjc1NDIgMTIuNDk2NyAxMC41NTEyIDE0LjA3MzcgOC4wMzAyIDE0LjA3MTcgOC4wMjUyIDE0LjA3MTcgOC4wMjAyIDE0LjA3MDcgOC4wMTUyIDE0LjA3MDdMOC4wMTUyIDEzLjE3NzcgNy4wNDcyIDEzLjk4NzdDNC45NzQyIDEzLjY0NzcgMy4yMjQyIDEyLjI2MTcgMi40MzIyIDEwLjMxNDcgMi4zODQyIDEwLjE4ODcgMi4yOTAyIDEwLjA4NjcgMi4xNTMyIDEwLjA4NjcgMS45OTkyIDEwLjA4NjcgMS44NzUyIDEwLjIxMDcgMS44NzUyIDEwLjM2NDcgMS44NzUyIDEwLjQxNjcgMS45MTIyIDEwLjUwOTcgMS45MTIyIDEwLjUwOTcgMi44MDUyIDEyLjcxOTcgNC44MjkyIDE0LjI2NjcgNy4yMDQyIDE0LjU2MzdMOC4wMTUyIDE1LjI0MjcgOC4wMTUyIDE0LjYyNDdDOC4wMjAyIDE0LjYyNDcgOC4wMjQyIDE0LjYyNjcgOC4wMjkyIDE0LjYyNjcgMTAuNzc5MiAxNC42Mjc3IDEzLjE3NDIgMTIuOTE4NyAxNC4xNTgyIDEwLjQ4MjdMMTQuMTU3MiAxMC40ODE3QzE0LjE3NTIgMTAuNDQ0NyAxNC4xODYyIDEwLjQwMzcgMTQuMTg2MiAxMC4zNTk3IDE0LjE4NjIgMTAuMjA2NyAxNC4wNjIyIDEwLjA4MjcgMTMuOTA5MiAxMC4wODI3Ij48L3BhdGg+CgkJPHBhdGggZmlsbD0iI0ZGRiIgZD0iTTEwLjQ2MTQsNS40NTgyIEw3LjEwNjQsOC43ODQyIEw1LjUxMTQsNy4xOTAyIEM1LjQwODQsNy4wODgyIDUuMjQyNCw3LjA4ODIgNS4xMzg0LDcuMTkwMiBMNC41Nzk0LDcuNzQ1MiBMNC41Nzg0LDcuNzQ2MiBDNC40Nzc0LDcuODQ4MiA0LjQ3NzQsOC4wMTMyIDQuNTc5NCw4LjExNTIgTDYuMzU3NCw5Ljg5MTIgQzYuMzU5NCw5Ljg5MjIgNi4zNTc0LDkuODk0MiA2LjM1OTQsOS44OTUyIEw2Ljc0NzQsMTAuMjgwMiBMNi44MzY0LDEwLjM2ODIgTDYuOTE4NCwxMC40NTEyIEM3LjAyMjQsMTAuNTUzMiA3LjE4ODQsMTAuNTUzMiA3LjI5MTQsMTAuNDUxMiBMNy4yOTE0LDEwLjQ1MDIgTDExLjM5MzQsNi4zODIyIEMxMS4zOTQ0LDYuMzgxMiAxMS4zOTU0LDYuMzgxMiAxMS4zOTY0LDYuMzgwMiBDMTEuNDk2NCw2LjI3NzIgMTEuNDk1NCw2LjExMzIgMTEuMzkzNCw2LjAxMzIgTDEwLjgzNDQsNS40NTgyIEMxMC43MzE0LDUuMzU2MiAxMC41NjM0LDUuMzU2MiAxMC40NjE0LDUuNDU4MiI+PC9wYXRoPgo8L3N2Zz4KPC9zdmc+"
+          type="image/x-icon"/>
+    <title>NEW</title>
+
+    <meta name="gwt:property" content="locale=en">
+    <style>.GJ3SYAHDCH, .GJ3SYAHDEH {
+        cursor: pointer;
+        zoom: 1;
+    }
+
+    .GJ3SYAHDDH {
+        background: #ffc;
+    }
+
+    .GJ3SYAHDFH {
+        height: 26px;
+        overflow: hidden;
+        background: url("data:image/png;base64,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") -0px -0px repeat-x;
+        background-color: #628cd5;
+        color: white;
+        height: auto;
+        overflow: visible;
+    }</style>
+</head>
+
+<body class="main chromeapp free-edition" id="console">
+<div id="loader">
+    <div class="tc-app-loader-container" role="status">
+        <div class="tc-app-loader-icon">
+            <div class="tc-app-loader">
+                <div class="spinner-wrapper">
+                    <div class="spinner-left">
+                        <div class="circle"></div>
+                    </div>
+                    <div class="spinner-right">
+                        <div class="circle"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="notification-container">
+    <div id="notification" class="notification-area info" style="display: none"><div id="spinner"><i class="fa fa-spinner fa-spin"></i></div><div id="notification-message">Sending request</div></div>
+    <div id="alt-notification" class="alt-notification-area" style="display: none"></div>
+</div>
+
+
+<input type="file" id="filePicker" style="display: none">
+
+
+<!-- Google Analytics -->
+<!-- @formatter:off -->
+<!-- @formatter:on -->
+
+
+<!-- ====================================== -->
+<!-- Part that differs between dev and prod -->
+<!-- ====================================== -->
+<!-- Empty on that file tho -->
+
+
+<div aria-hidden="true" style="display: none;"></div>
+<div class="requests">
+
+    <div th:replace="rocketapi/top::top-section"></div>
+
+    <div class="h-splitter" aria-hidden="true" style="display: none;"></div>
+    <section class="ui-lay-l left-pane flex-column" id="left-side" style="min-width: 420px; width: 420px;">
+        <div class="left-pane-header">
+            <ul class="nav nav-pills selector">
+                <li title="History" onclick="showHistory()" class=" history"><a> <i class="api-tester-icon api-tester-history"></i> History </a></li>
+                <li title="Repository" onclick="showRepository()" class=" active repository"><a> <i class="api-tester-icon api-tester-repository"></i> Repository </a></li>
+            </ul>
+            <div class="left-pane-actions" style="position: absolute;right: 44px;">
+                <button type="button" class="gwt-Button new-draft-action" onclick="newRequest(this)" e2e-tag="btn-new-draft"
+                        data-original-title="New draft request  (Alt + N)" title=""><i class="sli-icon-doc"></i>
+                </button>
+            </div>
+        </div>
+        <div class="content">
+
+            <div th:replace="rocketapi/history-api::history-api-section"></div>
+            <div th:replace="rocketapi/history-example::history-example-section"></div>
+
+            <div th:replace="rocketapi/repository::repository-section"></div>
+
+        </div>
+    </section>
+    <div class="h-divider" style="left: 420px;">
+        <div class="line"></div>
+    </div>
+    <div class="content-view" style="left: 420px;">
+        <div class="ui-lay-m">
+            <div class="ui-lay-c" style="bottom: 15px;">
+                <div class="ui-lay-cc">
+                    <div>
+                        <section class="request-meta">
+                            <div class="content flex-container">
+                                <div class="request-breadcrumb-rp"></div>
+                            </div>
+                        </section>
+
+                        <div th:replace="rocketapi/editor::editor-section"></div>
+                        <div th:replace="rocketapi/console::console-section"></div>
+                        <div th:replace="rocketapi/example::example-section"></div>
+                        <div th:replace="rocketapi/response::response-section"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="clearfix"></div>
+            <div class="v-divider" aria-hidden="true" style="display: none;">
+                <div class="line"></div>
+            </div>
+            <section class="v-splitter" title="Show bottom pane" style="bottom: 0px;"></section>
+
+            <div th:replace="rocketapi/bottom::bottom-section"></div>
+
+            <div class="powered-by-talend">Powered by mi</div>
+        </div>
+    </div>
+</div>
+
+<div class="intercom-lightweight-app" aria-live="polite">
+    <style id="intercom-lightweight-app-style">
+        @keyframes intercom-lightweight-app-launcher {
+            from {
+                opacity: 0;
+                transform: scale(0.5);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @keyframes intercom-lightweight-app-gradient {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes intercom-lightweight-app-messenger {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .intercom-lightweight-app {
+            position: fixed;
+            z-index: 2147483000;
+            width: 0;
+            height: 0;
+            font-family: intercom-font, "Helvetica Neue", "Apple Color Emoji", Helvetica, Arial, sans-serif;
+        }
+
+        .intercom-lightweight-app-gradient {
+            position: fixed;
+            z-index: 2147483001;
+            width: 500px;
+            height: 500px;
+            bottom: 0;
+            right: 0;
+            pointer-events: none;
+            background: radial-gradient(
+                    ellipse at bottom right,
+                    rgba(29, 39, 54, 0.16) 0%,
+                    rgba(29, 39, 54, 0) 72%);
+            animation: intercom-lightweight-app-gradient 200ms ease-out;
+        }
+
+        .intercom-lightweight-app-launcher {
+            position: fixed;
+            z-index: 2147483002;
+            bottom: 20px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: #0675C1;
+            cursor: pointer;
+            box-shadow: 0 1px 6px 0 rgba(0, 0, 0, 0.06), 0 2px 32px 0 rgba(0, 0, 0, 0.16);
+            animation: intercom-lightweight-app-launcher 250ms ease;
+        }
+
+        .intercom-lightweight-app-launcher:focus {
+            outline: none;
+
+        }
+
+        .intercom-lightweight-app-launcher-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 60px;
+            height: 60px;
+            transition: transform 100ms linear, opacity 80ms linear;
+        }
+
+        .intercom-lightweight-app-launcher-icon-open {
+
+            opacity: 1;
+            transform: rotate(0deg) scale(1);
+
+        }
+
+        .intercom-lightweight-app-launcher-icon-open svg {
+            width: 28px;
+            height: 32px;
+        }
+
+        .intercom-lightweight-app-launcher-icon-open svg path {
+            fill: rgb(255, 255, 255);
+        }
+
+        .intercom-lightweight-app-launcher-icon-self-serve {
+
+            opacity: 1;
+            transform: rotate(0deg) scale(1);
+
+        }
+
+        .intercom-lightweight-app-launcher-icon-self-serve svg {
+            height: 56px;
+        }
+
+        .intercom-lightweight-app-launcher-icon-self-serve svg path {
+            fill: rgb(255, 255, 255);
+        }
+
+        .intercom-lightweight-app-launcher-custom-icon-open {
+            max-height: 36px;
+            max-width: 36px;
+
+            opacity: 1;
+            transform: rotate(0deg) scale(1);
+
+        }
+
+        .intercom-lightweight-app-launcher-icon-minimize {
+
+            opacity: 0;
+            transform: rotate(-60deg) scale(0);
+
+        }
+
+        .intercom-lightweight-app-launcher-icon-minimize svg {
+            width: 16px;
+        }
+
+        .intercom-lightweight-app-launcher-icon-minimize svg path {
+            fill: rgb(255, 255, 255);
+        }
+
+        .intercom-lightweight-app-messenger {
+            position: fixed;
+            z-index: 2147483002;
+            overflow: hidden;
+            background-color: white;
+            animation: intercom-lightweight-app-messenger 250ms ease-out;
+
+            width: 376px;
+            height: calc(100% - 40px);
+            max-height: 704px;
+            min-height: 250px;
+            right: 20px;
+            bottom: 20px;
+            box-shadow: 0 5px 40px rgba(0, 0, 0, 0.16);
+            border-radius: 8px;
+
+        }
+
+        .intercom-lightweight-app-messenger-header {
+            height: 75px;
+            background: linear-gradient(
+                    135deg,
+                    rgb(35, 97, 146) 0%,
+                    rgb(15, 42, 64) 100%
+            );
+        }
+
+        @media print {
+            .intercom-lightweight-app {
+                display: none;
+            }
+        }
+
+        .not-select{
+            -moz-user-select:none; /*火狐*/
+            -webkit-user-select:none; /*webkit浏览器*/
+            -ms-user-select:none; /*IE10*/
+            -khtml-user-select:none; /*早期浏览器*/
+            user-select:none;
+        }
+
+        .code-body{
+            border: 1px solid #ccc;
+        }
+        .CodeMirror {
+            border: 1px solid #eee;
+            height: auto;
+            min-height: 300px;
+        }
+        #example-section .CodeMirror-scroll {
+            height: 250px;
+            overflow-y: auto;
+            overflow-x: auto;
+        }
+        #editor-section .CodeMirror-scroll {
+            min-height: 500px;
+            height: auto;
+            overflow-y: auto;
+            overflow-x: auto;
+        }
+        .cm-s-default .cm-keyword{
+            color:blue;
+        }
+
+        .authenticated .btn-group{
+            position: absolute;
+            right: 0px;
+        }
+
+        #uri-db{
+            margin-right:10px;
+        }
+
+        .draft-ribbon{
+            cursor:pointer;
+        }
+        .response-body-as-text{
+            font-size: 12px;
+        }
+        #editor-btns>div{
+            float: left;
+            display: block;
+        }
+        #editor-btns>.item{
+            background-color: #f7f7f7;
+            padding: 2px 10px;
+            cursor: pointer;
+            border-right: 1px solid #ccc;
+        }
+
+        #editor-btns>.item:hover{
+            background-color: #333340;
+            color:white;
+
+        }
+
+        #editor-btns>.run{
+            background-color: green;
+            color: white;
+            float:right;
+            border:none;
+        }
+
+        #editor-btns>.run:hover{
+            background-color: #4458a7;
+        }
+    </style>
+</div>
+<!--消息框-->
+<div id="msgModal" class="modal modal-dialog" style="display: none">
+    <div class="modal-header"><h3>Prompt message</h3></div>
+    <div class="modal-body">
+        msg
+    </div>
+    <div class="modal-footer">
+        <button class="r-btn r-btn-primary"  onclick="closeModal()">Close</button>
+    </div>
+</div>
+<!--确认框-->
+<div  id="confirmModal" class="modal in" aria-hidden="false" style="display: none">
+    <div class="modal-header"><a class="close" onclick="closeConfirmModal()" data-dismiss="modal">×</a>
+        <h3>Confirmation <small></small></h3>
+    </div>
+    <div class="modal-body">
+        <div class="form-horizontal">
+            <div class="gwt-HTML"></div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button class="r-btn" onclick="closeConfirmModal()" e2e-tag="modal-cancel"><i class="fa fa-remove"></i><span>Cancel</span><span class="r-btn-indicator" aria-hidden="true" style="display: none;"></span>
+        </button>
+        <button class="r-btn r-btn-danger" e2e-tag="modal-ok"><i class="fa fa-trash"></i><span>Confirm</span><span class="r-btn-indicator" aria-hidden="true"
+                                                                                                                   style="display: none;"></span></button>
+    </div>
+</div>
+<!--输入确认框-->
+<div class="modal rename-dialog in" id="rename-dialog" aria-hidden="false" style="display: none">
+    <div class="modal-header"><a class="close" onclick="cancelDialog('#rename-dialog')" data-dismiss="modal">×</a>
+        <h3>Rename Group <small></small></h3></div>
+    <div class="modal-body">
+        <div class="form-horizontal">
+            <div class="repository-path-selector">
+                <div class="flex-container name-form">
+                    <div class="left-label"> Name</div>
+                    <div class="right-label">
+                        <input type="text" class="newname gwt-TextBox input-xlarge">
+                        <input type="text" style="display: none" class="oldname gwt-TextBox input-xlarge">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button class="r-btn" e2e-tag="modal-cancel" onclick="cancelDialog('#rename-dialog')">
+            <i class="fa fa-remove"></i><span>Cancel</span><span class="r-btn-indicator" aria-hidden="true"  style="display: none;"></span>
+        </button>
+        <button class="r-btn r-btn-primary" e2e-tag="modal-ok" onclick="confirmRenameDialog('#rename-dialog')">
+            <i class="fa fa-download"></i><span>Save</span><span class="r-btn-indicator" aria-hidden="true"  style="display: none;"></span>
+        </button>
+    </div>
+</div>
+<div id="modal-backdrop" class="modal-backdrop  in" style="display: none;"></div>
+
+
+<script th:inline="javascript" type="text/javascript">
+    let currApi = [[${currApi}]];
+    let currPage = [[${currPage}]];
+    let user = [[${user}]];
+    let ctxPath  = [[${basePath}]];
+</script>
+
+<script type="text/javascript" src="./rocketapi/js/jquery-1.12.2.min.js"></script>
+<script type="text/javascript" src="./rocketapi/js/bootstrap-2.3.2.min.js"></script>
+<script type="text/javascript" src="./rocketapi/js/tester_boot.js"></script>
+
+<script>var require = { paths: { 'vs': './rocketapi/monaco-editor/min/vs' } };</script>
+<script src="./rocketapi/monaco-editor/min/vs/loader.js"></script>
+<script src="./rocketapi/monaco-editor/min/vs/editor/editor.main.nls.js"></script>
+<script src="./rocketapi/monaco-editor/min/vs/editor/editor.main.js"></script>
+</body>
+</html>

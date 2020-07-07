@@ -1,6 +1,6 @@
 spring:
   application:
-    name: dataway2
+    name: rocket-api
   jackson:
     default-property-inclusion: non_null
     date-format: yyyy-MM-dd HH:mm:ss
@@ -32,7 +32,7 @@ spring:
     suffix: .html
 logging:
   level:
-    com.github.alenfive.dataway2: debug
+    com.github.alenfive.rocketapi: debug
 server:
   servlet:
-    context-path: /dataway2
+    context-path: /rocket-api

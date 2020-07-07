@@ -13,14 +13,14 @@
 ```$xml
 <dependency>
     <groupId>com.github.alenfive</groupId>
-    <artifactId>dataway2-boot-starter</artifactId>
+    <artifactId>rocket-api-boot-starter</artifactId>
     <version>0.0.1-SNAPSHOT</version>
 </dependency>
 ```
 
-版本查看: https://github.com/alenfive/dataway2/releases  
+版本查看: https://github.com/alenfive/rocket-api/releases  
 
-#2. 配置数据源,继承`com.github.alenfive.dataway2.datasource.DataSourceManager` 注入数据源
+#2. 配置数据源,继承`com.github.alenfive.rocketapi.datasource.DataSourceManager` 注入数据源
 
 ```java
 @Component
@@ -41,13 +41,13 @@ public class DefaultDataSourceManager extends DataSourceManager {
 ```
 
 #3. 关系型数据库建表，非关系型不用
-最新建表脚本查看: https://github.com/alenfive/dataway2/tree/master/src/main/resources/script
+最新建表脚本查看: https://github.com/alenfive/rocket-api/tree/master/src/main/resources/script
 
 >启动项目，访问地址: http://localhost:8080/api-ui
 
 >在线演示，访问地址:http://39.98.181.90:8081/api-ui
 
->文档地址1: https://github.com/alenfive/dataway2/wiki 
+>文档地址1: https://github.com/alenfive/rocket-api/wiki 
 
->文档地址2: https://gitee.com/mihuajun/dataway2/wikis/Home
+>文档地址2: https://gitee.com/mihuajun/rocket-api/wikis/Home
   
