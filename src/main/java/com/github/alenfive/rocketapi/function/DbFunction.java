@@ -12,13 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * @Description:脚本运行
- * @Copyright: Copyright (c) 2019  ALL RIGHTS RESERVED.
- * @Author: 米华军
- * @CreateDate: 2020/6/23 17:58
- * @UpdateDate: 2020/6/23 17:58
- * @UpdateRemark: init
- * @Version: 1.0
+ * 数据库操作函数
  */
 @Component
 @Slf4j

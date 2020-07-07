@@ -22,14 +22,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * @Description:
- * @Copyright: Copyright (c) 2019  ALL RIGHTS RESERVED.
- * @Author: 米华军
- * @CreateDate: 2020/5/25 10:00
- * @UpdateDate: 2020/5/25 10:00
- * @UpdateRemark: init
- * @Version: 1.0
- * @menu 脚本解析器
+ * 数据库脚本变量解析器，用于捡的变量#{},?{},${}等
  */
 
 @Service

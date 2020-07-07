@@ -1,13 +1,7 @@
 package com.github.alenfive.rocketapi.extend;
 
 /**
- * @Description: API INFO  拦截器
- * @Copyright: Copyright (c) 2019  ALL RIGHTS RESERVED.
- * @Author: 米华军
- * @CreateDate: 2020/6/30 12:10
- * @UpdateDate: 2020/6/30 12:10
- * @UpdateRemark: init
- * @Version: 1.0
+ * API INFO  拦截器抽象接口类，可获取 apiInfo相关信息
  */
 
 import com.github.alenfive.rocketapi.config.QLRequestMappingFactory;

@@ -1,13 +1,7 @@
 package com.github.alenfive.rocketapi.script;
 
 /**
- * @Description: js脚本执行器
- * @Copyright: Copyright (c) 2019  ALL RIGHTS RESERVED.
- * @Author: 米华军
- * @CreateDate: 2020/6/28 14:31
- * @UpdateDate: 2020/6/28 14:31
- * @UpdateRemark: init
- * @Version: 1.0
+ * js脚本执行器
  */
 
 import com.github.alenfive.rocketapi.entity.ApiInfo;

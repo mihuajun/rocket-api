@@ -32,15 +32,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 /**
- * @Description: 将存储的API注册为request mapping,并且提供对入参及存储的执行脚本进行解析。
+ * 将存储的API注册为request mapping,并且提供对入参及存储的执行脚本进行解析。
  * 输出解析后的最终脚本提供给脚本执行器`@Link DataSourceDialect`。然后对结果进行封装返回
- * @Copyright: Copyright (c) 2019  ALL RIGHTS RESERVED.
- * @Author: 米华军
- * @CreateDate: 2020/5/27 16:30
- * @UpdateDate: 2020/5/27 16:30
- * @UpdateRemark: init
- * @Version: 1.0
- * @menu mapping 注册
  */
 @SuppressWarnings("DuplicatedCode")
 @Slf4j
@@ -119,7 +112,7 @@ public class QLRequestMappingFactory {
     }
 
     private void clear(){
-        this.cacheApiInfo.values().stream().filter(item->ApiType.Sql.name().equals(item.getType())).forEach(item->{
+        this.cacheApiInfo.values().stream().filter(item->ApiType.Ql.name().equals(item.getType())).forEach(item->{
             this.unregisterMappingForApiInfo(item);
         });
         this.cacheApiInfo.clear();
@@ -232,7 +225,7 @@ public class QLRequestMappingFactory {
 
         apiInfo.setUpdateTime(new Date());
         if (apiInfo.getId() == null){
-            apiInfo.setType(ApiType.Sql.name());
+            apiInfo.setType(ApiType.Ql.name());
             apiInfo.setCreateTime(new Date());
             apiInfo.setService(service);
             ApiParams apiParams = ApiParams.builder().param(apiInfo.toMap()).build();

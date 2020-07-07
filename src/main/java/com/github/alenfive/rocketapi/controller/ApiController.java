@@ -28,14 +28,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * @Description:
- * @Copyright: Copyright (c) 2019  ALL RIGHTS RESERVED.
- * @Author: 米华军
- * @CreateDate: 2020/5/22 11:03
- * @UpdateDate: 2020/5/22 11:03
- * @UpdateRemark: init
- * @Version: 1.0
- * @menu 数据接口
+ * Api ui 数据接口
  */
 @Slf4j
 @RestController

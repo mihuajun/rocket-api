@@ -8,13 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * @Description: 请求工具类
- * @Copyright: Copyright (c) 2019  ALL RIGHTS RESERVED.
- * @Author: 米华军
- * @CreateDate: 2020/6/28 11:24
- * @UpdateDate: 2020/6/28 11:24
- * @UpdateRemark: init
- * @Version: 1.0
+ * 请求工具类
  */
 public class RequestUtils {
     public static Map<String, Object> buildSessionParams(HttpServletRequest request) {

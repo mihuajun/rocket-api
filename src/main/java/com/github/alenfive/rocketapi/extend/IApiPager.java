@@ -6,14 +6,7 @@ import com.github.alenfive.rocketapi.entity.ApiParams;
 import java.util.List;
 
 /**
- * @Description:
- * @Copyright: Copyright (c) 2019  ALL RIGHTS RESERVED.
- * @Author: 米华军
- * @CreateDate: 2020/5/29 12:02
- * @UpdateDate: 2020/5/29 12:02
- * @UpdateRemark: init
- * @Version: 1.0
- * @menu 分页返回
+ * 分页构造器接口
  */
 public interface IApiPager {
 

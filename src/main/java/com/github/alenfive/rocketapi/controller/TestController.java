@@ -9,14 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * @Description:
- * @Copyright: Copyright (c) 2019  ALL RIGHTS RESERVED.
- * @Author: 米华军
- * @CreateDate: 2020/5/22 12:57
- * @UpdateDate: 2020/5/22 12:57
- * @UpdateRemark: init
- * @Version: 1.0
- * @menu test
+ * 测试类
  */
 @RestController
 @RequestMapping

@@ -1,13 +1,7 @@
 package com.github.alenfive.rocketapi.function;
 
 /**
- * @Description:函数接口
- * @Copyright: Copyright (c) 2019  ALL RIGHTS RESERVED.
- * @Author: 米华军
- * @CreateDate: 2020/6/23 18:43
- * @UpdateDate: 2020/6/23 18:43
- * @UpdateRemark: init
- * @Version: 1.0
+ * 函数接口，实现此接口可自动注册到脚本执行上下文中
  */
 public interface IFunction {
     String getVarName();

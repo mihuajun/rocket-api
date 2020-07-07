@@ -8,14 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
- * @Description: API INFO 拦截器实现
- * @Copyright: Copyright (c) 2019  ALL RIGHTS RESERVED.
- * @Author: 米华军
- * @CreateDate: 2020/6/30 12:11
- * @UpdateDate: 2020/6/30 12:11
- * @UpdateRemark: init
- * @Version: 1.0
- * @menu
+ * API INFO 拦截器实现
  */
 public class DefaultApiInfoInterceptor extends ApiInfoInterceptor {
 

@@ -16,14 +16,7 @@ import java.util.stream.Stream;
 import static java.lang.String.format;
 
 /**
- * @Description:
- * @Copyright: Copyright (c) 2019  ALL RIGHTS RESERVED.
- * @Author: 米华军
- * @CreateDate: 2020/5/27 17:19
- * @UpdateDate: 2020/5/27 17:19
- * @UpdateRemark: init
- * @Version: 1.0
- * @menu mongo数据源
+ * mongodb 数据源操作
  */
 public class MongoDataSource extends DataSourceDialect {
 

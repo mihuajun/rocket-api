@@ -5,13 +5,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 /**
- * @Description: spring环境变量
- * @Copyright: Copyright (c) 2019  ALL RIGHTS RESERVED.
- * @Author: 米华军
- * @CreateDate: 2020/6/23 17:58
- * @UpdateDate: 2020/6/23 17:58
- * @UpdateRemark: init
- * @Version: 1.0
+ * spring环境变量函数
  */
 @Component
 public class EnvFunction implements IFunction{

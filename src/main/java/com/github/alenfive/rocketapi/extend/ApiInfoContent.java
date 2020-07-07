@@ -9,13 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @Description:参数变量域
- * @Copyright: Copyright (c) 2019  ALL RIGHTS RESERVED.
- * @Author: 米华军
- * @CreateDate: 2020/6/23 21:26
- * @UpdateDate: 2020/6/23 21:26
- * @UpdateRemark: init
- * @Version: 1.0
+ * 脚本执行上下文变量
  */
 
 @Component
