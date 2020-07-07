@@ -74,5 +74,6 @@ public class ApiInfoContent {
         apiParams.remove();
         logs.remove();
         engine.remove();
+        isDebug.remove();
     }
 }

@@ -77,7 +77,7 @@ public class GroovyScriptParse implements IScriptParse{
 
             //注入属性变量
             buildScriptParams(engine,apiParams);
-            Object result = engine.eval(script.toString());
+            Object result = engine.eval(script);
             if (!(result instanceof ScriptObjectMirror)){
                 return result;
             }

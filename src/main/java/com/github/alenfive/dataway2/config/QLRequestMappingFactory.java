@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.alenfive.dataway2.datasource.DataSourceManager;
 import com.github.alenfive.dataway2.entity.*;
 import com.github.alenfive.dataway2.entity.vo.RenameGroupReq;
+import com.github.alenfive.dataway2.extend.ApiInfoContent;
 import com.github.alenfive.dataway2.extend.ApiInfoInterceptor;
 import com.github.alenfive.dataway2.extend.IApiPager;
 import com.github.alenfive.dataway2.script.IScriptParse;
@@ -52,6 +53,9 @@ public class QLRequestMappingFactory {
 
     @Autowired
     private ScriptParseService parseService;
+
+    @Autowired
+    private ApiInfoContent apiInfoContent;
 
     @Value("${spring.application.name}")
     private String service;
@@ -147,7 +151,11 @@ public class QLRequestMappingFactory {
 
         StringBuilder script = new StringBuilder(URLDecoder.decode(apiInfo.getScript(),"utf-8"));
 
-        return scriptParse.runScript(script.toString(),apiInfo,apiParams);
+        try {
+            return scriptParse.runScript(script.toString(),apiInfo,apiParams);
+        }finally {
+            apiInfoContent.removeAll();
+        }
     }
 
 
