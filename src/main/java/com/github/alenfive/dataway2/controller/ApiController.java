@@ -174,6 +174,7 @@ public class ApiController {
 
         RunApiRes runApiRes = new RunApiRes();
         try {
+            apiInfoContent.setIsDebug(runApiReq.isDebug());
             ApiInfo apiInfo = ApiInfo.builder()
                     .path(runApiReq.getPattern())
                     .options(runApiReq.getOptions())

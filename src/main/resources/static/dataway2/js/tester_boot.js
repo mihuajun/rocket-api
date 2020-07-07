@@ -285,7 +285,11 @@ $(function(){
 
 
     editorTextarea.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, function () {
-        runApi();
+        runApi(false);
+    });
+
+    editorTextarea.addCommand(monaco.KeyMod.CtrlCmd |monaco.KeyMod.Alt| monaco.KeyCode.Enter, function () {
+        runApi(true);
     });
 
 
@@ -451,8 +455,9 @@ function buildExampleBodyStr() {
     return (type == "POST" || type == "PUT")?exampleTextarea.getValue():"";
 }
 
-function runApi() {
+function runApi(debug) {
     let params = {
+        "debug":debug,
         "script":editorTextarea.getValue(),
         "datasource":$("#editor-section .api-info-datasource").val(),
         "header": buildHeaderJson(getHeaderParams()),

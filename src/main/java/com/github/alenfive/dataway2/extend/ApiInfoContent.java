@@ -21,10 +21,19 @@ import java.util.List;
 @Component
 public class ApiInfoContent {
 
+    private ThreadLocal<Boolean> isDebug = new ThreadLocal<>();
     private ThreadLocal<ApiInfo> apiInfo = new ThreadLocal<>();
     private ThreadLocal<ApiParams> apiParams = new ThreadLocal<>();
     private ThreadLocal<List<String>> logs = new ThreadLocal<>();
     private ThreadLocal<ScriptEngine> engine = new ThreadLocal<>();
+
+    public Boolean getIsDebug() {
+        return isDebug.get() == null?false:isDebug.get();
+    }
+
+    public void setIsDebug(Boolean isDebug) {
+        this.isDebug.set(isDebug);;
+    }
 
     public List<String> getLogs(){
         return logs.get();

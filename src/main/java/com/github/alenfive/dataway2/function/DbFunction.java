@@ -59,6 +59,9 @@ public class DbFunction implements IFunction{
         StringBuilder sbScript = new StringBuilder(script);
         parseService.parse(sbScript,apiInfoContent.getApiParams());
         List<Map<String,Object>> result = dataSourceManager.find(sbScript,apiInfoContent.getApiInfo(),apiInfoContent.getApiParams(),dataSource);
+        if (apiInfoContent.getIsDebug()){
+            apiInfoContent.putLog("generate script:" + sbScript);
+        }
         log.info("generate script:{}",sbScript);
         return result;
     }
@@ -67,6 +70,9 @@ public class DbFunction implements IFunction{
         StringBuilder sbScript = new StringBuilder(script);
         parseService.parse(sbScript,apiInfoContent.getApiParams());
         Object result = dataSourceManager.insert(sbScript,apiInfoContent.getApiInfo(),apiInfoContent.getApiParams(),dataSource);
+        if (apiInfoContent.getIsDebug()){
+            apiInfoContent.putLog("generate script:" + sbScript);
+        }
         log.info("generate script:{}",sbScript);
         return result;
     }
@@ -75,6 +81,9 @@ public class DbFunction implements IFunction{
         StringBuilder sbScript = new StringBuilder(script);
         parseService.parse(sbScript,apiInfoContent.getApiParams());
         Object result =  dataSourceManager.remove(sbScript,apiInfoContent.getApiInfo(),apiInfoContent.getApiParams(),dataSource);
+        if (apiInfoContent.getIsDebug()){
+            apiInfoContent.putLog("generate script:" + sbScript);
+        }
         log.info("generate script:{}",sbScript);
         return result;
     }
@@ -83,6 +92,9 @@ public class DbFunction implements IFunction{
         StringBuilder sbScript = new StringBuilder(script);
         parseService.parse(sbScript,apiInfoContent.getApiParams());
         Long result =  dataSourceManager.update(sbScript,apiInfoContent.getApiInfo(),apiInfoContent.getApiParams(),dataSource);
+        if (apiInfoContent.getIsDebug()){
+            apiInfoContent.putLog("generate script:" + sbScript);
+        }
         log.info("generate script:{}",sbScript);
         return result;
     }

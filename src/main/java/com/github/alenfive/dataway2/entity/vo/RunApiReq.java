@@ -15,6 +15,7 @@ import java.util.Map;
  */
 @Data
 public class RunApiReq {
+    private boolean debug;
     private String pattern;
     private String url;
     private String options;
