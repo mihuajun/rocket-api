@@ -1,4 +1,4 @@
-# dataway2
+# rocket API
 
 ### 摘要
 1. 用于快速开发API接口。不再定义`Controller`,`Service`,`Dao`,`Mybatis`,`xml`,`Entity`,`VO`等对象.
