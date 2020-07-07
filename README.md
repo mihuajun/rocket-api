@@ -8,7 +8,7 @@
 5. 动态编译，无需重启，即时生效
 
 ### 快速开始
-1/添加依赖
+#####1. 添加依赖
 
 ```$xml
 <dependency>
@@ -20,7 +20,7 @@
 
 版本查看: https://github.com/alenfive/dataway2/releases  
 
-2/配置数据源,继承`com.github.alenfive.dataway2.datasource.DataSourceManager` 注入数据源
+#####2. 配置数据源,继承`com.github.alenfive.dataway2.datasource.DataSourceManager` 注入数据源
 
 ```java
 @Component
@@ -40,10 +40,12 @@ public class DefaultDataSourceManager extends DataSourceManager {
 }
 ```
 
-3/关系型数据库建表，非关系型不用
+#####3. 关系型数据库建表，非关系型不用
 最新建表脚本查看: https://github.com/alenfive/dataway2/tree/master/src/main/resources/script
 
-4/启动项目，访问地址: http://localhost:8080/api-ui
+>启动项目，访问地址: http://localhost:8080/api-ui
 
+>文档地址1: https://github.com/alenfive/dataway2/wiki 
 
+>文档地址2: https://gitee.com/mihuajun/dataway2/wikis/Home
   
