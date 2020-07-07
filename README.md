@@ -45,6 +45,8 @@ public class DefaultDataSourceManager extends DataSourceManager {
 
 >启动项目，访问地址: http://localhost:8080/api-ui
 
+>在线演示，访问地址:http://39.98.181.90:8081/api-ui
+
 >文档地址1: https://github.com/alenfive/dataway2/wiki 
 
 >文档地址2: https://gitee.com/mihuajun/dataway2/wikis/Home
