@@ -15585,7 +15585,7 @@ table.headers-form-table {
 }
 .requests .content-view .ui-lay-m .ui-lay-c .ui-lay-cc {
     min-width: 665px;
-    margin-bottom: 60px;
+    /*margin-bottom: 60px;*/
 }
 .requests .content-view .ui-lay-m .v-divider {
     right: 0;

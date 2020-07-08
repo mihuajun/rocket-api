@@ -1,8 +1,44 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
 <body>
-<section class="pane" id="bottom-side" aria-hidden="true" style="height: 0px; display: none;" th:fragment="bottom-section">
+<section class="pane" id="bottom-side" aria-hidden="true" style="min-height: 250px;" th:fragment="bottom-section">
+    <div>
 
+        <div class="hide-pane">
+            <div class="btn-group">
+                <a class="btn btn-mini btn-link disabled" title="Save selected requests to a scenario" e2e-tag="bottom-save-selected" style="">
+                    <i class="icon-download-alt"></i>
+                </a>
+                <a class="btn btn-mini btn-link disabled" title="Deselect all requests" e2e-tag="bottom-deselect-all" style="">
+                    <i class="icon-check-empty"></i>
+                </a>
+                <a class="btn btn-mini btn-link disabled" title="Remove selected requests" e2e-tag="bottom-remove-selected" style="">
+                    <i class="icon-remove"></i>
+                </a>
+                <a href="javascript:;" class="btn btn-mini btn-link" title="Clear all history content" e2e-tag="bottom-clear-history" style="">
+                    <i class="icon-trash"></i>
+                </a>
+                <a href="javascript:;" class="btn btn-mini btn-link" title="Add new assertions" e2e-tag="assertion-add-bis" style="display: none;" aria-hidden="true">
+                    <i class="icon-plus"></i> Add
+                </a>
+                <a href="javascript:;" class="btn btn-mini btn-link" title="Switch to View" style="display: none;" aria-hidden="true"><i
+                    class="icon-file-text-alt"></i> View </a>
+            </div>
+            <div class="btn-group"><a href="javascript:;" class="btn bottom-down" title="Minimize"><i class="icon-angle-down"></i></a></div>
+
+        </div>
+        <div class="el-time" style="float: right;font-size: 12px;color: green;line-height: 24px;margin-right:10px;">Elapsed time: 0ms</div>
+        <ul class="nav nav-tabs bottom-pane-selector">
+            <li class="active" onclick="showBottomTab('.console-bottom',this)" e2e-tag="history-tab"><a href="javascript:;"><i class="icon-list"></i> Console </a></li>
+            <li e2e-tag="assertion-tab" onclick="showBottomTab('.options-bottom',this)" class=""><a href="javascript:;"><i class="icon-tasks"></i> Options </a></li>
+        </ul>
+    </div>
+    <div class="content bottom-tab" style="">
+        <div class="console-bottom " id="h-history" style="padding:10px;white-space: pre-wrap;font-size: 13px;">There is no return value</div>
+        <div class="options-bottom" style="display: none;" aria-hidden="true">
+
+        </div>
+    </div>
 </section>
 </body>
 </html>

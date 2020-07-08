@@ -58,7 +58,6 @@ let editorTextarea;
 let exampleTextarea;
 
 let hasResponse;
-let hasConsole;
 let gdata = {
     apiList:null,
     exampleHistoryList:null,
@@ -277,6 +276,7 @@ $(function(){
         horizontalHasArrows: true,
         scrollBeyondLastLine: false,
         contextmenu:false,
+        automaticLayout: true,
         minimap: {
             enabled: false // 关闭小地图
         }
@@ -328,6 +328,8 @@ function loadEvent() {
     loadEditAbleEvent();
     loadExampleMethodEvent();
     loadHistoryScrollEvent();
+    loadLeftSideEvent();
+    loadBottomSideEvent();
 }
 
 function openConfirmModal(msg,fun) {
@@ -468,8 +470,8 @@ function runApi(debug) {
     }
 
     showSendNotify("Running script");
-    $("#console-section .content").html("");
-    $("#console-section").show();
+    $("#bottom-side .console-bottom").html("");
+    $("#bottom-side").show();
     let startTime=new Date().getTime()
     $.ajax({
         type: "POST",
@@ -491,17 +493,17 @@ function runApi(debug) {
                 content += "<a style='color:green;'>"+data.msg+"</a>";
             }
 
-            content += "\r\n--------------\r\n";
+            content += "<p>--------------</p>";
 
             content += buildJsonStr((data.data && (data.data.data == 0 || data.data.data))?data.data.data:"There is no return value");
 
-            $("#console-section .content").html(content);
+            $("#bottom-side .console-bottom").html(content);
 
         },complete:function () {
             hideSendNotify();
             hasConsole = true;
             let ms = (new Date().getTime()-startTime)+"ms";
-            $("#console-section .el-time").attr("title",ms).text("Elapsed time: "+ms);
+            $("#bottom-side .el-time").attr("title",ms).text("Elapsed time: "+ms);
         }
     });
 }
@@ -616,7 +618,6 @@ function loadDetail(apiInfo,form) {
     $(form).find(".api-info-path").removeAttr("readonly");
     $(form).find(".api-info-datasource").removeAttr("readonly");
     $(form).find(".api-info-datasource").parent().removeClass("disabled");
-    $("#console-section").hide();
 
     if(currApiInfo.type == 'Code'){
         $(form).find(".api-info-method").attr("readonly","readonly");
@@ -956,7 +957,7 @@ function newEditor() {
     $(form).find(".api-info-datasource").removeAttr("readonly");
     $(form).find(".api-info-datasource").parent().removeClass("disabled");
 
-    $("#console-section").hide();
+    $("#bottom-side").hide();
     $("#editor-section .draft-ribbon").show();
     $("#example-section .draft-ribbon").show();
 
@@ -1503,15 +1504,8 @@ function loadExampleMethodEvent() {
 }
 
 function showExamplePanel() {
-    $("#example-section").show();
-    $("#editor-section").hide();
-    $("#console-section").hide();
-
-    if (hasResponse){
-        $("#response").show();
-    }else{
-        $("#response").hide();
-    }
+    $("#example-panel").show();
+    $("#editor-panel").hide();
 
     let url = window.location.href;
     if(url.endsWith("/editor")){
@@ -1523,15 +1517,8 @@ function showExamplePanel() {
 }
 
 function showEditorPanel() {
-    $("#example-section").hide();
-    $("#response").hide();
-    $("#editor-section").show();
-
-    if (hasConsole){
-        $("#console-section").show();
-    }else{
-        $("#console-section").hide();
-    }
+    $("#example-panel").hide();
+    $("#editor-panel").show();
 
     let url = window.location.href;
     if(url.endsWith("/example")){
@@ -1799,3 +1786,89 @@ function searchApiHistory(e) {
     buildApiHistory(gdata.apiHistoryList,$(e).val())
 }
 //--------------------------------api history end -----------------------------------
+
+
+//--------------------------------api left-side start -----------------------------------
+function loadLeftSideEvent(){
+    $(".h-splitter").click(function () {
+        $(this).hide();
+        $("#left-side").show();
+        $(".content-view").css("left","325px");
+        $(".h-divider").css("left","325px");
+    });
+
+    let dividerIsDown = false;
+    $(".h-divider").on("mousedown",function () {
+        dividerIsDown = true;
+    })
+
+    $(document).on("mouseup",function () {
+        dividerIsDown = false;
+    })
+
+    $(document).on("mousemove",function (e) {
+        if (!dividerIsDown)return;
+        let x = e.pageX;
+        if (x < 300){
+            $(".h-splitter").show();
+            $("#left-side").hide();
+            $(".content-view").css("left",10);
+            $(".h-divider").css("left",0);
+        }else{
+            $(".h-splitter").hide();
+            $("#left-side").show();
+            $(".content-view").css("left",x);
+            $(".h-divider").css("left",x);
+            $("#left-side").css("width",x);
+        }
+    });
+
+}
+
+function loadBottomSideEvent() {
+    $(".v-splitter").click(function () {
+        $(".v-splitter").hide();
+        $("#bottom-side").show();
+        let bottom = $("#bottom-side").height();
+        $(".ui-lay-c").css("bottom",bottom+10);
+        $(".v-divider").show().css("bottom",bottom + 4.5);
+    });
+
+    $(".bottom-down").click(function () {
+        $(".v-splitter").show();
+        $("#bottom-side").hide();
+        $(".v-divider").hide();
+        $(".ui-lay-c").css("bottom",10);
+    });
+
+    let dividerVIsDown = false;
+    $(".v-divider").on("mousedown",function () {
+        dividerVIsDown = true;
+    })
+
+    $(document).on("mouseup",function () {
+        dividerVIsDown = false;
+    })
+
+    $(document).on("mousemove",function (e) {
+        if (!dividerVIsDown)return;
+        let y = e.pageY;
+        let bottom = $(document).height()-y;
+        if (bottom <= 250){
+            return;
+        }
+        $(".ui-lay-c").css("bottom",bottom+10);
+        $(".v-divider").css("bottom",bottom);
+        $("#bottom-side").css("height",bottom);
+    });
+}
+
+function showBottomTab(target,e) {
+    $("#bottom-side .bottom-pane-selector>li").removeClass("active");
+    $(e).addClass("active");
+    $("#bottom-side .bottom-tab>div").hide();
+    $(target).show();
+}
+
+//--------------------------------api left-side end -----------------------------------
+
