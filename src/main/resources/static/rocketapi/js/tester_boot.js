@@ -471,7 +471,6 @@ function runApi(debug) {
 
     showSendNotify("Running script");
     $("#bottom-side .console-bottom").html("");
-    $("#bottom-side").show();
     let startTime=new Date().getTime()
     $.ajax({
         type: "POST",
@@ -604,7 +603,7 @@ function loadDetail(apiInfo,form) {
 
     let url = detailUrl+currApiInfo.id+"/"+(currPage?currPage:'example');
     history.pushState(null,null,url);
-    removeAllQueryParameterForm("#editor-section");
+    removeAllQueryParameterForm("#bottom-side");
 
     $(form).find(".api-info-id").val(currApiInfo.id);
     $(form).find(".api-info-method").val(currApiInfo.method);
@@ -644,10 +643,9 @@ function loadDetail(apiInfo,form) {
 function apiOptionAdd(key,value) {
     key = key?key:"";
     value = value?value:"";
-    let $form = $("#editor-section");
-    $form.find(".query-parameters-form-block").append("<div class=\"query-parameter-row active\" e2e-tag=\"query-parameter\"><span class=\"gwt-CheckBox query-parameter-cell\" title=\"Enable/Disable\" e2e-tag=\"query-parameter-state\"><input type=\"checkbox\" value=\"on\" onclick='urlTriggerEnable(this)'  tabindex=\"0\" checked=\"\"><label for=\"gwt-uid-2020\"></label></span><span class=\"expression-input input-append query-parameter-cell-name query-parameter-cell\"><input type=\"text\" class=\"gwt-TextBox key\" onchange='buildUrlInput()' value='"+key+"' placeholder=\"name\" e2e-tag=\"query-parameter-name\"><span class=\"add-on\" data-original-title=\"\" title=\"\"><i class=\"icon-magic\"></i></span></span><span class=\"gwt-InlineLabel query-parameter-cell\">=</span><span class=\"expression-input input-append query-parameter-cell-value query-parameter-cell\"><input type=\"text\" onchange='buildUrlInput()' class=\"gwt-TextBox value\" value='"+value+"' placeholder=\"value\" e2e-tag=\"query-parameter-value\"><span class=\"add-on\" data-original-title=\"\" title=\"\"><i class=\"icon-magic\"></i></span></span><button class=\"r-btn r-btn-link query-parameter-cell\" onclick='queryParameterRemove(this,\"#editor-section\")' title=\"Remove\" e2e-tag=\"query-parameter-remove\"><i class=\"fa fa-times-thin\"></i><span></span><span class=\"r-btn-indicator\" aria-hidden=\"true\" style=\"display: none;\"></span></button><div class=\"btn-group ctrls dropdown-secondary query-parameter-encoding query-parameter-cell\" e2e-tag=\"query-parameter-additional-actions\"><a class=\"btn-mini dropdown-toggle\" data-toggle=\"dropdown\"><i class=\"sli-icon-options-vertical\"></i></a> <ul class=\"pull-right dropdown-menu\"><li class=\"dropdown-item\" e2e-tag=\"query-parameter-encode\"><a><i class=\"fa fa-check\"></i> <span>Encode before sending</span></a></li></ul></div></div>");
+    let $form = $("#bottom-side");
+    $form.find(".query-parameters-form-block").append("<div class=\"query-parameter-row active\" e2e-tag=\"query-parameter\"><span class=\"gwt-CheckBox query-parameter-cell\" title=\"Enable/Disable\" e2e-tag=\"query-parameter-state\"><label for=\"gwt-uid-2020\"></label></span><span class=\"expression-input input-append query-parameter-cell-name query-parameter-cell\"><input type=\"text\" class=\"gwt-TextBox key\" onchange='buildUrlInput()' value='"+key+"' placeholder=\"name\" e2e-tag=\"query-parameter-name\"><span class=\"add-on\" data-original-title=\"\" title=\"\"><i class=\"icon-magic\"></i></span></span><span class=\"gwt-InlineLabel query-parameter-cell\">=</span><span class=\"expression-input input-append query-parameter-cell-value query-parameter-cell\"><input type=\"text\" onchange='buildUrlInput()' class=\"gwt-TextBox value\" value='"+value+"' placeholder=\"value\" e2e-tag=\"query-parameter-value\"><span class=\"add-on\" data-original-title=\"\" title=\"\"><i class=\"icon-magic\"></i></span></span><button class=\"r-btn r-btn-link query-parameter-cell\" onclick='queryParameterRemove(this,\"#editor-section\")' title=\"Remove\" e2e-tag=\"query-parameter-remove\"><i class=\"fa fa-times-thin\"></i><span></span><span class=\"r-btn-indicator\" aria-hidden=\"true\" style=\"display: none;\"></span></button><div class=\"btn-group ctrls dropdown-secondary query-parameter-encoding query-parameter-cell\" e2e-tag=\"query-parameter-additional-actions\"><ul class=\"pull-right dropdown-menu\"><li class=\"dropdown-item\" e2e-tag=\"query-parameter-encode\"><a><i class=\"fa fa-check\"></i> <span>Encode before sending</span></a></li></ul></div></div>");
     $form.find(".query-parameters-form-block .query-parameter-row .key").focus();
-    $form.find(".subtitle-counter").text("["+$form.find(".query-parameters-form-block>.active").length+"]");
 }
 
 function saveAsEditor() {
@@ -682,7 +680,7 @@ function confirmDialog(form) {
 }
 
 function buildApiOptionsJsonStr() {
-    let list = $("#editor-section .query-parameters-form-block>.active");
+    let list = $("#bottom-side .query-parameters-form-block>.active");
     let map = {};
     $.each(list,function (index,item) {
         let key = $(item).find(".key").val();
@@ -957,7 +955,6 @@ function newEditor() {
     $(form).find(".api-info-datasource").removeAttr("readonly");
     $(form).find(".api-info-datasource").parent().removeClass("disabled");
 
-    $("#bottom-side").hide();
     $("#editor-section .draft-ribbon").show();
     $("#example-section .draft-ribbon").show();
 
@@ -1800,10 +1797,12 @@ function loadLeftSideEvent(){
     let dividerIsDown = false;
     $(".h-divider").on("mousedown",function () {
         dividerIsDown = true;
+        document.onselectstart=new Function("event.returnValue=false;");
     })
 
     $(document).on("mouseup",function () {
         dividerIsDown = false;
+        document.onselectstart=new Function("event.returnValue=true;");
     })
 
     $(document).on("mousemove",function (e) {
@@ -1830,35 +1829,44 @@ function loadBottomSideEvent() {
         $(".v-splitter").hide();
         $("#bottom-side").show();
         let bottom = $("#bottom-side").height();
-        $(".ui-lay-c").css("bottom",bottom+10);
-        $(".v-divider").show().css("bottom",bottom + 4.5);
+        $(".ui-lay-c").css("bottom",bottom+20);
+        $(".v-divider").show().css("bottom",bottom + 10);
     });
 
     $(".bottom-down").click(function () {
         $(".v-splitter").show();
         $("#bottom-side").hide();
         $(".v-divider").hide();
-        $(".ui-lay-c").css("bottom",10);
+        $(".ui-lay-c").css("bottom",20);
     });
 
     let dividerVIsDown = false;
     $(".v-divider").on("mousedown",function () {
         dividerVIsDown = true;
+        document.onselectstart=new Function("event.returnValue=false;");
     })
 
     $(document).on("mouseup",function () {
         dividerVIsDown = false;
+        document.onselectstart=new Function("event.returnValue=true;");
     })
 
     $(document).on("mousemove",function (e) {
         if (!dividerVIsDown)return;
         let y = e.pageY;
         let bottom = $(document).height()-y;
-        if (bottom <= 250){
-            return;
+        if (bottom <= 150){
+            bottom = 0;
+            $(".v-splitter").show();
+            $("#bottom-side").hide();
+            $(".v-divider").hide();
+        }else{
+            $(".v-splitter").hide();
+            $("#bottom-side").show();
+            $(".v-divider").show();
         }
-        $(".ui-lay-c").css("bottom",bottom+10);
-        $(".v-divider").css("bottom",bottom);
+        $(".ui-lay-c").css("bottom",bottom+20);
+        $(".v-divider").css("bottom",bottom+10);
         $("#bottom-side").css("height",bottom);
     });
 }
