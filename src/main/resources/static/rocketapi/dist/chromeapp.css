@@ -7489,7 +7489,7 @@ body:not(.free-edition) .show-for-free-edition {
 .header-bar {
     display: flex;
     height: 48px;
-    background: linear-gradient(to right, #17486E 20%, #6664D1 80%);
+    background: linear-gradient(to right, #17486E 20%, #747396 80%);
     color: #FFFFFF;
     font-size: 14px;
     font-family: "Source Sans Pro", sans-serif;
@@ -9213,14 +9213,10 @@ a.gwt-anchor-inactive:hover {
     color: #888;
     text-transform: uppercase;
 }
-#bottom-side .bottom-pane-selector li.active a {
-    background-color: #fafafa;
-    color: #2a2a2a;
-}
+
 #bottom-side .content {
     margin: 0;
     padding: 5px 0 0 0;
-    background-color: #fafafa;
     flex-grow: 1;
     overflow: auto;
     display: flex;

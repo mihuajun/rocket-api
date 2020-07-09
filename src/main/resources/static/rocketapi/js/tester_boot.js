@@ -65,6 +65,17 @@ let gdata = {
     historyCurrPageNo:1
 }
 
+//本地缓存信息
+let rocketUser = {
+    "user":{
+        username:"admin"
+    },
+    "panel":{
+        "left":"show",
+        "bottom":"show"
+    }
+}
+
 function loadCurrApi() {
     if (currApi){
         loadDetailById(currApi,"#editor-section")
@@ -81,8 +92,27 @@ function initUser() {
         $("#top-section .login-info").show();
         $("#top-section .login-info .name").text(user);
     }else{
+        if (rocketUser.user){
+            $("#top-section .username").val(rocketUser.user.username?rocketUser.user.username:"");
+            $("#top-section .password").val(rocketUser.user.password?rocketUser.user.password:"");
+            login();
+        }
         $("#top-section .login-btn").show();
         $("#top-section .login-info").hide();
+    }
+}
+
+function initPanel() {
+    if (rocketUser.panel.left == "show"){
+        $(".h-splitter").click();
+    }else{
+        $(".hide-pane-l").click();
+    }
+
+    if (rocketUser.panel.bottom == "show"){
+        $(".v-splitter").click();
+    }else{
+        $(".bottom-down").click();
     }
 }
 
@@ -96,12 +126,17 @@ function versionCheck() {
 }
 
 $(function(){
-
+    if (!localStorage.getItem("rocketUser")){
+        localStorage.setItem("rocketUser",JSON.stringify(rocketUser));
+    }else{
+        rocketUser = JSON.parse(localStorage.getItem("rocketUser"));
+    }
+    $("#loader").hide();
     //加载API列表
     loadApiList(false);
     loadEvent();
-    $("#loader").hide();
     initUser();
+    initPanel();
     versionCheck();
 
     monaco.languages.register({ id: 'custom-language' });
@@ -117,7 +152,8 @@ $(function(){
             'get', 'if', 'import', 'in', 'instanceof', 'let', 'new', 'null',
             'return', 'set', 'super', 'switch', 'symbol', 'this', 'throw', 'true',
             'try', 'typeof', 'undefined', 'var', 'void', 'while', 'with', 'yield',
-            'async', 'await', 'of'
+            'async', 'await', 'of',
+            'select','insert into','update','delete from','from','left','join','where','group','by','right join','limit','on'
             ,'Assert','db','Export','log','Pager'
         ],
 
@@ -148,7 +184,9 @@ $(function(){
         tokenizer: {
             root: [
                 [/[{}]/, 'delimiter.bracket'],
-                { include: 'common' }
+                { include: 'common' },
+                [/#{[a-z\\.A-Z_0-9\\\[\\\]]*}/, 'string.invalid'],  // non-teminated string
+                [/\\?\\{/, 'string.invalid'],  // non-teminated string
             ],
 
             common: [
@@ -160,8 +198,6 @@ $(function(){
                         '@default': 'identifier'
                     }
                 }],
-                [/[A-Z][\w\$]*/, 'type.identifier'],  // to show class names nicely
-                // [/[A-Z][\w\$]*/, 'identifier'],
 
                 // whitespace
                 { include: '@whitespace' },
@@ -270,6 +306,7 @@ $(function(){
 
     editorTextarea = monaco.editor.create(document.getElementById('monaco-editor'), {
         language: 'custom-language',
+        theme:'vs-dark',
         values:"return ",
         wordWrap: 'on',  //自行换行
         verticalHasArrows: true,
@@ -277,6 +314,7 @@ $(function(){
         scrollBeyondLastLine: false,
         contextmenu:false,
         automaticLayout: true,
+        fontSize:13,
         minimap: {
             enabled: false // 关闭小地图
         }
@@ -288,9 +326,14 @@ $(function(){
         runApi(false);
     });
 
-    editorTextarea.addCommand(monaco.KeyMod.CtrlCmd |monaco.KeyMod.Alt| monaco.KeyCode.Enter, function () {
+    editorTextarea.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyMod.Alt| monaco.KeyCode.Enter, function () {
         runApi(true);
     });
+
+    editorTextarea.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_S ,function () {
+        saveEditor('#editor-section')
+    });
+
 
 
     exampleTextarea = monaco.editor.create(document.getElementById('example-editor'), {
@@ -1553,6 +1596,9 @@ function logout() {
                 openMsgModal(data.msg);
                 return;
             }
+            rocketUser.user.username = "";
+            rocketUser.user.password = "";
+            localStorage.setItem("rocketUser",JSON.stringify(rocketUser));
             $("#top-section .login-btn").show();
             $("#top-section .login-info").hide();
         },complete:function (req,data) {
@@ -1580,6 +1626,9 @@ function login() {
                 $("#top-section .login-error-message").text(data.msg);
                 return;
             }
+            rocketUser.user.username = username;
+            rocketUser.user.password = password;
+            localStorage.setItem("rocketUser",JSON.stringify(rocketUser));
 
             $("#top-section .login-btn").hide();
             $("#top-section .login-info").show();
@@ -1792,6 +1841,17 @@ function loadLeftSideEvent(){
         $("#left-side").show();
         $(".content-view").css("left","325px");
         $(".h-divider").css("left","325px");
+        rocketUser.panel.left = "show";
+        localStorage.setItem("rocketUser",JSON.stringify(rocketUser));
+    });
+
+    $(".hide-pane-l").click(function () {
+        $(".h-splitter").show();
+        $("#left-side").hide();
+        $(".content-view").css("left",10);
+        $(".h-divider").css("left",0);
+        rocketUser.panel.left = "hide";
+        localStorage.setItem("rocketUser",JSON.stringify(rocketUser));
     });
 
     let dividerIsDown = false;
@@ -1813,13 +1873,17 @@ function loadLeftSideEvent(){
             $("#left-side").hide();
             $(".content-view").css("left",10);
             $(".h-divider").css("left",0);
+            rocketUser.panel.left = "hide";
         }else{
             $(".h-splitter").hide();
             $("#left-side").show();
             $(".content-view").css("left",x);
             $(".h-divider").css("left",x);
             $("#left-side").css("width",x);
+            rocketUser.panel.left = "show";
         }
+
+        localStorage.setItem("rocketUser",JSON.stringify(rocketUser));
     });
 
 }
@@ -1831,6 +1895,8 @@ function loadBottomSideEvent() {
         let bottom = $("#bottom-side").height();
         $(".ui-lay-c").css("bottom",bottom+20);
         $(".v-divider").show().css("bottom",bottom + 10);
+        rocketUser.panel.bottom = "show";
+        localStorage.setItem("rocketUser",JSON.stringify(rocketUser));
     });
 
     $(".bottom-down").click(function () {
@@ -1838,6 +1904,8 @@ function loadBottomSideEvent() {
         $("#bottom-side").hide();
         $(".v-divider").hide();
         $(".ui-lay-c").css("bottom",20);
+        rocketUser.panel.bottom = "hide";
+        localStorage.setItem("rocketUser",JSON.stringify(rocketUser));
     });
 
     let dividerVIsDown = false;
@@ -1860,11 +1928,14 @@ function loadBottomSideEvent() {
             $(".v-splitter").show();
             $("#bottom-side").hide();
             $(".v-divider").hide();
+            rocketUser.panel.bottom = "hide";
         }else{
             $(".v-splitter").hide();
             $("#bottom-side").show();
             $(".v-divider").show();
+            rocketUser.panel.bottom = "show";
         }
+        localStorage.setItem("rocketUser",JSON.stringify(rocketUser));
         $(".ui-lay-c").css("bottom",bottom+20);
         $(".v-divider").css("bottom",bottom+10);
         $("#bottom-side").css("height",bottom);
