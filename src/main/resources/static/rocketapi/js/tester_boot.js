@@ -530,7 +530,7 @@ function runApi(debug) {
             }
 
             if (data.code != 200){
-                content += "<pre style='color:red;'>"+data.msg+"</pre>";
+                content += "<div style='color:red;background-color: none'>"+data.msg+"</div>";
             }else{
                 content += "<a style='color:green;'>"+data.msg+"</a>";
             }
@@ -1894,7 +1894,7 @@ function loadBottomSideEvent() {
         $("#bottom-side").show();
         let bottom = $("#bottom-side").height();
         $(".ui-lay-c").css("bottom",bottom+20);
-        $(".v-divider").show().css("bottom",bottom + 10);
+        $(".v-divider").show().css("bottom",bottom + 7);
         rocketUser.panel.bottom = "show";
         localStorage.setItem("rocketUser",JSON.stringify(rocketUser));
     });
@@ -1937,7 +1937,7 @@ function loadBottomSideEvent() {
         }
         localStorage.setItem("rocketUser",JSON.stringify(rocketUser));
         $(".ui-lay-c").css("bottom",bottom+20);
-        $(".v-divider").css("bottom",bottom+10);
+        $(".v-divider").css("bottom",bottom+7);
         $("#bottom-side").css("height",bottom);
     });
 }

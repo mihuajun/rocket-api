@@ -91,7 +91,7 @@
         </div>
 
         <div class="code-body"  style="height: 100%;margin-top:45px;">
-            <div id="editor-btns" style="height: 24px;border-bottom: 1px solid #ccc;">
+            <div id="editor-btns" style="height: 24px;">
                 <div class="item" title="必填参数" onclick="insertExample(this)" express = '"#{name}"'>#{}</div>
                 <div class="item" title="可选参数" onclick="insertExample(this)" express = '"?{name,and name = #{name}}"'>?{}</div>
                 <div class="item" title="参数验证" onclick="insertExample(this)" express = 'Assert.isTrue(false,"参数不足")'>Assert</div>
@@ -120,8 +120,8 @@ return Export.xls("测试导出",title,list);'>Export.xls</div>
 
                 <div class="item" title="日志输出：info,debug,warn,error,trace" onclick="insertExample(this)" express = 'log.info("日志信息:{}","变量");'>Log</div>
 
-                <div class="item run" title="DEBUG运行脚本 快捷键Ctrl + Alt + Enter" onclick="runApi(true)" >Debug</div>
-                <div class="item run" st title="运行脚本 快捷键Ctrl + Enter" onclick="runApi(false)" style="border-right:1px solid #ccc;">Run</div>
+                <div class="item debug-btn" title="DEBUG运行脚本 快捷键Ctrl + Alt + Enter" onclick="runApi(true)" >Debug</div>
+                <div class="item run-btn" st title="运行脚本 快捷键Ctrl + Enter" onclick="runApi(false)">Run</div>
             </div>
             <div id="monaco-editor" style="font-size: 13px;width:100%;height: calc(100% - 24px);"></div>
         </div>

@@ -124,7 +124,7 @@
                 </div>
             </div>
             <div class="clearfix"></div>
-            <div class="v-divider" aria-hidden="true" style="z-index: 10;bottom:255px;">
+            <div class="v-divider" aria-hidden="true" style="z-index: 10;bottom:252px;">
                 <div class="line"></div>
             </div>
             <section class="v-splitter" title="Show bottom pane" style="bottom: 0px;"></section>
@@ -380,34 +380,52 @@
 
         }
 
-        #editor-btns>.run{
+        #editor-btns>.run-btn,#editor-btns>.debug-btn{
             float:right;
             border:none;
         }
 
-        #editor-btns>.run:hover{
+        #editor-btns>.run-btn:hover,#editor-btns>.debug-btn:hover{
             background-color: #4458a7;
         }
 
+        /* drak theam*/
+        #bottom-side{
+            margin-left:5px;
+        }
         #editor-panel .pane-request,#editor-panel input,#editor-panel button,#editor-panel .dropdown-menu,#bottom-side,#bottom-side .bottom-pane-selector,
         #editor-panel .ui-lay-c .btn-send.btn-primary,
         #editor-panel .ui-lay-c .btn-send.btn-primary:hover,
         #editor-panel .dropdown-menu > li > a,
-        #editor-panel .request-common .split-dropdown .add-on
+        #editor-panel .request-common .split-dropdown .add-on,
+        #editor-panel .v-divider,
+        #editor-panel .v-splitter
         {
             color:#ccc;
             background-color: #3c3f41;
         }
+
+        #editor-panel .console-bottom {
+            background-color: #2b2b2b;
+        }
+
+        #editor-panel .v-splitter:hover{
+            background-color: #0275d8;
+        }
+
         #editor-panel .pane-request .draft-ribbon .draft-ribbon-text{
             color:#ccc;
             background-color: #888;
         }
         #editor-panel .pane-request .draft-ribbon .draft-ribbon-text:hover{
             background-color: #4d66b5;
-            color: #fff;
+            color: #ccc;
         }
-        #editor-panel .ui-lay-c{
+        #editor-panel .ui-lay-c,#editor-panel{
             background-color: #232425;
+        }
+        #editor-panel .nav-tabs{
+            border-bottom: 1px solid #232425;
         }
         .h-divider{
             background-color: #f0f0f000;
@@ -417,6 +435,18 @@
         }
         .requests .content-view .ui-lay-m .v-divider .line{
             border-bottom: solid #484848 1px;
+        }
+        #editor-panel .code-body{
+            border: 1px solid #525252;
+        }
+        #editor-panel .editor-btns{
+            border-bottom: 1px solid #525252;
+        }
+        #editor-panel .run-btn{
+            border-right: 1px solid #525252;
+        }
+        #editor-panel .ui-lay-c .btn-send.btn-primary{
+            border-color: #525252 !important;
         }
     </style>
 </div>
