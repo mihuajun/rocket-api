@@ -391,7 +391,7 @@
 
         /* drak theam*/
         #bottom-side{
-            margin-left:5px;
+            margin-left:2px;
         }
         #editor-panel .pane-request,#editor-panel input,#editor-panel button,#editor-panel .dropdown-menu,#bottom-side,#bottom-side .bottom-pane-selector,
         #editor-panel .ui-lay-c .btn-send.btn-primary,
@@ -399,9 +399,19 @@
         #editor-panel .dropdown-menu > li > a,
         #editor-panel .request-common .split-dropdown .add-on,
         #editor-panel .v-divider,
-        #editor-panel .v-splitter
+        #editor-panel .v-splitter,
+        .h-splitter,
+        .ui-lay-l,
+        #repository .authenticated .request,
+        #repository .authenticated .service,
+        #repository .authenticated .drive-name,
+        .requests .left-pane .left-pane-header .selector .active > a
         {
             color:#ccc;
+            background-color: #3c3f41;
+        }
+        .requests .left-pane .left-pane-header .selector a:hover, .selection-tree .left-pane-header .selector a:hover,
+        .requests .left-pane .left-pane-header .selector .active > a:hover{
             background-color: #3c3f41;
         }
 
@@ -409,8 +419,18 @@
             background-color: #2b2b2b;
         }
 
-        #editor-panel .v-splitter:hover{
-            background-color: #0275d8;
+        #editor-panel .v-splitter:hover,.h-splitter:hover,
+        #editor-panel .nav-tabs > .active > a,
+        #editor-panel .nav-tabs > .active > a:hover,
+        #editor-panel .nav-tabs > .active > a:focus,
+        #bottom-side .bottom-pane-selector li > a:hover{
+            background-color: #1e1e1e;
+            border: 0px solid #ddd;
+            bottom:0px;
+        }
+
+        #editor-panel .nav-tabs > li > a{
+            border:0px;
         }
 
         #editor-panel .pane-request .draft-ribbon .draft-ribbon-text{

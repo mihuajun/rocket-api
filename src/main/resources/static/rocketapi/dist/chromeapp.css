@@ -7489,7 +7489,7 @@ body:not(.free-edition) .show-for-free-edition {
 .header-bar {
     display: flex;
     height: 48px;
-    background: linear-gradient(to right, #17486E 20%, #747396 80%);
+    background: linear-gradient(to right, #1e1e1e 20%, #3c3f41 80%);
     color: #FFFFFF;
     font-size: 14px;
     font-family: "Source Sans Pro", sans-serif;
@@ -9211,12 +9211,11 @@ a.gwt-anchor-inactive:hover {
     padding: 4px 16px 4px 16px;
     font-size: 14px;
     color: #888;
-    text-transform: uppercase;
 }
 
 #bottom-side .content {
     margin: 0;
-    padding: 5px 0 0 0;
+    padding: 0 0 0 0;
     flex-grow: 1;
     overflow: auto;
     display: flex;
@@ -9789,7 +9788,7 @@ a.gwt-anchor-inactive:hover {
     border: none;
     border-radius: 0;
     color: #FFFFFF;
-    background: #1a1a1a url(../images/search-icon-white-compressed.png?3z10D) no-repeat 7px 12px;
+    background: #3c3f41 url(../images/search-icon-white-compressed.png?3z10D) no-repeat 7px 12px;
 }
 .left-pane .search .filter:focus,
 .selection-tree .search .filter:focus,
@@ -9868,7 +9867,6 @@ a.gwt-anchor-inactive:hover {
 .selection-tree .drive-name {
     line-height: 44px;
     color: #f7f8f9;
-    background: #1A1A1A;
     display: flex;
     align-items: center;
 }

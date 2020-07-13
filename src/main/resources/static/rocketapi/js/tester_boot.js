@@ -139,6 +139,15 @@ $(function(){
     initPanel();
     versionCheck();
 
+    monaco.editor.defineTheme('myTheme', {
+        base: 'vs-dark',
+        inherit: true,
+        rules: [{ background: 'EDF9FA' }],
+        colors: {
+            'editor.background': '#2b2b2b'
+        }
+    });
+
     monaco.languages.register({ id: 'custom-language' });
     monaco.languages.setMonarchTokensProvider('custom-language', {
         // Set defaultToken to invalid to see what you do not tokenize yet
@@ -306,7 +315,7 @@ $(function(){
 
     editorTextarea = monaco.editor.create(document.getElementById('monaco-editor'), {
         language: 'custom-language',
-        theme:'vs-dark',
+        theme:'myTheme',
         values:"return ",
         wordWrap: 'on',  //自行换行
         verticalHasArrows: true,
@@ -530,7 +539,7 @@ function runApi(debug) {
             }
 
             if (data.code != 200){
-                content += "<div style='color:red;background-color: none'>"+data.msg+"</div>";
+                content += "<div style='color: #de6a53;background-color: none;letter-spacing: 1px;'>"+data.msg+"</div>";
             }else{
                 content += "<a style='color:green;'>"+data.msg+"</a>";
             }
