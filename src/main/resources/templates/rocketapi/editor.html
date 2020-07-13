@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
 <body>
-<section id="editor-section" class="pane pane-request request-common" th:fragment="editor-section">
+<section id="editor-section" class="pane pane-request request-common" style="height: calc(100% - 52px)" th:fragment="editor-section">
 
     <div class="draft-ribbon" style="" onclick="showExamplePanel()">
         <div class="draft-ribbon-text"> New</div>
@@ -12,7 +12,7 @@
             <span class="add-on"><i class="icon-pencil"></i></span></div>
         <div class="editable-input-error" title=""></div>
     </div>
-    <div class="content" style="margin-top:10px;">
+    <div class="content" style="margin-top:10px;height:calc(100% - 165px); ">
         <div class="service">
             <div class="row-uri-in-request-view">
                 <div class="row-uri">
@@ -87,58 +87,15 @@
                     </ul>
                 </div>
             </div>
-            <div class="query-parameters-form collapsed in-request-view" style="margin-left: 135px;">
-                <div class="query-parameters-form-title collapsed-title not-select"><i class="fa fa-caret-right" onclick="triggerQueryParameterForm(this)" tabindex="0"></i> <span class="title-content" onclick="triggerQueryParameterForm(this)" e2e-tag="query-parameter-expand">API options</span>
-                    <span class="subtitle-counter"></span>
-                    <button class="r-btn r-btn-link" title="Sort query parameters" e2e-tag="query-parameter-sort" style="display: none"><i
-                            class="fa fa-sort-alpha-asc"></i><span></span><span class="r-btn-indicator" aria-hidden="true" style="display: none;"></span></button>
-                </div>
-                <div class="query-parameters-form-block">
-                </div>
-                <div class="query-parameters-btns-row" style="margin-bottom: 20px;">
-                    <button class="list-action-add r-btn r-btn-small r-btn-rounded" onclick="apiOptionAdd()" title="Add a new query parameter." e2e-tag="query-parameter-add"><i
-                            class="fa fa-plus"></i><span>Add option</span><span class="r-btn-indicator" aria-hidden="true" style="display: none;"></span></button>
-                    <button class="list-action-remove-all r-btn r-btn-link" onclick="removeAllQueryParameterForm('#editor-section')" title="Remove all query parameters" e2e-tag="query-parameter-remove-all" tabindex="-1" style=""><i
-                            class="fa fa-trash-o"></i><span></span><span class="r-btn-indicator" aria-hidden="true" style="display: none;"></span></button>
-                </div>
-            </div>
+
         </div>
 
-        <div class="code-body" >
-            <div id="editor-btns" style="height: 24px;border-bottom: 1px solid #ccc;">
-                <div class="item" title="必填参数" onclick="insertExample(this)" express = '"#{name}"'>#{}</div>
-                <div class="item" title="可选参数" onclick="insertExample(this)" express = '"?{name,and name = #{name}}"'>?{}</div>
-                <div class="item" title="参数验证" onclick="insertExample(this)" express = 'Assert.isTrue(false,"参数不足")'>Assert</div>
-                <div class="item" title="统计查询" onclick="insertExample(this)" express = 'return db.count("select count(1) from user");'>Count</div>
-                <div class="item" title="单条查询" onclick="insertExample(this)" express = 'return db.findOne("select * from user where id = #{id}");'>FindOne</div>
-                <div class="item" title="多条查询" onclick="insertExample(this)" express = 'return db.find("select * from user");'>Find</div>
-
-                <div class="item" title="分页查询" onclick="insertExample(this)"
-express = 'total = db.count("select count(1) from user");
-list = db.find("select * from user");
-return Pager.build(total,list);'>Pager</div>
-
-                <div class="item" title="新增" onclick="insertExample(this)" express = 'return db.insert("insert into user(name) values(#{name})");'>Insert</div>
-                <div class="item" title="修改" onclick="insertExample(this)" express = 'return db.update("update user set name=#{name} where id = #{id}");'>Update</div>
-                <div class="item" title="删除" onclick="insertExample(this)" express = 'return db.remove("delete from user where id = #{id}");'>Remove</div>
-
-                <div class="item" title="导出CSV" onclick="insertExample(this)"
-express = 'title = {"id":"编号","name":"姓名","mock":"test","createTime":"创建时间"}
-list = db.find("select * from user");
-return Export.csv("测试导出",title,list);'>Export.csv</div>
-
-                <div class="item" title="导出XLS" onclick="insertExample(this)"
-                     express = 'title = {"id":"编号","name":"姓名","mock":"test","createTime":"创建时间"}
-list = db.find("select * from user");
-return Export.xls("测试导出",title,list);'>Export.xls</div>
-
-                <div class="item" title="日志输出：info,debug,warn,error,trace" onclick="insertExample(this)" express = 'log.info("日志信息:{}","变量");'>Log</div>
-
-                <div class="item run" title="DEBUG运行脚本 快捷键Ctrl + Alt + Enter" onclick="runApi(true)" >Debug</div>
-                <div class="item run" st title="运行脚本 快捷键Ctrl + Enter" onclick="runApi(false)" style="border-right:1px solid #ccc;">Run</div>
+        <div class="code-body"  style="height: 100%;margin-top:45px;">
+            <div id="editor-btns" style="height: 24px;">
+                <div class="item debug-btn" title="DEBUG运行脚本 快捷键Ctrl + Alt + Enter" onclick="runApi(true)" >Debug</div>
+                <div class="item run-btn" st title="运行脚本 快捷键Ctrl + Enter" onclick="runApi(false)">Run</div>
             </div>
-            <!--<textarea id="CodeMirror1" name="CodeMirror1" class="api-info-script cm-s-default"></textarea>-->
-            <div id="monaco-editor" style="width:100%;margin-top:10px;height: 400px"></div>
+            <div id="monaco-editor" style="font-size: 13px;width:100%;height: calc(100% - 24px);"></div>
         </div>
     </div>
 

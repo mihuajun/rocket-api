@@ -7,17 +7,17 @@
     <base th:src="@{/}">
     <meta name="viewport" content="initial-scale=1, minimum-scale=1, width=device-width">
     <meta name="twitter:widgets:csp" content="on">
-    <link rel="stylesheet" type="text/css" href="./rocketapi/css/prism.css">
-    <link rel="stylesheet" type="text/css" href="./rocketapi/css/sourceSansPro.css">
-    <link rel="stylesheet" type="text/css" href="./rocketapi/css/simple-line-icons.css">
-    <link rel="stylesheet" type="text/css" href="./rocketapi/css/talend-icons-webfont.css">
-    <link rel="stylesheet" type="text/css" href="./rocketapi/css/select2-4.0.3.min.css">
-    <link rel="stylesheet" type="text/css" href="./rocketapi/fonts/api-tester/style.css">
+    <link rel="stylesheet" type="text/css" href="rocketapi/css/prism.css">
+    <link rel="stylesheet" type="text/css" href="rocketapi/css/sourceSansPro.css">
+    <link rel="stylesheet" type="text/css" href="rocketapi/css/simple-line-icons.css">
+    <link rel="stylesheet" type="text/css" href="rocketapi/css/talend-icons-webfont.css">
+    <link rel="stylesheet" type="text/css" href="rocketapi/css/select2-4.0.3.min.css">
+    <link rel="stylesheet" type="text/css" href="rocketapi/fonts/api-tester/style.css">
     <!-- the following order is very important -->
-    <link rel="stylesheet" type="text/css" href="./rocketapi/dist/chromeapp.css">
-    <link rel="stylesheet" type="text/css" href="./rocketapi/css/font-awesome.4.2.0.min.css">
-    <link rel="stylesheet" type="text/css" href="./rocketapi/css/font-awesome.3.2.1.enriched-for-client.css">
-    <link rel="stylesheet" data-name="vs/editor/editor.main" href="./rocketapi/monaco-editor/min/vs/editor/editor.main.css">
+    <link rel="stylesheet" type="text/css" href="rocketapi/dist/chromeapp.css">
+    <link rel="stylesheet" type="text/css" href="rocketapi/css/font-awesome.4.2.0.min.css">
+    <link rel="stylesheet" type="text/css" href="rocketapi/css/font-awesome.3.2.1.enriched-for-client.css">
+    <link rel="stylesheet" data-name="vs/editor/editor.main" href="rocketapi/monaco-editor/min/vs/editor/editor.main.css">
     <link rel="shortcut icon"
           href="data:image/svg+xml;base64, PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGlkPSJhcGktdGVzdGVyLWNvbG9yZWQiPjxzdmcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB2aWV3Qm94PSIwIDAgMTYgMTYiPgoJCTxwYXRoIGZpbGw9IiM2NjY0RDEiIGQ9Ik0xNiw3Ljk4OSBDMTYsMTIuNDAxIDEyLjQyMywxNS45NzggOC4wMTEsMTUuOTc4IEMzLjU5OSwxNS45NzggMC4wMjIsMTIuNDAxIDAuMDIyLDcuOTg5IEMwLjAyMiwzLjU3NyAzLjU5OSwwIDguMDExLDAgQzEyLjQyMywwIDE2LDMuNTc3IDE2LDcuOTg5Ij48L3BhdGg+CgkJPHBhdGggZmlsbD0iI0ZGRiIgZD0iTTE0LjA1MjcgNy4yNDE0QzEzLjYxOTcgNy4yNDE0IDEzLjI2OTcgNy41OTI0IDEzLjI2OTcgOC4wMjU0IDEzLjI2OTcgOC40NTc0IDEzLjYxOTcgOC44MDg0IDE0LjA1MjcgOC44MDg0IDE0LjQ4NTcgOC44MDg0IDE0LjgzNjcgOC40NTc0IDE0LjgzNjcgOC4wMjU0IDE0LjgzNjcgNy41OTI0IDE0LjQ4NTcgNy4yNDE0IDE0LjA1MjcgNy4yNDE0TTIuNzcyNCA3Ljk5NjNDMi43NzI0IDcuNTYzMyAyLjQyMTQgNy4yMTIzIDEuOTg5NCA3LjIxMjMgMS41NTY0IDcuMjEyMyAxLjIwNTQgNy41NjMzIDEuMjA1NCA3Ljk5NjMgMS4yMDU0IDguNDI5MyAxLjU1NjQgOC43ODAzIDEuOTg5NCA4Ljc4MDMgMi40MjE0IDguNzgwMyAyLjc3MjQgOC40MjkzIDIuNzcyNCA3Ljk5NjNNMi4xNDc5IDUuOTUyNEMyLjI1OTkgNS45NTI0IDIuMzU1OSA1Ljg4NTQgMi4zOTk5IDUuNzg5NCAyLjM5OTkgNS43ODg0IDIuNDAwOSA1Ljc4ODQgMi40MDA5IDUuNzg3NCAyLjQwMTkgNS43ODQ0IDIuNDAyOSA1Ljc4MjQgMi40MDQ5IDUuNzc5NCAzLjMwMDkgMy41NDM0IDUuNDk1OSAxLjk3MDQgOC4wMDk5IDEuOTY0NEw4LjAwOTkgMi43NTM0IDguODc2OSAyLjAyNzRDMTEuMDA2OSAyLjMyNzQgMTIuODE1OSAzLjczMTQgMTMuNjI0OSA1LjcyMDQgMTMuNjcxOSA1Ljg0NjQgMTMuNzY2OSA1Ljk0ODQgMTMuOTAzOSA1Ljk0ODQgMTQuMDU3OSA1Ljk0ODQgMTQuMTgxOSA1LjgyNDQgMTQuMTgxOSA1LjY3MTQgMTQuMTgxOSA1LjYxODQgMTQuMTQ0OSA1LjUyNjQgMTQuMTQ0OSA1LjUyNjQgMTMuMjYzOSAzLjM0NzQgMTEuMjg2OSAxLjgwNzQgOC45NTU5IDEuNDc5NEw4LjAwOTkuNjg4NCA4LjAwOTkgMS40MTA0QzUuMjY3OSAxLjQxNTQgMi44ODA5IDMuMTIxNCAxLjg5NzkgNS41NTI0TDEuODk5OSA1LjU1MzRDMS44ODE5IDUuNTkwNCAxLjg3MDkgNS42MzE0IDEuODcwOSA1LjY3NTQgMS44NzA5IDUuODI4NCAxLjk5NDkgNS45NTI0IDIuMTQ3OSA1Ljk1MjRNMTMuOTA5MiAxMC4wODI3QzEzLjc5NzIgMTAuMDgyNyAxMy43MDAyIDEwLjE0OTcgMTMuNjU3MiAxMC4yNDU3IDEzLjY1NjIgMTAuMjQ2NyAxMy42NTYyIDEwLjI0NzcgMTMuNjU2MiAxMC4yNDc3IDEzLjY1NTIgMTAuMjUwNyAxMy42NTMyIDEwLjI1MjcgMTMuNjUyMiAxMC4yNTU3IDEyLjc1NDIgMTIuNDk2NyAxMC41NTEyIDE0LjA3MzcgOC4wMzAyIDE0LjA3MTcgOC4wMjUyIDE0LjA3MTcgOC4wMjAyIDE0LjA3MDcgOC4wMTUyIDE0LjA3MDdMOC4wMTUyIDEzLjE3NzcgNy4wNDcyIDEzLjk4NzdDNC45NzQyIDEzLjY0NzcgMy4yMjQyIDEyLjI2MTcgMi40MzIyIDEwLjMxNDcgMi4zODQyIDEwLjE4ODcgMi4yOTAyIDEwLjA4NjcgMi4xNTMyIDEwLjA4NjcgMS45OTkyIDEwLjA4NjcgMS44NzUyIDEwLjIxMDcgMS44NzUyIDEwLjM2NDcgMS44NzUyIDEwLjQxNjcgMS45MTIyIDEwLjUwOTcgMS45MTIyIDEwLjUwOTcgMi44MDUyIDEyLjcxOTcgNC44MjkyIDE0LjI2NjcgNy4yMDQyIDE0LjU2MzdMOC4wMTUyIDE1LjI0MjcgOC4wMTUyIDE0LjYyNDdDOC4wMjAyIDE0LjYyNDcgOC4wMjQyIDE0LjYyNjcgOC4wMjkyIDE0LjYyNjcgMTAuNzc5MiAxNC42Mjc3IDEzLjE3NDIgMTIuOTE4NyAxNC4xNTgyIDEwLjQ4MjdMMTQuMTU3MiAxMC40ODE3QzE0LjE3NTIgMTAuNDQ0NyAxNC4xODYyIDEwLjQwMzcgMTQuMTg2MiAxMC4zNTk3IDE0LjE4NjIgMTAuMjA2NyAxNC4wNjIyIDEwLjA4MjcgMTMuOTA5MiAxMC4wODI3Ij48L3BhdGg+CgkJPHBhdGggZmlsbD0iI0ZGRiIgZD0iTTEwLjQ2MTQsNS40NTgyIEw3LjEwNjQsOC43ODQyIEw1LjUxMTQsNy4xOTAyIEM1LjQwODQsNy4wODgyIDUuMjQyNCw3LjA4ODIgNS4xMzg0LDcuMTkwMiBMNC41Nzk0LDcuNzQ1MiBMNC41Nzg0LDcuNzQ2MiBDNC40Nzc0LDcuODQ4MiA0LjQ3NzQsOC4wMTMyIDQuNTc5NCw4LjExNTIgTDYuMzU3NCw5Ljg5MTIgQzYuMzU5NCw5Ljg5MjIgNi4zNTc0LDkuODk0MiA2LjM1OTQsOS44OTUyIEw2Ljc0NzQsMTAuMjgwMiBMNi44MzY0LDEwLjM2ODIgTDYuOTE4NCwxMC40NTEyIEM3LjAyMjQsMTAuNTUzMiA3LjE4ODQsMTAuNTUzMiA3LjI5MTQsMTAuNDUxMiBMNy4yOTE0LDEwLjQ1MDIgTDExLjM5MzQsNi4zODIyIEMxMS4zOTQ0LDYuMzgxMiAxMS4zOTU0LDYuMzgxMiAxMS4zOTY0LDYuMzgwMiBDMTEuNDk2NCw2LjI3NzIgMTEuNDk1NCw2LjExMzIgMTEuMzkzNCw2LjAxMzIgTDEwLjgzNDQsNS40NTgyIEMxMC43MzE0LDUuMzU2MiAxMC41NjM0LDUuMzU2MiAxMC40NjE0LDUuNDU4MiI+PC9wYXRoPgo8L3N2Zz4KPC9zdmc+"
           type="image/x-icon"/>
@@ -87,16 +87,19 @@
     <div th:replace="rocketapi/top::top-section"></div>
 
     <div class="h-splitter" aria-hidden="true" style="display: none;"></div>
-    <section class="ui-lay-l left-pane flex-column" id="left-side" style="min-width: 420px; width: 420px;">
+    <section class="ui-lay-l left-pane flex-column" id="left-side" style="min-width:325px;">
         <div class="left-pane-header">
             <ul class="nav nav-pills selector">
                 <li title="History" onclick="showHistory()" class=" history"><a> <i class="api-tester-icon api-tester-history"></i> History </a></li>
                 <li title="Repository" onclick="showRepository()" class=" active repository"><a> <i class="api-tester-icon api-tester-repository"></i> Repository </a></li>
             </ul>
-            <div class="left-pane-actions" style="position: absolute;right: 44px;">
+            <div class="left-pane-actions" style="position: absolute;left: 246px;">
                 <button type="button" class="gwt-Button new-draft-action" onclick="newRequest(this)" e2e-tag="btn-new-draft"
                         data-original-title="New draft request  (Alt + N)" title=""><i class="sli-icon-doc"></i>
                 </button>
+            </div>
+            <div class="hide-pane-l" style="padding: 13px 5px; cursor: pointer;position: absolute;right:5px;">
+                <i class="icon-angle-left"></i>
             </div>
         </div>
         <div class="content">
@@ -108,38 +111,37 @@
 
         </div>
     </section>
-    <div class="h-divider" style="left: 420px;">
+    <div class="h-divider" style="left: 23%;">
         <div class="line"></div>
     </div>
-    <div class="content-view" style="left: 420px;">
-        <div class="ui-lay-m">
-            <div class="ui-lay-c" style="bottom: 15px;">
-                <div class="ui-lay-cc">
-                    <div>
-                        <section class="request-meta">
-                            <div class="content flex-container">
-                                <div class="request-breadcrumb-rp"></div>
-                            </div>
-                        </section>
 
-                        <div th:replace="rocketapi/editor::editor-section"></div>
-                        <div th:replace="rocketapi/console::console-section"></div>
-                        <div th:replace="rocketapi/example::example-section"></div>
-                        <div th:replace="rocketapi/response::response-section"></div>
-                    </div>
+    <div class="content-view"  style="left: 23%;">
+        <div id="editor-panel" class="ui-lay-m">
+            <div class="ui-lay-c" style="bottom: 265px;">
+                <div class="ui-lay-cc" style="height:100%;">
+                    <div style="height: 13px;"></div>
+                    <div th:replace="rocketapi/editor::editor-section"></div>
                 </div>
             </div>
             <div class="clearfix"></div>
-            <div class="v-divider" aria-hidden="true" style="display: none;">
+            <div class="v-divider" aria-hidden="true" style="z-index: 10;bottom:252px;">
                 <div class="line"></div>
             </div>
             <section class="v-splitter" title="Show bottom pane" style="bottom: 0px;"></section>
-
             <div th:replace="rocketapi/bottom::bottom-section"></div>
+        </div>
 
-            <div class="powered-by-talend">Powered by mi</div>
+        <div id="example-panel" class="ui-lay-m" style="overflow-y: scroll">
+            <div class="ui-lay-c">
+                <div class="ui-lay-cc">
+                    <div style="height: 13px;"></div>
+                    <div th:replace="rocketapi/example::example-section"></div>
+                    <div th:replace="rocketapi/response::response-section"></div>
+                </div>
+            </div>
         </div>
     </div>
+
 </div>
 
 <div class="intercom-lightweight-app" aria-live="polite">
@@ -368,10 +370,8 @@
             display: block;
         }
         #editor-btns>.item{
-            background-color: #f7f7f7;
             padding: 2px 10px;
             cursor: pointer;
-            border-right: 1px solid #ccc;
         }
 
         #editor-btns>.item:hover{
@@ -380,15 +380,93 @@
 
         }
 
-        #editor-btns>.run{
-            background-color: green;
-            color: white;
+        #editor-btns>.run-btn,#editor-btns>.debug-btn{
             float:right;
             border:none;
         }
 
-        #editor-btns>.run:hover{
+        #editor-btns>.run-btn:hover,#editor-btns>.debug-btn:hover{
             background-color: #4458a7;
+        }
+
+        /* drak theam*/
+        #bottom-side{
+            margin-left:2px;
+        }
+        #editor-panel .pane-request,#editor-panel input,#editor-panel button,#editor-panel .dropdown-menu,#bottom-side,#bottom-side .bottom-pane-selector,
+        #editor-panel .ui-lay-c .btn-send.btn-primary,
+        #editor-panel .ui-lay-c .btn-send.btn-primary:hover,
+        #editor-panel .dropdown-menu > li > a,
+        #editor-panel .request-common .split-dropdown .add-on,
+        #editor-panel .v-divider,
+        #editor-panel .v-splitter,
+        .h-splitter,
+        .ui-lay-l,
+        #repository .authenticated .request,
+        #repository .authenticated .service,
+        #repository .authenticated .drive-name,
+        .requests .left-pane .left-pane-header .selector .active > a
+        {
+            color:#ccc;
+            background-color: #3c3f41;
+        }
+        .requests .left-pane .left-pane-header .selector a:hover, .selection-tree .left-pane-header .selector a:hover,
+        .requests .left-pane .left-pane-header .selector .active > a:hover{
+            background-color: #3c3f41;
+        }
+
+        #editor-panel .console-bottom {
+            background-color: #2b2b2b;
+        }
+
+        #editor-panel .v-splitter:hover,.h-splitter:hover,
+        #editor-panel .nav-tabs > .active > a,
+        #editor-panel .nav-tabs > .active > a:hover,
+        #editor-panel .nav-tabs > .active > a:focus,
+        #bottom-side .bottom-pane-selector li > a:hover{
+            background-color: #1e1e1e;
+            border: 0px solid #ddd;
+            bottom:0px;
+        }
+
+        #editor-panel .nav-tabs > li > a{
+            border:0px;
+        }
+
+        #editor-panel .pane-request .draft-ribbon .draft-ribbon-text{
+            color:#ccc;
+            background-color: #888;
+        }
+        #editor-panel .pane-request .draft-ribbon .draft-ribbon-text:hover{
+            background-color: #4d66b5;
+            color: #ccc;
+        }
+        #editor-panel .ui-lay-c,#editor-panel{
+            background-color: #232425;
+        }
+        #editor-panel .nav-tabs{
+            border-bottom: 1px solid #232425;
+        }
+        .h-divider{
+            background-color: #f0f0f000;
+        }
+        .h-divider .line{
+            border-left: solid #484848 1px;
+        }
+        .requests .content-view .ui-lay-m .v-divider .line{
+            border-bottom: solid #484848 1px;
+        }
+        #editor-panel .code-body{
+            border: 1px solid #525252;
+        }
+        #editor-panel .editor-btns{
+            border-bottom: 1px solid #525252;
+        }
+        #editor-panel .run-btn{
+            border-right: 1px solid #525252;
+        }
+        #editor-panel .ui-lay-c .btn-send.btn-primary{
+            border-color: #525252 !important;
         }
     </style>
 </div>
@@ -455,13 +533,13 @@
     let ctxPath  = [[${basePath}]];
 </script>
 
-<script type="text/javascript" src="./rocketapi/js/jquery-1.12.2.min.js"></script>
-<script type="text/javascript" src="./rocketapi/js/bootstrap-2.3.2.min.js"></script>
-<script type="text/javascript" src="./rocketapi/js/tester_boot.js"></script>
+<script type="text/javascript" src="rocketapi/js/jquery-1.12.2.min.js"></script>
+<script type="text/javascript" src="rocketapi/js/bootstrap-2.3.2.min.js"></script>
+<script type="text/javascript" src="rocketapi/js/tester_boot.js"></script>
 
-<script>var require = { paths: { 'vs': './rocketapi/monaco-editor/min/vs' } };</script>
-<script src="./rocketapi/monaco-editor/min/vs/loader.js"></script>
-<script src="./rocketapi/monaco-editor/min/vs/editor/editor.main.nls.js"></script>
-<script src="./rocketapi/monaco-editor/min/vs/editor/editor.main.js"></script>
+<script>var require = { paths: { 'vs': 'rocketapi/monaco-editor/min/vs' } };</script>
+<script src="rocketapi/monaco-editor/min/vs/loader.js"></script>
+<script src="rocketapi/monaco-editor/min/vs/editor/editor.main.nls.js"></script>
+<script src="rocketapi/monaco-editor/min/vs/editor/editor.main.js"></script>
 </body>
 </html>

@@ -1,8 +1,34 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
 <body>
-<section class="pane" id="bottom-side" aria-hidden="true" style="height: 0px; display: none;" th:fragment="bottom-section">
+<section class="pane" id="bottom-side" aria-hidden="true" style="min-height: 150px;" th:fragment="bottom-section">
+    <div>
 
+        <div class="hide-pane">
+            <div class="btn-group"><a href="javascript:;" class="btn bottom-down" title="Minimize"><i class="icon-angle-down"></i></a></div>
+        </div>
+        <div class="el-time" style="float: right;font-size: 12px;color: green;line-height: 24px;margin-right:10px;">Elapsed time: 0ms</div>
+        <ul class="nav nav-tabs bottom-pane-selector">
+            <li class="active" onclick="showBottomTab('.console-bottom',this)" e2e-tag="history-tab"><a href="javascript:;"><i class="icon-list"></i> Console </a></li>
+            <li e2e-tag="assertion-tab" onclick="showBottomTab('.options-bottom',this)" class=""><a href="javascript:;"><i class="icon-tasks"></i> Options </a></li>
+        </ul>
+    </div>
+    <div class="content bottom-tab" style="">
+        <div class="console-bottom " id="h-history" style="padding:10px;white-space: pre-wrap;font-size: 13px;cursor:text">There is no return value</div>
+        <div class="options-bottom" style="display: none;" aria-hidden="true">
+            <div class="query-parameters-form in-request-view" style="">
+                <div class="query-parameters-form-block" style="min-width: 250px;width:70%">
+                </div>
+                <div class="query-parameters-btns-row" style="margin-bottom: 20px;min-width: 250px;width:70%">
+                    <button class="list-action-add r-btn r-btn-small r-btn-rounded" onclick="apiOptionAdd()" title="Add a new query parameter." e2e-tag="query-parameter-add"><i
+                            class="fa fa-plus"></i><span>Add option</span><span class="r-btn-indicator" aria-hidden="true" style="display: none;"></span></button>
+                    <button class="list-action-remove-all r-btn r-btn-link" onclick="removeAllQueryParameterForm('#bottom-side')" title="Remove all query parameters" e2e-tag="query-parameter-remove-all" tabindex="-1" style=""><i
+                            class="fa fa-trash-o"></i><span></span><span class="r-btn-indicator" aria-hidden="true" style="display: none;"></span></button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="status-bar" style="height: 20px;"></div>
 </section>
 </body>
 </html>

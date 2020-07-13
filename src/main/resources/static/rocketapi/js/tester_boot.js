@@ -58,12 +58,22 @@ let editorTextarea;
 let exampleTextarea;
 
 let hasResponse;
-let hasConsole;
 let gdata = {
     apiList:null,
     exampleHistoryList:null,
     apiHistoryList:null,
     historyCurrPageNo:1
+}
+
+//本地缓存信息
+let rocketUser = {
+    "user":{
+        username:"admin"
+    },
+    "panel":{
+        "left":"show",
+        "bottom":"show"
+    }
 }
 
 function loadCurrApi() {
@@ -82,8 +92,27 @@ function initUser() {
         $("#top-section .login-info").show();
         $("#top-section .login-info .name").text(user);
     }else{
+        if (rocketUser.user){
+            $("#top-section .username").val(rocketUser.user.username?rocketUser.user.username:"");
+            $("#top-section .password").val(rocketUser.user.password?rocketUser.user.password:"");
+            login();
+        }
         $("#top-section .login-btn").show();
         $("#top-section .login-info").hide();
+    }
+}
+
+function initPanel() {
+    if (rocketUser.panel.left == "show"){
+        $(".h-splitter").click();
+    }else{
+        $(".hide-pane-l").click();
+    }
+
+    if (rocketUser.panel.bottom == "show"){
+        $(".v-splitter").click();
+    }else{
+        $(".bottom-down").click();
     }
 }
 
@@ -97,13 +126,27 @@ function versionCheck() {
 }
 
 $(function(){
-
+    if (!localStorage.getItem("rocketUser")){
+        localStorage.setItem("rocketUser",JSON.stringify(rocketUser));
+    }else{
+        rocketUser = JSON.parse(localStorage.getItem("rocketUser"));
+    }
+    $("#loader").hide();
     //加载API列表
     loadApiList(false);
     loadEvent();
-    $("#loader").hide();
     initUser();
+    initPanel();
     versionCheck();
+
+    monaco.editor.defineTheme('myTheme', {
+        base: 'vs-dark',
+        inherit: true,
+        rules: [{ background: 'EDF9FA' }],
+        colors: {
+            'editor.background': '#2b2b2b'
+        }
+    });
 
     monaco.languages.register({ id: 'custom-language' });
     monaco.languages.setMonarchTokensProvider('custom-language', {
@@ -118,7 +161,8 @@ $(function(){
             'get', 'if', 'import', 'in', 'instanceof', 'let', 'new', 'null',
             'return', 'set', 'super', 'switch', 'symbol', 'this', 'throw', 'true',
             'try', 'typeof', 'undefined', 'var', 'void', 'while', 'with', 'yield',
-            'async', 'await', 'of'
+            'async', 'await', 'of',
+            'select','insert into','update','delete from','from','left','join','where','group','by','right join','limit','on'
             ,'Assert','db','Export','log','Pager'
         ],
 
@@ -149,7 +193,9 @@ $(function(){
         tokenizer: {
             root: [
                 [/[{}]/, 'delimiter.bracket'],
-                { include: 'common' }
+                { include: 'common' },
+                [/#{[a-z\\.A-Z_0-9\\\[\\\]]*}/, 'string.invalid'],  // non-teminated string
+                [/\\?\\{/, 'string.invalid'],  // non-teminated string
             ],
 
             common: [
@@ -161,8 +207,6 @@ $(function(){
                         '@default': 'identifier'
                     }
                 }],
-                [/[A-Z][\w\$]*/, 'type.identifier'],  // to show class names nicely
-                // [/[A-Z][\w\$]*/, 'identifier'],
 
                 // whitespace
                 { include: '@whitespace' },
@@ -271,12 +315,15 @@ $(function(){
 
     editorTextarea = monaco.editor.create(document.getElementById('monaco-editor'), {
         language: 'custom-language',
+        theme:'myTheme',
         values:"return ",
         wordWrap: 'on',  //自行换行
         verticalHasArrows: true,
         horizontalHasArrows: true,
         scrollBeyondLastLine: false,
         contextmenu:false,
+        automaticLayout: true,
+        fontSize:13,
         minimap: {
             enabled: false // 关闭小地图
         }
@@ -288,9 +335,14 @@ $(function(){
         runApi(false);
     });
 
-    editorTextarea.addCommand(monaco.KeyMod.CtrlCmd |monaco.KeyMod.Alt| monaco.KeyCode.Enter, function () {
+    editorTextarea.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyMod.Alt| monaco.KeyCode.Enter, function () {
         runApi(true);
     });
+
+    editorTextarea.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_S ,function () {
+        saveEditor('#editor-section')
+    });
+
 
 
     exampleTextarea = monaco.editor.create(document.getElementById('example-editor'), {
@@ -328,6 +380,8 @@ function loadEvent() {
     loadEditAbleEvent();
     loadExampleMethodEvent();
     loadHistoryScrollEvent();
+    loadLeftSideEvent();
+    loadBottomSideEvent();
 }
 
 function openConfirmModal(msg,fun) {
@@ -468,8 +522,7 @@ function runApi(debug) {
     }
 
     showSendNotify("Running script");
-    $("#console-section .content").html("");
-    $("#console-section").show();
+    $("#bottom-side .console-bottom").html("");
     let startTime=new Date().getTime()
     $.ajax({
         type: "POST",
@@ -486,22 +539,22 @@ function runApi(debug) {
             }
 
             if (data.code != 200){
-                content += "<pre style='color:red;'>"+data.msg+"</pre>";
+                content += "<div style='color: #de6a53;background-color: none;letter-spacing: 1px;'>"+data.msg+"</div>";
             }else{
                 content += "<a style='color:green;'>"+data.msg+"</a>";
             }
 
-            content += "\r\n--------------\r\n";
+            content += "<p>--------------</p>";
 
             content += buildJsonStr((data.data && (data.data.data == 0 || data.data.data))?data.data.data:"There is no return value");
 
-            $("#console-section .content").html(content);
+            $("#bottom-side .console-bottom").html(content);
 
         },complete:function () {
             hideSendNotify();
             hasConsole = true;
             let ms = (new Date().getTime()-startTime)+"ms";
-            $("#console-section .el-time").attr("title",ms).text("Elapsed time: "+ms);
+            $("#bottom-side .el-time").attr("title",ms).text("Elapsed time: "+ms);
         }
     });
 }
@@ -602,7 +655,7 @@ function loadDetail(apiInfo,form) {
 
     let url = detailUrl+currApiInfo.id+"/"+(currPage?currPage:'example');
     history.pushState(null,null,url);
-    removeAllQueryParameterForm("#editor-section");
+    removeAllQueryParameterForm("#bottom-side");
 
     $(form).find(".api-info-id").val(currApiInfo.id);
     $(form).find(".api-info-method").val(currApiInfo.method);
@@ -616,7 +669,6 @@ function loadDetail(apiInfo,form) {
     $(form).find(".api-info-path").removeAttr("readonly");
     $(form).find(".api-info-datasource").removeAttr("readonly");
     $(form).find(".api-info-datasource").parent().removeClass("disabled");
-    $("#console-section").hide();
 
     if(currApiInfo.type == 'Code'){
         $(form).find(".api-info-method").attr("readonly","readonly");
@@ -643,10 +695,9 @@ function loadDetail(apiInfo,form) {
 function apiOptionAdd(key,value) {
     key = key?key:"";
     value = value?value:"";
-    let $form = $("#editor-section");
-    $form.find(".query-parameters-form-block").append("<div class=\"query-parameter-row active\" e2e-tag=\"query-parameter\"><span class=\"gwt-CheckBox query-parameter-cell\" title=\"Enable/Disable\" e2e-tag=\"query-parameter-state\"><input type=\"checkbox\" value=\"on\" onclick='urlTriggerEnable(this)'  tabindex=\"0\" checked=\"\"><label for=\"gwt-uid-2020\"></label></span><span class=\"expression-input input-append query-parameter-cell-name query-parameter-cell\"><input type=\"text\" class=\"gwt-TextBox key\" onchange='buildUrlInput()' value='"+key+"' placeholder=\"name\" e2e-tag=\"query-parameter-name\"><span class=\"add-on\" data-original-title=\"\" title=\"\"><i class=\"icon-magic\"></i></span></span><span class=\"gwt-InlineLabel query-parameter-cell\">=</span><span class=\"expression-input input-append query-parameter-cell-value query-parameter-cell\"><input type=\"text\" onchange='buildUrlInput()' class=\"gwt-TextBox value\" value='"+value+"' placeholder=\"value\" e2e-tag=\"query-parameter-value\"><span class=\"add-on\" data-original-title=\"\" title=\"\"><i class=\"icon-magic\"></i></span></span><button class=\"r-btn r-btn-link query-parameter-cell\" onclick='queryParameterRemove(this,\"#editor-section\")' title=\"Remove\" e2e-tag=\"query-parameter-remove\"><i class=\"fa fa-times-thin\"></i><span></span><span class=\"r-btn-indicator\" aria-hidden=\"true\" style=\"display: none;\"></span></button><div class=\"btn-group ctrls dropdown-secondary query-parameter-encoding query-parameter-cell\" e2e-tag=\"query-parameter-additional-actions\"><a class=\"btn-mini dropdown-toggle\" data-toggle=\"dropdown\"><i class=\"sli-icon-options-vertical\"></i></a> <ul class=\"pull-right dropdown-menu\"><li class=\"dropdown-item\" e2e-tag=\"query-parameter-encode\"><a><i class=\"fa fa-check\"></i> <span>Encode before sending</span></a></li></ul></div></div>");
+    let $form = $("#bottom-side");
+    $form.find(".query-parameters-form-block").append("<div class=\"query-parameter-row active\" e2e-tag=\"query-parameter\"><span class=\"gwt-CheckBox query-parameter-cell\" title=\"Enable/Disable\" e2e-tag=\"query-parameter-state\"><label for=\"gwt-uid-2020\"></label></span><span class=\"expression-input input-append query-parameter-cell-name query-parameter-cell\"><input type=\"text\" class=\"gwt-TextBox key\" onchange='buildUrlInput()' value='"+key+"' placeholder=\"name\" e2e-tag=\"query-parameter-name\"><span class=\"add-on\" data-original-title=\"\" title=\"\"><i class=\"icon-magic\"></i></span></span><span class=\"gwt-InlineLabel query-parameter-cell\">=</span><span class=\"expression-input input-append query-parameter-cell-value query-parameter-cell\"><input type=\"text\" onchange='buildUrlInput()' class=\"gwt-TextBox value\" value='"+value+"' placeholder=\"value\" e2e-tag=\"query-parameter-value\"><span class=\"add-on\" data-original-title=\"\" title=\"\"><i class=\"icon-magic\"></i></span></span><button class=\"r-btn r-btn-link query-parameter-cell\" onclick='queryParameterRemove(this,\"#editor-section\")' title=\"Remove\" e2e-tag=\"query-parameter-remove\"><i class=\"fa fa-times-thin\"></i><span></span><span class=\"r-btn-indicator\" aria-hidden=\"true\" style=\"display: none;\"></span></button><div class=\"btn-group ctrls dropdown-secondary query-parameter-encoding query-parameter-cell\" e2e-tag=\"query-parameter-additional-actions\"><ul class=\"pull-right dropdown-menu\"><li class=\"dropdown-item\" e2e-tag=\"query-parameter-encode\"><a><i class=\"fa fa-check\"></i> <span>Encode before sending</span></a></li></ul></div></div>");
     $form.find(".query-parameters-form-block .query-parameter-row .key").focus();
-    $form.find(".subtitle-counter").text("["+$form.find(".query-parameters-form-block>.active").length+"]");
 }
 
 function saveAsEditor() {
@@ -681,7 +732,7 @@ function confirmDialog(form) {
 }
 
 function buildApiOptionsJsonStr() {
-    let list = $("#editor-section .query-parameters-form-block>.active");
+    let list = $("#bottom-side .query-parameters-form-block>.active");
     let map = {};
     $.each(list,function (index,item) {
         let key = $(item).find(".key").val();
@@ -956,7 +1007,6 @@ function newEditor() {
     $(form).find(".api-info-datasource").removeAttr("readonly");
     $(form).find(".api-info-datasource").parent().removeClass("disabled");
 
-    $("#console-section").hide();
     $("#editor-section .draft-ribbon").show();
     $("#example-section .draft-ribbon").show();
 
@@ -1503,15 +1553,8 @@ function loadExampleMethodEvent() {
 }
 
 function showExamplePanel() {
-    $("#example-section").show();
-    $("#editor-section").hide();
-    $("#console-section").hide();
-
-    if (hasResponse){
-        $("#response").show();
-    }else{
-        $("#response").hide();
-    }
+    $("#example-panel").show();
+    $("#editor-panel").hide();
 
     let url = window.location.href;
     if(url.endsWith("/editor")){
@@ -1523,15 +1566,8 @@ function showExamplePanel() {
 }
 
 function showEditorPanel() {
-    $("#example-section").hide();
-    $("#response").hide();
-    $("#editor-section").show();
-
-    if (hasConsole){
-        $("#console-section").show();
-    }else{
-        $("#console-section").hide();
-    }
+    $("#example-panel").hide();
+    $("#editor-panel").show();
 
     let url = window.location.href;
     if(url.endsWith("/example")){
@@ -1569,6 +1605,9 @@ function logout() {
                 openMsgModal(data.msg);
                 return;
             }
+            rocketUser.user.username = "";
+            rocketUser.user.password = "";
+            localStorage.setItem("rocketUser",JSON.stringify(rocketUser));
             $("#top-section .login-btn").show();
             $("#top-section .login-info").hide();
         },complete:function (req,data) {
@@ -1596,6 +1635,9 @@ function login() {
                 $("#top-section .login-error-message").text(data.msg);
                 return;
             }
+            rocketUser.user.username = username;
+            rocketUser.user.password = password;
+            localStorage.setItem("rocketUser",JSON.stringify(rocketUser));
 
             $("#top-section .login-btn").hide();
             $("#top-section .login-info").show();
@@ -1799,3 +1841,122 @@ function searchApiHistory(e) {
     buildApiHistory(gdata.apiHistoryList,$(e).val())
 }
 //--------------------------------api history end -----------------------------------
+
+
+//--------------------------------api left-side start -----------------------------------
+function loadLeftSideEvent(){
+    $(".h-splitter").click(function () {
+        $(this).hide();
+        $("#left-side").show();
+        $(".content-view").css("left","325px");
+        $(".h-divider").css("left","325px");
+        rocketUser.panel.left = "show";
+        localStorage.setItem("rocketUser",JSON.stringify(rocketUser));
+    });
+
+    $(".hide-pane-l").click(function () {
+        $(".h-splitter").show();
+        $("#left-side").hide();
+        $(".content-view").css("left",10);
+        $(".h-divider").css("left",0);
+        rocketUser.panel.left = "hide";
+        localStorage.setItem("rocketUser",JSON.stringify(rocketUser));
+    });
+
+    let dividerIsDown = false;
+    $(".h-divider").on("mousedown",function () {
+        dividerIsDown = true;
+        document.onselectstart=new Function("event.returnValue=false;");
+    })
+
+    $(document).on("mouseup",function () {
+        dividerIsDown = false;
+        document.onselectstart=new Function("event.returnValue=true;");
+    })
+
+    $(document).on("mousemove",function (e) {
+        if (!dividerIsDown)return;
+        let x = e.pageX;
+        if (x < 300){
+            $(".h-splitter").show();
+            $("#left-side").hide();
+            $(".content-view").css("left",10);
+            $(".h-divider").css("left",0);
+            rocketUser.panel.left = "hide";
+        }else{
+            $(".h-splitter").hide();
+            $("#left-side").show();
+            $(".content-view").css("left",x);
+            $(".h-divider").css("left",x);
+            $("#left-side").css("width",x);
+            rocketUser.panel.left = "show";
+        }
+
+        localStorage.setItem("rocketUser",JSON.stringify(rocketUser));
+    });
+
+}
+
+function loadBottomSideEvent() {
+    $(".v-splitter").click(function () {
+        $(".v-splitter").hide();
+        $("#bottom-side").show();
+        let bottom = $("#bottom-side").height();
+        $(".ui-lay-c").css("bottom",bottom+20);
+        $(".v-divider").show().css("bottom",bottom + 7);
+        rocketUser.panel.bottom = "show";
+        localStorage.setItem("rocketUser",JSON.stringify(rocketUser));
+    });
+
+    $(".bottom-down").click(function () {
+        $(".v-splitter").show();
+        $("#bottom-side").hide();
+        $(".v-divider").hide();
+        $(".ui-lay-c").css("bottom",20);
+        rocketUser.panel.bottom = "hide";
+        localStorage.setItem("rocketUser",JSON.stringify(rocketUser));
+    });
+
+    let dividerVIsDown = false;
+    $(".v-divider").on("mousedown",function () {
+        dividerVIsDown = true;
+        document.onselectstart=new Function("event.returnValue=false;");
+    })
+
+    $(document).on("mouseup",function () {
+        dividerVIsDown = false;
+        document.onselectstart=new Function("event.returnValue=true;");
+    })
+
+    $(document).on("mousemove",function (e) {
+        if (!dividerVIsDown)return;
+        let y = e.pageY;
+        let bottom = $(document).height()-y;
+        if (bottom <= 150){
+            bottom = 0;
+            $(".v-splitter").show();
+            $("#bottom-side").hide();
+            $(".v-divider").hide();
+            rocketUser.panel.bottom = "hide";
+        }else{
+            $(".v-splitter").hide();
+            $("#bottom-side").show();
+            $(".v-divider").show();
+            rocketUser.panel.bottom = "show";
+        }
+        localStorage.setItem("rocketUser",JSON.stringify(rocketUser));
+        $(".ui-lay-c").css("bottom",bottom+20);
+        $(".v-divider").css("bottom",bottom+7);
+        $("#bottom-side").css("height",bottom);
+    });
+}
+
+function showBottomTab(target,e) {
+    $("#bottom-side .bottom-pane-selector>li").removeClass("active");
+    $(e).addClass("active");
+    $("#bottom-side .bottom-tab>div").hide();
+    $(target).show();
+}
+
+//--------------------------------api left-side end -----------------------------------
+
