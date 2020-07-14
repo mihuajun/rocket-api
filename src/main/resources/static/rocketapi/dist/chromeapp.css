@@ -11153,10 +11153,8 @@ a.gwt-anchor-inactive:hover {
     padding-left: 1px;
     text-align: left;
     cursor: ew-resize;
-    background-color: #f0f0f0;
 }
 .h-divider .line {
-    border-left: solid #AAA 1px;
     width: 1px;
     height: 100%;
 }
@@ -15687,10 +15685,9 @@ table.headers-form-table {
 .pane-request {
     background-color: #FFFFFF;
     box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.2);
-    -webkit-border-radius: 5px;
+    /*-webkit-border-radius: 5px;
     -moz-border-radius: 5px;
-    border-radius: 5px;
-    margin: 0 15px 0 1em;
+    border-radius: 5px;*/
     padding-top: 15px;
 }
 .pane-request .service form {

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
 <body>
-<section id="editor-section" class="pane pane-request request-common" style="height: calc(100% - 52px)" th:fragment="editor-section">
+<section id="editor-section" class="pane pane-request request-common" style="height: calc(100% - 48px)" th:fragment="editor-section">
 
     <div class="draft-ribbon" style="" onclick="showExamplePanel()">
         <div class="draft-ribbon-text"> New</div>
@@ -12,7 +12,7 @@
             <span class="add-on"><i class="icon-pencil"></i></span></div>
         <div class="editable-input-error" title=""></div>
     </div>
-    <div class="content" style="margin-top:10px;height:calc(100% - 165px); ">
+    <div class="content" style="margin-top:10px;height:calc(100% - 130px); ">
         <div class="service">
             <div class="row-uri-in-request-view">
                 <div class="row-uri">
@@ -90,7 +90,7 @@
 
         </div>
 
-        <div class="code-body"  style="height: 100%;margin-top:45px;">
+        <div class="code-body"  style="height: 100%;margin-top:25px;">
             <div id="editor-btns" style="height: 24px;">
                 <div class="item debug-btn" title="DEBUG运行脚本 快捷键Ctrl + Alt + Enter" onclick="runApi(true)" >Debug</div>
                 <div class="item run-btn" st title="运行脚本 快捷键Ctrl + Enter" onclick="runApi(false)">Run</div>

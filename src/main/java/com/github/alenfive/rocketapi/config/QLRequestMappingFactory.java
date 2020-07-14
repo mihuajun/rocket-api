@@ -13,6 +13,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
@@ -130,9 +132,9 @@ public class QLRequestMappingFactory {
      */
     @ResponseBody
     @RequestMapping
-    public Object execute(@PathVariable(required = false) Map<String,String> pathVar,
-                          @RequestParam(required = false) Map<String,Object> param,
-                          @RequestBody(required = false) Map<String,Object> body) throws Throwable {
+    public ResponseEntity execute(@PathVariable(required = false) Map<String,String> pathVar,
+                                  @RequestParam(required = false) Map<String,Object> param,
+                                  @RequestBody(required = false) Map<String,Object> body) throws Throwable {
 
         String path = buildPattern(request);
         String method = request.getMethod();
@@ -151,7 +153,7 @@ public class QLRequestMappingFactory {
         StringBuilder script = new StringBuilder(URLDecoder.decode(apiInfo.getScript(),"utf-8"));
 
         try {
-            return scriptParse.runScript(script.toString(),apiInfo,apiParams);
+            return new ResponseEntity<>(scriptParse.runScript(script.toString(),apiInfo,apiParams), HttpStatus.OK);
         }finally {
             apiInfoContent.removeAll();
         }

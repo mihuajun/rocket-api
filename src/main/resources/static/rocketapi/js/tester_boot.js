@@ -54,6 +54,10 @@ let currExample = {
     options:null
 }
 
+let defaultExample = {
+
+}
+
 let editorTextarea;
 let exampleTextarea;
 
@@ -315,7 +319,6 @@ $(function(){
 
     editorTextarea = monaco.editor.create(document.getElementById('monaco-editor'), {
         language: 'custom-language',
-        theme:'myTheme',
         values:"return ",
         wordWrap: 'on',  //自行换行
         verticalHasArrows: true,
@@ -361,6 +364,8 @@ $(function(){
         }
     });
 
+
+
 });
 
 
@@ -397,6 +402,21 @@ function openConfirmModal(msg,fun) {
 function closeConfirmModal() {
     $("#confirmModal").hide();
     $("#modal-backdrop").hide();
+}
+
+function copyApi(e,id) {
+    let cApi = null;
+    $.each(gdata.apiList,function (index,item) {
+        if (id == item.id){
+            cApi = item;
+            return false;
+        }
+    })
+    delete cApi.id;
+    cApi.comment = (cApi.comment?cApi.comment:cApi.path) +"-Copy"
+    cApi.path = cApi.path+"-TEMP-"+uuid();
+    cApi.script = editorTextarea.getValue();
+    saveExecuter(cApi);
 }
 
 //API移动
@@ -928,7 +948,7 @@ function buildApiTree(list,collapsed) {
                 '                                                            class="btn-mini dropdown-toggle" data-toggle="dropdown"\n' +
                 '                                                            e2e-tag="drive|'+(item.comment?item.comment:item.path)+'|more"><i\n' +
                 '                                                            class="sli-icon-options-vertical"></i></a>\n' +
-                '                                                        <ul class="pull-right dropdown-menu"><li class="dropdown-item"  onclick="moveApi(this,\''+item.id+'\')"><a><i class="fa fa-random"></i><span class="gwt-InlineHTML">Move</span></a></li><li class="dropdown-item" onclick="removeApi(this,\''+item.id+'\')"><a><i class="fa fa-trash-o" onclick="moveApi(this,'+item.id+')"></i><span class="gwt-InlineHTML">Remove</span></a></li></ul>\n' +
+                '                                                        <ul class="pull-right dropdown-menu"><li class="dropdown-item"  onclick="copyApi(this,\''+item.id+'\')"><a><i class="fa fa-copy"></i><span class="gwt-InlineHTML">Copy</span></a></li><li class="dropdown-item"  onclick="moveApi(this,\''+item.id+'\')"><a><i class="fa fa-random"></i><span class="gwt-InlineHTML">Move</span></a></li><li class="dropdown-item" onclick="removeApi(this,\''+item.id+'\')"><a><i class="fa fa-trash-o" onclick="moveApi(this,'+item.id+')"></i><span class="gwt-InlineHTML">Remove</span></a></li></ul>\n' +
                 '                                                    </div>\n' +
                 '                                                </div>' +
                 '</li>');
@@ -1562,7 +1582,7 @@ function showExamplePanel() {
         history.pushState(null,null,url);
     }
     currPage = "example";
-
+    monaco.editor.setTheme("vs");
 }
 
 function showEditorPanel() {
@@ -1575,6 +1595,7 @@ function showEditorPanel() {
         history.pushState(null,null,url);
     }
     currPage = "editor";
+    monaco.editor.setTheme("myTheme");
 }
 //--------------------------------example end -----------------------------------
 
@@ -1902,7 +1923,7 @@ function loadBottomSideEvent() {
         $(".v-splitter").hide();
         $("#bottom-side").show();
         let bottom = $("#bottom-side").height();
-        $(".ui-lay-c").css("bottom",bottom+20);
+        $("#editor-panel .ui-lay-c").css("bottom",bottom);
         $(".v-divider").show().css("bottom",bottom + 7);
         rocketUser.panel.bottom = "show";
         localStorage.setItem("rocketUser",JSON.stringify(rocketUser));
@@ -1912,7 +1933,7 @@ function loadBottomSideEvent() {
         $(".v-splitter").show();
         $("#bottom-side").hide();
         $(".v-divider").hide();
-        $(".ui-lay-c").css("bottom",20);
+        $("#editor-panel .ui-lay-c").css("bottom",0);
         rocketUser.panel.bottom = "hide";
         localStorage.setItem("rocketUser",JSON.stringify(rocketUser));
     });
@@ -1945,7 +1966,7 @@ function loadBottomSideEvent() {
             rocketUser.panel.bottom = "show";
         }
         localStorage.setItem("rocketUser",JSON.stringify(rocketUser));
-        $(".ui-lay-c").css("bottom",bottom+20);
+        $("#editor-panel .ui-lay-c").css("bottom",bottom);
         $(".v-divider").css("bottom",bottom+7);
         $("#bottom-side").css("height",bottom);
     });
