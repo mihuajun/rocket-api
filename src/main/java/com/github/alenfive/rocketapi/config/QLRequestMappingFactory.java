@@ -6,6 +6,7 @@ import com.github.alenfive.rocketapi.entity.*;
 import com.github.alenfive.rocketapi.entity.vo.RenameGroupReq;
 import com.github.alenfive.rocketapi.extend.ApiInfoContent;
 import com.github.alenfive.rocketapi.extend.ApiInfoInterceptor;
+import com.github.alenfive.rocketapi.extend.IResultWrapper;
 import com.github.alenfive.rocketapi.script.IScriptParse;
 import com.github.alenfive.rocketapi.service.ScriptParseService;
 import com.github.alenfive.rocketapi.utils.RequestUtils;
@@ -13,6 +14,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
@@ -24,6 +27,7 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandl
 
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.URLDecoder;
@@ -42,6 +46,9 @@ public class QLRequestMappingFactory {
 
     @Autowired
     private HttpServletRequest request;
+
+    @Autowired
+    private HttpServletResponse response;
 
     @Autowired
     private ScriptParseService parseService;
@@ -71,6 +78,9 @@ public class QLRequestMappingFactory {
     public List<ApiInfoInterceptor> interceptors = null;
 
     private Map<String, ApiInfo> cacheApiInfo = new ConcurrentHashMap<>();
+
+    @Autowired
+    private IResultWrapper resultWrapper;
 
     /**
      * 初始化db mapping
@@ -131,8 +141,8 @@ public class QLRequestMappingFactory {
     @ResponseBody
     @RequestMapping
     public Object execute(@PathVariable(required = false) Map<String,String> pathVar,
-                          @RequestParam(required = false) Map<String,Object> param,
-                          @RequestBody(required = false) Map<String,Object> body) throws Throwable {
+                                  @RequestParam(required = false) Map<String,Object> param,
+                                  @RequestBody(required = false) Map<String,Object> body) throws Throwable {
 
         String path = buildPattern(request);
         String method = request.getMethod();
@@ -151,7 +161,10 @@ public class QLRequestMappingFactory {
         StringBuilder script = new StringBuilder(URLDecoder.decode(apiInfo.getScript(),"utf-8"));
 
         try {
-            return scriptParse.runScript(script.toString(),apiInfo,apiParams);
+            Object data = scriptParse.runScript(script.toString(),apiInfo,apiParams);
+            return resultWrapper.wrapper("0","succeeded",data,request,response);
+        }catch (Exception e){
+            return resultWrapper.wrapper("500",e.getMessage(),null,request,response);
         }finally {
             apiInfoContent.removeAll();
         }
@@ -321,7 +334,7 @@ public class QLRequestMappingFactory {
             for(String path : info.getPatternsCondition().getPatterns()){
 
                 //过滤本身的类
-                if (path.indexOf(properties.getBasePath()) == 0 || path.equals("/error")){
+                if (path.indexOf(properties.getBaseRegisterPath()) == 0 || path.equals("/error")){
                     continue;
                 }
 

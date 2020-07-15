@@ -76,6 +76,11 @@ public class RocketApiAutoConfig {
 
     @Bean
     @ConditionalOnMissingBean
+    public IResultWrapper getIResultWrapper(){
+        return new DefaultResultWrapper();
+    }
+    @Bean
+    @ConditionalOnMissingBean
     public DefaultAssertException getDefaultAssertException(){
         return new DefaultAssertException();
     }

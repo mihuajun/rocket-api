@@ -19,23 +19,22 @@ const readFavoriteLanguageCallback = function (result) {
 };
 
 window.localStorage.getItem('favoriteLanguage', readFavoriteLanguageCallback);*/
-let loadApiListUrl = ctxPath + "/api-list";
-let saveApiUrl = ctxPath + "/api-info";
-let getApiUrl = ctxPath + "/api-info/";
-let lastApiUrl = ctxPath + "/api-info/last";
-let deleteApiUrl = ctxPath + "/api-info";
-let runApiUrl = ctxPath +"/api-info/run";
-let getApiGroupNameUrl = ctxPath + "/group-name-list";
-let getApiNameUrl = ctxPath + "/api-name-list";
-let renameGroupUrl = ctxPath + "/api-info/group";
-let saveExampleUrl = ctxPath + "/api-example";
-let lastExampleUrl = ctxPath + "/api-example/last";
-let deleteExampleUrl = ctxPath + "/api-example";
-let loginUrl = ctxPath + "/login";
-let logoutUrl = ctxPath + "/logout";
+let loadApiListUrl = baseApiPath + "api-list";
+let saveApiUrl = baseApiPath + "api-info";
+let getApiUrl = baseApiPath + "api-info/";
+let lastApiUrl = baseApiPath + "api-info/last";
+let deleteApiUrl = baseApiPath + "api-info";
+let runApiUrl = baseApiPath +"api-info/run";
+let getApiGroupNameUrl = baseApiPath + "group-name-list";
+let getApiNameUrl = baseApiPath + "api-name-list";
+let renameGroupUrl = baseApiPath + "api-info/group";
+let saveExampleUrl = baseApiPath + "api-example";
+let lastExampleUrl = baseApiPath + "api-example/last";
+let deleteExampleUrl = baseApiPath + "api-example";
+let loginUrl = baseApiPath + "login";
+let logoutUrl = baseApiPath + "logout";
 
-let indexUrl = ctxPath;
-let detailUrl = ctxPath + "/";
+let indexUrl = baseApiPath;
 let editor = "admin";
 
 //当前apiInfo
@@ -52,6 +51,10 @@ let currExample = {
     status:null,
     time:0,
     options:null
+}
+
+let defaultExample = {
+
 }
 
 let editorTextarea;
@@ -72,7 +75,9 @@ let rocketUser = {
     },
     "panel":{
         "left":"show",
-        "bottom":"show"
+        "leftWidth": "325px",
+        "bottom":"show",
+        "bottomHeight":"150px"
     }
 }
 
@@ -315,7 +320,6 @@ $(function(){
 
     editorTextarea = monaco.editor.create(document.getElementById('monaco-editor'), {
         language: 'custom-language',
-        theme:'myTheme',
         values:"return ",
         wordWrap: 'on',  //自行换行
         verticalHasArrows: true,
@@ -361,6 +365,8 @@ $(function(){
         }
     });
 
+
+
 });
 
 
@@ -397,6 +403,21 @@ function openConfirmModal(msg,fun) {
 function closeConfirmModal() {
     $("#confirmModal").hide();
     $("#modal-backdrop").hide();
+}
+
+function copyApi(e,id) {
+    let cApi = null;
+    $.each(gdata.apiList,function (index,item) {
+        if (id == item.id){
+            cApi = item;
+            return false;
+        }
+    })
+    delete cApi.id;
+    cApi.comment = (cApi.comment?cApi.comment:cApi.path) +"-Copy"
+    cApi.path = cApi.path+"-TEMP-"+uuid();
+    cApi.script = editorTextarea.getValue();
+    saveExecuter(cApi);
 }
 
 //API移动
@@ -653,7 +674,7 @@ function loadDetail(apiInfo,form) {
     $(".request"+currApiInfo.id).parents(".service").find(".fa-caret-right").addClass("fa-caret-down").removeClass("fa-caret-right");
     $('#editor-section .draft-ribbon-text').text("Edit");
 
-    let url = detailUrl+currApiInfo.id+"/"+(currPage?currPage:'example');
+    let url = baseApiPath+currApiInfo.id+"/"+(currPage?currPage:'example');
     history.pushState(null,null,url);
     removeAllQueryParameterForm("#bottom-side");
 
@@ -687,8 +708,6 @@ function loadDetail(apiInfo,form) {
 
     //构建 api history
     loadApiHistory(currApiInfo.id,1);
-
-
 
 }
 
@@ -928,7 +947,7 @@ function buildApiTree(list,collapsed) {
                 '                                                            class="btn-mini dropdown-toggle" data-toggle="dropdown"\n' +
                 '                                                            e2e-tag="drive|'+(item.comment?item.comment:item.path)+'|more"><i\n' +
                 '                                                            class="sli-icon-options-vertical"></i></a>\n' +
-                '                                                        <ul class="pull-right dropdown-menu"><li class="dropdown-item"  onclick="moveApi(this,\''+item.id+'\')"><a><i class="fa fa-random"></i><span class="gwt-InlineHTML">Move</span></a></li><li class="dropdown-item" onclick="removeApi(this,\''+item.id+'\')"><a><i class="fa fa-trash-o" onclick="moveApi(this,'+item.id+')"></i><span class="gwt-InlineHTML">Remove</span></a></li></ul>\n' +
+                '                                                        <ul class="pull-right dropdown-menu"><li class="dropdown-item"  onclick="copyApi(this,\''+item.id+'\')"><a><i class="fa fa-copy"></i><span class="gwt-InlineHTML">Copy</span></a></li><li class="dropdown-item"  onclick="moveApi(this,\''+item.id+'\')"><a><i class="fa fa-random"></i><span class="gwt-InlineHTML">Move</span></a></li><li class="dropdown-item" onclick="removeApi(this,\''+item.id+'\')"><a><i class="fa fa-trash-o" onclick="moveApi(this,'+item.id+')"></i><span class="gwt-InlineHTML">Remove</span></a></li></ul>\n' +
                 '                                                    </div>\n' +
                 '                                                </div>' +
                 '</li>');
@@ -1031,8 +1050,8 @@ function newExample() {
 
 //--------------------------------example start -----------------------------------
 function buildDefaultUrl(path) {
-    let basePath = window.location.href.substring(0,window.location.href.indexOf(ctxPath.substring(ctxPath.lastIndexOf("/"),ctxPath.length)));
-    return basePath+(path.indexOf("TEMP-") == 0?"":path);
+    let defaultUrl = basePath.substring(0,basePath.lastIndexOf("/"));
+    return defaultUrl+(path.indexOf("TEMP-") == 0?"":path);
 }
 
 function loadExampleById(exampleId) {
@@ -1562,7 +1581,7 @@ function showExamplePanel() {
         history.pushState(null,null,url);
     }
     currPage = "example";
-
+    monaco.editor.setTheme("vs");
 }
 
 function showEditorPanel() {
@@ -1575,6 +1594,7 @@ function showEditorPanel() {
         history.pushState(null,null,url);
     }
     currPage = "editor";
+    monaco.editor.setTheme("myTheme");
 }
 //--------------------------------example end -----------------------------------
 
@@ -1848,8 +1868,10 @@ function loadLeftSideEvent(){
     $(".h-splitter").click(function () {
         $(this).hide();
         $("#left-side").show();
-        $(".content-view").css("left","325px");
-        $(".h-divider").css("left","325px");
+        let leftPx = rocketUser.panel.leftWidth;
+        $("#left-side").css("width",leftPx);
+        $(".content-view").css("left",leftPx);
+        $(".h-divider").css("left",leftPx);
         rocketUser.panel.left = "show";
         localStorage.setItem("rocketUser",JSON.stringify(rocketUser));
     });
@@ -1860,6 +1882,7 @@ function loadLeftSideEvent(){
         $(".content-view").css("left",10);
         $(".h-divider").css("left",0);
         rocketUser.panel.left = "hide";
+        rocketUser.panel.leftWidth = $("#left-side").css("width");
         localStorage.setItem("rocketUser",JSON.stringify(rocketUser));
     });
 
@@ -1877,11 +1900,12 @@ function loadLeftSideEvent(){
     $(document).on("mousemove",function (e) {
         if (!dividerIsDown)return;
         let x = e.pageX;
-        if (x < 300){
+        if (x < 325){
             $(".h-splitter").show();
             $("#left-side").hide();
             $(".content-view").css("left",10);
             $(".h-divider").css("left",0);
+            rocketUser.panel.leftWidth = "325px";
             rocketUser.panel.left = "hide";
         }else{
             $(".h-splitter").hide();
@@ -1890,6 +1914,7 @@ function loadLeftSideEvent(){
             $(".h-divider").css("left",x);
             $("#left-side").css("width",x);
             rocketUser.panel.left = "show";
+            rocketUser.panel.leftWidth = x +"px";
         }
 
         localStorage.setItem("rocketUser",JSON.stringify(rocketUser));
@@ -1901,9 +1926,10 @@ function loadBottomSideEvent() {
     $(".v-splitter").click(function () {
         $(".v-splitter").hide();
         $("#bottom-side").show();
-        let bottom = $("#bottom-side").height();
-        $(".ui-lay-c").css("bottom",bottom+20);
-        $(".v-divider").show().css("bottom",bottom + 7);
+        let bottom = rocketUser.panel.bottomHeight;
+        $("#bottom-side").css("height",bottom);
+        $("#editor-panel .ui-lay-c").css("bottom",bottom);
+        $(".v-divider").show().css("bottom",Number(bottom.replace("px",""))+7+"px");
         rocketUser.panel.bottom = "show";
         localStorage.setItem("rocketUser",JSON.stringify(rocketUser));
     });
@@ -1912,7 +1938,7 @@ function loadBottomSideEvent() {
         $(".v-splitter").show();
         $("#bottom-side").hide();
         $(".v-divider").hide();
-        $(".ui-lay-c").css("bottom",20);
+        $("#editor-panel .ui-lay-c").css("bottom",0);
         rocketUser.panel.bottom = "hide";
         localStorage.setItem("rocketUser",JSON.stringify(rocketUser));
     });
@@ -1938,14 +1964,17 @@ function loadBottomSideEvent() {
             $("#bottom-side").hide();
             $(".v-divider").hide();
             rocketUser.panel.bottom = "hide";
+            rocketUser.panel.bottomHeight = "150px";
         }else{
             $(".v-splitter").hide();
             $("#bottom-side").show();
             $(".v-divider").show();
             rocketUser.panel.bottom = "show";
+            rocketUser.panel.bottomHeight = bottom+"px";
         }
+
         localStorage.setItem("rocketUser",JSON.stringify(rocketUser));
-        $(".ui-lay-c").css("bottom",bottom+20);
+        $("#editor-panel .ui-lay-c").css("bottom",bottom);
         $(".v-divider").css("bottom",bottom+7);
         $("#bottom-side").css("height",bottom);
     });
