@@ -6,6 +6,7 @@ import com.github.alenfive.rocketapi.entity.*;
 import com.github.alenfive.rocketapi.entity.vo.RenameGroupReq;
 import com.github.alenfive.rocketapi.extend.ApiInfoContent;
 import com.github.alenfive.rocketapi.extend.ApiInfoInterceptor;
+import com.github.alenfive.rocketapi.extend.IResultWrapper;
 import com.github.alenfive.rocketapi.script.IScriptParse;
 import com.github.alenfive.rocketapi.service.ScriptParseService;
 import com.github.alenfive.rocketapi.utils.RequestUtils;
@@ -26,6 +27,7 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandl
 
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.URLDecoder;
@@ -44,6 +46,9 @@ public class QLRequestMappingFactory {
 
     @Autowired
     private HttpServletRequest request;
+
+    @Autowired
+    private HttpServletResponse response;
 
     @Autowired
     private ScriptParseService parseService;
@@ -73,6 +78,9 @@ public class QLRequestMappingFactory {
     public List<ApiInfoInterceptor> interceptors = null;
 
     private Map<String, ApiInfo> cacheApiInfo = new ConcurrentHashMap<>();
+
+    @Autowired
+    private IResultWrapper resultWrapper;
 
     /**
      * 初始化db mapping
@@ -132,7 +140,7 @@ public class QLRequestMappingFactory {
      */
     @ResponseBody
     @RequestMapping
-    public ResponseEntity execute(@PathVariable(required = false) Map<String,String> pathVar,
+    public Object execute(@PathVariable(required = false) Map<String,String> pathVar,
                                   @RequestParam(required = false) Map<String,Object> param,
                                   @RequestBody(required = false) Map<String,Object> body) throws Throwable {
 
@@ -153,7 +161,10 @@ public class QLRequestMappingFactory {
         StringBuilder script = new StringBuilder(URLDecoder.decode(apiInfo.getScript(),"utf-8"));
 
         try {
-            return new ResponseEntity<>(scriptParse.runScript(script.toString(),apiInfo,apiParams), HttpStatus.OK);
+            Object data = scriptParse.runScript(script.toString(),apiInfo,apiParams);
+            return resultWrapper.wrapper("0","succeeded",data,request,response);
+        }catch (Exception e){
+            return resultWrapper.wrapper("500",e.getMessage(),null,request,response);
         }finally {
             apiInfoContent.removeAll();
         }
