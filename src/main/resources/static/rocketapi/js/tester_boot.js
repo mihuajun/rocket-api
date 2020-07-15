@@ -75,7 +75,9 @@ let rocketUser = {
     },
     "panel":{
         "left":"show",
-        "bottom":"show"
+        "leftWidth": "325px",
+        "bottom":"show",
+        "bottomHeight":"150px"
     }
 }
 
@@ -1866,8 +1868,10 @@ function loadLeftSideEvent(){
     $(".h-splitter").click(function () {
         $(this).hide();
         $("#left-side").show();
-        $(".content-view").css("left","325px");
-        $(".h-divider").css("left","325px");
+        let leftPx = rocketUser.panel.leftWidth;
+        $("#left-side").css("width",leftPx);
+        $(".content-view").css("left",leftPx);
+        $(".h-divider").css("left",leftPx);
         rocketUser.panel.left = "show";
         localStorage.setItem("rocketUser",JSON.stringify(rocketUser));
     });
@@ -1878,6 +1882,7 @@ function loadLeftSideEvent(){
         $(".content-view").css("left",10);
         $(".h-divider").css("left",0);
         rocketUser.panel.left = "hide";
+        rocketUser.panel.leftWidth = $("#left-side").css("width");
         localStorage.setItem("rocketUser",JSON.stringify(rocketUser));
     });
 
@@ -1895,11 +1900,12 @@ function loadLeftSideEvent(){
     $(document).on("mousemove",function (e) {
         if (!dividerIsDown)return;
         let x = e.pageX;
-        if (x < 300){
+        if (x < 325){
             $(".h-splitter").show();
             $("#left-side").hide();
             $(".content-view").css("left",10);
             $(".h-divider").css("left",0);
+            rocketUser.panel.leftWidth = "325px";
             rocketUser.panel.left = "hide";
         }else{
             $(".h-splitter").hide();
@@ -1908,6 +1914,7 @@ function loadLeftSideEvent(){
             $(".h-divider").css("left",x);
             $("#left-side").css("width",x);
             rocketUser.panel.left = "show";
+            rocketUser.panel.leftWidth = x +"px";
         }
 
         localStorage.setItem("rocketUser",JSON.stringify(rocketUser));
@@ -1919,9 +1926,10 @@ function loadBottomSideEvent() {
     $(".v-splitter").click(function () {
         $(".v-splitter").hide();
         $("#bottom-side").show();
-        let bottom = $("#bottom-side").height();
+        let bottom = rocketUser.panel.bottomHeight;
+        $("#bottom-side").css("height",bottom);
         $("#editor-panel .ui-lay-c").css("bottom",bottom);
-        $(".v-divider").show().css("bottom",bottom + 7);
+        $(".v-divider").show().css("bottom",Number(bottom.replace("px",""))+7+"px");
         rocketUser.panel.bottom = "show";
         localStorage.setItem("rocketUser",JSON.stringify(rocketUser));
     });
@@ -1956,12 +1964,15 @@ function loadBottomSideEvent() {
             $("#bottom-side").hide();
             $(".v-divider").hide();
             rocketUser.panel.bottom = "hide";
+            rocketUser.panel.bottomHeight = "150px";
         }else{
             $(".v-splitter").hide();
             $("#bottom-side").show();
             $(".v-divider").show();
             rocketUser.panel.bottom = "show";
+            rocketUser.panel.bottomHeight = bottom+"px";
         }
+
         localStorage.setItem("rocketUser",JSON.stringify(rocketUser));
         $("#editor-panel .ui-lay-c").css("bottom",bottom);
         $(".v-divider").css("bottom",bottom+7);
