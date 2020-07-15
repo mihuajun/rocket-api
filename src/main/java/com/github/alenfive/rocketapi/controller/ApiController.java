@@ -32,7 +32,7 @@ import java.util.Map;
  */
 @Slf4j
 @RestController
-@RequestMapping("${spring.rocket-api.base-path:/api-ui}")
+@RequestMapping("${spring.rocket-api.base-register-path:/interface-ui}")
 public class ApiController {
 
     @Autowired

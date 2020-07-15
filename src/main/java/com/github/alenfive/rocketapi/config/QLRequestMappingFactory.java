@@ -323,7 +323,7 @@ public class QLRequestMappingFactory {
             for(String path : info.getPatternsCondition().getPatterns()){
 
                 //过滤本身的类
-                if (path.indexOf(properties.getBasePath()) == 0 || path.equals("/error")){
+                if (path.indexOf(properties.getBaseRegisterPath()) == 0 || path.equals("/error")){
                     continue;
                 }
 

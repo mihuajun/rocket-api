@@ -19,23 +19,22 @@ const readFavoriteLanguageCallback = function (result) {
 };
 
 window.localStorage.getItem('favoriteLanguage', readFavoriteLanguageCallback);*/
-let loadApiListUrl = ctxPath + "/api-list";
-let saveApiUrl = ctxPath + "/api-info";
-let getApiUrl = ctxPath + "/api-info/";
-let lastApiUrl = ctxPath + "/api-info/last";
-let deleteApiUrl = ctxPath + "/api-info";
-let runApiUrl = ctxPath +"/api-info/run";
-let getApiGroupNameUrl = ctxPath + "/group-name-list";
-let getApiNameUrl = ctxPath + "/api-name-list";
-let renameGroupUrl = ctxPath + "/api-info/group";
-let saveExampleUrl = ctxPath + "/api-example";
-let lastExampleUrl = ctxPath + "/api-example/last";
-let deleteExampleUrl = ctxPath + "/api-example";
-let loginUrl = ctxPath + "/login";
-let logoutUrl = ctxPath + "/logout";
+let loadApiListUrl = baseApiPath + "api-list";
+let saveApiUrl = baseApiPath + "api-info";
+let getApiUrl = baseApiPath + "api-info/";
+let lastApiUrl = baseApiPath + "api-info/last";
+let deleteApiUrl = baseApiPath + "api-info";
+let runApiUrl = baseApiPath +"api-info/run";
+let getApiGroupNameUrl = baseApiPath + "group-name-list";
+let getApiNameUrl = baseApiPath + "api-name-list";
+let renameGroupUrl = baseApiPath + "api-info/group";
+let saveExampleUrl = baseApiPath + "api-example";
+let lastExampleUrl = baseApiPath + "api-example/last";
+let deleteExampleUrl = baseApiPath + "api-example";
+let loginUrl = baseApiPath + "login";
+let logoutUrl = baseApiPath + "logout";
 
-let indexUrl = ctxPath;
-let detailUrl = ctxPath + "/";
+let indexUrl = baseApiPath;
 let editor = "admin";
 
 //当前apiInfo
@@ -673,7 +672,7 @@ function loadDetail(apiInfo,form) {
     $(".request"+currApiInfo.id).parents(".service").find(".fa-caret-right").addClass("fa-caret-down").removeClass("fa-caret-right");
     $('#editor-section .draft-ribbon-text').text("Edit");
 
-    let url = detailUrl+currApiInfo.id+"/"+(currPage?currPage:'example');
+    let url = baseApiPath+currApiInfo.id+"/"+(currPage?currPage:'example');
     history.pushState(null,null,url);
     removeAllQueryParameterForm("#bottom-side");
 
@@ -707,8 +706,6 @@ function loadDetail(apiInfo,form) {
 
     //构建 api history
     loadApiHistory(currApiInfo.id,1);
-
-
 
 }
 
@@ -1051,8 +1048,8 @@ function newExample() {
 
 //--------------------------------example start -----------------------------------
 function buildDefaultUrl(path) {
-    let basePath = window.location.href.substring(0,window.location.href.indexOf(ctxPath.substring(ctxPath.lastIndexOf("/"),ctxPath.length)));
-    return basePath+(path.indexOf("TEMP-") == 0?"":path);
+    let defaultUrl = basePath.substring(0,basePath.lastIndexOf("/"));
+    return defaultUrl+(path.indexOf("TEMP-") == 0?"":path);
 }
 
 function loadExampleById(exampleId) {

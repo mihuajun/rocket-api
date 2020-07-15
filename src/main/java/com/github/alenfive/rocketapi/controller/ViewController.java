@@ -18,7 +18,7 @@ import javax.servlet.http.HttpServletRequest;
  * Api ui 页面显示
  */
 @Controller
-@RequestMapping("${spring.rocket-api.base-path:/api-ui}")
+@RequestMapping("${spring.rocket-api.base-register-path:/interface-ui}")
 public class ViewController {
 
     @Autowired
@@ -35,7 +35,8 @@ public class ViewController {
         model.addAttribute("dataSourceList",dataSourceManager.getDialectMap().keySet());
         model.addAttribute("user", LoginUtils.getUser(request));
         model.addAttribute("service", service);
-        model.addAttribute("basePath",buildBasePath(request));
+        model.addAttribute("baseApiPath",baseApiPath());
+        model.addAttribute("basePath",properties.getBasePath());
         model.addAttribute("version", getVersion());
         return "rocketapi/api-index";
     }
@@ -47,7 +48,8 @@ public class ViewController {
         model.addAttribute("currPage",page);
         model.addAttribute("user", LoginUtils.getUser(request));
         model.addAttribute("service", service);
-        model.addAttribute("basePath",buildBasePath(request));
+        model.addAttribute("baseApiPath",baseApiPath());
+        model.addAttribute("basePath",properties.getBasePath());
         model.addAttribute("version",getVersion());
         return "rocketapi/api-index";
     }
@@ -57,12 +59,11 @@ public class ViewController {
         return (pkg != null ? pkg.getImplementationVersion() : null);
     }
 
-    private String buildBasePath(HttpServletRequest request){
-        String basePath = request.getContextPath()+properties.getBasePath();
-        basePath = basePath.replace("//","/");
-        if (basePath.endsWith("/")){
-            basePath = basePath.substring(0,basePath.length()-1);
+    private String baseApiPath(){
+        String baseApiPath = properties.getBasePath() + properties.getBaseRegisterPath().replaceFirst("/","");
+        if (!baseApiPath.endsWith("/")){
+            baseApiPath += "/";
         }
-        return basePath;
+        return baseApiPath;
     }
 }
