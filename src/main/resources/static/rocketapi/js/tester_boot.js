@@ -320,6 +320,7 @@ $(function(){
 
     editorTextarea = monaco.editor.create(document.getElementById('monaco-editor'), {
         language: 'custom-language',
+        theme:"myTheme",
         values:"return ",
         wordWrap: 'on',  //自行换行
         verticalHasArrows: true,
@@ -941,7 +942,7 @@ function buildApiTree(list,collapsed) {
                 '                                                         e2e-tag="drive|'+(item.comment?item.comment:item.path)+'|play"><i\n' +
                 '                                                            class="fa fa-play"></i></div>\n' +
                 '                                                    <span class="gwt-InlineHTML node-text"\n' +
-                '                                                          e2e-tag="drive|'+(item.comment?item.comment:item.path)+'">'+(item.comment?item.comment:item.path)+'</span>\n' +
+                '                                                          e2e-tag="drive|'+(item.comment?item.comment:item.path)+'">'+(item.comment?item.comment:item.path)+'<span style=\'margin-left:10px;color:#8a8989;\'>'+('['+item.path+']')+'</span></span>\n' +
                 '                                                    <div class="status" aria-hidden="true" style="display: none;"></div>\n' +
                 '                                                    <div class="btn-group ctrls dropdown-primary"  data-id="'+item.id+'" ><a\n' +
                 '                                                            class="btn-mini dropdown-toggle" data-toggle="dropdown"\n' +
