@@ -108,4 +108,9 @@ public class SqlDataSource extends DataSourceDialect {
         jdbcTemplate.update(preparedStatementCreator, keyHolder);
         return keyHolder.getKey();
     }
+
+    @Override
+    String buildCountScript(String script, ApiInfo apiInfo, ApiParams apiParams) throws Exception {
+        return  "select count(1) from ("+script +") t1";
+    }
 }

@@ -20,9 +20,7 @@ public abstract class DataSourceDialect {
 
     abstract String listApiInfoScript();
     abstract String lastApiInfoHistoryScript();
-
-    public abstract String saveApiInfoHistoryScript();
-
+    abstract String saveApiInfoHistoryScript();
     abstract String getApiInfoScript();
     abstract String saveApiInfoScript();
     abstract String updateApiInfoScript();
@@ -42,6 +40,9 @@ public abstract class DataSourceDialect {
 
     //返回主键
     abstract Object insert(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams) throws Exception;
+
+    //计数脚本封装操作
+    abstract String buildCountScript(String script, ApiInfo apiInfo, ApiParams apiParams) throws Exception;
 
     /**
      * 替换key

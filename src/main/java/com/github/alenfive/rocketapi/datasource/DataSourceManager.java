@@ -85,6 +85,16 @@ public abstract class DataSourceManager extends DataSourceDialect{
         return this.insert(script,apiInfo,apiParams,null);
     }
 
+    @Override
+    public String buildCountScript(String script, ApiInfo apiInfo, ApiParams apiParams) throws Exception {
+        return this.buildCountScript(script,apiInfo,apiParams,null);
+    }
+
+    public String buildCountScript(String script, ApiInfo apiInfo, ApiParams apiParams, String specifyDataSource) throws Exception {
+        DataSourceDialect dataSourceDialect = buildDataSourceDialect(apiInfo.getDatasource(),specifyDataSource);
+        return dataSourceDialect.buildCountScript(script,apiInfo,apiParams);
+    }
+
     public List<Map<String, Object>> find(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams, String specifyDataSource) throws Exception {
         DataSourceDialect dataSourceDialect = buildDataSourceDialect(apiInfo.getDatasource(),specifyDataSource);
         return dataSourceDialect.find(script,apiInfo,apiParams);

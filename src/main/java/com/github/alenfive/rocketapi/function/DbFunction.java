@@ -2,18 +2,21 @@ package com.github.alenfive.rocketapi.function;
 
 import com.github.alenfive.rocketapi.datasource.DataSourceManager;
 import com.github.alenfive.rocketapi.extend.ApiInfoContent;
+import com.github.alenfive.rocketapi.extend.IApiPager;
 import com.github.alenfive.rocketapi.service.ScriptParseService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 /**
  * 数据库操作函数
  */
+@SuppressWarnings("DuplicatedCode")
 @Component
 @Slf4j
 public class DbFunction implements IFunction{
@@ -27,13 +30,16 @@ public class DbFunction implements IFunction{
     @Autowired
     private ScriptParseService parseService;
 
+    @Autowired
+    private IApiPager apiPager;
+
     @Override
     public String getVarName() {
         return "db";
     }
 
     public Long count(String script,String dataSource) throws Exception {
-        List<Map<String,Object>> list = find(script,dataSource);
+       List<Map<String,Object>> list = find(script,dataSource);
        if (CollectionUtils.isEmpty(list))return 0L;
 
        Object count = list.get(0).values().toArray()[0];
@@ -117,4 +123,15 @@ public class DbFunction implements IFunction{
         return this.update(script,null);
     }
 
+    public Object pager(String script) throws Exception {
+        String totalSql = dataSourceManager.buildCountScript(script,apiInfoContent.getApiInfo(),apiInfoContent.getApiParams());
+        Long total = this.count(totalSql);
+        List<Map<String,Object>> data = null;
+        if (total > 0){
+            data = this.find(script);
+        }else{
+            data = Collections.emptyList();
+        }
+        return apiPager.buildPager(total,data,apiInfoContent.getApiInfo(),apiInfoContent.getApiParams());
+    }
 }

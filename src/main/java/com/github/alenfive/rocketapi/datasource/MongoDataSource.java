@@ -181,6 +181,13 @@ public class MongoDataSource extends DataSourceDialect {
         formatISODate(script);
         formatObjectIdList(script);
         Document document = mongoTemplate.executeCommand(script.toString());
+        if (document.get("n") != null){
+            Map<String,Object> count = new HashMap<>();
+            count.put("count",document.get("n"));
+            List<Map<String,Object>> result = new ArrayList<>(1);
+            result.add(count);
+            return result;
+        }
         List<Document> documents = (List<Document>) ((Document)document.get("cursor")).get("firstBatch");
         return documents.stream().map(item->toMap(item)).collect(Collectors.toList());
     }
@@ -206,6 +213,11 @@ public class MongoDataSource extends DataSourceDialect {
         formatISODate(script);
         formatObjectIdList(script);
         return batchInsert(script).get(0).toString();
+    }
+
+    @Override
+    String buildCountScript(String script, ApiInfo apiInfo, ApiParams apiParams) throws Exception {
+        return script;
     }
 
     private List<Object> batchInsert(StringBuilder script){
