@@ -9,6 +9,7 @@ import com.github.alenfive.rocketapi.extend.ApiInfoInterceptor;
 import com.github.alenfive.rocketapi.extend.IResultWrapper;
 import com.github.alenfive.rocketapi.script.IScriptParse;
 import com.github.alenfive.rocketapi.service.ScriptParseService;
+import com.github.alenfive.rocketapi.utils.PackageUtils;
 import com.github.alenfive.rocketapi.utils.RequestUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -117,6 +118,20 @@ public class QLRequestMappingFactory {
         for (ApiInfo apiInfo : this.cacheApiInfo.values()){
             this.registerMappingForApiInfo(apiInfo);
         }
+
+        //load banner
+        loadBanner();
+    }
+
+    private void loadBanner() {
+        System.out.println("__________               __           __       _____ __________.___ \n" +
+                "\\______   \\ ____   ____ |  | __ _____/  |_    /  _  \\\\______   \\   |\n" +
+                " |       _//  _ \\_/ ___\\|  |/ // __ \\   __\\  /  /_\\  \\|     ___/   |\n" +
+                " |    |   (  <_> )  \\___|    <\\  ___/|  |   /    |    \\    |   |   |\n" +
+                " |____|_  /\\____/ \\___  >__|_ \\\\___  >__|   \\____|__  /____|   |___|\n" +
+                "        \\/            \\/     \\/    \\/               \\/              \n" +
+                "\033[32;2m"+":: Rocket API ::"+"\033[m"+"        ("+ PackageUtils.getVersion()+")   " +
+                properties.getBasePath() + properties.getBaseRegisterPath().replaceFirst("/",""));
     }
 
     private void clear(){

@@ -1,9 +1,9 @@
 package com.github.alenfive.rocketapi.controller;
 
-import com.github.alenfive.rocketapi.RocketAPIApplication;
 import com.github.alenfive.rocketapi.config.RocketApiProperties;
 import com.github.alenfive.rocketapi.datasource.DataSourceManager;
 import com.github.alenfive.rocketapi.utils.LoginUtils;
+import com.github.alenfive.rocketapi.utils.PackageUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
@@ -37,7 +37,7 @@ public class ViewController {
         model.addAttribute("service", service);
         model.addAttribute("baseApiPath",baseApiPath());
         model.addAttribute("basePath",properties.getBasePath());
-        model.addAttribute("version", getVersion());
+        model.addAttribute("version", PackageUtils.getVersion());
         return "rocketapi/api-index";
     }
 
@@ -50,14 +50,11 @@ public class ViewController {
         model.addAttribute("service", service);
         model.addAttribute("baseApiPath",baseApiPath());
         model.addAttribute("basePath",properties.getBasePath());
-        model.addAttribute("version",getVersion());
+        model.addAttribute("version", PackageUtils.getVersion());
         return "rocketapi/api-index";
     }
 
-    public static String getVersion() {
-        Package pkg = RocketAPIApplication.class.getPackage();
-        return (pkg != null ? pkg.getImplementationVersion() : null);
-    }
+
 
     private String baseApiPath(){
         String baseApiPath = properties.getBasePath() + properties.getBaseRegisterPath().replaceFirst("/","");

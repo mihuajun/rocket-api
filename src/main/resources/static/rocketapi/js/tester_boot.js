@@ -366,8 +366,6 @@ $(function(){
         }
     });
 
-
-
 });
 
 
@@ -579,6 +577,12 @@ function runApi(debug) {
             $("#bottom-side .el-time").attr("title",ms).text("Elapsed time: "+ms);
         }
     });
+
+    if (debug){
+        MtaH5.clickStat("debug_count")
+    }else {
+        MtaH5.clickStat("run_count")
+    }
 }
 
 function buildJsonStr(obj) {
@@ -880,12 +884,15 @@ function saveExecuter(params) {
             cancelDialogGroup();
             currApi = data.data;
             loadApiList(false);
-            //loadDetailById(data.data,"#editor-section")
-            //loadApiHistory(data.data,1);
         },complete:function (req,data) {
             hideSendNotify();
         }
     });
+    if (params.id){
+        MtaH5.clickStat("api_save")
+    }else{
+        MtaH5.clickStat("api_new")
+    }
 }
 
 function searchApi(e) {
@@ -1172,6 +1179,8 @@ function saveExample() {
             hideSendNotify();
         }
     });
+
+    MtaH5.clickStat("example_save")
 }
 function requextUrlExample(ableRedirect) {
     let $form = $("#example-section");
