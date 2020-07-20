@@ -90,13 +90,30 @@
 
         </div>
 
-        <div class="code-body"  style="height: 100%;margin-top:25px;">
+        <div class="code-body"  style="height: 100%;margin-top:25px;display: none">
             <div id="editor-btns" style="height: 24px;">
                 <div class="item debug-btn" title="DEBUG运行脚本 快捷键Ctrl + Alt + Enter" onclick="runApi(true)" >Debug</div>
-                <div class="item run-btn" st title="运行脚本 快捷键Ctrl + Enter" onclick="runApi(false)">Run</div>
+                <div class="item run-btn" title="运行脚本 快捷键Ctrl + Enter" onclick="runApi(false)">Run</div>
             </div>
-            <div id="monaco-editor" style="font-size: 13px;width:100%;height: calc(100% - 24px);"></div>
+            <div id="monaco-editor" style="font-size: 13px;width:100%;height: calc(100% - 24px);display: none"></div>
         </div>
+        <div class="diff-body"  style="height: 100%;margin-top:25px;">
+            <div  style="height: 24px;" class="title">
+                <div class="left" style="width: 50%;float:left;">
+                    <div class="uri-input-lock"><i class="fa fa-lock"></i>
+                        <span style="padding-left:10px;">5f0d1a5ff8b91c1774b1d50a</span>
+                        <span style="padding-left:10px;">2020-07-10 10:10:10</span>
+                    </div>
+                </div>
+                <div class="right" style="width: 50%;float:left;">
+                    <div class="m-left">Local</div>
+                    <div class="item" title="" onclick="runApi(false)">Confirm</div>
+                    <div class="item" title="" onclick="runApi(true)" >Accept Left</div>
+                </div>
+            </div>
+            <div id="diff-editor" style="font-size: 13px;width:100%;height: calc(100% - 24px);"></div>
+        </div>
+
     </div>
 
 

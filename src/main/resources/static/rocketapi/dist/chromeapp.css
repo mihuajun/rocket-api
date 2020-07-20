@@ -11149,7 +11149,7 @@ a.gwt-anchor-inactive:hover {
 .h-divider {
     z-index: 1;
     bottom: 0;
-    width: 2px;
+    width: 5px;
     padding-left: 1px;
     text-align: left;
     cursor: ew-resize;

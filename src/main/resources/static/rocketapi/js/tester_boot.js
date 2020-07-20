@@ -1862,6 +1862,7 @@ function buildApiHistoryItemStr(item){
         '       </div> ' +
         '       <div class="el-time" title="'+item.createTime+'">'+item.createTime+'</div> ' +
         '       <div class="count">'+item.editor+'</div> ' +
+        '       <div class="el-time"><a onclick="showDiff(\''+item.id+'\')">Show Diff</a></div> ' +
         '       <div class="status response-ok" title="'+item.datasource+'">'+item.datasource+'</div> ' +
         '</div></div></td></tr>';
 }
@@ -1869,6 +1870,30 @@ function buildApiHistoryItemStr(item){
 function searchApiHistory(e) {
     $("#history-api-section .history tbody").html("");
     buildApiHistory(gdata.apiHistoryList,$(e).val())
+}
+
+function showDiff(id) {
+    let apiHistory = null;
+    for(let i=0;i<gdata.apiHistoryList.length;i++){
+        if (gdata.apiHistoryList[i].id == id){
+            apiHistory = jQuery.extend(true, {}, gdata.apiHistoryList[i]);
+            break;
+        }
+    }
+    let originalModel = monaco.editor.createModel(decodeURIComponent(apiHistory.script), "custom-language");
+    let modifiedModel = monaco.editor.createModel(editorTextarea.getValue(), "custom-language");
+
+    let diffEditor = monaco.editor.createDiffEditor(document.getElementById("diff-editor"), {
+        // You can optionally disable the resizing
+        scrollBeyondLastLine:false,
+        automaticLayout: true,
+        enableSplitViewResizing: false
+    });
+    diffEditor.setModel({
+        original: originalModel,
+        modified: modifiedModel
+    });
+
 }
 //--------------------------------api history end -----------------------------------
 
