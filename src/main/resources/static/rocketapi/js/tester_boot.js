@@ -59,6 +59,8 @@ let defaultExample = {
 
 let editorTextarea;
 let exampleTextarea;
+let originalModel;
+let modifiedModel;
 
 let hasResponse;
 let gdata = {
@@ -1873,6 +1875,8 @@ function searchApiHistory(e) {
 }
 
 function showDiff(id) {
+    $("#editor-section .diff-body").show();
+    $("#editor-section .code-body").hide();
     let apiHistory = null;
     for(let i=0;i<gdata.apiHistoryList.length;i++){
         if (gdata.apiHistoryList[i].id == id){
@@ -1880,9 +1884,9 @@ function showDiff(id) {
             break;
         }
     }
-    let originalModel = monaco.editor.createModel(decodeURIComponent(apiHistory.script), "custom-language");
-    let modifiedModel = monaco.editor.createModel(editorTextarea.getValue(), "custom-language");
-
+    $("#diff-editor").html("");
+    originalModel = monaco.editor.createModel(decodeURIComponent(apiHistory.script), "custom-language");
+    modifiedModel = monaco.editor.createModel(editorTextarea.getValue(), "custom-language");
     let diffEditor = monaco.editor.createDiffEditor(document.getElementById("diff-editor"), {
         // You can optionally disable the resizing
         scrollBeyondLastLine:false,
@@ -1894,6 +1898,18 @@ function showDiff(id) {
         modified: modifiedModel
     });
 
+}
+
+function acceptLeft() {
+    modifiedModel.setValue(originalModel.getValue());
+}
+function confirmDiff() {
+    cancelDiff();
+    editorTextarea.setValue(modifiedModel.getValue());
+}
+function cancelDiff() {
+    $("#editor-section .diff-body").hide();
+    $("#editor-section .code-body").show();
 }
 //--------------------------------api history end -----------------------------------
 
