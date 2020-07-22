@@ -19,6 +19,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.method.HandlerMethod;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.servlet.mvc.condition.PatternsRequestCondition;
 import org.springframework.web.servlet.mvc.condition.RequestMethodsRequestCondition;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
@@ -154,11 +156,20 @@ public class QLRequestMappingFactory {
     @ResponseBody
     @RequestMapping
     public Object execute(@PathVariable(required = false) Map<String,String> pathVar,
-                                  @RequestParam(required = false) Map<String,Object> param,
-                                  @RequestBody(required = false) Map<String,Object> body) throws Throwable {
+                          @RequestParam(required = false) Map<String,Object> param,
+                          HttpServletRequest request) throws Throwable {
 
         String path = buildPattern(request);
         String method = request.getMethod();
+        Map<String,Object> body = new HashMap<>();
+
+        if (request.getContentType().indexOf("application/json") > -1){
+            body.putAll(objectMapper.readValue(request.getInputStream(),Map.class));
+        }else if(request.getContentType().indexOf("multipart/form-data") > -1){
+            MultipartHttpServletRequest multipartHttpServletRequest = (MultipartHttpServletRequest) request;
+            body.putAll(multipartHttpServletRequest.getMultiFileMap());
+        }
+
         ApiParams apiParams = ApiParams.builder()
                 .pathVar(pathVar)
                 .header(RequestUtils.buildHeaderParams(request))
@@ -212,7 +223,7 @@ public class QLRequestMappingFactory {
         PatternsRequestCondition patternsRequestCondition = new PatternsRequestCondition(pattern);
         RequestMethodsRequestCondition methodsRequestCondition = new RequestMethodsRequestCondition(RequestMethod.valueOf(apiInfo.getMethod()));
         RequestMappingInfo mappingInfo = new RequestMappingInfo(patternsRequestCondition,methodsRequestCondition,null,null,null,null,null);
-        Method targetMethod = QLRequestMappingFactory.class.getDeclaredMethod("execute", Map.class, Map.class, Map.class);
+        Method targetMethod = QLRequestMappingFactory.class.getDeclaredMethod("execute", Map.class, Map.class,HttpServletRequest.class);
         requestMappingHandlerMapping.registerMapping(mappingInfo,this, targetMethod);
     }
 
