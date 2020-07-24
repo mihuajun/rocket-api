@@ -188,6 +188,7 @@ public class QLRequestMappingFactory {
             Object data = scriptParse.runScript(script.toString(),apiInfo,apiParams);
             return resultWrapper.wrapper("0","succeeded",data,request,response);
         }catch (Exception e){
+            e.printStackTrace();
             return resultWrapper.wrapper("500",e.getMessage(),null,request,response);
         }finally {
             apiInfoContent.removeAll();
