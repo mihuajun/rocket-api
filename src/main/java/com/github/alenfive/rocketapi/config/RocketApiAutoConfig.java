@@ -142,8 +142,8 @@ public class RocketApiAutoConfig {
 
     @Bean
     @ConditionalOnMissingBean
-    public UtilsFunction getUtilsFunction(){
-        return new UtilsFunction();
+    public StaticFunction getUtilsFunction(){
+        return new StaticFunction();
     }
 
 }
