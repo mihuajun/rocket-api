@@ -63,6 +63,7 @@ public class MongoDataSource extends DataSourceDialect {
         return "{\n" +
                 "\t\"insert\":\"api_info_history\",\n" +
                 "\t\"documents\":[{\n" +
+                "\t\t\"_id\":ObjectId(#{id}),\n" +
                 "\t\t\"api_info_id\":ObjectId(#{apiInfoId}),\n" +
                 "\t\t\"method\":#{method},\n" +
                 "\t\t\"path\":#{path},\n" +
@@ -93,6 +94,7 @@ public class MongoDataSource extends DataSourceDialect {
         return "{\n" +
                 "\t\"insert\":\"api_info\",\n" +
                 "\t\"documents\":[{\n" +
+                "\t\t\"_id\":ObjectId(#{id}),\n" +
                 "\t\t\"method\":#{method},\n" +
                 "\t\t\"path\":#{path},\n" +
                 "\t\t\"type\":#{type},\n" +
@@ -139,6 +141,7 @@ public class MongoDataSource extends DataSourceDialect {
         return "{\n" +
                 "\t\"insert\":\"api_example\",\n" +
                 "\t\"documents\":[{\n" +
+                "\t\t\"_id\":ObjectId(#{id}),\n" +
                 "\t\t\"api_info_id\":ObjectId(#{apiInfoId}),\n" +
                 "\t\t\"method\":#{method},\n" +
                 "\t\t\"url\":#{url},\n" +

@@ -43,7 +43,7 @@ public class SqlDataSource extends DataSourceDialect {
 
     @Override
     public String saveApiInfoHistoryScript() {
-        return "insert into api_info_history(api_info_id,method,path,datasource,`type`,`service`,`group`,editor,`comment`,script,options,create_time) values(#{apiInfoId},#{method},#{path},#{datasource},#{type},#{service},#{group},#{editor},#{comment},#{script},#{options},#{createTime})";
+        return "insert into api_info_history(id,api_info_id,method,path,datasource,`type`,`service`,`group`,editor,`comment`,script,options,create_time) values(#{id},#{apiInfoId},#{method},#{path},#{datasource},#{type},#{service},#{group},#{editor},#{comment},#{script},#{options},#{createTime})";
     }
 
     @Override
@@ -53,7 +53,7 @@ public class SqlDataSource extends DataSourceDialect {
 
     @Override
     public String saveApiInfoScript() {
-        return "insert into api_info(method,path,datasource,`type`,`service`,`group`,editor,`comment`,script,options,create_time,update_time) values(#{method},#{path},#{datasource},#{type},#{service},#{group},#{editor},#{comment},#{script},#{options},#{createTime},#{updateTime})";
+        return "insert into api_info(id,method,path,datasource,`type`,`service`,`group`,editor,`comment`,script,options,create_time,update_time) values(#{id},#{method},#{path},#{datasource},#{type},#{service},#{group},#{editor},#{comment},#{script},#{options},#{createTime},#{updateTime})";
     }
 
     @Override
@@ -68,8 +68,8 @@ public class SqlDataSource extends DataSourceDialect {
 
     @Override
     String saveApiExampleScript() {
-        return "insert into api_example(api_info_id,method,url,request_header,request_body,response_header,response_body,status,time,options,editor,create_time) " +
-                "values(#{apiInfoId},#{method},#{url},#{requestHeader},#{requestBody},#{responseHeader},#{responseBody},#{status},#{time},#{options},#{editor},#{createTime})";
+        return "insert into api_example(id,api_info_id,method,url,request_header,request_body,response_header,response_body,status,time,options,editor,create_time) " +
+                "values(#{id},#{apiInfoId},#{method},#{url},#{requestHeader},#{requestBody},#{responseHeader},#{responseBody},#{status},#{time},#{options},#{editor},#{createTime})";
     }
 
     @Override

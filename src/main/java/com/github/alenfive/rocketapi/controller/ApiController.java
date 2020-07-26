@@ -8,6 +8,7 @@ import com.github.alenfive.rocketapi.extend.ApiInfoContent;
 import com.github.alenfive.rocketapi.extend.IUserAuthorization;
 import com.github.alenfive.rocketapi.script.IScriptParse;
 import com.github.alenfive.rocketapi.service.LoginService;
+import com.github.alenfive.rocketapi.utils.GenerateId;
 import com.github.alenfive.rocketapi.utils.RequestUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -110,7 +111,6 @@ public class ApiController {
             if (!StringUtils.isEmpty(apiInfo.getScript())){
                 apiInfo.setScript(URLEncoder.encode(apiInfo.getScript(),"utf-8"));
             }
-
             return ApiResult.success(mappingFactory.saveOrUpdateApiInfo(apiInfo));
         }catch (Exception e){
             e.printStackTrace();
@@ -264,7 +264,7 @@ public class ApiController {
         }
         apiExample.setEditor(user);
         apiExample.setCreateTime(new Date());
-
+        apiExample.setId(GenerateId.get().toHexString());
         if (!StringUtils.isEmpty(apiExample.getResponseBody())){
             apiExample.setResponseBody(URLEncoder.encode(apiExample.getResponseBody(),"utf-8"));
         }

@@ -9,6 +9,7 @@ import com.github.alenfive.rocketapi.extend.ApiInfoInterceptor;
 import com.github.alenfive.rocketapi.extend.IResultWrapper;
 import com.github.alenfive.rocketapi.script.IScriptParse;
 import com.github.alenfive.rocketapi.service.ScriptParseService;
+import com.github.alenfive.rocketapi.utils.GenerateId;
 import com.github.alenfive.rocketapi.utils.PackageUtils;
 import com.github.alenfive.rocketapi.utils.RequestUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -16,10 +17,10 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.method.HandlerMethod;
-import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.servlet.mvc.condition.PatternsRequestCondition;
 import org.springframework.web.servlet.mvc.condition.RequestMethodsRequestCondition;
@@ -254,10 +255,10 @@ public class QLRequestMappingFactory {
         return this.cacheApiInfo.values().stream().sorted(Comparator.comparing(ApiInfo::getComment).thenComparing(ApiInfo::getPath)).collect(Collectors.toList());
     }
 
-
+    @Transactional
     public String saveOrUpdateApiInfo(ApiInfo apiInfo) throws Exception {
 
-        if (exists(apiInfo)){
+        if (existsPattern(apiInfo)){
             throw new IllegalArgumentException(buildApiInfoKey(apiInfo)+" already exist");
         }
 
@@ -266,6 +267,7 @@ public class QLRequestMappingFactory {
             apiInfo.setType(ApiType.Ql.name());
             apiInfo.setCreateTime(new Date());
             apiInfo.setService(service);
+            apiInfo.setId(GenerateId.get().toHexString());
             ApiParams apiParams = ApiParams.builder().param(apiInfo.toMap()).build();
             StringBuilder script = new StringBuilder(dataSourceManager.saveApiInfoScript());
             parseService.buildParams(script,apiParams);
@@ -297,7 +299,7 @@ public class QLRequestMappingFactory {
         ApiInfoHistory history = new ApiInfoHistory();
         BeanUtils.copyProperties(dbInfo,history);
         history.setApiInfoId(dbInfo.getId());
-        history.setId(null);
+        history.setId(GenerateId.get().toString());
         history.setCreateTime(new Date());
         ApiParams apiParams = ApiParams.builder().param(history.toMap()).build();
         StringBuilder script = new StringBuilder(dataSourceManager.saveApiInfoHistoryScript());
@@ -315,7 +317,7 @@ public class QLRequestMappingFactory {
         return objectMapper.readValue(objectMapper.writeValueAsBytes(apiInfoMap.get(0)),ApiInfo.class);
     }
 
-    private boolean exists(ApiInfo apiInfo) {
+    private boolean existsPattern(ApiInfo apiInfo) {
         ApiInfo dbInfo = this.cacheApiInfo.values().stream().filter(item->item.getPath().equals(apiInfo.getPath()) && (item.getMethod().equals("All") || item.getMethod().equals(apiInfo.getMethod()))).findFirst().orElse(null);
         if (dbInfo == null || (apiInfo.getId() != null && apiInfo.getId().equals(dbInfo.getId()))){
             return false;
@@ -323,6 +325,7 @@ public class QLRequestMappingFactory {
         return true;
     }
 
+    @Transactional
     public Long deleteApiInfo(ApiInfo apiInfo) throws Exception {
 
         ApiInfo dbInfo = this.cacheApiInfo.values().stream().filter(item->item.getId().equals(apiInfo.getId())).findFirst().orElse(null);
@@ -408,6 +411,7 @@ public class QLRequestMappingFactory {
                 .map(item->StringUtils.isEmpty(item.getComment())?item.getPath():item.getComment()).collect(Collectors.toSet());
     }
 
+    @Transactional
     public Long renameGroup(RenameGroupReq renameGroupReq) throws Exception {
         List<ApiInfo> apiInfos = this.cacheApiInfo.values().stream().filter(item->item.getGroup().equals(renameGroupReq.getOldGroup())).collect(Collectors.toList());
         for (ApiInfo apiInfo : apiInfos){
@@ -419,6 +423,7 @@ public class QLRequestMappingFactory {
         return Long.valueOf(apiInfos.size());
     }
 
+    @Transactional
     public Object saveExample(ApiExample apiExample) throws Exception {
         StringBuilder script = new StringBuilder(dataSourceManager.saveApiExampleScript());
         parseService.buildParams(script,ApiParams.builder().param(apiExample.toMap()).build());
@@ -434,6 +439,7 @@ public class QLRequestMappingFactory {
         return dataSourceManager.find(script,ApiInfo.builder().datasource(dataSourceManager.getStoreApiKey()).build(),null);
     }
 
+    @Transactional
     public Long deleteExampleList(ArrayList<ApiExample> apiExampleList) throws Exception {
         StringBuilder script = new StringBuilder(dataSourceManager.deleteExampleScript());
         parseService.buildParams(script,new ApiParams().putParam("ids",apiExampleList.stream().map(ApiExample::getId).collect(Collectors.toSet())));
