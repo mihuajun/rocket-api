@@ -7,6 +7,7 @@ import com.github.alenfive.rocketapi.extend.*;
 import com.github.alenfive.rocketapi.function.*;
 import com.github.alenfive.rocketapi.script.GroovyScriptParse;
 import com.github.alenfive.rocketapi.script.IScriptParse;
+import com.github.alenfive.rocketapi.service.LoginService;
 import com.github.alenfive.rocketapi.service.ScriptParseService;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -95,6 +96,12 @@ public class RocketApiAutoConfig {
     @ConditionalOnMissingBean
     public IUserAuthorization getIUserAuthorization(){
         return new DefaultUserAuthorization();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public LoginService getLoginService(){
+        return new LoginService();
     }
 
     @Bean

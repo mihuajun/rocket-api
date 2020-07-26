@@ -2,7 +2,6 @@ package com.github.alenfive.rocketapi.controller;
 
 import com.github.alenfive.rocketapi.config.RocketApiProperties;
 import com.github.alenfive.rocketapi.datasource.DataSourceManager;
-import com.github.alenfive.rocketapi.utils.LoginUtils;
 import com.github.alenfive.rocketapi.utils.PackageUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -33,7 +32,6 @@ public class ViewController {
     @GetMapping
     public String index(Model model,HttpServletRequest request){
         model.addAttribute("dataSourceList",dataSourceManager.getDialectMap().keySet());
-        model.addAttribute("user", LoginUtils.getUser(request));
         model.addAttribute("service", service);
         model.addAttribute("baseApiPath",baseApiPath());
         model.addAttribute("basePath",properties.getBasePath());
@@ -46,7 +44,6 @@ public class ViewController {
         model.addAttribute("dataSourceList",dataSourceManager.getDialectMap().keySet());
         model.addAttribute("currApi",id);
         model.addAttribute("currPage",page);
-        model.addAttribute("user", LoginUtils.getUser(request));
         model.addAttribute("service", service);
         model.addAttribute("baseApiPath",baseApiPath());
         model.addAttribute("basePath",properties.getBasePath());

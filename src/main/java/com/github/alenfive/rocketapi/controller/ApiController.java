@@ -1,12 +1,13 @@
 package com.github.alenfive.rocketapi.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.github.alenfive.rocketapi.config.QLRequestMappingFactory;
 import com.github.alenfive.rocketapi.entity.*;
 import com.github.alenfive.rocketapi.entity.vo.*;
 import com.github.alenfive.rocketapi.extend.ApiInfoContent;
 import com.github.alenfive.rocketapi.extend.IUserAuthorization;
 import com.github.alenfive.rocketapi.script.IScriptParse;
-import com.github.alenfive.rocketapi.utils.LoginUtils;
+import com.github.alenfive.rocketapi.service.LoginService;
 import com.github.alenfive.rocketapi.utils.RequestUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -47,6 +48,9 @@ public class ApiController {
 
     @Autowired
     private IUserAuthorization userAuthorization;
+
+    @Autowired
+    private LoginService loginService;
 
     /**
      * LOAD API LIST
@@ -96,7 +100,7 @@ public class ApiController {
     @PostMapping("/api-info")
     public ApiResult saveOrUpdateApiInfo(@RequestBody ApiInfo apiInfo,HttpServletRequest request) {
 
-        String user = LoginUtils.getUser(request);
+        String user = loginService.getUser(request);
         if(StringUtils.isEmpty(user)){
             return ApiResult.fail("Permission denied");
         }
@@ -122,7 +126,7 @@ public class ApiController {
      */
     @PutMapping("/api-info/group")
     public ApiResult renameGroup(@RequestBody RenameGroupReq renameGroupReq,HttpServletRequest request) throws Exception {
-        String user = LoginUtils.getUser(request);
+        String user = loginService.getUser(request);
         if(StringUtils.isEmpty(user)){
             return ApiResult.fail("Permission denied");
         }
@@ -135,7 +139,7 @@ public class ApiController {
      */
     @DeleteMapping("/api-info")
     public ApiResult deleteApiInfo(@RequestBody ApiInfo apiInfo,HttpServletRequest request){
-        String user = LoginUtils.getUser(request);
+        String user = loginService.getUser(request);
         if(StringUtils.isEmpty(user)){
             return ApiResult.fail("Permission denied");
         }
@@ -157,7 +161,7 @@ public class ApiController {
     @PostMapping("/api-info/run")
     public ApiResult runScript(@RequestBody RunApiReq runApiReq, HttpServletRequest request){
 
-        String user = LoginUtils.getUser(request);
+        String user = loginService.getUser(request);
         if(StringUtils.isEmpty(user)){
             return ApiResult.fail("Permission denied");
         }
@@ -248,7 +252,7 @@ public class ApiController {
     @PostMapping("/api-example")
     public ApiResult saveExample(@RequestBody ApiExample apiExample,HttpServletRequest request) throws Exception {
 
-        String user = LoginUtils.getUser(request);
+        String user = loginService.getUser(request);
         if(StringUtils.isEmpty(user)){
             return ApiResult.fail("Permission denied");
         }
@@ -295,7 +299,7 @@ public class ApiController {
      */
     @DeleteMapping("/api-example")
     private ApiResult deleteExampleList(@RequestBody DeleteExamleReq deleteExamleReq, HttpServletRequest request) throws Exception {
-        String user = LoginUtils.getUser(request);
+        String user = loginService.getUser(request);
         if(StringUtils.isEmpty(user)){
             return ApiResult.fail("Permission denied");
         }
@@ -304,16 +308,15 @@ public class ApiController {
 
     /**
      * 用户登录
-     * @param loginReq
+     * @param loginVo
      * @param request
      * @return
      */
     @PostMapping("/login")
-    public ApiResult login(@RequestBody LoginReq loginReq, HttpServletRequest request, HttpServletResponse response){
-        String user = userAuthorization.validate(loginReq.getUsername(),loginReq.getPassword());
+    public ApiResult login(@RequestBody LoginVo loginVo, HttpServletRequest request, HttpServletResponse response) throws JsonProcessingException {
+        String user = userAuthorization.validate(loginVo.getUsername(), loginVo.getPassword());
         if (!StringUtils.isEmpty(user)){
-            LoginUtils.setUser(request,response,user);
-            return ApiResult.success(user);
+            return ApiResult.success(loginService.getToken(loginVo));
         }
         return ApiResult.fail("Incorrect user name or password");
     }
@@ -325,7 +328,6 @@ public class ApiController {
      */
     @PostMapping("/logout")
     public ApiResult login(HttpServletRequest request,HttpServletResponse response){
-        LoginUtils.setUser(request,response,null);
         return ApiResult.success(null);
     }
 

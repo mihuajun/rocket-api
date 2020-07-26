@@ -94,18 +94,13 @@ function loadCurrApi() {
 
 
 function initUser() {
-    if (user){
+    if (rocketUser.user.token){
         $("#top-section .login-btn").hide();
         $("#top-section .login-info").show();
-        $("#top-section .login-info .name").text(user);
-    }else{
-        if (rocketUser.user){
-            $("#top-section .username").val(rocketUser.user.username?rocketUser.user.username:"");
-            $("#top-section .password").val(rocketUser.user.password?rocketUser.user.password:"");
-            login();
-        }
-        $("#top-section .login-btn").show();
-        $("#top-section .login-info").hide();
+        $("#top-section .login-info .name").text(rocketUser.user.username);
+        $.ajaxSetup({
+            headers:{"rocket-user-token":rocketUser.user.token}
+        });
     }
 }
 
@@ -1172,7 +1167,6 @@ function saveExample() {
 
             //
             params.id = data.data;
-            params.editor = user;
             params.createTime = "now";
             gdata.exampleHistoryList.splice(0,0,params);
             let template = buildHistoryItemStr(params);
@@ -1638,7 +1632,10 @@ function logout() {
                 return;
             }
             rocketUser.user.username = "";
-            rocketUser.user.password = "";
+            rocketUser.user.token = "";
+            $.ajaxSetup({
+                headers:{"rocket-user-token":""}
+            });
             localStorage.setItem("rocketUser",JSON.stringify(rocketUser));
             $("#top-section .login-btn").show();
             $("#top-section .login-info").hide();
@@ -1668,13 +1665,14 @@ function login() {
                 return;
             }
             rocketUser.user.username = username;
-            rocketUser.user.password = password;
+            rocketUser.user.token = data.data;
             localStorage.setItem("rocketUser",JSON.stringify(rocketUser));
-
+            $.ajaxSetup({
+                headers:{"rocket-user-token":data.data}
+            });
             $("#top-section .login-btn").hide();
             $("#top-section .login-info").show();
-            $("#top-section .login-info .name").text(data.data);
-            user = data.data;
+            $("#top-section .login-info .name").text(rocketUser.user.username);
             hideLoginDialog();
         },complete:function (req,data) {
             hideSendNotify();
