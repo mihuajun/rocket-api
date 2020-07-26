@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
@@ -308,10 +309,10 @@ public class ApiController {
      * @return
      */
     @PostMapping("/login")
-    public ApiResult login(@RequestBody LoginReq loginReq,HttpServletRequest request){
+    public ApiResult login(@RequestBody LoginReq loginReq, HttpServletRequest request, HttpServletResponse response){
         String user = userAuthorization.validate(loginReq.getUsername(),loginReq.getPassword());
         if (!StringUtils.isEmpty(user)){
-            LoginUtils.setUser(request,user);
+            LoginUtils.setUser(request,response,user);
             return ApiResult.success(user);
         }
         return ApiResult.fail("Incorrect user name or password");
@@ -323,8 +324,8 @@ public class ApiController {
      * @return
      */
     @PostMapping("/logout")
-    public ApiResult login(HttpServletRequest request){
-        LoginUtils.setUser(request,null);
+    public ApiResult login(HttpServletRequest request,HttpServletResponse response){
+        LoginUtils.setUser(request,response,null);
         return ApiResult.success(null);
     }
 
