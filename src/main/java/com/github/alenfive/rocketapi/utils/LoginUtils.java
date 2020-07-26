@@ -11,11 +11,11 @@ public class LoginUtils {
     private final static String userIdent = "rocket-user";
 
     public static String getUser(HttpServletRequest request){
-        Object user = request.getHeader(userIdent);
+        Object user = request.getSession().getAttribute(userIdent);
         return user == null?null:user.toString();
     }
 
     public static void setUser(HttpServletRequest request, HttpServletResponse response, String user) {
-        response.setHeader(userIdent,user);
+        request.getSession().setAttribute(userIdent,user);
     }
 }
