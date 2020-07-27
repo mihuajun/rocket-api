@@ -65,7 +65,7 @@ public class RocketApiAutoConfig {
 
     @Bean
     @ConditionalOnMissingBean
-    public DefaultApiPager getApiPager(){
+    public IApiPager getApiPager(){
         return new DefaultApiPager();
     }
 
@@ -82,7 +82,7 @@ public class RocketApiAutoConfig {
     }
     @Bean
     @ConditionalOnMissingBean
-    public DefaultAssertException getDefaultAssertException(){
+    public IAssertException getDefaultAssertException(){
         return new DefaultAssertException();
     }
 
