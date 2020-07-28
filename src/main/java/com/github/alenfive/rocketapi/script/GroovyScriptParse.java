@@ -9,7 +9,6 @@ import com.github.alenfive.rocketapi.entity.ApiParams;
 import com.github.alenfive.rocketapi.extend.ApiInfoContent;
 import com.github.alenfive.rocketapi.extend.IApiPager;
 import com.github.alenfive.rocketapi.function.IFunction;
-import com.github.alenfive.rocketapi.function.StaticFunction;
 import com.github.alenfive.rocketapi.service.ScriptParseService;
 import jdk.nashorn.api.scripting.ScriptObjectMirror;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,14 +40,10 @@ public class GroovyScriptParse implements IScriptParse{
 
     private Collection<IFunction> functionList;
 
-    @Autowired
-    private StaticFunction staticFunction;
-
     @PostConstruct
     public void init(){
         //加载函数
         functionList = context.getBeansOfType(IFunction.class).values();
-        staticFunction.setApplicationContext(context);
     }
 
     @Override
