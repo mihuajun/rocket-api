@@ -164,9 +164,10 @@ public class QLRequestMappingFactory {
         String method = request.getMethod();
         Map<String,Object> body = new HashMap<>();
 
-        if (request.getContentType().indexOf("application/json") > -1){
+
+        if (request.getContentType() != null && request.getContentType().indexOf("application/json") > -1){
             body.putAll(objectMapper.readValue(request.getInputStream(),Map.class));
-        }else if(request.getContentType().indexOf("multipart/form-data") > -1){
+        }else if(request.getContentType() != null && request.getContentType().indexOf("multipart/form-data") > -1){
             MultipartHttpServletRequest multipartHttpServletRequest = (MultipartHttpServletRequest) request;
             body.putAll(multipartHttpServletRequest.getMultiFileMap());
         }
