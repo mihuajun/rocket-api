@@ -649,18 +649,25 @@ function loadDetailByHistoryId(id, form) {
     }
     apiHistory.id = apiHistory.apiInfoId;
 
-    loadDetail(apiHistory,form);
-}
+    loadDetail(apiHistory,form,function () {
+        //构建example history
+        loadExampleHistory(currApiInfo,true);
 
-function loadDetailById(id,form) {
-    $.getJSON(getApiUrl+id,function (data) {
-        data = unpackResult(data).data;
-        loadDetail(data,form);
+        //构建 api history
+        loadApiHistory(currApiInfo.id,1);
     });
 
 }
 
-function loadDetail(apiInfo,form) {
+function loadDetailById(id,form,callback) {
+    $.getJSON(getApiUrl+id,function (data) {
+        data = unpackResult(data).data;
+        loadDetail(data,form,callback);
+    });
+
+}
+
+function loadDetail(apiInfo,form,callback) {
 
     cancelDiff();
 
@@ -713,6 +720,8 @@ function loadDetail(apiInfo,form) {
     //构建 api history
     loadApiHistory(currApiInfo.id,1);
 
+    //回调
+    callback();
 }
 
 function apiOptionAdd(key,value) {
@@ -1876,9 +1885,6 @@ function searchApiHistory(e) {
 }
 
 function showDiff(id) {
-    loadDetailByHistoryId(id,'#editor-section')
-    $("#editor-section .diff-body").show();
-    $("#editor-section .code-body").hide();
     let apiHistory = null;
     for(let i=0;i<gdata.apiHistoryList.length;i++){
         if (gdata.apiHistoryList[i].id == id){
@@ -1886,19 +1892,24 @@ function showDiff(id) {
             break;
         }
     }
-    $("#diff-editor").html("");
-    originalModel = monaco.editor.createModel(decodeURIComponent(apiHistory.script), "custom-language");
-    modifiedModel = monaco.editor.createModel(editorTextarea.getValue(), "custom-language");
-    let diffEditor = monaco.editor.createDiffEditor(document.getElementById("diff-editor"), {
-        // You can optionally disable the resizing
-        scrollBeyondLastLine:false,
-        automaticLayout: true,
-        enableSplitViewResizing: false
-    });
-    diffEditor.setModel({
-        original: originalModel,
-        modified: modifiedModel
-    });
+
+    loadDetailById(apiHistory.apiInfoId,"#editor-section",function () {
+        $("#editor-section .diff-body").show();
+        $("#editor-section .code-body").hide();
+        $("#diff-editor").html("");
+        originalModel = monaco.editor.createModel(decodeURIComponent(apiHistory.script), "custom-language");
+        modifiedModel = monaco.editor.createModel(editorTextarea.getValue(), "custom-language");
+        let diffEditor = monaco.editor.createDiffEditor(document.getElementById("diff-editor"), {
+            // You can optionally disable the resizing
+            scrollBeyondLastLine:false,
+            automaticLayout: true,
+            enableSplitViewResizing: false
+        });
+        diffEditor.setModel({
+            original: originalModel,
+            modified: modifiedModel
+        });
+    })
 
 }
 
