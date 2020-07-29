@@ -147,6 +147,75 @@
 
 </div>
 
+<!--save as-->
+<div class="modal save-dialog in" id="save-dialog" aria-hidden="false" style="display: none">
+    <div class="modal-header"><a class="close" onclick="cancelDialogGroup()" data-dismiss="modal">×</a>
+        <h3>Save Request <small></small></h3></div>
+    <div class="modal-body">
+        <div class="form-horizontal">
+            <div class="repository-path-selector">
+                <div class="flex-container name-form">
+                    <div class="left-label"> Name</div>
+                    <div class="right-label"><input type="text" class="gwt-TextBox input-xlarge"></div>
+                </div>
+                <div class="validation-message"></div>
+                <div class="path">
+                    <div class="flex-container">
+                        <div class="path-selector-header left-label"> Path</div>
+                        <div class="flex-container path-selector-container right-label"><a class="r-btn" e2e-tag="drive-selector" title="My drive"><i
+                                class="api-tester-icon api-tester-drive"></i> <span class="drive-name">My drive</span> <span class="caret"></span></a>
+                            <ul class="dropdown-menu" e2e-tag="drives-list">
+                                <li><a>My drive</a></li>
+                            </ul>
+                            <span class="colon">:</span>
+                            <div class="path-buttons" e2e-tag="drive-path"><a class="r-btn active" onclick="showDialogGroup()">/</a></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="selector-table">
+                    <ul class="nav nav-list local-drive">
+
+                    </ul>
+                </div>
+                <div class="new-path"><a class="r-btn" onclick="addGroup()"><i class="fa fa-plus"></i> <span> Create </span> </a>
+                    <div class="new-container-form" aria-hidden="true" style="display: none;">
+                        <div class="flex-container"><span class="left-label"></span> <input type="text" class="new-item-name input-xlarge">
+                            <div class="create-form">
+                                <button class="r-btn r-btn-small" onclick="confirmGroup()"><i class="fa fa-check"></i> <span> Add </span></button>
+                                <button class="r-btn r-btn-small" onclick="cancelGroup()"><i class="fa fa-times-thin"></i> <span> Cancel </span></button>
+                            </div>
+                        </div>
+                        <div class="validation-message"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="alert hidden">The target request will be overwritten.</div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button class="r-btn" e2e-tag="modal-cancel" onclick="cancelDialogGroup()"><i class="fa fa-remove"></i><span>Cancel</span><span class="r-btn-indicator" aria-hidden="true"
+                                                                                                                                        style="display: none;"></span></button>
+        <button class="r-btn r-btn-primary" e2e-tag="modal-ok" onclick="confirmDialog('#editor-section')"><i class="fa fa-download"></i><span>Save</span><span class="r-btn-indicator" aria-hidden="true"
+                                                                                                                                                               style="display: none;"></span></button>
+    </div>
+</div>
+
+<!-- global setting -->
+<div class="modal in" id="global-setting" aria-hidden="false" style="width:50%;left:25%;margin-left:0px;display: none">
+    <div class="modal-header"><a class="close" onclick="hideGlobalConfig()" data-dismiss="modal">×</a>
+        <h3>Global Setting <small></small></h3></div>
+    <div class="modal-body" style="overflow: hidden;width: 100%;padding: 0px;height:450px;">
+
+    </div>
+    <div class="modal-footer">
+        <div class="error-message login-error-message" style="float: left;"></div>
+        <button class="r-btn" e2e-tag="modal-cancel" onclick="hideGlobalConfig()"><i class="fa fa-remove"></i><span>Cancel</span><span class="r-btn-indicator" aria-hidden="true"
+                                                                                                                                      style="display: none;"></span></button>
+        <button class="r-btn r-btn-primary" onclick="saveGlobalConfig()" e2e-tag="modal-ok"><i class="fa fa-save"></i><span>Save</span><span class="r-btn-indicator" aria-hidden="true"
+                                                                                                                                   style="display: none;"></span></button>
+    </div>
+</div>
+
 <div class="intercom-lightweight-app" aria-live="polite">
     <style id="intercom-lightweight-app-style">
         @keyframes intercom-lightweight-app-launcher {
@@ -413,7 +482,7 @@
         #repository .authenticated .service,
         #repository .authenticated .drive-name,
         .requests .left-pane .left-pane-header .selector .active > a,
-        #save-dialog, .move-dialog, #save-dialog .modal-footer, #save-dialog .repository-path-selector .selector-table,
+        #save-dialog,#save-dialog input, .move-dialog, #save-dialog .modal-footer, #save-dialog .repository-path-selector .selector-table,
         #save-dialog .repository-path-selector .selector-table .nav-list > li > a,
         #save-dialog .r-btn {
             color: #ccc;

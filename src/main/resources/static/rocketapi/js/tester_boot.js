@@ -61,6 +61,7 @@ let editorTextarea;
 let exampleTextarea;
 let originalModel;
 let modifiedModel;
+let settingTextarea;
 
 let hasResponse;
 let gdata = {
@@ -80,6 +81,10 @@ let rocketUser = {
         "leftWidth": "325px",
         "bottom":"show",
         "bottomHeight":"150px"
+    },
+    "setting":{
+        "header":{},
+        "options":{}
     }
 }
 
@@ -712,7 +717,7 @@ function loadDetail(apiInfo,form,callback) {
 
     document.title = currApiInfo.comment?currApiInfo.comment:currApiInfo.path;
     buildApiOptionsDom(currApiInfo.options);
-    editorTextarea.setValue(currApiInfo.script);
+    editorTextarea.setValue(currApiInfo.script?currApiInfo.script:"");
 
     //构建example history
     loadExampleHistory(currApiInfo,true);
@@ -721,7 +726,9 @@ function loadDetail(apiInfo,form,callback) {
     loadApiHistory(currApiInfo.id,1);
 
     //回调
-    callback();
+    if (callback){
+        callback();
+    }
 }
 
 function apiOptionAdd(key,value) {
@@ -748,7 +755,7 @@ function openMsgModal(msg) {
 }
 
 function confirmDialog(form) {
-    let group = $(form).find("#save-dialog .path-buttons .active").attr("title");
+    let group = $("#save-dialog .path-buttons .active").attr("title");
     let params={
         "id": $("#save-dialog").attr("data-id"),
         "method": $(form).find(".api-info-method").val(),
@@ -756,7 +763,7 @@ function confirmDialog(form) {
         "path": $(form).find(".api-info-path").val(),
         "group": group?group:"公共API",
         "editor": $(form).find(".api-info-editor").val(),
-        "comment": $(form).find("#save-dialog .input-xlarge").val(),
+        "comment": $("#save-dialog .input-xlarge").val(),
         "script": editorTextarea.getValue(),
         "options":buildApiOptionsJsonStr()
     }
@@ -776,8 +783,12 @@ function buildApiOptionsJsonStr() {
 }
 
 function buildApiOptionsDom(optionsJsonStr) {
-    if (!optionsJsonStr)return;
-    let map = JSON.parse(optionsJsonStr);
+    $("#bottom-side .query-parameters-form-block").html("")
+    let map = {};
+    if (optionsJsonStr){
+        map = JSON.parse(optionsJsonStr);
+    }
+    map = $.extend({}, rocketUser.setting.options, map);
     $.each(map,function (key,value) {
         apiOptionAdd(key,value);
     })
@@ -1048,6 +1059,7 @@ function newEditor() {
 
     hasConsole = null;
     currApiInfo = {};
+    buildApiOptionsDom()
 }
 
 function newExample() {
@@ -1413,6 +1425,7 @@ function getHeaderParams() {
 }
 
 function setHeaderParams(headersParams) {
+    headersParams = $.extend({},rocketUser.setting.header,headersParams);
     let isForm = $("#example-section .headers-form-title .dropdown-toggle").text().trim() == 'Form';
     if (isForm){
         $("#example-section .headers-form-block").html("");
@@ -2053,3 +2066,39 @@ function showBottomTab(target,e) {
 
 //--------------------------------api left-side end -----------------------------------
 
+//-------------------------------- global setting start -------------------------------
+function showGlobalConfig() {
+    $("#global-setting").show();
+    $("#global-setting .modal-body").html("");
+    settingTextarea = monaco.editor.create($("#global-setting .modal-body")[0], {
+        language: 'json',
+        theme:"myTheme",
+        value:formatJson(JSON.stringify(rocketUser.setting)),
+        wordWrap: 'on',  //自行换行
+        verticalHasArrows: true,
+        horizontalHasArrows: true,
+        scrollBeyondLastLine: false,
+        contextmenu:false,
+        automaticLayout: true,
+        fontSize:13,
+        minimap: {
+            enabled: false // 关闭小地图
+        }
+
+    });
+}
+function hideGlobalConfig() {
+    $("#global-setting").hide();
+}
+
+function saveGlobalConfig() {
+    try {
+        rocketUser.setting = JSON.parse(settingTextarea.getValue());
+        localStorage.setItem("rocketUser",JSON.stringify(rocketUser));
+        hideGlobalConfig();
+    }catch (e) {
+        openMsgModal(e);
+    }
+
+}
+//-------------------------------- global setting end -------------------------------

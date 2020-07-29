@@ -9804,6 +9804,7 @@ a.gwt-anchor-inactive:hover {
     flex-grow: 1;
     overflow-x: hidden;
     overflow-y: auto;
+    padding-bottom: 50px;
 }
 .left-pane .tree-view .dropdown-menu i,
 .selection-tree .tree-view .dropdown-menu i {
