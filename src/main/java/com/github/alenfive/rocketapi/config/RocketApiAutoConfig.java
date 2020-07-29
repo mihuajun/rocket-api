@@ -7,6 +7,7 @@ import com.github.alenfive.rocketapi.extend.*;
 import com.github.alenfive.rocketapi.function.*;
 import com.github.alenfive.rocketapi.script.GroovyScriptParse;
 import com.github.alenfive.rocketapi.script.IScriptParse;
+import com.github.alenfive.rocketapi.service.EncryptChangeService;
 import com.github.alenfive.rocketapi.service.LoginService;
 import com.github.alenfive.rocketapi.service.ScriptParseService;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
@@ -96,6 +97,18 @@ public class RocketApiAutoConfig {
     @ConditionalOnMissingBean
     public IUserAuthorization getIUserAuthorization(){
         return new DefaultUserAuthorization();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public IScriptEncrypt getIScriptEncrypt(){
+        return new DefaultScriptEncrypt();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public EncryptChangeService getEncryptChangeService(){
+        return new EncryptChangeService();
     }
 
     @Bean

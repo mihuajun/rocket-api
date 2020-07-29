@@ -662,6 +662,8 @@ function loadDetailById(id,form) {
 
 function loadDetail(apiInfo,form) {
 
+    cancelDiff();
+
     //init curr data
     hasConsole = null;
     hasResponse = null;
@@ -1005,6 +1007,7 @@ function newRequest() {
     newEditor();
     newExample();
     showEditorPanel();
+    cancelDiff();
     loadApiHistory(null,1);
 }
 
@@ -1873,6 +1876,7 @@ function searchApiHistory(e) {
 }
 
 function showDiff(id) {
+    loadDetailByHistoryId(id,'#editor-section')
     $("#editor-section .diff-body").show();
     $("#editor-section .code-body").hide();
     let apiHistory = null;

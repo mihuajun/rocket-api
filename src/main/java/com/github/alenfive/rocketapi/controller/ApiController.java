@@ -5,6 +5,7 @@ import com.github.alenfive.rocketapi.config.QLRequestMappingFactory;
 import com.github.alenfive.rocketapi.entity.*;
 import com.github.alenfive.rocketapi.entity.vo.*;
 import com.github.alenfive.rocketapi.extend.ApiInfoContent;
+import com.github.alenfive.rocketapi.extend.IScriptEncrypt;
 import com.github.alenfive.rocketapi.extend.IUserAuthorization;
 import com.github.alenfive.rocketapi.script.IScriptParse;
 import com.github.alenfive.rocketapi.service.LoginService;
@@ -53,6 +54,9 @@ public class ApiController {
     @Autowired
     private LoginService loginService;
 
+    @Autowired
+    private IScriptEncrypt scriptEncrypt;
+
     /**
      * LOAD API LIST
      * @return
@@ -76,7 +80,7 @@ public class ApiController {
 
         ApiInfo resultInfo = new ApiInfo();
         BeanUtils.copyProperties(apiInfo,resultInfo);
-        resultInfo.setScript(URLDecoder.decode(resultInfo.getScript(),"utf-8"));
+        resultInfo.setScript(scriptEncrypt.decrypt(resultInfo.getScript()));
         return ApiResult.success(resultInfo);
     }
 
@@ -89,7 +93,7 @@ public class ApiController {
         Integer index = (pageNo-1)*pageSize;
         List<ApiInfoHistory> historyList = mappingFactory.lastApiInfo(apiInfoId,index,pageSize);
         for (ApiInfoHistory history : historyList) {
-            history.setScript(URLDecoder.decode(history.getScript(),"utf-8"));
+            history.setScript(scriptEncrypt.decrypt(history.getScript()));
         }
         return  ApiResult.success(historyList);
     }
@@ -109,7 +113,7 @@ public class ApiController {
         apiInfo.setEditor(user);
         try {
             if (!StringUtils.isEmpty(apiInfo.getScript())){
-                apiInfo.setScript(URLEncoder.encode(apiInfo.getScript(),"utf-8"));
+                apiInfo.setScript(scriptEncrypt.encrypt(apiInfo.getScript()));
             }
             return ApiResult.success(mappingFactory.saveOrUpdateApiInfo(apiInfo));
         }catch (Exception e){

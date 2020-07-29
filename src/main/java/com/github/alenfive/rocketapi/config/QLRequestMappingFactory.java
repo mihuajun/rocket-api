@@ -7,6 +7,7 @@ import com.github.alenfive.rocketapi.entity.vo.RenameGroupReq;
 import com.github.alenfive.rocketapi.extend.ApiInfoContent;
 import com.github.alenfive.rocketapi.extend.ApiInfoInterceptor;
 import com.github.alenfive.rocketapi.extend.IResultWrapper;
+import com.github.alenfive.rocketapi.extend.IScriptEncrypt;
 import com.github.alenfive.rocketapi.script.IScriptParse;
 import com.github.alenfive.rocketapi.service.ScriptParseService;
 import com.github.alenfive.rocketapi.utils.GenerateId;
@@ -84,6 +85,9 @@ public class QLRequestMappingFactory {
     @Autowired
     private IResultWrapper resultWrapper;
 
+    @Autowired
+    private IScriptEncrypt scriptEncrypt;
+
     /**
      * 初始化db mapping
      */
@@ -107,7 +111,6 @@ public class QLRequestMappingFactory {
             if (dbInfo != null){
                 continue;
             }
-
             codeInfo.setCreateTime(new Date());
             codeInfo.setUpdateTime(new Date());
             apiParams = ApiParams.builder().param(codeInfo.toMap()).build();
@@ -184,7 +187,7 @@ public class QLRequestMappingFactory {
 
         ApiInfo apiInfo = cacheApiInfo.get(buildApiInfoKey(ApiInfo.builder().method(method).path(path).build()));
 
-        StringBuilder script = new StringBuilder(URLDecoder.decode(apiInfo.getScript(),"utf-8"));
+        StringBuilder script = new StringBuilder(scriptEncrypt.decrypt(apiInfo.getScript()));
 
         try {
             Object data = scriptParse.runScript(script.toString(),apiInfo,apiParams);
