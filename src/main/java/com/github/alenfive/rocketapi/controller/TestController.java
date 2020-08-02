@@ -50,12 +50,17 @@ public class TestController {
             Map<String,Object> body = objectMapper.readValue(request.getInputStream(),Map.class);
         }
     }
-        @GetMapping(value = {"/hello/test2"})
+    @GetMapping(value = {"/hello/test2"})
     public Object test2(HttpServletRequest request){
 
         Set<MediaType> mediaTypeSet = new HashSet<>();
         mediaTypeSet.add(MediaType.ALL);
         request.setAttribute(HandlerMapping.PRODUCIBLE_MEDIA_TYPES_ATTRIBUTE, mediaTypeSet);
+        return null;
+    }
+
+    @GetMapping(value = {"/hello/test3"})
+    public Object test3(){
         return null;
     }
 }

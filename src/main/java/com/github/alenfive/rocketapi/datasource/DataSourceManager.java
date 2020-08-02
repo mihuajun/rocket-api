@@ -2,15 +2,18 @@ package com.github.alenfive.rocketapi.datasource;
 
 import com.github.alenfive.rocketapi.entity.ApiInfo;
 import com.github.alenfive.rocketapi.entity.ApiParams;
+import com.github.alenfive.rocketapi.extend.IApiPager;
+import com.github.alenfive.rocketapi.extend.IPagerDialect;
 import org.springframework.util.StringUtils;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
 /**
  * 数据源管理器代理类，实现指定数据源操作的路由
  */
-public abstract class DataSourceManager extends DataSourceDialect{
+public abstract class DataSourceManager {
 
     Map<String,DataSourceDialect> dialectMap;
 
@@ -21,78 +24,72 @@ public abstract class DataSourceManager extends DataSourceDialect{
     public String getStoreApiKey(){
         return dialectMap.keySet().stream().filter(key->dialectMap.get(key).isStoreApi()).findFirst().orElse(null);
     }
-    @Override
     public String listApiInfoScript(){
         return dialectMap.get(getStoreApiKey()).listApiInfoScript();
     }
 
-    @Override
     public String lastApiInfoHistoryScript() {
         return dialectMap.get(getStoreApiKey()).lastApiInfoHistoryScript();
     }
 
-    @Override
     public String saveApiInfoHistoryScript() {
         return dialectMap.get(getStoreApiKey()).saveApiInfoHistoryScript();
     }
 
-    @Override
     public String getApiInfoScript(){
         return dialectMap.get(getStoreApiKey()).getApiInfoScript();
     }
-    @Override
     public String saveApiInfoScript(){
         return dialectMap.get(getStoreApiKey()).saveApiInfoScript();
     }
-    @Override
     public String updateApiInfoScript(){
         return dialectMap.get(getStoreApiKey()).updateApiInfoScript();
     }
-    @Override
     public String deleteApiInfoScript(){
         return dialectMap.get(getStoreApiKey()).deleteApiInfoScript();
     }
-    @Override
     public String saveApiExampleScript() {
         return dialectMap.get(getStoreApiKey()).saveApiExampleScript();
     }
-    @Override
     public String lastApiExampleScript() {
         return dialectMap.get(getStoreApiKey()).lastApiExampleScript();
     }
-    @Override
     public String deleteExampleScript() {
         return dialectMap.get(getStoreApiKey()).deleteExampleScript();
     }
 
-    @Override
     public List<Map<String, Object>> find(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams) throws Exception {
         return this.find(script,apiInfo,apiParams,null);
     }
 
-    @Override
     public Long update(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams) throws Exception {
         return this.update(script,apiInfo,apiParams,null);
     }
 
-    @Override
     public Long remove(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams) throws Exception {
         return this.remove(script,apiInfo,apiParams,null);
     }
 
-    @Override
     public Object insert(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams)throws Exception {
         return this.insert(script,apiInfo,apiParams,null);
     }
 
-    @Override
-    public String buildCountScript(String script, ApiInfo apiInfo, ApiParams apiParams) throws Exception {
-        return this.buildCountScript(script,apiInfo,apiParams,null);
+    public String buildCountScript(String script, ApiInfo apiInfo, ApiParams apiParams, IApiPager apiPager, Collection<IPagerDialect> pagerDialects) throws Exception {
+        return this.buildCountScript(script,apiInfo,apiParams,null,apiPager,pagerDialects);
     }
 
-    public String buildCountScript(String script, ApiInfo apiInfo, ApiParams apiParams, String specifyDataSource) throws Exception {
+    public String buildCountScript(String script, ApiInfo apiInfo, ApiParams apiParams,String specifyDataSource,IApiPager apiPager,Collection<IPagerDialect> pagerDialects) throws Exception {
         DataSourceDialect dataSourceDialect = buildDataSourceDialect(apiInfo.getDatasource(),specifyDataSource);
-        return dataSourceDialect.buildCountScript(script,apiInfo,apiParams);
+        return dataSourceDialect.buildCountScript(script,apiInfo,apiParams,apiPager,pagerDialects);
+    }
+
+    public String buildPageScript(String script, ApiInfo apiInfo, ApiParams apiParams, IApiPager apiPager, Collection<IPagerDialect> pagerDialects) throws Exception {
+        return this.buildPageScript(script,apiInfo,apiParams,null,apiPager,pagerDialects);
+    }
+
+    public String buildPageScript(String script, ApiInfo apiInfo, ApiParams apiParams,String specifyDataSource,IApiPager apiPager,Collection<IPagerDialect> pagerDialects) throws Exception {
+        DataSourceDialect dataSourceDialect = buildDataSourceDialect(apiInfo.getDatasource(),specifyDataSource);
+        return dataSourceDialect.buildPageScript(script,apiInfo,apiParams,apiPager,pagerDialects);
     }
 
     public List<Map<String, Object>> find(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams, String specifyDataSource) throws Exception {
@@ -123,7 +120,7 @@ public abstract class DataSourceManager extends DataSourceDialect{
         this.dialectMap = dialectMap;
     }
 
-    private DataSourceDialect buildDataSourceDialect(String defaultDataSource,String specifyDataSource){
+    public DataSourceDialect buildDataSourceDialect(String defaultDataSource,String specifyDataSource){
         String dataSourceKey = StringUtils.isEmpty(specifyDataSource)?defaultDataSource:specifyDataSource;
         DataSourceDialect dataSourceDialect = dialectMap.get(dataSourceKey);
         if (dataSourceDialect == null){

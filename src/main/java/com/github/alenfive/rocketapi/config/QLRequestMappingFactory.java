@@ -33,7 +33,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.lang.reflect.Method;
-import java.net.URLDecoder;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
@@ -111,6 +110,7 @@ public class QLRequestMappingFactory {
             if (dbInfo != null){
                 continue;
             }
+            codeInfo.setId(GenerateId.get().toHexString());
             codeInfo.setCreateTime(new Date());
             codeInfo.setUpdateTime(new Date());
             apiParams = ApiParams.builder().param(codeInfo.toMap()).build();

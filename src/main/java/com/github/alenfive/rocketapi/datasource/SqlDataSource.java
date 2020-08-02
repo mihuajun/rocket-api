@@ -2,23 +2,33 @@ package com.github.alenfive.rocketapi.datasource;
 
 import com.github.alenfive.rocketapi.entity.ApiInfo;
 import com.github.alenfive.rocketapi.entity.ApiParams;
+import com.github.alenfive.rocketapi.extend.IApiPager;
+import com.github.alenfive.rocketapi.extend.IPagerDialect;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCreator;
+import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 /**
  * 关系型数据源，`JdbcTemplate`所操作的数据源
  */
+@SuppressWarnings("DuplicatedCode")
 public class SqlDataSource extends DataSourceDialect {
 
     private JdbcTemplate jdbcTemplate;
+
+    private Map<String, IPagerDialect> pagerDialectCache = new ConcurrentHashMap<>();
 
     private SqlDataSource(){}
 
@@ -48,7 +58,7 @@ public class SqlDataSource extends DataSourceDialect {
 
     @Override
     public String getApiInfoScript() {
-        return "select id,method,path,datasource,`type`,`service`,`group`,editor,`comment`,script,options,create_time,update_time from api_info where method = #{method} and path = #{path}";
+        return "select id,method,path,datasource,`type`,`service`,`group`,editor,`comment`,script,options,create_time,update_time from api_info where id = #{id}";
     }
 
     @Override
@@ -109,8 +119,45 @@ public class SqlDataSource extends DataSourceDialect {
         return keyHolder.getKey();
     }
 
+    private IPagerDialect getIPagerDialect(Collection<IPagerDialect> pagerDialects, String datasource){
+        IPagerDialect pagerDialect = pagerDialectCache.get(datasource);
+        if (pagerDialect != null){
+            return pagerDialect;
+        }
+        Connection connection = null;
+        try {
+            connection = jdbcTemplate.getDataSource().getConnection();
+            String jdbcUrl = connection.getMetaData().getURL();
+            pagerDialect = pagerDialects.stream().filter(item->jdbcUrl.contains(item.match())).findFirst().orElse(null);
+            pagerDialectCache.put(datasource,pagerDialect);
+            return pagerDialect;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            DataSourceUtils.releaseConnection(connection,jdbcTemplate.getDataSource());
+        }
+        return null;
+    }
+
     @Override
-    String buildCountScript(String script, ApiInfo apiInfo, ApiParams apiParams) throws Exception {
-        return  "select count(1) from ("+script +") t1";
+    String buildCountScript(String script, ApiInfo apiInfo, ApiParams apiParams,IApiPager apiPager,Collection<IPagerDialect> pagerDialects) throws Exception {
+        IPagerDialect pagerDialect = getIPagerDialect(pagerDialects,apiInfo.getDatasource());
+        if (pagerDialect == null){
+            return script;
+        }
+        Integer offset = Integer.valueOf(apiParams.getParam().get(apiPager.getIndexVarName()).toString());
+        Integer limit = Integer.valueOf(apiParams.getParam().get(apiPager.getPageSizeVarName()).toString());
+        return  pagerDialect.buildCountScript(script,offset,limit);
+    }
+
+    @Override
+    String buildPageScript(String script, ApiInfo apiInfo, ApiParams apiParams, IApiPager apiPager,Collection<IPagerDialect> pagerDialects) throws Exception {
+        IPagerDialect pagerDialect = getIPagerDialect(pagerDialects,apiInfo.getDatasource());
+        if (pagerDialect == null){
+            return script;
+        }
+        Integer offset = Integer.valueOf(apiParams.getParam().get(apiPager.getIndexVarName()).toString());
+        Integer limit = Integer.valueOf(apiParams.getParam().get(apiPager.getPageSizeVarName()).toString());
+        return  pagerDialect.buildPageScript(script,offset,limit);
     }
 }

@@ -320,10 +320,66 @@ $(function(){
         },
     });
 
+    let createCompleters = textUntilPosition => {
+        console.log(textUntilPosition);
+        //过滤特殊字符
+        /*let _textUntilPosition = textUntilPosition
+            .replace(/[\*\[\]@\$\(\)]/g, "")
+            .replace(/(\s+|\.)/g, " ");
+        //切割成数组
+        let arr = _textUntilPosition.split(" ");
+        //取当前输入值
+        let activeStr = arr[arr.length - 1];
+        //获得输入值的长度
+        let len = activeStr.length;
+
+        //获得编辑区域内已经存在的内容
+        let rexp = new RegExp('([^\\w]|^)'+activeStr+'\\w*', "gim");
+        let match = that.value.match(rexp);
+        let _hints = !match ? [] : match.map(ele => {
+            let rexp = new RegExp(activeStr, "gim");
+            let search = ele.search(rexp);
+            return ele.substr(search)
+        })
+        */
+        //查找匹配当前输入值的元素
+        let hints = Array.from(new Set([...that.hints, ..._hints])).sort().filter(ele => {
+            let rexp = new RegExp(ele.substr(0, len), "gim");
+            return match && match.length === 1 && ele === activeStr || ele.length === 1
+                ? false
+                : activeStr.match(rexp);
+        });
+        //添加内容提示
+        let res = hints.map(ele => {
+            return {
+                label: ele,
+                kind: that.hints.indexOf(ele) > -1 ? monaco.languages.CompletionItemKind.Keyword : monaco.languages.CompletionItemKind.Text,
+                documentation: ele,
+                insertText: ele
+            };
+        });
+        return res;
+    };
+
+    monaco.languages.registerCompletionItemProvider("custom-language", {
+        provideCompletionItems(model, position) {
+            var textUntilPosition = model.getValueInRange({
+                startLineNumber: position.lineNumber,
+                startColumn: 1,
+                endLineNumber: position.lineNumber,
+                endColumn: position.column
+            });
+            console.log(textUntilPosition);
+            /*var suggestions = createCompleters(textUntilPosition);
+            return {
+                suggestions: suggestions
+            };*/
+        }
+    });
+
     editorTextarea = monaco.editor.create(document.getElementById('monaco-editor'), {
         language: 'custom-language',
         theme:"myTheme",
-        values:"return ",
         wordWrap: 'on',  //自行换行
         verticalHasArrows: true,
         horizontalHasArrows: true,

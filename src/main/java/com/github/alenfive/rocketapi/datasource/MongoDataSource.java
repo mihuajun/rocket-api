@@ -2,6 +2,8 @@ package com.github.alenfive.rocketapi.datasource;
 
 import com.github.alenfive.rocketapi.entity.ApiInfo;
 import com.github.alenfive.rocketapi.entity.ApiParams;
+import com.github.alenfive.rocketapi.extend.IApiPager;
+import com.github.alenfive.rocketapi.extend.IPagerDialect;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -84,7 +86,7 @@ public class MongoDataSource extends DataSourceDialect {
     public String getApiInfoScript() {
         return "{\n" +
                 "     find: \"api_info\",\n" +
-                "     filter: { method: #{method}, path: #{path} },\n" +
+                "     filter: { _id: ObjectId(#{id})},\n" +
                 "     limit: 1\n" +
                 "}";
     }
@@ -218,11 +220,6 @@ public class MongoDataSource extends DataSourceDialect {
         return batchInsert(script).get(0).toString();
     }
 
-    @Override
-    String buildCountScript(String script, ApiInfo apiInfo, ApiParams apiParams) throws Exception {
-        return script;
-    }
-
     private List<Object> batchInsert(StringBuilder script){
         Document insertDoc = Document.parse(script.toString());
         List<Document> docList = getList(insertDoc,"documents",Document.class,null);
@@ -352,4 +349,13 @@ public class MongoDataSource extends DataSourceDialect {
         return map;
     }
 
+    @Override
+    String buildCountScript(String script, ApiInfo apiInfo, ApiParams apiParams, IApiPager apiPager, Collection<IPagerDialect> pagerDialects) throws Exception {
+        return script;
+    }
+
+    @Override
+    String buildPageScript(String script, ApiInfo apiInfo, ApiParams apiParams, IApiPager apiPager, Collection<IPagerDialect> pagerDialects) throws Exception {
+        return script;
+    }
 }
