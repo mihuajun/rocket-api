@@ -10,7 +10,7 @@ public class PagerSQLServerDialect implements IPagerDialect {
 
     @Override
     public String match() {
-        return ":sqlserver2012:";
+        return ":sqlserver:";
     }
 
     @Override
