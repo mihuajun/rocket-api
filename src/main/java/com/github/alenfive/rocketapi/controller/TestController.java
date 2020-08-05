@@ -5,10 +5,7 @@ import com.github.alenfive.rocketapi.entity.ApiInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.HandlerMapping;
 
@@ -59,8 +56,8 @@ public class TestController {
         return null;
     }
 
-    @GetMapping(value = {"/hello/test3"})
-    public Object test3(){
+    @PostMapping(value = {"/hello/test3"})
+    public Object test3(@RequestBody ApiInfo apiInfo){
         return null;
     }
 }

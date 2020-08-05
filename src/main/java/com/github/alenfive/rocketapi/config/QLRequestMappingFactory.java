@@ -1,6 +1,7 @@
 package com.github.alenfive.rocketapi.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.github.alenfive.rocketapi.datasource.DataSourceManager;
 import com.github.alenfive.rocketapi.entity.*;
 import com.github.alenfive.rocketapi.entity.vo.RenameGroupReq;
@@ -18,6 +19,8 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.web.ServerProperties;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.http.server.ServletServerHttpRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -178,7 +181,11 @@ public class QLRequestMappingFactory {
 
 
         if (request.getContentType() != null && request.getContentType().indexOf("application/json") > -1){
-            body.putAll(objectMapper.readValue(request.getInputStream(),Map.class));
+            try {
+                body.putAll(objectMapper.readValue(request.getInputStream(),Map.class));
+            }catch (MismatchedInputException exception){
+                throw new HttpMessageNotReadableException("Required request body is missing",exception,new ServletServerHttpRequest(request));
+            }
         }else if(request.getContentType() != null && request.getContentType().indexOf("multipart/form-data") > -1){
             MultipartHttpServletRequest multipartHttpServletRequest = (MultipartHttpServletRequest) request;
             body.putAll(multipartHttpServletRequest.getMultiFileMap());

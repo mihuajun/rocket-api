@@ -1193,7 +1193,8 @@ function newExample() {
 
 //--------------------------------example start -----------------------------------
 function buildDefaultUrl(path) {
-    return baseUrl+(path.indexOf("TEMP-") == 0?"":path);
+    let defaultUrl = baseUrl.substring(0,baseUrl.lastIndexOf("/"));
+    return defaultUrl+(path.indexOf("TEMP-") == 0?"":path);
 }
 
 function loadExampleById(exampleId) {

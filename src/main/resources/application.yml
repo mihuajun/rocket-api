@@ -29,11 +29,9 @@ spring:
     mode: HTML5
     prefix: classpath:/templates/
     suffix: .html
-  rocket-api:
-    base-path: http://localhost:8080/rocket-api/
 logging:
   level:
     com.github.alenfive.rocketapi: debug
-server:
-  servlet:
-    context-path: /rocket-api
+#server:
+#  servlet:
+#    context-path: /rocket-api
