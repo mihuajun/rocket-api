@@ -1016,10 +1016,19 @@ function saveExecuter(params) {
 }
 
 function searchApi(e) {
-    let keyword = $(e).val();
+    let keyword = $(e).val().trim();
     let searchResult = [];
     $.each(gdata.apiList,function (index,item) {
-        if (item.comment.indexOf(keyword) >=0 || item.path.indexOf(keyword)>=0){
+        if (keyword.split("=").length == 2){
+            if (!item.options){
+                return;
+            }
+            let kv = keyword.split("=");
+            let options = JSON.parse(item.options);
+            if (options[kv[0]] == kv[1]){
+                searchResult.push(item);
+            }
+        }else if (item.comment.indexOf(keyword) >=0 || item.path.indexOf(keyword)>=0 || !keyword){
             searchResult.push(item);
         }
     });
