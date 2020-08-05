@@ -17,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.web.ServerProperties;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -87,6 +88,9 @@ public class QLRequestMappingFactory {
     @Autowired
     private IScriptEncrypt scriptEncrypt;
 
+    @Autowired
+    private ServerProperties serverProperties;
+
     /**
      * 初始化db mapping
      */
@@ -136,8 +140,13 @@ public class QLRequestMappingFactory {
                 " |    |   (  <_> )  \\___|    <\\  ___/|  |   /    |    \\    |   |   |\n" +
                 " |____|_  /\\____/ \\___  >__|_ \\\\___  >__|   \\____|__  /____|   |___|\n" +
                 "        \\/            \\/     \\/    \\/               \\/              \n" +
-                "\033[32;2m"+":: Rocket API ::"+"\033[m"+"        ("+ PackageUtils.getVersion()+")   " +
-                properties.getBasePath() + properties.getBaseRegisterPath().replaceFirst("/",""));
+                "\033[32;2m"+":: Rocket API ::"+"\033[m"+"        ("+ PackageUtils.getVersion()+")   " +buildLocalLink());
+
+    }
+
+    private String buildLocalLink(){
+        String content = serverProperties.getServlet().getContextPath() == null?"":serverProperties.getServlet().getContextPath();
+        return "http://localhost:"+serverProperties.getPort() + ("/"+content+ properties.getBaseRegisterPath()).replace("//","/");
     }
 
     private void clear(){

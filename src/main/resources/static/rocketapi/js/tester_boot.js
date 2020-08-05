@@ -19,23 +19,22 @@ const readFavoriteLanguageCallback = function (result) {
 };
 
 window.localStorage.getItem('favoriteLanguage', readFavoriteLanguageCallback);*/
-let loadApiListUrl = baseApiPath + "api-list";
-let saveApiUrl = baseApiPath + "api-info";
-let getApiUrl = baseApiPath + "api-info/";
-let lastApiUrl = baseApiPath + "api-info/last";
-let deleteApiUrl = baseApiPath + "api-info";
-let runApiUrl = baseApiPath +"api-info/run";
-let getApiGroupNameUrl = baseApiPath + "group-name-list";
-let getApiNameUrl = baseApiPath + "api-name-list";
-let renameGroupUrl = baseApiPath + "api-info/group";
-let saveExampleUrl = baseApiPath + "api-example";
-let lastExampleUrl = baseApiPath + "api-example/last";
-let deleteExampleUrl = baseApiPath + "api-example";
-let apiDocPushUrl = baseApiPath + "api-doc-push";
-let loginUrl = baseApiPath + "login";
-let logoutUrl = baseApiPath + "logout";
+let loadApiListUrl = baseUrl + "/api-list";
+let saveApiUrl = baseUrl + "/api-info";
+let getApiUrl = baseUrl + "/api-info/";
+let lastApiUrl = baseUrl + "/api-info/last";
+let deleteApiUrl = baseUrl + "/api-info";
+let runApiUrl = baseUrl +"/api-info/run";
+let getApiGroupNameUrl = baseUrl + "/group-name-list";
+let getApiNameUrl = baseUrl + "/api-name-list";
+let renameGroupUrl = baseUrl + "/api-info/group";
+let saveExampleUrl = baseUrl + "/api-example";
+let lastExampleUrl = baseUrl + "/api-example/last";
+let deleteExampleUrl = baseUrl + "/api-example";
+let apiDocPushUrl = baseUrl + "/api-doc-push";
+let loginUrl = baseUrl + "/login";
+let logoutUrl = baseUrl + "/logout";
 
-let indexUrl = baseApiPath;
 let editor = "admin";
 
 //当前apiInfo
@@ -608,7 +607,7 @@ function removeApi(e,id) {
                     return;
                 }
                 $(e).parents(".request").remove();
-                history.pushState(null,null,indexUrl);
+                history.pushState(null,null,baseUrl);
             },complete:function () {
                 hideSendNotify();
             }
@@ -791,7 +790,7 @@ function loadDetail(apiInfo,form,callback) {
     $(".request"+currApiInfo.id).parents(".service").find(".fa-caret-right").addClass("fa-caret-down").removeClass("fa-caret-right");
     $('#editor-section .draft-ribbon-text').text("Edit");
 
-    let url = baseApiPath+currApiInfo.id+"/"+(currPage?currPage:'example');
+    let url = baseUrl+"?id="+currApiInfo.id+"&page="+(currPage?currPage:'example');
     history.pushState(null,null,url);
     removeAllQueryParameterForm("#bottom-side");
 
@@ -1149,7 +1148,7 @@ function newRequest() {
 function newEditor() {
     //clean editor
     let form = "#editor-section";
-    history.pushState(null,null,indexUrl);
+    history.pushState(null,null,baseUrl);
     $(form).find(".api-info-id").val("");
     $(form).find(".api-info-method").val("GET");
 
@@ -1194,8 +1193,7 @@ function newExample() {
 
 //--------------------------------example start -----------------------------------
 function buildDefaultUrl(path) {
-    let defaultUrl = basePath.substring(0,basePath.lastIndexOf("/"));
-    return defaultUrl+(path.indexOf("TEMP-") == 0?"":path);
+    return baseUrl+(path.indexOf("TEMP-") == 0?"":path);
 }
 
 function loadExampleById(exampleId) {
@@ -1721,22 +1719,35 @@ function showExamplePanel() {
     $("#example-panel").show();
     $("#editor-panel").hide();
 
+    let urlParam = buildUrlParam();
     let url = window.location.href;
-    if(url.endsWith("/editor")){
-        url = url.replace("/editor","/example");
+    if(urlParam.page){
+        url = url.replace("page=editor","page=example");
         history.pushState(null,null,url);
     }
     currPage = "example";
     monaco.editor.setTheme("vs");
 }
 
+function buildUrlParam() {
+    let query = window.location.search.substring(1);
+    let vars = query.split("&");
+    let urlParam = {};
+    for (let i=0;i<vars.length;i++) {
+        let pair = vars[i].split("=");
+        urlParam[pair[0]] = pair[1];
+    }
+    return urlParam;
+}
+
 function showEditorPanel() {
     $("#example-panel").hide();
     $("#editor-panel").show();
 
+    let urlParam = buildUrlParam();
     let url = window.location.href;
-    if(url.endsWith("/example")){
-        url = url.replace("/example","/editor");
+    if(urlParam.page){
+        url = url.replace("page=example","page=editor");
         history.pushState(null,null,url);
     }
     currPage = "editor";

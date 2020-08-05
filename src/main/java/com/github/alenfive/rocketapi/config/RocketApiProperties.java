@@ -17,9 +17,6 @@ public class RocketApiProperties {
     //基础注册路径
     private String baseRegisterPath = "/interface-ui";
 
-    //页面请求根路径
-    private String basePath = "/";
-
     //密钥KEY
     private String encryptKey = "6254a1b8d0d411ea";
 }

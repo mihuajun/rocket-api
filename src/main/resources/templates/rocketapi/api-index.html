@@ -3,8 +3,6 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <base th:href="${basePath}">
-    <base th:src="${basePath}">
     <meta name="viewport" content="initial-scale=1, minimum-scale=1, width=device-width">
     <meta name="twitter:widgets:csp" content="on">
     <link rel="stylesheet" type="text/css" href="rocketapi/css/prism.css">
@@ -640,11 +638,18 @@
 
 
 
-<script th:inline="javascript" type="text/javascript">
-    let currApi = [[${currApi}]];
-    let currPage = [[${currPage}]];
-    let baseApiPath = [[${baseApiPath}]];
-    let basePath = [[${basePath}]];
+<script  type="text/javascript">
+    let query = window.location.search.substring(1);
+    let vars = query.split("&");
+    let urlParam = {};
+    for (let i=0;i<vars.length;i++) {
+        let pair = vars[i].split("=");
+        urlParam[pair[0]] = pair[1];
+    }
+
+    let baseUrl = window.location.href.indexOf("?") == -1?window.location.href:window.location.href.substring(0,window.location.href.indexOf("?"));
+    let currApi = urlParam.id;
+    let currPage = urlParam.page;
 </script>
 
 <script type="text/javascript" src="rocketapi/js/jquery-1.12.2.min.js"></script>
