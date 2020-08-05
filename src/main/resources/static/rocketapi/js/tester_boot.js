@@ -31,6 +31,7 @@ let renameGroupUrl = baseApiPath + "api-info/group";
 let saveExampleUrl = baseApiPath + "api-example";
 let lastExampleUrl = baseApiPath + "api-example/last";
 let deleteExampleUrl = baseApiPath + "api-example";
+let apiDocPushUrl = baseApiPath + "api-doc-push";
 let loginUrl = baseApiPath + "login";
 let logoutUrl = baseApiPath + "logout";
 
@@ -320,60 +321,41 @@ $(function(){
         },
     });
 
-    let createCompleters = textUntilPosition => {
-        console.log(textUntilPosition);
-        //过滤特殊字符
-        /*let _textUntilPosition = textUntilPosition
-            .replace(/[\*\[\]@\$\(\)]/g, "")
-            .replace(/(\s+|\.)/g, " ");
-        //切割成数组
-        let arr = _textUntilPosition.split(" ");
-        //取当前输入值
-        let activeStr = arr[arr.length - 1];
-        //获得输入值的长度
-        let len = activeStr.length;
-
-        //获得编辑区域内已经存在的内容
-        let rexp = new RegExp('([^\\w]|^)'+activeStr+'\\w*', "gim");
-        let match = that.value.match(rexp);
-        let _hints = !match ? [] : match.map(ele => {
-            let rexp = new RegExp(activeStr, "gim");
-            let search = ele.search(rexp);
-            return ele.substr(search)
-        })
-        */
-        //查找匹配当前输入值的元素
-        let hints = Array.from(new Set([...that.hints, ..._hints])).sort().filter(ele => {
-            let rexp = new RegExp(ele.substr(0, len), "gim");
-            return match && match.length === 1 && ele === activeStr || ele.length === 1
-                ? false
-                : activeStr.match(rexp);
-        });
-        //添加内容提示
-        let res = hints.map(ele => {
-            return {
-                label: ele,
-                kind: that.hints.indexOf(ele) > -1 ? monaco.languages.CompletionItemKind.Keyword : monaco.languages.CompletionItemKind.Text,
-                documentation: ele,
-                insertText: ele
-            };
-        });
-        return res;
-    };
+    function createDependencyProposals(range){
+        return [
+            {
+                label: " db.find(sql:string,[dataSource])",
+                kind: monaco.languages.CompletionItemKind.Function,
+                detail: "列表查询",
+                insertText: "db.find()",
+                insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                range: range
+            },{
+                label: " db.findOne(sql:string,[dataSource])",
+                kind: monaco.languages.CompletionItemKind.Function,
+                insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                detail: "单个查询",
+                insertText: "db.findOne()",
+                range: range
+            }
+        ]
+    }
 
     monaco.languages.registerCompletionItemProvider("custom-language", {
-        provideCompletionItems(model, position) {
-            var textUntilPosition = model.getValueInRange({
+        triggerCharacters:['.',',','(',''],
+        provideCompletionItems(model, position,item,token) {
+            let word = model.getWordUntilPosition(position);
+            console.log(word);
+            let range = {
                 startLineNumber: position.lineNumber,
-                startColumn: 1,
                 endLineNumber: position.lineNumber,
-                endColumn: position.column
-            });
-            console.log(textUntilPosition);
-            /*var suggestions = createCompleters(textUntilPosition);
+                startColumn: word.startColumn-1,
+                endColumn: word.endColumn-1
+            }
             return {
-                suggestions: suggestions
-            };*/
+                suggestions: createDependencyProposals(range)
+            };
+
         }
     });
 
@@ -394,16 +376,79 @@ $(function(){
     });
 
 
+    //run
     editorTextarea.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, function () {
         runApi(false);
     });
 
+    //debug
     editorTextarea.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyMod.Alt| monaco.KeyCode.Enter, function () {
         runApi(true);
     });
 
+    //保存
     editorTextarea.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_S ,function () {
         saveEditor('#editor-section')
+    });
+
+    //快捷键提示
+    editorTextarea.addCommand(monaco.KeyMod.Alt | monaco.KeyCode.US_SLASH ,function () {
+        editorTextarea.trigger('', 'editor.action.triggerSuggest', {});
+    });
+
+    //多行注释
+    editorTextarea.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.US_SLASH ,function () {
+        let selectRange = editorTextarea.getSelection();
+        let prefixRange = new monaco.Range(selectRange.selectionStartLineNumber, selectRange.selectionStartColumn, selectRange.selectionStartLineNumber, selectRange.selectionStartColumn+2);
+        let prefix = editorTextarea.getModel().getValueInRange(prefixRange);
+        let postfixRange = new monaco.Range(selectRange.endLineNumber, selectRange.endColumn-2, selectRange.endLineNumber, selectRange.endColumn);
+        let postfix = editorTextarea.getModel().getValueInRange(postfixRange);
+
+        let prefixOp = {"range":prefixRange,"text":""};
+        let postfixOp = {"range":postfixRange,"text":""};
+        //取消注释
+        if (prefix == '/*' && postfix == "*/"){
+            editorTextarea.executeEdits('insert-code',[prefixOp])
+            editorTextarea.executeEdits('insert-code',[postfixOp])
+            return;
+        }
+
+        prefixRange = new monaco.Range(selectRange.selectionStartLineNumber, selectRange.selectionStartColumn, selectRange.selectionStartLineNumber, selectRange.selectionStartColumn);
+        postfixRange = new monaco.Range(selectRange.endLineNumber, selectRange.endColumn, selectRange.endLineNumber, selectRange.endColumn);
+        prefixOp = {"range":prefixRange,"text":"/*"};
+        postfixOp = {"range":postfixRange,"text":"*/"};
+        editorTextarea.executeEdits('insert-code',[prefixOp])
+        editorTextarea.executeEdits('insert-code',[postfixOp])
+    });
+
+    //单行注释
+    editorTextarea.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.US_SLASH ,function () {
+        let selectRange = editorTextarea.getSelection();
+
+        let isAdd = false;
+        for(let i=selectRange.startLineNumber;i<=selectRange.endLineNumber;i++){
+            let lineNumber = i;
+            let range = new monaco.Range(lineNumber, 0, lineNumber, 3);
+            let prefix = editorTextarea.getModel().getValueInRange(range);
+            if (prefix != "//"){
+                isAdd = true;
+                break;
+            }
+        }
+
+        for(let i=selectRange.startLineNumber;i<=selectRange.endLineNumber;i++){
+            let lineNumber = i;
+            let range = null;
+            let text = null;
+            if (isAdd){
+                range = new monaco.Range(lineNumber, 0, lineNumber, 0);
+                text = "//";
+            }else{
+                range = new monaco.Range(lineNumber, 0, lineNumber, 3);
+                text = "";
+            }
+            editorTextarea.executeEdits('insert-code',[{"range":range,"text":text}])
+        }
     });
 
 
@@ -1030,7 +1075,12 @@ function buildApiTree(list,collapsed) {
                 '                                                            class="btn-mini dropdown-toggle" data-toggle="dropdown"\n' +
                 '                                                            e2e-tag="drive|'+(item.comment?item.comment:item.path)+'|more"><i\n' +
                 '                                                            class="sli-icon-options-vertical"></i></a>\n' +
-                '                                                        <ul class="pull-right dropdown-menu"><li class="dropdown-item"  onclick="copyApi(this,\''+item.id+'\')"><a><i class="fa fa-copy"></i><span class="gwt-InlineHTML">Copy</span></a></li><li class="dropdown-item"  onclick="moveApi(this,\''+item.id+'\')"><a><i class="fa fa-random"></i><span class="gwt-InlineHTML">Move</span></a></li><li class="dropdown-item" onclick="removeApi(this,\''+item.id+'\')"><a><i class="fa fa-trash-o" onclick="moveApi(this,'+item.id+')"></i><span class="gwt-InlineHTML">Remove</span></a></li></ul>\n' +
+                '                                                        <ul class="pull-right dropdown-menu">' +
+                '<li class="dropdown-item"  onclick="copyApi(this,\''+item.id+'\')"><a><i class="fa fa-copy"></i><span class="gwt-InlineHTML">Copy</span></a></li>' +
+                '<li class="dropdown-item"  onclick="moveApi(this,\''+item.id+'\')"><a><i class="fa fa-random"></i><span class="gwt-InlineHTML">Move</span></a></li>' +
+                '<li class="dropdown-item" onclick="removeApi(this,\''+item.id+'\')"><a><i class="fa fa-trash-o"></i><span class="gwt-InlineHTML">Transh</span></a></li>' +
+                '<li class="dropdown-item" onclick="apiPush(\''+item.id+'\')"><a><i class="fa fa-cloud-upload"></i><span class="gwt-InlineHTML">Doc Push</span></a></li>' +
+                '</ul>\n' +
                 '                                                    </div>\n' +
                 '                                                </div>' +
                 '</li>');
@@ -2158,3 +2208,23 @@ function saveGlobalConfig() {
 
 }
 //-------------------------------- global setting end -------------------------------
+
+//-------------------------------- api push end -------------------------------
+function apiPush(apiInfoId) {
+    showSendNotify("Api Doc Pushing")
+    $.ajax({
+        type: "GET",
+        url: apiDocPushUrl,
+        data:{ "apiInfoId": apiInfoId },
+        success: function (data) {
+            data = unpackResult(data);
+            if (data.code !=200){
+                openMsgModal(data.msg);
+                return;
+            }
+        },complete:function () {
+            hideSendNotify();
+        }
+    });
+}
+//-------------------------------- api push end -------------------------------

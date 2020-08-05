@@ -107,6 +107,12 @@ public class RocketApiAutoConfig {
 
     @Bean
     @ConditionalOnMissingBean
+    public IApiDocSync getIApiSync(){
+        return new DefaultApiDocSync();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
     public EncryptChangeService getEncryptChangeService(){
         return new EncryptChangeService();
     }

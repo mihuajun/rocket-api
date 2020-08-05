@@ -1,10 +1,12 @@
 package com.github.alenfive.rocketapi.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.alenfive.rocketapi.config.QLRequestMappingFactory;
 import com.github.alenfive.rocketapi.entity.*;
 import com.github.alenfive.rocketapi.entity.vo.*;
 import com.github.alenfive.rocketapi.extend.ApiInfoContent;
+import com.github.alenfive.rocketapi.extend.IApiDocSync;
 import com.github.alenfive.rocketapi.extend.IScriptEncrypt;
 import com.github.alenfive.rocketapi.extend.IUserAuthorization;
 import com.github.alenfive.rocketapi.script.IScriptParse;
@@ -26,10 +28,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Api ui 数据接口
@@ -56,6 +55,12 @@ public class ApiController {
 
     @Autowired
     private IScriptEncrypt scriptEncrypt;
+
+    @Autowired
+    private IApiDocSync apiDocSync;
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     /**
      * LOAD API LIST
@@ -322,6 +327,7 @@ public class ApiController {
         if (!StringUtils.isEmpty(user)){
             return ApiResult.success(loginService.getToken(loginVo));
         }
+
         return ApiResult.fail("Incorrect user name or password");
     }
 
@@ -335,4 +341,47 @@ public class ApiController {
         return ApiResult.success(null);
     }
 
+    /**
+     * API DOC 同步
+     * @return
+     */
+    @GetMapping("/api-doc-push")
+    public ApiResult apiDocPush(String apiInfoId) throws Exception {
+        Collection<ApiInfo> apiInfos = mappingFactory.getPathList(false);
+        if (!StringUtils.isEmpty(apiInfoId)){
+            ApiInfo apiInfo = apiInfos.stream().filter(item->item.getId().equals(apiInfoId)).findFirst().orElse(null);
+            apiDocSync.sync(apiInfo,buildLastApiExample(apiInfo.getId()));
+        }else{
+            for(ApiInfo apiInfo : apiInfos){
+                apiDocSync.sync(apiInfo,buildLastApiExample(apiInfo.getId()));
+            }
+        }
+        return ApiResult.success(null);
+    }
+
+    private ApiExample buildLastApiExample(String apiInfoId) throws Exception {
+        List<Map<String,Object>> result = mappingFactory.lastApiExample(apiInfoId,1);
+        ApiExample apiExample = null;
+        if (!CollectionUtils.isEmpty(result)){
+            apiExample = objectMapper.readValue(objectMapper.writeValueAsBytes(result.get(0)),ApiExample.class);
+            if (!StringUtils.isEmpty(apiExample.getResponseBody())){
+                try {
+                    apiExample.setResponseBody(URLDecoder.decode(apiExample.getResponseBody(),"utf-8"));
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return apiExample;
+    }
+
+    /**
+     * 自动完成解析
+     * @return
+     */
+    @PostMapping("/completion-items")
+    public ApiResult provideCompletionItems(@RequestBody ProvideCompletionReq completionReq){
+
+        return ApiResult.success(null);
+    }
 }
