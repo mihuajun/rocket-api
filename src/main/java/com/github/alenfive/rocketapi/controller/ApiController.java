@@ -9,6 +9,7 @@ import com.github.alenfive.rocketapi.extend.ApiInfoContent;
 import com.github.alenfive.rocketapi.extend.IApiDocSync;
 import com.github.alenfive.rocketapi.extend.IScriptEncrypt;
 import com.github.alenfive.rocketapi.extend.IUserAuthorization;
+import com.github.alenfive.rocketapi.function.IFunction;
 import com.github.alenfive.rocketapi.script.IScriptParse;
 import com.github.alenfive.rocketapi.service.LoginService;
 import com.github.alenfive.rocketapi.utils.GenerateId;
@@ -16,6 +17,7 @@ import com.github.alenfive.rocketapi.utils.RequestUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.MultiValueMap;
@@ -26,9 +28,12 @@ import org.springframework.web.util.UriComponentsBuilder;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Method;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Api ui 数据接口
@@ -61,6 +66,9 @@ public class ApiController {
 
     @Autowired
     private ObjectMapper objectMapper;
+
+    @Autowired
+    private ApplicationContext context;
 
     /**
      * LOAD API LIST
@@ -376,10 +384,51 @@ public class ApiController {
     }
 
     /**
-     * 自动完成解析
+     * 自动完成，类型获取
+     */
+    @GetMapping("/completion-items")
+    public ApiResult provideCompletionTypes(){
+        List<CompletionType> types = new ArrayList<>();
+
+        //获取内置自定义函数
+        Collection<IFunction> functionList = context.getBeansOfType(IFunction.class).values();
+        functionList.forEach(item->{
+            Class c = item.getClass();
+            List<CompletionType> funcList = new ArrayList<>();
+            types.add(CompletionType.builder()
+                    .varName(item.getVarName())
+                    .type(c.getName())
+                    .label(item.getVarName())
+                    .funcList(funcList)
+                    .build());
+            for (Method method : c.getDeclaredMethods()){
+                funcList.add(CompletionType.builder()
+                        .insertText(method.getName()+"(${1})")
+                        .label(method.getName()+"("+ Stream.of(method.getParameters()).map(item2->item2.getName()).collect(Collectors.joining(","))+") "+method.getReturnType().getSimpleName())
+                        .build());
+            }
+        });
+        //常用语法提示
+        types.add(CompletionType.builder().label("foreach").insertText("for( item in ${1:collection}){\n\t\n}").build());
+        types.add(CompletionType.builder().label("fori").insertText("for(${1:i}=0;${1:i}<;${1:i}++){\n\t\n}").build());
+        types.add(CompletionType.builder().label("for").insertText("for( ${1} ){\n\t\n}").build());
+        types.add(CompletionType.builder().label("if").insertText("if(${1:condition}){\n\n}").build());
+        types.add(CompletionType.builder().label("ifelse").insertText("if(${1:condition}){\n\t\n}else{\n\t\n}").build());
+
+        //数据库类型获取
+
+
+        //常用工具类获取
+
+
+        return ApiResult.success(types);
+    }
+
+    /**
+     * 自动完成，方法解析
      * @return
      */
-    @PostMapping("/completion-items")
+    @PostMapping("/completion-type")
     public ApiResult provideCompletionItems(@RequestBody ProvideCompletionReq completionReq){
 
         return ApiResult.success(null);

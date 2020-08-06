@@ -32,6 +32,7 @@ let saveExampleUrl = baseUrl + "/api-example";
 let lastExampleUrl = baseUrl + "/api-example/last";
 let deleteExampleUrl = baseUrl + "/api-example";
 let apiDocPushUrl = baseUrl + "/api-doc-push";
+let completionItemsUrl = baseUrl + "/completion-items";
 let loginUrl = baseUrl + "/login";
 let logoutUrl = baseUrl + "/logout";
 
@@ -68,7 +69,8 @@ let gdata = {
     apiList:null,
     exampleHistoryList:null,
     apiHistoryList:null,
-    historyCurrPageNo:1
+    historyCurrPageNo:1,
+    completionItems:null
 }
 
 //本地缓存信息
@@ -145,222 +147,10 @@ $(function(){
     initUser();
     initPanel();
     versionCheck();
-
-    monaco.editor.defineTheme('myTheme', {
-        base: 'vs-dark',
-        inherit: true,
-        rules: [{ background: 'EDF9FA' }],
-        colors: {
-            'editor.background': '#2b2b2b'
-        }
-    });
-
-    monaco.languages.register({ id: 'custom-language' });
-    monaco.languages.setMonarchTokensProvider('custom-language', {
-        // Set defaultToken to invalid to see what you do not tokenize yet
-        defaultToken: 'invalid',
-        tokenPostfix: '.js',
-        ignoreCase:true,
-        keywords: [
-            'break', 'case', 'catch', 'class', 'continue', 'const',
-            'constructor', 'debugger', 'default', 'delete', 'do', 'else',
-            'export', 'extends', 'false', 'finally', 'for',  'function',
-            'get', 'if', 'import', 'in', 'instanceof', 'let', 'new', 'null',
-            'return', 'set', 'super', 'switch', 'symbol', 'this', 'throw', 'true',
-            'try', 'typeof', 'undefined', 'var', 'void', 'while', 'with', 'yield',
-            'async', 'await', 'of',
-            'select','insert into','update','delete from','from','left','join','where','group','by','right join','limit','on'
-            ,'Assert','db','Export','log','Pager'
-        ],
-
-        typeKeywords: [
-            'any', 'boolean', 'number', 'object', 'string', 'undefined'
-        ],
-
-        operators: [
-            '<=', '>=', '==', '!=', '===', '!==', '=>', '+', '-', '**',
-            '*', '/', '%', '++', '--', '<<', '</', '>>', '>>>', '&',
-            '|', '^', '!', '~', '&&', '||', '?', ':', '=', '+=', '-=',
-            '*=', '**=', '/=', '%=', '<<=', '>>=', '>>>=', '&=', '|=',
-            '^=', '@',
-        ],
-
-        // we include these common regular expressions
-        symbols: /[=><!~?:&|+\-*\/\^%]+/,
-        escapes: /\\(?:[abfnrtv\\"']|x[0-9A-Fa-f]{1,4}|u[0-9A-Fa-f]{4}|U[0-9A-Fa-f]{8})/,
-        digits: /\d+(_+\d+)*/,
-        octaldigits: /[0-7]+(_+[0-7]+)*/,
-        binarydigits: /[0-1]+(_+[0-1]+)*/,
-        hexdigits: /[[0-9a-fA-F]+(_+[0-9a-fA-F]+)*/,
-
-        regexpctl: /[(){}\[\]\$\^|\-*+?\.]/,
-        regexpesc: /\\(?:[bBdDfnrstvwWn0\\\/]|@regexpctl|c[A-Z]|x[0-9a-fA-F]{2}|u[0-9a-fA-F]{4})/,
-
-        // The main tokenizer for our languages
-        tokenizer: {
-            root: [
-                [/[{}]/, 'delimiter.bracket'],
-                { include: 'common' },
-                [/#{[a-z\\.A-Z_0-9\\\[\\\]]*}/, 'string.invalid'],  // non-teminated string
-                [/\\?\\{/, 'string.invalid'],  // non-teminated string
-            ],
-
-            common: [
-                // identifiers and keywords
-                [/[a-z_$][\w$]*/, {
-                    cases: {
-                        '@typeKeywords': 'keyword',
-                        '@keywords': 'keyword',
-                        '@default': 'identifier'
-                    }
-                }],
-
-                // whitespace
-                { include: '@whitespace' },
-
-                // regular expression: ensure it is terminated before beginning (otherwise it is an opeator)
-                [/\/(?=([^\\\/]|\\.)+\/([gimsuy]*)(\s*)(\.|;|\/|,|\)|\]|\}|$))/, { token: 'regexp', bracket: '@open', next: '@regexp' }],
-
-                // delimiters and operators
-                [/[()\[\]]/, '@brackets'],
-                [/[<>](?!@symbols)/, '@brackets'],
-                [/@symbols/, {
-                    cases: {
-                        '@operators': 'delimiter',
-                        '@default': ''
-                    }
-                }],
-
-                // numbers
-                [/(@digits)[eE]([\-+]?(@digits))?/, 'number.float'],
-                [/(@digits)\.(@digits)([eE][\-+]?(@digits))?/, 'number.float'],
-                [/0[xX](@hexdigits)/, 'number.hex'],
-                [/0[oO]?(@octaldigits)/, 'number.octal'],
-                [/0[bB](@binarydigits)/, 'number.binary'],
-                [/(@digits)/, 'number'],
-
-                // delimiter: after number because of .\d floats
-                [/[;,.]/, 'delimiter'],
-
-                // strings
-                [/"([^"\\]|\\.)*$/, 'string.invalid'],  // non-teminated string
-                [/'([^'\\]|\\.)*$/, 'string.invalid'],  // non-teminated string
-                [/"/, 'string', '@string_double'],
-                [/'/, 'string', '@string_single'],
-                [/`/, 'string', '@string_backtick'],
-            ],
-
-            whitespace: [
-                [/[ \t\r\n]+/, ''],
-                [/\/\*\*(?!\/)/, 'comment.doc', '@jsdoc'],
-                [/\/\*/, 'comment', '@comment'],
-                [/\/\/.*$/, 'comment'],
-            ],
-
-            comment: [
-                [/[^\/*]+/, 'comment'],
-                [/\*\//, 'comment', '@pop'],
-                [/[\/*]/, 'comment']
-            ],
-
-            jsdoc: [
-                [/[^\/*]+/, 'comment.doc'],
-                [/\*\//, 'comment.doc', '@pop'],
-                [/[\/*]/, 'comment.doc']
-            ],
-
-            // We match regular expression quite precisely
-            regexp: [
-                [/(\{)(\d+(?:,\d*)?)(\})/, ['regexp.escape.control', 'regexp.escape.control', 'regexp.escape.control']],
-                [/(\[)(\^?)(?=(?:[^\]\\\/]|\\.)+)/, ['regexp.escape.control', { token: 'regexp.escape.control', next: '@regexrange' }]],
-                [/(\()(\?:|\?=|\?!)/, ['regexp.escape.control', 'regexp.escape.control']],
-                [/[()]/, 'regexp.escape.control'],
-                [/@regexpctl/, 'regexp.escape.control'],
-                [/[^\\\/]/, 'regexp'],
-                [/@regexpesc/, 'regexp.escape'],
-                [/\\\./, 'regexp.invalid'],
-                [/(\/)([gimsuy]*)/, [{ token: 'regexp', bracket: '@close', next: '@pop' }, 'keyword.other']],
-            ],
-
-            regexrange: [
-                [/-/, 'regexp.escape.control'],
-                [/\^/, 'regexp.invalid'],
-                [/@regexpesc/, 'regexp.escape'],
-                [/[^\]]/, 'regexp'],
-                [/\]/, { token: 'regexp.escape.control', next: '@pop', bracket: '@close' }],
-            ],
-
-            string_double: [
-                [/[^\\"]+/, 'string'],
-                [/@escapes/, 'string.escape'],
-                [/\\./, 'string.escape.invalid'],
-                [/"/, 'string', '@pop']
-            ],
-
-            string_single: [
-                [/[^\\']+/, 'string'],
-                [/@escapes/, 'string.escape'],
-                [/\\./, 'string.escape.invalid'],
-                [/'/, 'string', '@pop']
-            ],
-
-            string_backtick: [
-                [/\$\{/, { token: 'delimiter.bracket', next: '@bracketCounting' }],
-                [/[^\\`$]+/, 'string'],
-                [/@escapes/, 'string.escape'],
-                [/\\./, 'string.escape.invalid'],
-                [/`/, 'string', '@pop']
-            ],
-
-            bracketCounting: [
-                [/\{/, 'delimiter.bracket', '@bracketCounting'],
-                [/\}/, 'delimiter.bracket', '@pop'],
-                { include: 'common' }
-            ],
-        },
-    });
-
-    function createDependencyProposals(range){
-        return [
-            {
-                label: " db.find(sql:string,[dataSource])",
-                kind: monaco.languages.CompletionItemKind.Function,
-                detail: "列表查询",
-                insertText: "db.find()",
-                insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-                range: range
-            },{
-                label: " db.findOne(sql:string,[dataSource])",
-                kind: monaco.languages.CompletionItemKind.Function,
-                insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-                detail: "单个查询",
-                insertText: "db.findOne()",
-                range: range
-            }
-        ]
-    }
-
-    monaco.languages.registerCompletionItemProvider("custom-language", {
-        triggerCharacters:['.',',','(',''],
-        provideCompletionItems(model, position,item,token) {
-            let word = model.getWordUntilPosition(position);
-            console.log(word);
-            let range = {
-                startLineNumber: position.lineNumber,
-                endLineNumber: position.lineNumber,
-                startColumn: word.startColumn-1,
-                endColumn: word.endColumn-1
-            }
-            return {
-                suggestions: createDependencyProposals(range)
-            };
-
-        }
-    });
+    initCompletionItems();
 
     editorTextarea = monaco.editor.create(document.getElementById('monaco-editor'), {
-        language: 'custom-language',
-        theme:"myTheme",
+        language: languageName,
         wordWrap: 'on',  //自行换行
         verticalHasArrows: true,
         horizontalHasArrows: true,
@@ -1087,7 +877,7 @@ function buildApiTree(list,collapsed) {
                 '<li class="dropdown-item"  onclick="copyApi(this,\''+item.id+'\')"><a><i class="fa fa-copy"></i><span class="gwt-InlineHTML">Copy</span></a></li>' +
                 '<li class="dropdown-item"  onclick="moveApi(this,\''+item.id+'\')"><a><i class="fa fa-random"></i><span class="gwt-InlineHTML">Move</span></a></li>' +
                 '<li class="dropdown-item" onclick="removeApi(this,\''+item.id+'\')"><a><i class="fa fa-trash-o"></i><span class="gwt-InlineHTML">Transh</span></a></li>' +
-                '<li class="dropdown-item" onclick="apiPush(\''+item.id+'\')"><a><i class="fa fa-cloud-upload"></i><span class="gwt-InlineHTML">Doc Push</span></a></li>' +
+                '<li class="dropdown-item" onclick="apiPush(\''+item.id+'\')"><a><i class="fa fa-cloud-upload"></i><span class="gwt-InlineHTML">Push Doc</span></a></li>' +
                 '</ul>\n' +
                 '                                                    </div>\n' +
                 '                                                </div>' +
@@ -1752,7 +1542,7 @@ function showEditorPanel() {
         history.pushState(null,null,url);
     }
     currPage = "editor";
-    monaco.editor.setTheme("myTheme");
+    monaco.editor.setTheme(languageTheme);
 }
 //--------------------------------example end -----------------------------------
 
@@ -2232,7 +2022,7 @@ function saveGlobalConfig() {
 
 //-------------------------------- api push end -------------------------------
 function apiPush(apiInfoId) {
-    showSendNotify("Api Doc Pushing")
+    showSendNotify("Pushing Doc")
     $.ajax({
         type: "GET",
         url: apiDocPushUrl,
@@ -2247,5 +2037,14 @@ function apiPush(apiInfoId) {
             hideSendNotify();
         }
     });
+}
+//-------------------------------- api push end -------------------------------
+
+//-------------------------------- api push start -------------------------------
+function initCompletionItems() {
+    $.get(completionItemsUrl,function (data) {
+        data = unpackResult(data);
+        gdata.completionItems = data.data;
+    })
 }
 //-------------------------------- api push end -------------------------------
