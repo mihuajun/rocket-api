@@ -13,6 +13,7 @@ import org.springframework.util.StringUtils;
 import javax.script.ScriptContext;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
@@ -25,6 +26,7 @@ import java.util.stream.Stream;
  * 数据库脚本变量解析器，用于捡的变量#{},?{},${}等
  */
 
+@SuppressWarnings("DuplicatedCode")
 @Service
 public class ScriptParseService {
 
@@ -199,16 +201,16 @@ public class ScriptParseService {
         Object value = null;
         if (scopeSet.contains(paramArr[0])){
             switch (ParamScope.valueOf(paramArr[0])){
-                case content:value = buildValueOfScriptContent(apiInfoContent.getEngine() == null?null:apiInfoContent.getEngine().getContext(),null,paramArr,1);break;
+                case content:value = buildValueOfScriptContent(apiInfoContent.getEngine() == null?null:apiInfoContent.getEngine().getContext(),paramArr,1);break;
                 case pathVar:value = buildValueOfPathVar(apiParams.getPathVar(),paramArr[1]);break;
                 case param:value = buildValueOfParameter(apiParams.getParam(),paramArr,1);break;
                 case body:value = buildValueOfBody(apiParams.getBody(),paramArr,1);break;
-                case cookie:value = buildValueOfCookie(apiParams.getCookie(),apiParams.getRequest(),paramArr[1]);break;
+                case cookie:value = buildValueOfCookie(apiParams.getCookie(),apiParams.getRequest(),paramArr,1);break;
                 case header:value = buildValueOfHeader(apiParams.getHeader(),paramArr,1);break;
                 case session:value = buildValueOfSession(apiParams.getSession(),paramArr,1);break;
             }
         }else {
-            value = buildValueOfScriptContent(apiInfoContent.getEngine() == null?null:apiInfoContent.getEngine().getContext(),null,paramArr,0);
+            value = buildValueOfScriptContent(apiInfoContent.getEngine() == null?null:apiInfoContent.getEngine().getContext(),paramArr,0);
             if (value == null){
                 value = buildValueOfPathVar(apiParams.getPathVar(),paramArr[0]);
             }
@@ -219,7 +221,7 @@ public class ScriptParseService {
                 value = buildValueOfBody(apiParams.getBody(),paramArr, 0);
             }
             if(value == null){
-                value = buildValueOfCookie(apiParams.getCookie(),apiParams.getRequest(), paramArr[0]);
+                value = buildValueOfCookie(apiParams.getCookie(),apiParams.getRequest(), paramArr,0);
             }
             if(value == null){
                 value = buildValueOfHeader(apiParams.getHeader(),paramArr,0);
@@ -231,66 +233,33 @@ public class ScriptParseService {
         return value;
     }
 
-    private Object buildValueOfScriptContent(ScriptContext context ,Map<String,Object> params, String[] paramArr, int index) {
-        if (context == null && params == null)return null;
-
-        Object value  = null;
-        if (context != null){
-            value = buildObjectValue(context,paramArr[index]);
-        }else{
-            value = buildObjectValue(params,paramArr[index]);
+    private Object buildValueOfScriptContent(ScriptContext context ,String[] paramArr, int index) {
+        if (context == null)return null;
+        Object value = context.getAttribute(paramArr[index]);
+        if (paramArr.length-1 > index) {
+            return buildObjectValue(value, paramArr, index + 1, paramArr[index + 1]);
         }
-
-        if (index == 0 && value == null){
-            return null;
-        }
-
-        if (paramArr.length-1 > index){
-            if (!(value instanceof Map))return null;
-            return buildValueOfScriptContent(null,(Map<String, Object>) value,paramArr,++index);
-        }
-
         return value;
     }
 
     public Object buildValueOfSession(Map<String,Object> session,String[] paramArr,int index) {
-        Object value  = null;
-        if (session != null){
-            value = session.get(paramArr[index]);
+        if (session == null){
+            return null;
         }
-
-        if (value == null)return null;
-
-        if (paramArr.length-1 > index){
-            return buildValueOfSession((Map<String, Object>) value,paramArr,++index);
-        }
-
-        return value;
+        return buildObjectValue(session,paramArr,index,paramArr[index]);
     }
 
     private Object buildValueOfHeader(Map<String,String> header,String[] paramArr,int index) {
-        String value  = null;
-        String key = index == 0?paramArr[index].toLowerCase():paramArr[index];
-        if (header != null){
-            value = header.get(key);
-        }
-
-        if (index == 0 && value == null){
+        String varName = index == 0?paramArr[index].toLowerCase():paramArr[index];
+        if (header == null){
             return null;
         }
-
-        if (paramArr.length-1 > index){
-            try {
-                return buildValueOfHeader(objectMapper.readValue(value,Map.class),paramArr,++index);
-            } catch (Exception e) {
-                throw new IllegalArgumentException("Parameter '"+String.join(".",paramArr)+"' is not an object");
-            }
-        }
-
-        return value;
+        return buildObjectValue(header,paramArr,index,varName);
     }
 
-    private Object buildValueOfCookie(Map<String,Object> cookie,HttpServletRequest request, String varName) {
+    private Object buildValueOfCookie(Map<String,Object> cookie,HttpServletRequest request,  String[] paramArr,int index) {
+
+        String varName = paramArr[index];
         Object value  = null;
         if (cookie != null){
             value = cookie.get(varName);
@@ -307,58 +276,45 @@ public class ScriptParseService {
             }
         }
 
+        if (paramArr.length-1 > index){
+            return buildObjectValue(value,paramArr,index+1,paramArr[index + 1]);
+        }
         return value;
     }
 
     private Object buildValueOfBody(Map<String,Object> body, String[] paramArr,int index) {
         if (body == null)return null;
-
-        Object value = buildObjectValue(body,paramArr[index]);
-
-        if (index == 0 && value == null){
-            return null;
-        }
-
-        if (paramArr.length-1 > index){
-            return buildValueOfBody((Map<String, Object>) value,paramArr,++index);
-        }
-        return value;
+        return buildObjectValue(body,paramArr,index,paramArr[index]);
     }
 
     private Object buildValueOfParameter(Map<String,Object> params, String[] paramArr,int index) {
         if (params == null)return null;
+        return buildObjectValue(params,paramArr,index,paramArr[index]);
+    }
 
-        Object value = buildObjectValue(params,paramArr[index]);
-        if (index == 0 && value == null){
+    private Object buildObjectValue(Object inputParam,String[] paramArr,int index,String varName){
+
+        if (inputParam == null){
             return null;
         }
-        if (paramArr.length-1 > index){
-            return buildValueOfParameter((Map<String, Object>) value,paramArr,++index);
-        }
-        return value;
-    }
 
-    private Object buildObjectValue(ScriptContext context,String varName){
-        Object value = null;
-        ArrVar arrVar = isArrVar(varName);
-        if (arrVar != null){
-            Object collection = context.getAttribute(arrVar.getVarName());
-            if (!(collection instanceof Collection)){
-                throw new IllegalArgumentException("The "+arrVar.getVarName()+" parameter is not an array");
+        Map params = null;
+        if (inputParam instanceof Map){
+            params = (Map) inputParam;
+        }else if(inputParam instanceof String){
+            try {
+                params = objectMapper.readValue(inputParam.toString(), Map.class);
+            } catch (IOException e) {
+                throw new IllegalArgumentException(inputParam+" Cannot be cast to Map.class");
             }
-
-            Collection list = ((Collection)collection);
-            if (arrVar.getIndex() >=list.size()){
-                throw new IllegalArgumentException("The parameter "+arrVar.getVarName()+" exceeds the array length");
-            }
-            value = list.toArray()[arrVar.getIndex()];
         }else{
-            value = context.getAttribute(varName);
+            try {
+                params = objectMapper.readValue(objectMapper.writeValueAsBytes(inputParam), Map.class);
+            } catch (IOException e) {
+                throw new IllegalArgumentException(inputParam+"Cannot be cast to Map.class");
+            }
         }
-        return value;
-    }
 
-    private Object buildObjectValue(Map<String,Object> params,String varName){
         Object value = null;
         ArrVar arrVar = isArrVar(varName);
         if (arrVar != null){
@@ -375,6 +331,11 @@ public class ScriptParseService {
         }else{
             value = params.get(varName);
         }
+
+        if (paramArr.length-1 > index){
+            return buildObjectValue(value,paramArr,index+1,paramArr[index+1]);
+        }
+
         return value;
     }
 

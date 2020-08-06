@@ -1,25 +1,32 @@
 package com.github.alenfive.rocketapi.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.github.alenfive.rocketapi.datasource.DataSourceManager;
 import com.github.alenfive.rocketapi.entity.*;
 import com.github.alenfive.rocketapi.entity.vo.RenameGroupReq;
 import com.github.alenfive.rocketapi.extend.ApiInfoContent;
 import com.github.alenfive.rocketapi.extend.ApiInfoInterceptor;
 import com.github.alenfive.rocketapi.extend.IResultWrapper;
+import com.github.alenfive.rocketapi.extend.IScriptEncrypt;
 import com.github.alenfive.rocketapi.script.IScriptParse;
 import com.github.alenfive.rocketapi.service.ScriptParseService;
+import com.github.alenfive.rocketapi.utils.GenerateId;
+import com.github.alenfive.rocketapi.utils.PackageUtils;
 import com.github.alenfive.rocketapi.utils.RequestUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.boot.autoconfigure.web.ServerProperties;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.http.server.ServletServerHttpRequest;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.method.HandlerMethod;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.servlet.mvc.condition.PatternsRequestCondition;
 import org.springframework.web.servlet.mvc.condition.RequestMethodsRequestCondition;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
@@ -30,7 +37,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.lang.reflect.Method;
-import java.net.URLDecoder;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
@@ -82,6 +88,12 @@ public class QLRequestMappingFactory {
     @Autowired
     private IResultWrapper resultWrapper;
 
+    @Autowired
+    private IScriptEncrypt scriptEncrypt;
+
+    @Autowired
+    private ServerProperties serverProperties;
+
     /**
      * 初始化db mapping
      */
@@ -105,7 +117,7 @@ public class QLRequestMappingFactory {
             if (dbInfo != null){
                 continue;
             }
-
+            codeInfo.setId(GenerateId.get().toHexString());
             codeInfo.setCreateTime(new Date());
             codeInfo.setUpdateTime(new Date());
             apiParams = ApiParams.builder().param(codeInfo.toMap()).build();
@@ -119,6 +131,25 @@ public class QLRequestMappingFactory {
         for (ApiInfo apiInfo : this.cacheApiInfo.values()){
             this.registerMappingForApiInfo(apiInfo);
         }
+
+        //load banner
+        loadBanner();
+    }
+
+    private void loadBanner() {
+        System.out.println("__________               __           __       _____ __________.___ \n" +
+                "\\______   \\ ____   ____ |  | __ _____/  |_    /  _  \\\\______   \\   |\n" +
+                " |       _//  _ \\_/ ___\\|  |/ // __ \\   __\\  /  /_\\  \\|     ___/   |\n" +
+                " |    |   (  <_> )  \\___|    <\\  ___/|  |   /    |    \\    |   |   |\n" +
+                " |____|_  /\\____/ \\___  >__|_ \\\\___  >__|   \\____|__  /____|   |___|\n" +
+                "        \\/            \\/     \\/    \\/               \\/              \n" +
+                "\033[32;2m"+":: Rocket API ::"+"\033[m"+"        ("+ PackageUtils.getVersion()+")   " +buildLocalLink());
+
+    }
+
+    private String buildLocalLink(){
+        String content = serverProperties.getServlet().getContextPath() == null?"":serverProperties.getServlet().getContextPath();
+        return "http://localhost:"+serverProperties.getPort() + ("/"+content+ properties.getBaseRegisterPath()).replace("//","/");
     }
 
     private void clear(){
@@ -141,11 +172,25 @@ public class QLRequestMappingFactory {
     @ResponseBody
     @RequestMapping
     public Object execute(@PathVariable(required = false) Map<String,String> pathVar,
-                                  @RequestParam(required = false) Map<String,Object> param,
-                                  @RequestBody(required = false) Map<String,Object> body) throws Throwable {
+                          @RequestParam(required = false) Map<String,Object> param,
+                          HttpServletRequest request) throws Throwable {
 
         String path = buildPattern(request);
         String method = request.getMethod();
+        Map<String,Object> body = new HashMap<>();
+
+
+        if (request.getContentType() != null && request.getContentType().indexOf("application/json") > -1){
+            try {
+                body.putAll(objectMapper.readValue(request.getInputStream(),Map.class));
+            }catch (MismatchedInputException exception){
+                throw new HttpMessageNotReadableException("Required request body is missing",exception,new ServletServerHttpRequest(request));
+            }
+        }else if(request.getContentType() != null && request.getContentType().indexOf("multipart/form-data") > -1){
+            MultipartHttpServletRequest multipartHttpServletRequest = (MultipartHttpServletRequest) request;
+            body.putAll(multipartHttpServletRequest.getMultiFileMap());
+        }
+
         ApiParams apiParams = ApiParams.builder()
                 .pathVar(pathVar)
                 .header(RequestUtils.buildHeaderParams(request))
@@ -158,12 +203,13 @@ public class QLRequestMappingFactory {
 
         ApiInfo apiInfo = cacheApiInfo.get(buildApiInfoKey(ApiInfo.builder().method(method).path(path).build()));
 
-        StringBuilder script = new StringBuilder(URLDecoder.decode(apiInfo.getScript(),"utf-8"));
+        StringBuilder script = new StringBuilder(scriptEncrypt.decrypt(apiInfo.getScript()));
 
         try {
             Object data = scriptParse.runScript(script.toString(),apiInfo,apiParams);
             return resultWrapper.wrapper("0","succeeded",data,request,response);
         }catch (Exception e){
+            e.printStackTrace();
             return resultWrapper.wrapper("500",e.getMessage(),null,request,response);
         }finally {
             apiInfoContent.removeAll();
@@ -199,7 +245,7 @@ public class QLRequestMappingFactory {
         PatternsRequestCondition patternsRequestCondition = new PatternsRequestCondition(pattern);
         RequestMethodsRequestCondition methodsRequestCondition = new RequestMethodsRequestCondition(RequestMethod.valueOf(apiInfo.getMethod()));
         RequestMappingInfo mappingInfo = new RequestMappingInfo(patternsRequestCondition,methodsRequestCondition,null,null,null,null,null);
-        Method targetMethod = QLRequestMappingFactory.class.getDeclaredMethod("execute", Map.class, Map.class, Map.class);
+        Method targetMethod = QLRequestMappingFactory.class.getDeclaredMethod("execute", Map.class, Map.class,HttpServletRequest.class);
         requestMappingHandlerMapping.registerMapping(mappingInfo,this, targetMethod);
     }
 
@@ -229,10 +275,10 @@ public class QLRequestMappingFactory {
         return this.cacheApiInfo.values().stream().sorted(Comparator.comparing(ApiInfo::getComment).thenComparing(ApiInfo::getPath)).collect(Collectors.toList());
     }
 
-
+    @Transactional
     public String saveOrUpdateApiInfo(ApiInfo apiInfo) throws Exception {
 
-        if (exists(apiInfo)){
+        if (existsPattern(apiInfo)){
             throw new IllegalArgumentException(buildApiInfoKey(apiInfo)+" already exist");
         }
 
@@ -241,6 +287,7 @@ public class QLRequestMappingFactory {
             apiInfo.setType(ApiType.Ql.name());
             apiInfo.setCreateTime(new Date());
             apiInfo.setService(service);
+            apiInfo.setId(GenerateId.get().toHexString());
             ApiParams apiParams = ApiParams.builder().param(apiInfo.toMap()).build();
             StringBuilder script = new StringBuilder(dataSourceManager.saveApiInfoScript());
             parseService.buildParams(script,apiParams);
@@ -272,7 +319,7 @@ public class QLRequestMappingFactory {
         ApiInfoHistory history = new ApiInfoHistory();
         BeanUtils.copyProperties(dbInfo,history);
         history.setApiInfoId(dbInfo.getId());
-        history.setId(null);
+        history.setId(GenerateId.get().toString());
         history.setCreateTime(new Date());
         ApiParams apiParams = ApiParams.builder().param(history.toMap()).build();
         StringBuilder script = new StringBuilder(dataSourceManager.saveApiInfoHistoryScript());
@@ -290,7 +337,7 @@ public class QLRequestMappingFactory {
         return objectMapper.readValue(objectMapper.writeValueAsBytes(apiInfoMap.get(0)),ApiInfo.class);
     }
 
-    private boolean exists(ApiInfo apiInfo) {
+    private boolean existsPattern(ApiInfo apiInfo) {
         ApiInfo dbInfo = this.cacheApiInfo.values().stream().filter(item->item.getPath().equals(apiInfo.getPath()) && (item.getMethod().equals("All") || item.getMethod().equals(apiInfo.getMethod()))).findFirst().orElse(null);
         if (dbInfo == null || (apiInfo.getId() != null && apiInfo.getId().equals(dbInfo.getId()))){
             return false;
@@ -298,6 +345,7 @@ public class QLRequestMappingFactory {
         return true;
     }
 
+    @Transactional
     public Long deleteApiInfo(ApiInfo apiInfo) throws Exception {
 
         ApiInfo dbInfo = this.cacheApiInfo.values().stream().filter(item->item.getId().equals(apiInfo.getId())).findFirst().orElse(null);
@@ -383,6 +431,7 @@ public class QLRequestMappingFactory {
                 .map(item->StringUtils.isEmpty(item.getComment())?item.getPath():item.getComment()).collect(Collectors.toSet());
     }
 
+    @Transactional
     public Long renameGroup(RenameGroupReq renameGroupReq) throws Exception {
         List<ApiInfo> apiInfos = this.cacheApiInfo.values().stream().filter(item->item.getGroup().equals(renameGroupReq.getOldGroup())).collect(Collectors.toList());
         for (ApiInfo apiInfo : apiInfos){
@@ -394,6 +443,7 @@ public class QLRequestMappingFactory {
         return Long.valueOf(apiInfos.size());
     }
 
+    @Transactional
     public Object saveExample(ApiExample apiExample) throws Exception {
         StringBuilder script = new StringBuilder(dataSourceManager.saveApiExampleScript());
         parseService.buildParams(script,ApiParams.builder().param(apiExample.toMap()).build());
@@ -409,6 +459,7 @@ public class QLRequestMappingFactory {
         return dataSourceManager.find(script,ApiInfo.builder().datasource(dataSourceManager.getStoreApiKey()).build(),null);
     }
 
+    @Transactional
     public Long deleteExampleList(ArrayList<ApiExample> apiExampleList) throws Exception {
         StringBuilder script = new StringBuilder(dataSourceManager.deleteExampleScript());
         parseService.buildParams(script,new ApiParams().putParam("ids",apiExampleList.stream().map(ApiExample::getId).collect(Collectors.toSet())));

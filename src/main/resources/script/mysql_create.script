@@ -1,5 +1,5 @@
 CREATE TABLE `api_info` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `id` varchar(45) NOT NULL,
   `method` varchar(45) DEFAULT NULL,
   `path` varchar(100) DEFAULT NULL,
   `type` varchar(5) DEFAULT NULL COMMENT '类型：CODE,SQL',
@@ -14,11 +14,11 @@ CREATE TABLE `api_info` (
   `update_time` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `unique_path_method` (`service`,`path`,`method`)
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4  COMMENT='路径明细';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='路径明细';
 
 CREATE TABLE `api_info_history` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `api_info_id` int(11) NOT NULL,
+  `id` varchar(45) NOT NULL,
+  `api_info_id` varchar(45) NOT NULL,
   `method` varchar(45) DEFAULT NULL,
   `path` varchar(100) DEFAULT NULL,
   `type` varchar(5) DEFAULT NULL COMMENT '类型：CODE,SQL',
@@ -31,13 +31,11 @@ CREATE TABLE `api_info_history` (
   `options` text,
   `create_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COMMENT='路径明细历史';
-
-
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='路径明细历史';
 
 CREATE TABLE `api_example` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `api_info_id` int(11) NOT NULL,
+  `id` varchar(45) NOT NULL,
+  `api_info_id` varchar(45) NOT NULL,
   `method` varchar(45) DEFAULT NULL,
   `url` text,
   `request_header` text,
@@ -51,4 +49,4 @@ CREATE TABLE `api_example` (
   `create_time` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `index_api_id` (`api_info_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COMMENT='模拟数据';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='模拟数据';

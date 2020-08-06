@@ -7,6 +7,8 @@ import com.github.alenfive.rocketapi.extend.*;
 import com.github.alenfive.rocketapi.function.*;
 import com.github.alenfive.rocketapi.script.GroovyScriptParse;
 import com.github.alenfive.rocketapi.script.IScriptParse;
+import com.github.alenfive.rocketapi.service.EncryptChangeService;
+import com.github.alenfive.rocketapi.service.LoginService;
 import com.github.alenfive.rocketapi.service.ScriptParseService;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -64,7 +66,7 @@ public class RocketApiAutoConfig {
 
     @Bean
     @ConditionalOnMissingBean
-    public DefaultApiPager getApiPager(){
+    public IApiPager getApiPager(){
         return new DefaultApiPager();
     }
 
@@ -81,7 +83,7 @@ public class RocketApiAutoConfig {
     }
     @Bean
     @ConditionalOnMissingBean
-    public DefaultAssertException getDefaultAssertException(){
+    public IAssertException getDefaultAssertException(){
         return new DefaultAssertException();
     }
 
@@ -95,6 +97,30 @@ public class RocketApiAutoConfig {
     @ConditionalOnMissingBean
     public IUserAuthorization getIUserAuthorization(){
         return new DefaultUserAuthorization();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public IScriptEncrypt getIScriptEncrypt(){
+        return new DefaultScriptEncrypt();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public IApiDocSync getIApiSync(){
+        return new DefaultApiDocSync();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public EncryptChangeService getEncryptChangeService(){
+        return new EncryptChangeService();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public LoginService getLoginService(){
+        return new LoginService();
     }
 
     @Bean
@@ -146,4 +172,33 @@ public class RocketApiAutoConfig {
         return new UtilsFunction();
     }
 
+    @Bean
+    @ConditionalOnMissingBean
+    public PagerDB2Dialect getPagerDB2Dialect(){
+        return new PagerDB2Dialect();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public PagerMySQLDialect getPagerMySQLDialect(){
+        return new PagerMySQLDialect();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public OraclePagerDialect getOraclePagerDialect(){
+        return new OraclePagerDialect();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public PagerPostgreSQLDialect getPagerPostgreSQLDialect(){
+        return new PagerPostgreSQLDialect();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public PagerSQLServerDialect getPagerSQLServerDialect(){
+        return new PagerSQLServerDialect();
+    }
 }

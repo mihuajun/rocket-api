@@ -1,16 +1,23 @@
 package com.github.alenfive.rocketapi.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.alenfive.rocketapi.config.QLRequestMappingFactory;
 import com.github.alenfive.rocketapi.entity.*;
 import com.github.alenfive.rocketapi.entity.vo.*;
 import com.github.alenfive.rocketapi.extend.ApiInfoContent;
+import com.github.alenfive.rocketapi.extend.IApiDocSync;
+import com.github.alenfive.rocketapi.extend.IScriptEncrypt;
 import com.github.alenfive.rocketapi.extend.IUserAuthorization;
+import com.github.alenfive.rocketapi.function.IFunction;
 import com.github.alenfive.rocketapi.script.IScriptParse;
-import com.github.alenfive.rocketapi.utils.LoginUtils;
+import com.github.alenfive.rocketapi.service.LoginService;
+import com.github.alenfive.rocketapi.utils.GenerateId;
 import com.github.alenfive.rocketapi.utils.RequestUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.MultiValueMap;
@@ -19,13 +26,14 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Method;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Api ui 数据接口
@@ -46,6 +54,21 @@ public class ApiController {
 
     @Autowired
     private IUserAuthorization userAuthorization;
+
+    @Autowired
+    private LoginService loginService;
+
+    @Autowired
+    private IScriptEncrypt scriptEncrypt;
+
+    @Autowired
+    private IApiDocSync apiDocSync;
+
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    @Autowired
+    private ApplicationContext context;
 
     /**
      * LOAD API LIST
@@ -70,7 +93,7 @@ public class ApiController {
 
         ApiInfo resultInfo = new ApiInfo();
         BeanUtils.copyProperties(apiInfo,resultInfo);
-        resultInfo.setScript(URLDecoder.decode(resultInfo.getScript(),"utf-8"));
+        resultInfo.setScript(scriptEncrypt.decrypt(resultInfo.getScript()));
         return ApiResult.success(resultInfo);
     }
 
@@ -83,7 +106,7 @@ public class ApiController {
         Integer index = (pageNo-1)*pageSize;
         List<ApiInfoHistory> historyList = mappingFactory.lastApiInfo(apiInfoId,index,pageSize);
         for (ApiInfoHistory history : historyList) {
-            history.setScript(URLDecoder.decode(history.getScript(),"utf-8"));
+            history.setScript(scriptEncrypt.decrypt(history.getScript()));
         }
         return  ApiResult.success(historyList);
     }
@@ -95,7 +118,7 @@ public class ApiController {
     @PostMapping("/api-info")
     public ApiResult saveOrUpdateApiInfo(@RequestBody ApiInfo apiInfo,HttpServletRequest request) {
 
-        String user = LoginUtils.getUser(request);
+        String user = loginService.getUser(request);
         if(StringUtils.isEmpty(user)){
             return ApiResult.fail("Permission denied");
         }
@@ -103,9 +126,8 @@ public class ApiController {
         apiInfo.setEditor(user);
         try {
             if (!StringUtils.isEmpty(apiInfo.getScript())){
-                apiInfo.setScript(URLEncoder.encode(apiInfo.getScript(),"utf-8"));
+                apiInfo.setScript(scriptEncrypt.encrypt(apiInfo.getScript()));
             }
-
             return ApiResult.success(mappingFactory.saveOrUpdateApiInfo(apiInfo));
         }catch (Exception e){
             e.printStackTrace();
@@ -121,7 +143,7 @@ public class ApiController {
      */
     @PutMapping("/api-info/group")
     public ApiResult renameGroup(@RequestBody RenameGroupReq renameGroupReq,HttpServletRequest request) throws Exception {
-        String user = LoginUtils.getUser(request);
+        String user = loginService.getUser(request);
         if(StringUtils.isEmpty(user)){
             return ApiResult.fail("Permission denied");
         }
@@ -134,7 +156,7 @@ public class ApiController {
      */
     @DeleteMapping("/api-info")
     public ApiResult deleteApiInfo(@RequestBody ApiInfo apiInfo,HttpServletRequest request){
-        String user = LoginUtils.getUser(request);
+        String user = loginService.getUser(request);
         if(StringUtils.isEmpty(user)){
             return ApiResult.fail("Permission denied");
         }
@@ -156,7 +178,7 @@ public class ApiController {
     @PostMapping("/api-info/run")
     public ApiResult runScript(@RequestBody RunApiReq runApiReq, HttpServletRequest request){
 
-        String user = LoginUtils.getUser(request);
+        String user = loginService.getUser(request);
         if(StringUtils.isEmpty(user)){
             return ApiResult.fail("Permission denied");
         }
@@ -247,7 +269,7 @@ public class ApiController {
     @PostMapping("/api-example")
     public ApiResult saveExample(@RequestBody ApiExample apiExample,HttpServletRequest request) throws Exception {
 
-        String user = LoginUtils.getUser(request);
+        String user = loginService.getUser(request);
         if(StringUtils.isEmpty(user)){
             return ApiResult.fail("Permission denied");
         }
@@ -259,7 +281,7 @@ public class ApiController {
         }
         apiExample.setEditor(user);
         apiExample.setCreateTime(new Date());
-
+        apiExample.setId(GenerateId.get().toHexString());
         if (!StringUtils.isEmpty(apiExample.getResponseBody())){
             apiExample.setResponseBody(URLEncoder.encode(apiExample.getResponseBody(),"utf-8"));
         }
@@ -294,7 +316,7 @@ public class ApiController {
      */
     @DeleteMapping("/api-example")
     private ApiResult deleteExampleList(@RequestBody DeleteExamleReq deleteExamleReq, HttpServletRequest request) throws Exception {
-        String user = LoginUtils.getUser(request);
+        String user = loginService.getUser(request);
         if(StringUtils.isEmpty(user)){
             return ApiResult.fail("Permission denied");
         }
@@ -303,17 +325,17 @@ public class ApiController {
 
     /**
      * 用户登录
-     * @param loginReq
+     * @param loginVo
      * @param request
      * @return
      */
     @PostMapping("/login")
-    public ApiResult login(@RequestBody LoginReq loginReq,HttpServletRequest request){
-        String user = userAuthorization.validate(loginReq.getUsername(),loginReq.getPassword());
+    public ApiResult login(@RequestBody LoginVo loginVo, HttpServletRequest request, HttpServletResponse response) throws JsonProcessingException {
+        String user = userAuthorization.validate(loginVo.getUsername(), loginVo.getPassword());
         if (!StringUtils.isEmpty(user)){
-            LoginUtils.setUser(request,user);
-            return ApiResult.success(user);
+            return ApiResult.success(loginService.getToken(loginVo));
         }
+
         return ApiResult.fail("Incorrect user name or password");
     }
 
@@ -323,9 +345,92 @@ public class ApiController {
      * @return
      */
     @PostMapping("/logout")
-    public ApiResult login(HttpServletRequest request){
-        LoginUtils.setUser(request,null);
+    public ApiResult login(HttpServletRequest request,HttpServletResponse response){
         return ApiResult.success(null);
     }
 
+    /**
+     * API DOC 同步
+     * @return
+     */
+    @GetMapping("/api-doc-push")
+    public ApiResult apiDocPush(String apiInfoId) throws Exception {
+        Collection<ApiInfo> apiInfos = mappingFactory.getPathList(false);
+        if (!StringUtils.isEmpty(apiInfoId)){
+            ApiInfo apiInfo = apiInfos.stream().filter(item->item.getId().equals(apiInfoId)).findFirst().orElse(null);
+            apiDocSync.sync(apiInfo,buildLastApiExample(apiInfo.getId()));
+        }else{
+            for(ApiInfo apiInfo : apiInfos){
+                apiDocSync.sync(apiInfo,buildLastApiExample(apiInfo.getId()));
+            }
+        }
+        return ApiResult.success(null);
+    }
+
+    private ApiExample buildLastApiExample(String apiInfoId) throws Exception {
+        List<Map<String,Object>> result = mappingFactory.lastApiExample(apiInfoId,1);
+        ApiExample apiExample = null;
+        if (!CollectionUtils.isEmpty(result)){
+            apiExample = objectMapper.readValue(objectMapper.writeValueAsBytes(result.get(0)),ApiExample.class);
+            if (!StringUtils.isEmpty(apiExample.getResponseBody())){
+                try {
+                    apiExample.setResponseBody(URLDecoder.decode(apiExample.getResponseBody(),"utf-8"));
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return apiExample;
+    }
+
+    /**
+     * 自动完成，类型获取
+     */
+    @GetMapping("/completion-items")
+    public ApiResult provideCompletionTypes(){
+        List<CompletionType> types = new ArrayList<>();
+
+        //获取内置自定义函数
+        Collection<IFunction> functionList = context.getBeansOfType(IFunction.class).values();
+        functionList.forEach(item->{
+            Class c = item.getClass();
+            List<CompletionType> funcList = new ArrayList<>();
+            types.add(CompletionType.builder()
+                    .varName(item.getVarName())
+                    .type(c.getName())
+                    .label(item.getVarName())
+                    .funcList(funcList)
+                    .build());
+            for (Method method : c.getDeclaredMethods()){
+                funcList.add(CompletionType.builder()
+                        .insertText(method.getName()+"(${1})")
+                        .label(method.getName()+"("+ Stream.of(method.getParameters()).map(item2->item2.getName()).collect(Collectors.joining(","))+") "+method.getReturnType().getSimpleName())
+                        .build());
+            }
+        });
+        //常用语法提示
+        types.add(CompletionType.builder().label("foreach").insertText("for( item in ${1:collection}){\n\t\n}").build());
+        types.add(CompletionType.builder().label("fori").insertText("for(${1:i}=0;${1:i}<;${1:i}++){\n\t\n}").build());
+        types.add(CompletionType.builder().label("for").insertText("for( ${1} ){\n\t\n}").build());
+        types.add(CompletionType.builder().label("if").insertText("if(${1:condition}){\n\n}").build());
+        types.add(CompletionType.builder().label("ifelse").insertText("if(${1:condition}){\n\t\n}else{\n\t\n}").build());
+
+        //数据库类型获取
+
+
+        //常用工具类获取
+
+
+        return ApiResult.success(types);
+    }
+
+    /**
+     * 自动完成，方法解析
+     * @return
+     */
+    @PostMapping("/completion-type")
+    public ApiResult provideCompletionItems(@RequestBody ProvideCompletionReq completionReq){
+
+        return ApiResult.success(null);
+    }
 }

@@ -19,22 +19,23 @@ const readFavoriteLanguageCallback = function (result) {
 };
 
 window.localStorage.getItem('favoriteLanguage', readFavoriteLanguageCallback);*/
-let loadApiListUrl = baseApiPath + "api-list";
-let saveApiUrl = baseApiPath + "api-info";
-let getApiUrl = baseApiPath + "api-info/";
-let lastApiUrl = baseApiPath + "api-info/last";
-let deleteApiUrl = baseApiPath + "api-info";
-let runApiUrl = baseApiPath +"api-info/run";
-let getApiGroupNameUrl = baseApiPath + "group-name-list";
-let getApiNameUrl = baseApiPath + "api-name-list";
-let renameGroupUrl = baseApiPath + "api-info/group";
-let saveExampleUrl = baseApiPath + "api-example";
-let lastExampleUrl = baseApiPath + "api-example/last";
-let deleteExampleUrl = baseApiPath + "api-example";
-let loginUrl = baseApiPath + "login";
-let logoutUrl = baseApiPath + "logout";
+let loadApiListUrl = baseUrl + "/api-list";
+let saveApiUrl = baseUrl + "/api-info";
+let getApiUrl = baseUrl + "/api-info/";
+let lastApiUrl = baseUrl + "/api-info/last";
+let deleteApiUrl = baseUrl + "/api-info";
+let runApiUrl = baseUrl +"/api-info/run";
+let getApiGroupNameUrl = baseUrl + "/group-name-list";
+let getApiNameUrl = baseUrl + "/api-name-list";
+let renameGroupUrl = baseUrl + "/api-info/group";
+let saveExampleUrl = baseUrl + "/api-example";
+let lastExampleUrl = baseUrl + "/api-example/last";
+let deleteExampleUrl = baseUrl + "/api-example";
+let apiDocPushUrl = baseUrl + "/api-doc-push";
+let completionItemsUrl = baseUrl + "/completion-items";
+let loginUrl = baseUrl + "/login";
+let logoutUrl = baseUrl + "/logout";
 
-let indexUrl = baseApiPath;
 let editor = "admin";
 
 //当前apiInfo
@@ -59,13 +60,17 @@ let defaultExample = {
 
 let editorTextarea;
 let exampleTextarea;
+let originalModel;
+let modifiedModel;
+let settingTextarea;
 
 let hasResponse;
 let gdata = {
     apiList:null,
     exampleHistoryList:null,
     apiHistoryList:null,
-    historyCurrPageNo:1
+    historyCurrPageNo:1,
+    completionItems:null
 }
 
 //本地缓存信息
@@ -78,6 +83,10 @@ let rocketUser = {
         "leftWidth": "325px",
         "bottom":"show",
         "bottomHeight":"150px"
+    },
+    "setting":{
+        "header":{},
+        "options":{}
     }
 }
 
@@ -92,18 +101,13 @@ function loadCurrApi() {
 
 
 function initUser() {
-    if (user){
+    if (rocketUser.user.token){
         $("#top-section .login-btn").hide();
         $("#top-section .login-info").show();
-        $("#top-section .login-info .name").text(user);
-    }else{
-        if (rocketUser.user){
-            $("#top-section .username").val(rocketUser.user.username?rocketUser.user.username:"");
-            $("#top-section .password").val(rocketUser.user.password?rocketUser.user.password:"");
-            login();
-        }
-        $("#top-section .login-btn").show();
-        $("#top-section .login-info").hide();
+        $("#top-section .login-info .name").text(rocketUser.user.username);
+        $.ajaxSetup({
+            headers:{"rocket-user-token":rocketUser.user.token}
+        });
     }
 }
 
@@ -143,184 +147,10 @@ $(function(){
     initUser();
     initPanel();
     versionCheck();
-
-    monaco.editor.defineTheme('myTheme', {
-        base: 'vs-dark',
-        inherit: true,
-        rules: [{ background: 'EDF9FA' }],
-        colors: {
-            'editor.background': '#2b2b2b'
-        }
-    });
-
-    monaco.languages.register({ id: 'custom-language' });
-    monaco.languages.setMonarchTokensProvider('custom-language', {
-        // Set defaultToken to invalid to see what you do not tokenize yet
-        defaultToken: 'invalid',
-        tokenPostfix: '.js',
-        ignoreCase:true,
-        keywords: [
-            'break', 'case', 'catch', 'class', 'continue', 'const',
-            'constructor', 'debugger', 'default', 'delete', 'do', 'else',
-            'export', 'extends', 'false', 'finally', 'for',  'function',
-            'get', 'if', 'import', 'in', 'instanceof', 'let', 'new', 'null',
-            'return', 'set', 'super', 'switch', 'symbol', 'this', 'throw', 'true',
-            'try', 'typeof', 'undefined', 'var', 'void', 'while', 'with', 'yield',
-            'async', 'await', 'of',
-            'select','insert into','update','delete from','from','left','join','where','group','by','right join','limit','on'
-            ,'Assert','db','Export','log','Pager'
-        ],
-
-        typeKeywords: [
-            'any', 'boolean', 'number', 'object', 'string', 'undefined'
-        ],
-
-        operators: [
-            '<=', '>=', '==', '!=', '===', '!==', '=>', '+', '-', '**',
-            '*', '/', '%', '++', '--', '<<', '</', '>>', '>>>', '&',
-            '|', '^', '!', '~', '&&', '||', '?', ':', '=', '+=', '-=',
-            '*=', '**=', '/=', '%=', '<<=', '>>=', '>>>=', '&=', '|=',
-            '^=', '@',
-        ],
-
-        // we include these common regular expressions
-        symbols: /[=><!~?:&|+\-*\/\^%]+/,
-        escapes: /\\(?:[abfnrtv\\"']|x[0-9A-Fa-f]{1,4}|u[0-9A-Fa-f]{4}|U[0-9A-Fa-f]{8})/,
-        digits: /\d+(_+\d+)*/,
-        octaldigits: /[0-7]+(_+[0-7]+)*/,
-        binarydigits: /[0-1]+(_+[0-1]+)*/,
-        hexdigits: /[[0-9a-fA-F]+(_+[0-9a-fA-F]+)*/,
-
-        regexpctl: /[(){}\[\]\$\^|\-*+?\.]/,
-        regexpesc: /\\(?:[bBdDfnrstvwWn0\\\/]|@regexpctl|c[A-Z]|x[0-9a-fA-F]{2}|u[0-9a-fA-F]{4})/,
-
-        // The main tokenizer for our languages
-        tokenizer: {
-            root: [
-                [/[{}]/, 'delimiter.bracket'],
-                { include: 'common' },
-                [/#{[a-z\\.A-Z_0-9\\\[\\\]]*}/, 'string.invalid'],  // non-teminated string
-                [/\\?\\{/, 'string.invalid'],  // non-teminated string
-            ],
-
-            common: [
-                // identifiers and keywords
-                [/[a-z_$][\w$]*/, {
-                    cases: {
-                        '@typeKeywords': 'keyword',
-                        '@keywords': 'keyword',
-                        '@default': 'identifier'
-                    }
-                }],
-
-                // whitespace
-                { include: '@whitespace' },
-
-                // regular expression: ensure it is terminated before beginning (otherwise it is an opeator)
-                [/\/(?=([^\\\/]|\\.)+\/([gimsuy]*)(\s*)(\.|;|\/|,|\)|\]|\}|$))/, { token: 'regexp', bracket: '@open', next: '@regexp' }],
-
-                // delimiters and operators
-                [/[()\[\]]/, '@brackets'],
-                [/[<>](?!@symbols)/, '@brackets'],
-                [/@symbols/, {
-                    cases: {
-                        '@operators': 'delimiter',
-                        '@default': ''
-                    }
-                }],
-
-                // numbers
-                [/(@digits)[eE]([\-+]?(@digits))?/, 'number.float'],
-                [/(@digits)\.(@digits)([eE][\-+]?(@digits))?/, 'number.float'],
-                [/0[xX](@hexdigits)/, 'number.hex'],
-                [/0[oO]?(@octaldigits)/, 'number.octal'],
-                [/0[bB](@binarydigits)/, 'number.binary'],
-                [/(@digits)/, 'number'],
-
-                // delimiter: after number because of .\d floats
-                [/[;,.]/, 'delimiter'],
-
-                // strings
-                [/"([^"\\]|\\.)*$/, 'string.invalid'],  // non-teminated string
-                [/'([^'\\]|\\.)*$/, 'string.invalid'],  // non-teminated string
-                [/"/, 'string', '@string_double'],
-                [/'/, 'string', '@string_single'],
-                [/`/, 'string', '@string_backtick'],
-            ],
-
-            whitespace: [
-                [/[ \t\r\n]+/, ''],
-                [/\/\*\*(?!\/)/, 'comment.doc', '@jsdoc'],
-                [/\/\*/, 'comment', '@comment'],
-                [/\/\/.*$/, 'comment'],
-            ],
-
-            comment: [
-                [/[^\/*]+/, 'comment'],
-                [/\*\//, 'comment', '@pop'],
-                [/[\/*]/, 'comment']
-            ],
-
-            jsdoc: [
-                [/[^\/*]+/, 'comment.doc'],
-                [/\*\//, 'comment.doc', '@pop'],
-                [/[\/*]/, 'comment.doc']
-            ],
-
-            // We match regular expression quite precisely
-            regexp: [
-                [/(\{)(\d+(?:,\d*)?)(\})/, ['regexp.escape.control', 'regexp.escape.control', 'regexp.escape.control']],
-                [/(\[)(\^?)(?=(?:[^\]\\\/]|\\.)+)/, ['regexp.escape.control', { token: 'regexp.escape.control', next: '@regexrange' }]],
-                [/(\()(\?:|\?=|\?!)/, ['regexp.escape.control', 'regexp.escape.control']],
-                [/[()]/, 'regexp.escape.control'],
-                [/@regexpctl/, 'regexp.escape.control'],
-                [/[^\\\/]/, 'regexp'],
-                [/@regexpesc/, 'regexp.escape'],
-                [/\\\./, 'regexp.invalid'],
-                [/(\/)([gimsuy]*)/, [{ token: 'regexp', bracket: '@close', next: '@pop' }, 'keyword.other']],
-            ],
-
-            regexrange: [
-                [/-/, 'regexp.escape.control'],
-                [/\^/, 'regexp.invalid'],
-                [/@regexpesc/, 'regexp.escape'],
-                [/[^\]]/, 'regexp'],
-                [/\]/, { token: 'regexp.escape.control', next: '@pop', bracket: '@close' }],
-            ],
-
-            string_double: [
-                [/[^\\"]+/, 'string'],
-                [/@escapes/, 'string.escape'],
-                [/\\./, 'string.escape.invalid'],
-                [/"/, 'string', '@pop']
-            ],
-
-            string_single: [
-                [/[^\\']+/, 'string'],
-                [/@escapes/, 'string.escape'],
-                [/\\./, 'string.escape.invalid'],
-                [/'/, 'string', '@pop']
-            ],
-
-            string_backtick: [
-                [/\$\{/, { token: 'delimiter.bracket', next: '@bracketCounting' }],
-                [/[^\\`$]+/, 'string'],
-                [/@escapes/, 'string.escape'],
-                [/\\./, 'string.escape.invalid'],
-                [/`/, 'string', '@pop']
-            ],
-
-            bracketCounting: [
-                [/\{/, 'delimiter.bracket', '@bracketCounting'],
-                [/\}/, 'delimiter.bracket', '@pop'],
-                { include: 'common' }
-            ],
-        },
-    });
+    initCompletionItems();
 
     editorTextarea = monaco.editor.create(document.getElementById('monaco-editor'), {
-        language: 'custom-language',
-        values:"return ",
+        language: languageName,
         wordWrap: 'on',  //自行换行
         verticalHasArrows: true,
         horizontalHasArrows: true,
@@ -335,16 +165,79 @@ $(function(){
     });
 
 
+    //run
     editorTextarea.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, function () {
         runApi(false);
     });
 
+    //debug
     editorTextarea.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyMod.Alt| monaco.KeyCode.Enter, function () {
         runApi(true);
     });
 
+    //保存
     editorTextarea.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_S ,function () {
         saveEditor('#editor-section')
+    });
+
+    //快捷键提示
+    editorTextarea.addCommand(monaco.KeyMod.Alt | monaco.KeyCode.US_SLASH ,function () {
+        editorTextarea.trigger('', 'editor.action.triggerSuggest', {});
+    });
+
+    //多行注释
+    editorTextarea.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.US_SLASH ,function () {
+        let selectRange = editorTextarea.getSelection();
+        let prefixRange = new monaco.Range(selectRange.selectionStartLineNumber, selectRange.selectionStartColumn, selectRange.selectionStartLineNumber, selectRange.selectionStartColumn+2);
+        let prefix = editorTextarea.getModel().getValueInRange(prefixRange);
+        let postfixRange = new monaco.Range(selectRange.endLineNumber, selectRange.endColumn-2, selectRange.endLineNumber, selectRange.endColumn);
+        let postfix = editorTextarea.getModel().getValueInRange(postfixRange);
+
+        let prefixOp = {"range":prefixRange,"text":""};
+        let postfixOp = {"range":postfixRange,"text":""};
+        //取消注释
+        if (prefix == '/*' && postfix == "*/"){
+            editorTextarea.executeEdits('insert-code',[prefixOp])
+            editorTextarea.executeEdits('insert-code',[postfixOp])
+            return;
+        }
+
+        prefixRange = new monaco.Range(selectRange.selectionStartLineNumber, selectRange.selectionStartColumn, selectRange.selectionStartLineNumber, selectRange.selectionStartColumn);
+        postfixRange = new monaco.Range(selectRange.endLineNumber, selectRange.endColumn, selectRange.endLineNumber, selectRange.endColumn);
+        prefixOp = {"range":prefixRange,"text":"/*"};
+        postfixOp = {"range":postfixRange,"text":"*/"};
+        editorTextarea.executeEdits('insert-code',[prefixOp])
+        editorTextarea.executeEdits('insert-code',[postfixOp])
+    });
+
+    //单行注释
+    editorTextarea.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.US_SLASH ,function () {
+        let selectRange = editorTextarea.getSelection();
+
+        let isAdd = false;
+        for(let i=selectRange.startLineNumber;i<=selectRange.endLineNumber;i++){
+            let lineNumber = i;
+            let range = new monaco.Range(lineNumber, 0, lineNumber, 3);
+            let prefix = editorTextarea.getModel().getValueInRange(range);
+            if (prefix != "//"){
+                isAdd = true;
+                break;
+            }
+        }
+
+        for(let i=selectRange.startLineNumber;i<=selectRange.endLineNumber;i++){
+            let lineNumber = i;
+            let range = null;
+            let text = null;
+            if (isAdd){
+                range = new monaco.Range(lineNumber, 0, lineNumber, 0);
+                text = "//";
+            }else{
+                range = new monaco.Range(lineNumber, 0, lineNumber, 3);
+                text = "";
+            }
+            editorTextarea.executeEdits('insert-code',[{"range":range,"text":text}])
+        }
     });
 
 
@@ -364,8 +257,6 @@ $(function(){
             enabled: false // 关闭小地图
         }
     });
-
-
 
 });
 
@@ -506,7 +397,7 @@ function removeApi(e,id) {
                     return;
                 }
                 $(e).parents(".request").remove();
-                history.pushState(null,null,indexUrl);
+                history.pushState(null,null,baseUrl);
             },complete:function () {
                 hideSendNotify();
             }
@@ -578,6 +469,12 @@ function runApi(debug) {
             $("#bottom-side .el-time").attr("title",ms).text("Elapsed time: "+ms);
         }
     });
+
+    if (debug){
+        MtaH5.clickStat("debug_count")
+    }else {
+        MtaH5.clickStat("run_count")
+    }
 }
 
 function buildJsonStr(obj) {
@@ -647,18 +544,27 @@ function loadDetailByHistoryId(id, form) {
     }
     apiHistory.id = apiHistory.apiInfoId;
 
-    loadDetail(apiHistory,form);
-}
+    loadDetail(apiHistory,form,function () {
+        //构建example history
+        loadExampleHistory(currApiInfo,true);
 
-function loadDetailById(id,form) {
-    $.getJSON(getApiUrl+id,function (data) {
-        data = unpackResult(data).data;
-        loadDetail(data,form);
+        //构建 api history
+        loadApiHistory(currApiInfo.id,1);
     });
 
 }
 
-function loadDetail(apiInfo,form) {
+function loadDetailById(id,form,callback) {
+    $.getJSON(getApiUrl+id,function (data) {
+        data = unpackResult(data).data;
+        loadDetail(data,form,callback);
+    });
+
+}
+
+function loadDetail(apiInfo,form,callback) {
+
+    cancelDiff();
 
     //init curr data
     hasConsole = null;
@@ -674,7 +580,7 @@ function loadDetail(apiInfo,form) {
     $(".request"+currApiInfo.id).parents(".service").find(".fa-caret-right").addClass("fa-caret-down").removeClass("fa-caret-right");
     $('#editor-section .draft-ribbon-text').text("Edit");
 
-    let url = baseApiPath+currApiInfo.id+"/"+(currPage?currPage:'example');
+    let url = baseUrl+"?id="+currApiInfo.id+"&page="+(currPage?currPage:'example');
     history.pushState(null,null,url);
     removeAllQueryParameterForm("#bottom-side");
 
@@ -701,7 +607,7 @@ function loadDetail(apiInfo,form) {
 
     document.title = currApiInfo.comment?currApiInfo.comment:currApiInfo.path;
     buildApiOptionsDom(currApiInfo.options);
-    editorTextarea.setValue(currApiInfo.script);
+    editorTextarea.setValue(currApiInfo.script?currApiInfo.script:"");
 
     //构建example history
     loadExampleHistory(currApiInfo,true);
@@ -709,6 +615,10 @@ function loadDetail(apiInfo,form) {
     //构建 api history
     loadApiHistory(currApiInfo.id,1);
 
+    //回调
+    if (callback){
+        callback();
+    }
 }
 
 function apiOptionAdd(key,value) {
@@ -735,7 +645,7 @@ function openMsgModal(msg) {
 }
 
 function confirmDialog(form) {
-    let group = $(form).find("#save-dialog .path-buttons .active").attr("title");
+    let group = $("#save-dialog .path-buttons .active").attr("title");
     let params={
         "id": $("#save-dialog").attr("data-id"),
         "method": $(form).find(".api-info-method").val(),
@@ -743,7 +653,7 @@ function confirmDialog(form) {
         "path": $(form).find(".api-info-path").val(),
         "group": group?group:"公共API",
         "editor": $(form).find(".api-info-editor").val(),
-        "comment": $(form).find("#save-dialog .input-xlarge").val(),
+        "comment": $("#save-dialog .input-xlarge").val(),
         "script": editorTextarea.getValue(),
         "options":buildApiOptionsJsonStr()
     }
@@ -763,8 +673,12 @@ function buildApiOptionsJsonStr() {
 }
 
 function buildApiOptionsDom(optionsJsonStr) {
-    if (!optionsJsonStr)return;
-    let map = JSON.parse(optionsJsonStr);
+    $("#bottom-side .query-parameters-form-block").html("")
+    let map = {};
+    if (optionsJsonStr){
+        map = JSON.parse(optionsJsonStr);
+    }
+    map = $.extend({}, rocketUser.setting.options, map);
     $.each(map,function (key,value) {
         apiOptionAdd(key,value);
     })
@@ -879,19 +793,31 @@ function saveExecuter(params) {
             cancelDialogGroup();
             currApi = data.data;
             loadApiList(false);
-            //loadDetailById(data.data,"#editor-section")
-            //loadApiHistory(data.data,1);
         },complete:function (req,data) {
             hideSendNotify();
         }
     });
+    if (params.id){
+        MtaH5.clickStat("api_save")
+    }else{
+        MtaH5.clickStat("api_new")
+    }
 }
 
 function searchApi(e) {
-    let keyword = $(e).val();
+    let keyword = $(e).val().trim();
     let searchResult = [];
     $.each(gdata.apiList,function (index,item) {
-        if (item.comment.indexOf(keyword) >=0 || item.path.indexOf(keyword)>=0){
+        if (keyword.split("=").length == 2){
+            if (!item.options){
+                return;
+            }
+            let kv = keyword.split("=");
+            let options = JSON.parse(item.options);
+            if (options[kv[0]] == kv[1]){
+                searchResult.push(item);
+            }
+        }else if (item.comment.indexOf(keyword) >=0 || item.path.indexOf(keyword)>=0 || !keyword){
             searchResult.push(item);
         }
     });
@@ -941,13 +867,18 @@ function buildApiTree(list,collapsed) {
                 '                                                         e2e-tag="drive|'+(item.comment?item.comment:item.path)+'|play"><i\n' +
                 '                                                            class="fa fa-play"></i></div>\n' +
                 '                                                    <span class="gwt-InlineHTML node-text"\n' +
-                '                                                          e2e-tag="drive|'+(item.comment?item.comment:item.path)+'">'+(item.comment?item.comment:item.path)+'</span>\n' +
+                '                                                          e2e-tag="drive|'+(item.comment?item.comment:item.path)+'">'+(item.comment?item.comment:item.path)+'<span style=\'margin-left:10px;color:#8a8989;\'>'+('['+item.path+']')+'</span></span>\n' +
                 '                                                    <div class="status" aria-hidden="true" style="display: none;"></div>\n' +
                 '                                                    <div class="btn-group ctrls dropdown-primary"  data-id="'+item.id+'" ><a\n' +
                 '                                                            class="btn-mini dropdown-toggle" data-toggle="dropdown"\n' +
                 '                                                            e2e-tag="drive|'+(item.comment?item.comment:item.path)+'|more"><i\n' +
                 '                                                            class="sli-icon-options-vertical"></i></a>\n' +
-                '                                                        <ul class="pull-right dropdown-menu"><li class="dropdown-item"  onclick="copyApi(this,\''+item.id+'\')"><a><i class="fa fa-copy"></i><span class="gwt-InlineHTML">Copy</span></a></li><li class="dropdown-item"  onclick="moveApi(this,\''+item.id+'\')"><a><i class="fa fa-random"></i><span class="gwt-InlineHTML">Move</span></a></li><li class="dropdown-item" onclick="removeApi(this,\''+item.id+'\')"><a><i class="fa fa-trash-o" onclick="moveApi(this,'+item.id+')"></i><span class="gwt-InlineHTML">Remove</span></a></li></ul>\n' +
+                '                                                        <ul class="pull-right dropdown-menu">' +
+                '<li class="dropdown-item"  onclick="copyApi(this,\''+item.id+'\')"><a><i class="fa fa-copy"></i><span class="gwt-InlineHTML">Copy</span></a></li>' +
+                '<li class="dropdown-item"  onclick="moveApi(this,\''+item.id+'\')"><a><i class="fa fa-random"></i><span class="gwt-InlineHTML">Move</span></a></li>' +
+                '<li class="dropdown-item" onclick="removeApi(this,\''+item.id+'\')"><a><i class="fa fa-trash-o"></i><span class="gwt-InlineHTML">Transh</span></a></li>' +
+                '<li class="dropdown-item" onclick="apiPush(\''+item.id+'\')"><a><i class="fa fa-cloud-upload"></i><span class="gwt-InlineHTML">Push Doc</span></a></li>' +
+                '</ul>\n' +
                 '                                                    </div>\n' +
                 '                                                </div>' +
                 '</li>');
@@ -1000,13 +931,14 @@ function newRequest() {
     newEditor();
     newExample();
     showEditorPanel();
+    cancelDiff();
     loadApiHistory(null,1);
 }
 
 function newEditor() {
     //clean editor
     let form = "#editor-section";
-    history.pushState(null,null,indexUrl);
+    history.pushState(null,null,baseUrl);
     $(form).find(".api-info-id").val("");
     $(form).find(".api-info-method").val("GET");
 
@@ -1031,6 +963,7 @@ function newEditor() {
 
     hasConsole = null;
     currApiInfo = {};
+    buildApiOptionsDom()
 }
 
 function newExample() {
@@ -1050,7 +983,7 @@ function newExample() {
 
 //--------------------------------example start -----------------------------------
 function buildDefaultUrl(path) {
-    let defaultUrl = basePath.substring(0,basePath.lastIndexOf("/"));
+    let defaultUrl = baseUrl.substring(0,baseUrl.lastIndexOf("/"));
     return defaultUrl+(path.indexOf("TEMP-") == 0?"":path);
 }
 
@@ -1162,7 +1095,6 @@ function saveExample() {
 
             //
             params.id = data.data;
-            params.editor = user;
             params.createTime = "now";
             gdata.exampleHistoryList.splice(0,0,params);
             let template = buildHistoryItemStr(params);
@@ -1171,6 +1103,8 @@ function saveExample() {
             hideSendNotify();
         }
     });
+
+    MtaH5.clickStat("example_save")
 }
 function requextUrlExample(ableRedirect) {
     let $form = $("#example-section");
@@ -1395,6 +1329,7 @@ function getHeaderParams() {
 }
 
 function setHeaderParams(headersParams) {
+    headersParams = $.extend({},rocketUser.setting.header,headersParams);
     let isForm = $("#example-section .headers-form-title .dropdown-toggle").text().trim() == 'Form';
     if (isForm){
         $("#example-section .headers-form-block").html("");
@@ -1575,26 +1510,39 @@ function showExamplePanel() {
     $("#example-panel").show();
     $("#editor-panel").hide();
 
+    let urlParam = buildUrlParam();
     let url = window.location.href;
-    if(url.endsWith("/editor")){
-        url = url.replace("/editor","/example");
+    if(urlParam.page){
+        url = url.replace("page=editor","page=example");
         history.pushState(null,null,url);
     }
     currPage = "example";
     monaco.editor.setTheme("vs");
 }
 
+function buildUrlParam() {
+    let query = window.location.search.substring(1);
+    let vars = query.split("&");
+    let urlParam = {};
+    for (let i=0;i<vars.length;i++) {
+        let pair = vars[i].split("=");
+        urlParam[pair[0]] = pair[1];
+    }
+    return urlParam;
+}
+
 function showEditorPanel() {
     $("#example-panel").hide();
     $("#editor-panel").show();
 
+    let urlParam = buildUrlParam();
     let url = window.location.href;
-    if(url.endsWith("/example")){
-        url = url.replace("/example","/editor");
+    if(urlParam.page){
+        url = url.replace("page=example","page=editor");
         history.pushState(null,null,url);
     }
     currPage = "editor";
-    monaco.editor.setTheme("myTheme");
+    monaco.editor.setTheme(languageTheme);
 }
 //--------------------------------example end -----------------------------------
 
@@ -1626,7 +1574,10 @@ function logout() {
                 return;
             }
             rocketUser.user.username = "";
-            rocketUser.user.password = "";
+            rocketUser.user.token = "";
+            $.ajaxSetup({
+                headers:{"rocket-user-token":""}
+            });
             localStorage.setItem("rocketUser",JSON.stringify(rocketUser));
             $("#top-section .login-btn").show();
             $("#top-section .login-info").hide();
@@ -1656,13 +1607,14 @@ function login() {
                 return;
             }
             rocketUser.user.username = username;
-            rocketUser.user.password = password;
+            rocketUser.user.token = data.data;
             localStorage.setItem("rocketUser",JSON.stringify(rocketUser));
-
+            $.ajaxSetup({
+                headers:{"rocket-user-token":data.data}
+            });
             $("#top-section .login-btn").hide();
             $("#top-section .login-info").show();
-            $("#top-section .login-info .name").text(data.data);
-            user = data.data;
+            $("#top-section .login-info .name").text(rocketUser.user.username);
             hideLoginDialog();
         },complete:function (req,data) {
             hideSendNotify();
@@ -1852,6 +1804,7 @@ function buildApiHistoryItemStr(item){
         '       </div> ' +
         '       <div class="el-time" title="'+item.createTime+'">'+item.createTime+'</div> ' +
         '       <div class="count">'+item.editor+'</div> ' +
+        '       <div class="el-time"><a onclick="showDiff(\''+item.id+'\')">Show Diff</a></div> ' +
         '       <div class="status response-ok" title="'+item.datasource+'">'+item.datasource+'</div> ' +
         '</div></div></td></tr>';
 }
@@ -1859,6 +1812,47 @@ function buildApiHistoryItemStr(item){
 function searchApiHistory(e) {
     $("#history-api-section .history tbody").html("");
     buildApiHistory(gdata.apiHistoryList,$(e).val())
+}
+
+function showDiff(id) {
+    let apiHistory = null;
+    for(let i=0;i<gdata.apiHistoryList.length;i++){
+        if (gdata.apiHistoryList[i].id == id){
+            apiHistory = jQuery.extend(true, {}, gdata.apiHistoryList[i]);
+            break;
+        }
+    }
+
+    loadDetailById(apiHistory.apiInfoId,"#editor-section",function () {
+        $("#editor-section .diff-body").show();
+        $("#editor-section .code-body").hide();
+        $("#diff-editor").html("");
+        originalModel = monaco.editor.createModel(decodeURIComponent(apiHistory.script), "custom-language");
+        modifiedModel = monaco.editor.createModel(editorTextarea.getValue(), "custom-language");
+        let diffEditor = monaco.editor.createDiffEditor(document.getElementById("diff-editor"), {
+            // You can optionally disable the resizing
+            scrollBeyondLastLine:false,
+            automaticLayout: true,
+            enableSplitViewResizing: false
+        });
+        diffEditor.setModel({
+            original: originalModel,
+            modified: modifiedModel
+        });
+    })
+
+}
+
+function acceptLeft() {
+    modifiedModel.setValue(originalModel.getValue());
+}
+function confirmDiff() {
+    cancelDiff();
+    editorTextarea.setValue(modifiedModel.getValue());
+}
+function cancelDiff() {
+    $("#editor-section .diff-body").hide();
+    $("#editor-section .code-body").show();
 }
 //--------------------------------api history end -----------------------------------
 
@@ -1989,3 +1983,68 @@ function showBottomTab(target,e) {
 
 //--------------------------------api left-side end -----------------------------------
 
+//-------------------------------- global setting start -------------------------------
+function showGlobalConfig() {
+    $("#global-setting").show();
+    $("#global-setting .modal-body").html("");
+    settingTextarea = monaco.editor.create($("#global-setting .modal-body")[0], {
+        language: 'json',
+        theme:"myTheme",
+        value:formatJson(JSON.stringify(rocketUser.setting)),
+        wordWrap: 'on',  //自行换行
+        verticalHasArrows: true,
+        horizontalHasArrows: true,
+        scrollBeyondLastLine: false,
+        contextmenu:false,
+        automaticLayout: true,
+        fontSize:13,
+        minimap: {
+            enabled: false // 关闭小地图
+        }
+
+    });
+}
+function hideGlobalConfig() {
+    $("#global-setting").hide();
+}
+
+function saveGlobalConfig() {
+    try {
+        rocketUser.setting = JSON.parse(settingTextarea.getValue());
+        localStorage.setItem("rocketUser",JSON.stringify(rocketUser));
+        hideGlobalConfig();
+    }catch (e) {
+        openMsgModal(e);
+    }
+
+}
+//-------------------------------- global setting end -------------------------------
+
+//-------------------------------- api push end -------------------------------
+function apiPush(apiInfoId) {
+    showSendNotify("Pushing Doc")
+    $.ajax({
+        type: "GET",
+        url: apiDocPushUrl,
+        data:{ "apiInfoId": apiInfoId },
+        success: function (data) {
+            data = unpackResult(data);
+            if (data.code !=200){
+                openMsgModal(data.msg);
+                return;
+            }
+        },complete:function () {
+            hideSendNotify();
+        }
+    });
+}
+//-------------------------------- api push end -------------------------------
+
+//-------------------------------- api push start -------------------------------
+function initCompletionItems() {
+    $.get(completionItemsUrl,function (data) {
+        data = unpackResult(data);
+        gdata.completionItems = data.data;
+    })
+}
+//-------------------------------- api push end -------------------------------

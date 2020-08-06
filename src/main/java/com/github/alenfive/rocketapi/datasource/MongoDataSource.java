@@ -2,6 +2,8 @@ package com.github.alenfive.rocketapi.datasource;
 
 import com.github.alenfive.rocketapi.entity.ApiInfo;
 import com.github.alenfive.rocketapi.entity.ApiParams;
+import com.github.alenfive.rocketapi.extend.IApiPager;
+import com.github.alenfive.rocketapi.extend.IPagerDialect;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -63,6 +65,7 @@ public class MongoDataSource extends DataSourceDialect {
         return "{\n" +
                 "\t\"insert\":\"api_info_history\",\n" +
                 "\t\"documents\":[{\n" +
+                "\t\t\"_id\":ObjectId(#{id}),\n" +
                 "\t\t\"api_info_id\":ObjectId(#{apiInfoId}),\n" +
                 "\t\t\"method\":#{method},\n" +
                 "\t\t\"path\":#{path},\n" +
@@ -83,7 +86,7 @@ public class MongoDataSource extends DataSourceDialect {
     public String getApiInfoScript() {
         return "{\n" +
                 "     find: \"api_info\",\n" +
-                "     filter: { method: #{method}, path: #{path} },\n" +
+                "     filter: { _id: ObjectId(#{id})},\n" +
                 "     limit: 1\n" +
                 "}";
     }
@@ -93,6 +96,7 @@ public class MongoDataSource extends DataSourceDialect {
         return "{\n" +
                 "\t\"insert\":\"api_info\",\n" +
                 "\t\"documents\":[{\n" +
+                "\t\t\"_id\":ObjectId(#{id}),\n" +
                 "\t\t\"method\":#{method},\n" +
                 "\t\t\"path\":#{path},\n" +
                 "\t\t\"type\":#{type},\n" +
@@ -139,6 +143,7 @@ public class MongoDataSource extends DataSourceDialect {
         return "{\n" +
                 "\t\"insert\":\"api_example\",\n" +
                 "\t\"documents\":[{\n" +
+                "\t\t\"_id\":ObjectId(#{id}),\n" +
                 "\t\t\"api_info_id\":ObjectId(#{apiInfoId}),\n" +
                 "\t\t\"method\":#{method},\n" +
                 "\t\t\"url\":#{url},\n" +
@@ -181,6 +186,13 @@ public class MongoDataSource extends DataSourceDialect {
         formatISODate(script);
         formatObjectIdList(script);
         Document document = mongoTemplate.executeCommand(script.toString());
+        if (document.get("n") != null){
+            Map<String,Object> count = new HashMap<>();
+            count.put("count",document.get("n"));
+            List<Map<String,Object>> result = new ArrayList<>(1);
+            result.add(count);
+            return result;
+        }
         List<Document> documents = (List<Document>) ((Document)document.get("cursor")).get("firstBatch");
         return documents.stream().map(item->toMap(item)).collect(Collectors.toList());
     }
@@ -337,4 +349,13 @@ public class MongoDataSource extends DataSourceDialect {
         return map;
     }
 
+    @Override
+    String buildCountScript(String script, ApiInfo apiInfo, ApiParams apiParams, IApiPager apiPager, Collection<IPagerDialect> pagerDialects) throws Exception {
+        return script;
+    }
+
+    @Override
+    String buildPageScript(String script, ApiInfo apiInfo, ApiParams apiParams, IApiPager apiPager, Collection<IPagerDialect> pagerDialects) throws Exception {
+        return script;
+    }
 }

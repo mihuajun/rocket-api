@@ -1,12 +1,16 @@
 package com.github.alenfive.rocketapi.entity.vo;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * 登录入参实体
  */
 @Data
-public class LoginReq {
+@AllArgsConstructor
+@NoArgsConstructor
+public class LoginVo {
     private String username;
     private String password;
 }

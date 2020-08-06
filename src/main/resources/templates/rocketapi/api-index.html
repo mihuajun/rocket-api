@@ -3,8 +3,6 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <base th:href="${basePath}">
-    <base th:src="${basePath}">
     <meta name="viewport" content="initial-scale=1, minimum-scale=1, width=device-width">
     <meta name="twitter:widgets:csp" content="on">
     <link rel="stylesheet" type="text/css" href="rocketapi/css/prism.css">
@@ -119,7 +117,7 @@
     </div>
 
     <div class="content-view" style="left: 23%;">
-        <div id="editor-panel" class="ui-lay-m" style="display: none">
+        <div id="editor-panel" class="ui-lay-m" >
             <div class="ui-lay-c" style="bottom: 265px;">
                 <div class="ui-lay-cc" style="height:100%;">
                     <!--<div style="height: 13px;"></div>-->
@@ -134,7 +132,7 @@
             <div th:replace="rocketapi/bottom::bottom-section"></div>
         </div>
 
-        <div id="example-panel" class="ui-lay-m" style="overflow:scroll;display: none">
+        <div id="example-panel" class="ui-lay-m" style="overflow:scroll;">
             <div class="ui-lay-c">
                 <div class="ui-lay-cc">
                     <!--<div style="height: 13px;"></div>-->
@@ -145,6 +143,75 @@
         </div>
     </div>
 
+</div>
+
+<!--save as-->
+<div class="modal save-dialog in" id="save-dialog" aria-hidden="false" style="display: none">
+    <div class="modal-header"><a class="close" onclick="cancelDialogGroup()" data-dismiss="modal">×</a>
+        <h3>Save Request <small></small></h3></div>
+    <div class="modal-body">
+        <div class="form-horizontal">
+            <div class="repository-path-selector">
+                <div class="flex-container name-form">
+                    <div class="left-label"> Name</div>
+                    <div class="right-label"><input type="text" class="gwt-TextBox input-xlarge"></div>
+                </div>
+                <div class="validation-message"></div>
+                <div class="path">
+                    <div class="flex-container">
+                        <div class="path-selector-header left-label"> Path</div>
+                        <div class="flex-container path-selector-container right-label"><a class="r-btn" e2e-tag="drive-selector" title="My drive"><i
+                                class="api-tester-icon api-tester-drive"></i> <span class="drive-name">My drive</span> <span class="caret"></span></a>
+                            <ul class="dropdown-menu" e2e-tag="drives-list">
+                                <li><a>My drive</a></li>
+                            </ul>
+                            <span class="colon">:</span>
+                            <div class="path-buttons" e2e-tag="drive-path"><a class="r-btn active" onclick="showDialogGroup()">/</a></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="selector-table">
+                    <ul class="nav nav-list local-drive">
+
+                    </ul>
+                </div>
+                <div class="new-path"><a class="r-btn" onclick="addGroup()"><i class="fa fa-plus"></i> <span> Create </span> </a>
+                    <div class="new-container-form" aria-hidden="true" style="display: none;">
+                        <div class="flex-container"><span class="left-label"></span> <input type="text" class="new-item-name input-xlarge">
+                            <div class="create-form">
+                                <button class="r-btn r-btn-small" onclick="confirmGroup()"><i class="fa fa-check"></i> <span> Add </span></button>
+                                <button class="r-btn r-btn-small" onclick="cancelGroup()"><i class="fa fa-times-thin"></i> <span> Cancel </span></button>
+                            </div>
+                        </div>
+                        <div class="validation-message"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="alert hidden">The target request will be overwritten.</div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button class="r-btn" e2e-tag="modal-cancel" onclick="cancelDialogGroup()"><i class="fa fa-remove"></i><span>Cancel</span><span class="r-btn-indicator" aria-hidden="true"
+                                                                                                                                        style="display: none;"></span></button>
+        <button class="r-btn r-btn-primary" e2e-tag="modal-ok" onclick="confirmDialog('#editor-section')"><i class="fa fa-download"></i><span>Save</span><span class="r-btn-indicator" aria-hidden="true"
+                                                                                                                                                               style="display: none;"></span></button>
+    </div>
+</div>
+
+<!-- global setting -->
+<div class="modal in" id="global-setting" aria-hidden="false" style="width:50%;left:25%;margin-left:0px;display: none">
+    <div class="modal-header"><a class="close" onclick="hideGlobalConfig()" data-dismiss="modal">×</a>
+        <h3>Global Setting <small></small></h3></div>
+    <div class="modal-body" style="overflow: hidden;width: 100%;padding: 0px;height:450px;">
+
+    </div>
+    <div class="modal-footer">
+        <div class="error-message login-error-message" style="float: left;"></div>
+        <button class="r-btn" e2e-tag="modal-cancel" onclick="hideGlobalConfig()"><i class="fa fa-remove"></i><span>Cancel</span><span class="r-btn-indicator" aria-hidden="true"
+                                                                                                                                      style="display: none;"></span></button>
+        <button class="r-btn r-btn-primary" onclick="saveGlobalConfig()" e2e-tag="modal-ok"><i class="fa fa-save"></i><span>Save</span><span class="r-btn-indicator" aria-hidden="true"
+                                                                                                                                   style="display: none;"></span></button>
+    </div>
 </div>
 
 <div class="intercom-lightweight-app" aria-live="polite">
@@ -413,7 +480,7 @@
         #repository .authenticated .service,
         #repository .authenticated .drive-name,
         .requests .left-pane .left-pane-header .selector .active > a,
-        #save-dialog, .move-dialog, #save-dialog .modal-footer, #save-dialog .repository-path-selector .selector-table,
+        #save-dialog,#save-dialog input, .move-dialog, #save-dialog .modal-footer, #save-dialog .repository-path-selector .selector-table,
         #save-dialog .repository-path-selector .selector-table .nav-list > li > a,
         #save-dialog .r-btn {
             color: #ccc;
@@ -428,7 +495,7 @@
             background-color: #2b2b2b;
         }
 
-        #editor-panel .console-bottom {
+        #editor-panel .bottom-tab  {
             background-color: #2b2b2b;
         }
 
@@ -494,6 +561,23 @@
             -moz-border-radius: 5px;
             border-radius: 5px;
         }
+
+        /*diff panel*/
+        .diff-body  .item:hover{
+            text-decoration: underline ;
+        }
+        .diff-body  .item{
+            float: right;
+            margin-left:10px;
+            cursor: pointer;
+            color: #e8be6a;
+        }
+        .m-left{
+            float:left;
+        }
+        .el-time a{
+            color: #e8be6a;
+        }
     </style>
 </div>
 <!--消息框-->
@@ -553,21 +637,41 @@
 <div id="modal-backdrop" class="modal-backdrop  in" style="display: none;"></div>
 
 
-<script th:inline="javascript" type="text/javascript">
-    let currApi = [[${currApi}]];
-    let currPage = [[${currPage}]];
-    let user = [[${user}]];
-    let baseApiPath = [[${baseApiPath}]];
-    let basePath = [[${basePath}]];
+
+<script  type="text/javascript">
+    let query = window.location.search.substring(1);
+    let vars = query.split("&");
+    let urlParam = {};
+    for (let i=0;i<vars.length;i++) {
+        let pair = vars[i].split("=");
+        urlParam[pair[0]] = pair[1];
+    }
+
+    let baseUrl = window.location.href.indexOf("?") == -1?window.location.href:window.location.href.substring(0,window.location.href.indexOf("?"));
+    let currApi = urlParam.id;
+    let currPage = urlParam.page;
 </script>
 
 <script type="text/javascript" src="rocketapi/js/jquery-1.12.2.min.js"></script>
 <script type="text/javascript" src="rocketapi/js/bootstrap-2.3.2.min.js"></script>
-<script type="text/javascript" src="rocketapi/js/tester_boot.js"></script>
 
 <script>var require = {paths: {'vs': 'rocketapi/monaco-editor/min/vs'}};</script>
 <script src="rocketapi/monaco-editor/min/vs/loader.js"></script>
 <script src="rocketapi/monaco-editor/min/vs/editor/editor.main.nls.js"></script>
 <script src="rocketapi/monaco-editor/min/vs/editor/editor.main.js"></script>
+<script src="rocketapi/monaco-editor/min/vs/rocket-language.js"></script>
+<script>
+    var _mtac = {"senseQuery":1};
+    (function() {
+        var mta = document.createElement("script");
+        mta.src = "//pingjs.qq.com/h5/stats.js?v2.0.4";
+        mta.setAttribute("name", "MTAH5");
+        mta.setAttribute("sid", "500724935");
+        mta.setAttribute("cid", "500724936");
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(mta, s);
+    })();
+</script>
+<script type="text/javascript" src="rocketapi/js/tester_boot.js"></script>
 </body>
 </html>

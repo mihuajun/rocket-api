@@ -9804,6 +9804,7 @@ a.gwt-anchor-inactive:hover {
     flex-grow: 1;
     overflow-x: hidden;
     overflow-y: auto;
+    padding-bottom: 50px;
 }
 .left-pane .tree-view .dropdown-menu i,
 .selection-tree .tree-view .dropdown-menu i {
@@ -11149,7 +11150,7 @@ a.gwt-anchor-inactive:hover {
 .h-divider {
     z-index: 1;
     bottom: 0;
-    width: 2px;
+    width: 5px;
     padding-left: 1px;
     text-align: left;
     cursor: ew-resize;
