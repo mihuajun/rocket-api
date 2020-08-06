@@ -189,7 +189,6 @@ function provideCompletionTypes(range,word,fullValue){
     let wordSet = new Set();
     while((match = regex.exec(fullValue)) != null){
         let item = match[0]
-        console.log(word + "="+item)
         if (word && word == item){
             continue;
         }
