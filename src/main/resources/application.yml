@@ -21,7 +21,7 @@ spring:
       password: 123456
       port: 27017
   thymeleaf:
-    cache: false
+    cache: true
     check-template: true
     check-template-location: true
     enabled: true
@@ -29,9 +29,15 @@ spring:
     mode: HTML5
     prefix: classpath:/templates/
     suffix: .html
+  resources:
+    cache:
+      period: 1h
 logging:
   level:
     com.github.alenfive.rocketapi: debug
 #server:
 #  servlet:
 #    context-path: /rocket-api
+server:
+  compression:
+    enabled: true

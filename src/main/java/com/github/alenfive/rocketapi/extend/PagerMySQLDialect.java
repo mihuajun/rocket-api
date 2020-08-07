@@ -23,5 +23,4 @@ public class PagerMySQLDialect implements IPagerDialect {
         return  script + " limit "+offset+","+limit;
     }
 
-
 }
