@@ -73,7 +73,6 @@ public final class GenerateId implements Comparable<GenerateId>, Serializable {
     /**
      * Gets a new object id.
      *
-     * @return the new id
      */
     public static GenerateId get() {
         return new GenerateId();
@@ -83,7 +82,6 @@ public final class GenerateId implements Comparable<GenerateId>, Serializable {
      * Checks if a string could be an {@code ObjectId}.
      *
      * @param hexString a potential ObjectId as a String.
-     * @return whether the string could be an object id
      * @throws IllegalArgumentException if hexString is null
      */
     public static boolean isValid(final String hexString) {
@@ -117,7 +115,6 @@ public final class GenerateId implements Comparable<GenerateId>, Serializable {
     /**
      * Gets the generated machine identifier.
      *
-     * @return an int representing the machine identifier
      */
     public static int getGeneratedMachineIdentifier() {
         return MACHINE_IDENTIFIER;
@@ -126,7 +123,6 @@ public final class GenerateId implements Comparable<GenerateId>, Serializable {
     /**
      * Gets the generated process identifier.
      *
-     * @return the process id
      */
     public static int getGeneratedProcessIdentifier() {
         return PROCESS_IDENTIFIER;
@@ -135,7 +131,6 @@ public final class GenerateId implements Comparable<GenerateId>, Serializable {
     /**
      * Gets the current value of the auto-incrementing counter.
      *
-     * @return the current counter value.
      */
     public static int getCurrentCounter() {
         return NEXT_COUNTER.get();
@@ -155,7 +150,6 @@ public final class GenerateId implements Comparable<GenerateId>, Serializable {
      * @param time    time in seconds
      * @param machine machine ID
      * @param inc     incremental value
-     * @return a new {@code ObjectId} created from the given values
      * @since 2.12.0
      */
     public static GenerateId createFromLegacyFormat(final int time, final int machine, final int inc) {
@@ -299,7 +293,6 @@ public final class GenerateId implements Comparable<GenerateId>, Serializable {
     /**
      * Convert to a byte array.  Note that the numbers are stored in big-endian order.
      *
-     * @return the byte array
      */
     public byte[] toByteArray() {
         ByteBuffer buffer = ByteBuffer.allocate(12);
@@ -336,7 +329,6 @@ public final class GenerateId implements Comparable<GenerateId>, Serializable {
     /**
      * Gets the timestamp (number of seconds since the Unix epoch).
      *
-     * @return the timestamp
      */
     public int getTimestamp() {
         return timestamp;
@@ -345,7 +337,6 @@ public final class GenerateId implements Comparable<GenerateId>, Serializable {
     /**
      * Gets the machine identifier.
      *
-     * @return the machine identifier
      */
     public int getMachineIdentifier() {
         return machineIdentifier;
@@ -354,7 +345,6 @@ public final class GenerateId implements Comparable<GenerateId>, Serializable {
     /**
      * Gets the process identifier.
      *
-     * @return the process identifier
      */
     public short getProcessIdentifier() {
         return processIdentifier;
@@ -363,7 +353,6 @@ public final class GenerateId implements Comparable<GenerateId>, Serializable {
     /**
      * Gets the counter.
      *
-     * @return the counter
      */
     public int getCounter() {
         return counter;
@@ -372,7 +361,6 @@ public final class GenerateId implements Comparable<GenerateId>, Serializable {
     /**
      * Gets the timestamp as a {@code Date} instance.
      *
-     * @return the Date
      */
     public Date getDate() {
         return new Date(timestamp * 1000L);
@@ -381,7 +369,6 @@ public final class GenerateId implements Comparable<GenerateId>, Serializable {
     /**
      * Converts this instance into a 24-byte hexadecimal string representation.
      *
-     * @return a string representation of the ObjectId in hexadecimal format
      */
     public String toHexString() {
       char[] chars = new char[24];
@@ -456,7 +443,6 @@ public final class GenerateId implements Comparable<GenerateId>, Serializable {
      * Gets the time of this ID, in seconds.
      *
      * @deprecated Use #getTimestamp instead
-     * @return the time component of this ID in seconds
      */
     @Deprecated
     public int getTimeSecond() {
@@ -467,7 +453,6 @@ public final class GenerateId implements Comparable<GenerateId>, Serializable {
      * Gets the time of this instance, in milliseconds.
      *
      * @deprecated Use #getDate instead
-     * @return the time component of this ID in milliseconds
      */
     @Deprecated
     public long getTime() {
@@ -475,7 +460,6 @@ public final class GenerateId implements Comparable<GenerateId>, Serializable {
     }
 
     /**
-     * @return a string representation of the ObjectId in hexadecimal format
      * @see GenerateId#toHexString()
      * @deprecated use {@link #toHexString()}
      */

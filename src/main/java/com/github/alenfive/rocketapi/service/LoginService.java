@@ -29,7 +29,6 @@ public class LoginService {
     /**
      * 根据token 验证登录用户
      * @param request
-     * @return
      */
     public String getUser(HttpServletRequest request){
         String token = request.getHeader(rocketUserToken);

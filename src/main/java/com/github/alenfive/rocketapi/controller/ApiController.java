@@ -72,7 +72,6 @@ public class ApiController {
 
     /**
      * LOAD API LIST
-     * @return
      */
     @GetMapping("/api-list")
     public ApiResult getPathList(boolean isDb) throws Exception {
@@ -81,7 +80,6 @@ public class ApiController {
 
     /**
      * 单个获取
-     * @return
      */
     @GetMapping("/api-info/{id}")
     public ApiResult getPathList(@PathVariable String id) throws Exception {
@@ -99,7 +97,6 @@ public class ApiController {
 
     /**
      * 历史记录查询
-     * @return
      */
     @GetMapping("/api-info/last")
     public ApiResult lastApiInfo(String apiInfoId,Integer pageSize,Integer pageNo) throws Exception {
@@ -138,8 +135,6 @@ public class ApiController {
 
     /**
      * change group name
-     * @param renameGroupReq
-     * @return
      */
     @PutMapping("/api-info/group")
     public ApiResult renameGroup(@RequestBody RenameGroupReq renameGroupReq,HttpServletRequest request) throws Exception {
@@ -172,8 +167,6 @@ public class ApiController {
 
     /**
      * 脚本执行
-     * @param runApiReq
-     * @return
      */
     @PostMapping("/api-info/run")
     public ApiResult runScript(@RequestBody RunApiReq runApiReq, HttpServletRequest request){
@@ -247,7 +240,6 @@ public class ApiController {
 
     /**
      * 组名获取
-     * @return
      */
     @GetMapping("/group-name-list")
     public ApiResult getGroupNameList(){
@@ -256,7 +248,6 @@ public class ApiController {
 
     /**
      * API名获取
-     * @return
      */
     @GetMapping("/api-name-list")
     public ApiResult getApiNameList(String group){
@@ -291,8 +282,6 @@ public class ApiController {
 
     /**
      * 查询最近一次模拟数据
-     * @param apiInfoId
-     * @return
      */
     @GetMapping("/api-example/last")
     public ApiResult lastApiExample(String apiInfoId,Integer limit) throws Exception {
@@ -311,8 +300,6 @@ public class ApiController {
 
     /**
      * 删除模拟数据
-     * @param deleteExamleReq
-     * @return
      */
     @DeleteMapping("/api-example")
     private ApiResult deleteExampleList(@RequestBody DeleteExamleReq deleteExamleReq, HttpServletRequest request) throws Exception {
@@ -325,9 +312,6 @@ public class ApiController {
 
     /**
      * 用户登录
-     * @param loginVo
-     * @param request
-     * @return
      */
     @PostMapping("/login")
     public ApiResult login(@RequestBody LoginVo loginVo, HttpServletRequest request, HttpServletResponse response) throws JsonProcessingException {
@@ -341,8 +325,6 @@ public class ApiController {
 
     /**
      * 注销登录
-     * @param request
-     * @return
      */
     @PostMapping("/logout")
     public ApiResult login(HttpServletRequest request,HttpServletResponse response){
@@ -351,7 +333,6 @@ public class ApiController {
 
     /**
      * API DOC 同步
-     * @return
      */
     @GetMapping("/api-doc-push")
     public ApiResult apiDocPush(String apiInfoId) throws Exception {
@@ -426,7 +407,6 @@ public class ApiController {
 
     /**
      * 自动完成，方法解析
-     * @return
      */
     @PostMapping("/completion-type")
     public ApiResult provideCompletionItems(@RequestBody ProvideCompletionReq completionReq){

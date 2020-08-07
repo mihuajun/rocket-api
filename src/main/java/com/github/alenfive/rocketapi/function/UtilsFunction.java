@@ -25,7 +25,6 @@ public class UtilsFunction implements IFunction{
     /**
      * 获取上下文中的指定变量
      * @param varName
-     * @return
      */
     public Object val(String varName){
         return scriptParseService.buildParamItem(apiInfoContent.getApiParams(),varName);
