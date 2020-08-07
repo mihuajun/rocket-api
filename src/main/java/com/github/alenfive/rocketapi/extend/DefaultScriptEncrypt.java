@@ -11,7 +11,7 @@ import javax.crypto.spec.SecretKeySpec;
 import java.util.Base64;
 
 /**
- * 默认用户授权实现类
+ * 代码加解密默认实现类
  */
 
 @Component

@@ -7,15 +7,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
- * @Description:
- * @Copyright: Copyright (c) 2019  ALL RIGHTS RESERVED.
- * @Company: 成都国盛天丰技术有限责任公司
- * @Author: 米华军
- * @CreateDate: 2020/7/15 17:11
- * @UpdateDate: 2020/7/15 17:11
- * @UpdateRemark: init
- * @Version: 1.0
- * @menu 默认结果包装类
+ * 默认结果包装类
  */
 @Component
 public class DefaultResultWrapper  implements IResultWrapper{

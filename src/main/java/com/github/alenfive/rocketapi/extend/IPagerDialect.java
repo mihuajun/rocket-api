@@ -22,4 +22,5 @@ public interface IPagerDialect {
      * @return
      */
     String buildPageScript(String script, Integer offset,Integer limit);
+
 }

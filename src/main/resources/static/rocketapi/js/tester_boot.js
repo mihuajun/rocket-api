@@ -212,7 +212,6 @@ $(function(){
         console.log(postfixRange);
         prefixOp = {"range":prefixRange,"text":"/*"};
         postfixOp = {"range":postfixRange,"text":"*/"};
-        console.log(postfixOp)
         editorTextarea.executeEdits('insert-code',[prefixOp])
         if (selectRange.selectionStartLineNumber == selectRange.endLineNumber){
             postfixOp.range.startColumn = postfixOp.range.startColumn + 2;
