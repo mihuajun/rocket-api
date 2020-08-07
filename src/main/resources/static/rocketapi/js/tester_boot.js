@@ -198,15 +198,26 @@ $(function(){
         //取消注释
         if (prefix == '/*' && postfix == "*/"){
             editorTextarea.executeEdits('insert-code',[prefixOp])
+            if (selectRange.selectionStartLineNumber == selectRange.endLineNumber){
+                postfixOp.range.startColumn = postfixOp.range.startColumn - 2;
+                postfixOp.range.endColumn = postfixOp.range.endColumn - 2;
+            }
             editorTextarea.executeEdits('insert-code',[postfixOp])
             return;
         }
 
         prefixRange = new monaco.Range(selectRange.selectionStartLineNumber, selectRange.selectionStartColumn, selectRange.selectionStartLineNumber, selectRange.selectionStartColumn);
-        postfixRange = new monaco.Range(selectRange.endLineNumber, selectRange.endColumn, selectRange.endLineNumber, selectRange.endColumn);
+        postfixRange = new monaco.Range(selectRange.endLineNumber, selectRange.endColumn , selectRange.endLineNumber, selectRange.endColumn);
+        console.log(prefixRange);
+        console.log(postfixRange);
         prefixOp = {"range":prefixRange,"text":"/*"};
         postfixOp = {"range":postfixRange,"text":"*/"};
+        console.log(postfixOp)
         editorTextarea.executeEdits('insert-code',[prefixOp])
+        if (selectRange.selectionStartLineNumber == selectRange.endLineNumber){
+            postfixOp.range.startColumn = postfixOp.range.startColumn + 2;
+            postfixOp.range.endColumn = postfixOp.range.endColumn + 2;
+        }
         editorTextarea.executeEdits('insert-code',[postfixOp])
     });
 
