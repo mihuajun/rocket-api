@@ -66,7 +66,6 @@ public class ScriptParseService {
      * 构建FOR语法
      * @param script
      * @param apiParams
-     * @return
      */
     public String buildFor(String script,ApiParams apiParams){
         return null;
@@ -77,7 +76,6 @@ public class ScriptParseService {
      * @param source
      * @param beginToken
      * @param endToken
-     * @return
      */
     public IndexScope buildIndexScope(StringBuilder source,String beginToken,String endToken){
 
@@ -104,7 +102,6 @@ public class ScriptParseService {
      * 构建IF语法
      * @param script
      * @param apiParams
-     * @return
      */
     public void buildIf(StringBuilder script,ApiParams apiParams){
         String flag = "?{";
@@ -154,7 +151,6 @@ public class ScriptParseService {
      * 构建参数 #{}
      * @param script
      * @param apiParams
-     * @return
      */
     public void buildParams(StringBuilder script, ApiParams apiParams){
         //匹配参数#{}

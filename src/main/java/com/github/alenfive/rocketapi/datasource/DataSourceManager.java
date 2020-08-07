@@ -19,7 +19,6 @@ public abstract class DataSourceManager {
 
     /**
      * 查询API存储的数据源
-     * @return
      */
     public String getStoreApiKey(){
         return dialectMap.keySet().stream().filter(key->dialectMap.get(key).isStoreApi()).findFirst().orElse(null);

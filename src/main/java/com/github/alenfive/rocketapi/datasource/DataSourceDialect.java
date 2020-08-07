@@ -46,8 +46,6 @@ public abstract class DataSourceDialect {
 
     /**
      * 替换key
-     * @param map
-     * @return
      */
     protected Map<String,Object> toReplaceKeyLow(Map<String,Object> map){
         Map<String,Object> result = new HashMap<>(map.size());
@@ -59,8 +57,6 @@ public abstract class DataSourceDialect {
 
     /**
      * 下划线转驼峰
-     * @param name
-     * @return
      */
     protected String underlineToCamel(String name){
         StringBuilder sb = new StringBuilder(name.length());

@@ -167,7 +167,6 @@ public class QLRequestMappingFactory {
 
     /**
      * 执行脚本逻辑
-     * @return
      */
     @ResponseBody
     @RequestMapping
@@ -372,7 +371,6 @@ public class QLRequestMappingFactory {
 
     /**
      * 获取已注册的API地址
-     * @return
      */
     public List<ApiInfo> getPathListForCode(){
         Map<RequestMappingInfo, HandlerMethod> map = requestMappingHandlerMapping.getHandlerMethods();
