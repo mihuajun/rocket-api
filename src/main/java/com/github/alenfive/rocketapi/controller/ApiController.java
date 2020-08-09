@@ -133,6 +133,15 @@ public class ApiController {
 
     }
 
+    @PostMapping("/api-info-sync")
+    public ApiResult apiInfoSync(@RequestBody ApiInfoSyncReq syncReq){
+        if (syncReq == null || StringUtils.isEmpty(syncReq.getSign())){
+            return ApiResult.fail("Signature abnormal");
+        }
+
+        return ApiResult.success(null);
+    }
+
     /**
      * change group name
      */

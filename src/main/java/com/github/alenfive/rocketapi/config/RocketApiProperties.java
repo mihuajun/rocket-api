@@ -18,5 +18,6 @@ public class RocketApiProperties {
     private String baseRegisterPath = "/interface-ui";
 
     //密钥KEY
-    private String encryptKey = "6254a1b8d0d411ea";
+    private String secretKey = "123456789";
+
 }

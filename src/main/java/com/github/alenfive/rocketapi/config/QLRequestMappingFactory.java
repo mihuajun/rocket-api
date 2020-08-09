@@ -123,7 +123,7 @@ public class QLRequestMappingFactory {
             apiParams = ApiParams.builder().param(codeInfo.toMap()).build();
             script = new StringBuilder(dataSourceManager.saveApiInfoScript());
             parseService.buildParams(script,apiParams);
-            dataSourceManager.insert(script,ApiInfo.builder().datasource(dataSourceManager.getStoreApiKey()).build(),null);
+            dataSourceManager.insert(script,ApiInfo.builder().datasource(dataSourceManager.getStoreApiKey()).build(),apiParams);
             this.cacheApiInfo.put(buildApiInfoKey(codeInfo),getDbInfo(codeInfo));
         }
 
