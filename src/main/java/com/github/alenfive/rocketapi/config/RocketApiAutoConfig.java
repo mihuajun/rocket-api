@@ -113,6 +113,12 @@ public class RocketApiAutoConfig {
 
     @Bean
     @ConditionalOnMissingBean
+    public IApiInfoCache getIApiCache(){
+        return new DefaultApiInfoCache();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
     public EncryptChangeService getEncryptChangeService(){
         return new EncryptChangeService();
     }

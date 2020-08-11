@@ -5,10 +5,7 @@ import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.github.alenfive.rocketapi.datasource.DataSourceManager;
 import com.github.alenfive.rocketapi.entity.*;
 import com.github.alenfive.rocketapi.entity.vo.RenameGroupReq;
-import com.github.alenfive.rocketapi.extend.ApiInfoContent;
-import com.github.alenfive.rocketapi.extend.ApiInfoInterceptor;
-import com.github.alenfive.rocketapi.extend.IResultWrapper;
-import com.github.alenfive.rocketapi.extend.IScriptEncrypt;
+import com.github.alenfive.rocketapi.extend.*;
 import com.github.alenfive.rocketapi.script.IScriptParse;
 import com.github.alenfive.rocketapi.service.ScriptParseService;
 import com.github.alenfive.rocketapi.utils.GenerateId;
@@ -38,7 +35,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 /**
@@ -83,7 +79,8 @@ public class QLRequestMappingFactory {
 
     public List<ApiInfoInterceptor> interceptors = null;
 
-    private Map<String, ApiInfo> cacheApiInfo = new ConcurrentHashMap<>();
+    @Autowired
+    private IApiInfoCache apiInfoCache;
 
     @Autowired
     private IResultWrapper resultWrapper;
@@ -100,6 +97,9 @@ public class QLRequestMappingFactory {
     @PostConstruct
     public void init() throws Exception {
 
+        //load banner
+        loadBanner();
+
         //加载数据库API
         ApiParams apiParams = new ApiParams().putParam("service",service);
         StringBuilder script = new StringBuilder(dataSourceManager.listApiInfoScript());
@@ -107,13 +107,13 @@ public class QLRequestMappingFactory {
         List<Map<String,Object>> apiInfos = dataSourceManager.find(script, ApiInfo.builder().datasource(dataSourceManager.getStoreApiKey()).build(),null);
         for (Map<String,Object> map : apiInfos){
             ApiInfo apiInfo = objectMapper.readValue(objectMapper.writeValueAsBytes(map),ApiInfo.class);
-            this.cacheApiInfo.put(buildApiInfoKey(apiInfo),apiInfo);
+            apiInfoCache.put(apiInfo);
         }
 
         //加载代码方式的API
         List<ApiInfo> codeApiList = getPathListForCode();
         for (ApiInfo codeInfo : codeApiList){
-            ApiInfo dbInfo = this.cacheApiInfo.get(buildApiInfoKey(codeInfo));
+            ApiInfo dbInfo = apiInfoCache.get(codeInfo);
             if (dbInfo != null){
                 continue;
             }
@@ -124,16 +124,13 @@ public class QLRequestMappingFactory {
             script = new StringBuilder(dataSourceManager.saveApiInfoScript());
             parseService.buildParams(script,apiParams);
             dataSourceManager.insert(script,ApiInfo.builder().datasource(dataSourceManager.getStoreApiKey()).build(),apiParams);
-            this.cacheApiInfo.put(buildApiInfoKey(codeInfo),getDbInfo(codeInfo));
+            apiInfoCache.put(getDbInfo(codeInfo));
         }
 
         //注册mapping
-        for (ApiInfo apiInfo : this.cacheApiInfo.values()){
+        for (ApiInfo apiInfo : apiInfoCache.getAll()){
             this.registerMappingForApiInfo(apiInfo);
         }
-
-        //load banner
-        loadBanner();
     }
 
     private void loadBanner() {
@@ -153,15 +150,13 @@ public class QLRequestMappingFactory {
     }
 
     private void clear(){
-        this.cacheApiInfo.values().stream().filter(item->ApiType.Ql.name().equals(item.getType())).forEach(item->{
+        apiInfoCache.getAll().stream().filter(item->ApiType.Ql.name().equals(item.getType())).forEach(item->{
             this.unregisterMappingForApiInfo(item);
         });
-        this.cacheApiInfo.clear();
+        apiInfoCache.removeAll();
     }
 
-    private String buildApiInfoKey(ApiInfo apiInfo) {
-        return apiInfo.getMethod() +" "+ apiInfo.getPath();
-    }
+
 
 
 
@@ -200,7 +195,7 @@ public class QLRequestMappingFactory {
                 .build();
 
 
-        ApiInfo apiInfo = cacheApiInfo.get(buildApiInfoKey(ApiInfo.builder().method(method).path(path).build()));
+        ApiInfo apiInfo = apiInfoCache.get(ApiInfo.builder().method(method).path(path).build());
 
         StringBuilder script = new StringBuilder(scriptEncrypt.decrypt(apiInfo.getScript()));
 
@@ -271,14 +266,14 @@ public class QLRequestMappingFactory {
             clear();
             init();
         }
-        return this.cacheApiInfo.values().stream().sorted(Comparator.comparing(ApiInfo::getComment).thenComparing(ApiInfo::getPath)).collect(Collectors.toList());
+        return apiInfoCache.getAll().stream().sorted(Comparator.comparing(ApiInfo::getComment).thenComparing(ApiInfo::getPath)).collect(Collectors.toList());
     }
 
     @Transactional
     public String saveOrUpdateApiInfo(ApiInfo apiInfo) throws Exception {
 
         if (existsPattern(apiInfo)){
-            throw new IllegalArgumentException(buildApiInfoKey(apiInfo)+" already exist");
+            throw new IllegalArgumentException("method: "+apiInfo.getMethod()+" path:"+apiInfo.getPath()+" already exist");
         }
 
         apiInfo.setUpdateTime(new Date());
@@ -292,29 +287,36 @@ public class QLRequestMappingFactory {
             parseService.buildParams(script,apiParams);
             dataSourceManager.insert(script,ApiInfo.builder().datasource(dataSourceManager.getStoreApiKey()).build(),null);
         }else{
-            ApiInfo dbInfo = this.cacheApiInfo.values().stream().filter(item->item.getId().equals(apiInfo.getId())).findFirst().orElse(null);
             apiInfo.setService(service);
             ApiParams apiParams = ApiParams.builder().param(apiInfo.toMap()).build();
             StringBuilder script = new StringBuilder(dataSourceManager.updateApiInfoScript());
             parseService.buildParams(script,apiParams);
             dataSourceManager.update(script,ApiInfo.builder().datasource(dataSourceManager.getStoreApiKey()).build(),null);
 
+            ApiInfo dbInfo = apiInfoCache.getAll().stream().filter(item->item.getId().equals(apiInfo.getId())).findFirst().orElse(null);
+
             //取消mapping注册
             unregisterMappingForApiInfo(dbInfo);
 
             //清理缓存
-            this.cacheApiInfo.remove(buildApiInfoKey(dbInfo));
+            apiInfoCache.remove(dbInfo);
         }
 
         ApiInfo dbInfo = getDbInfo(apiInfo);
 
         //入缓存
-        this.cacheApiInfo.put(buildApiInfoKey(dbInfo),dbInfo);
+        apiInfoCache.put(dbInfo);
 
         //注册mapping
         this.registerMappingForApiInfo(dbInfo);
 
         //存储历史
+        saveApiHistory(dbInfo);
+
+        return dbInfo.getId();
+    }
+
+    private void saveApiHistory(ApiInfo dbInfo) throws Exception {
         ApiInfoHistory history = new ApiInfoHistory();
         BeanUtils.copyProperties(dbInfo,history);
         history.setApiInfoId(dbInfo.getId());
@@ -324,7 +326,6 @@ public class QLRequestMappingFactory {
         StringBuilder script = new StringBuilder(dataSourceManager.saveApiInfoHistoryScript());
         parseService.buildParams(script,apiParams);
         dataSourceManager.insert(script,ApiInfo.builder().datasource(dataSourceManager.getStoreApiKey()).build(),null);
-        return dbInfo.getId();
     }
 
     public ApiInfo getDbInfo(ApiInfo apiInfo) throws Exception {
@@ -337,7 +338,7 @@ public class QLRequestMappingFactory {
     }
 
     private boolean existsPattern(ApiInfo apiInfo) {
-        ApiInfo dbInfo = this.cacheApiInfo.values().stream().filter(item->item.getPath().equals(apiInfo.getPath()) && (item.getMethod().equals("All") || item.getMethod().equals(apiInfo.getMethod()))).findFirst().orElse(null);
+        ApiInfo dbInfo = apiInfoCache.getAll().stream().filter(item->item.getPath().equals(apiInfo.getPath()) && (item.getMethod().equals("All") || item.getMethod().equals(apiInfo.getMethod()))).findFirst().orElse(null);
         if (dbInfo == null || (apiInfo.getId() != null && apiInfo.getId().equals(dbInfo.getId()))){
             return false;
         }
@@ -347,7 +348,7 @@ public class QLRequestMappingFactory {
     @Transactional
     public Long deleteApiInfo(ApiInfo apiInfo) throws Exception {
 
-        ApiInfo dbInfo = this.cacheApiInfo.values().stream().filter(item->item.getId().equals(apiInfo.getId())).findFirst().orElse(null);
+        ApiInfo dbInfo = apiInfoCache.getAll().stream().filter(item->item.getId().equals(apiInfo.getId())).findFirst().orElse(null);
         if (dbInfo == null){
             return 0L;
         }
@@ -362,7 +363,7 @@ public class QLRequestMappingFactory {
         Long num = dataSourceManager.remove(script,ApiInfo.builder().datasource(dataSourceManager.getStoreApiKey()).build(),null);
 
         //清缓存
-        this.cacheApiInfo.remove(buildApiInfoKey(dbInfo));
+        apiInfoCache.remove(dbInfo);
 
         //取消mapping注册
         unregisterMappingForApiInfo(dbInfo);
@@ -421,22 +422,25 @@ public class QLRequestMappingFactory {
     }
 
     public Set<String> getGroupNameList() {
-        return this.cacheApiInfo.values().stream().map(ApiInfo::getGroup).collect(Collectors.toSet());
+        return apiInfoCache.getAll().stream().map(ApiInfo::getGroup).collect(Collectors.toSet());
     }
 
     public Set<String> getApiNameList(String group) {
-        return this.cacheApiInfo.values().stream().filter(item->group.equals(item.getGroup()))
+        return apiInfoCache.getAll().stream().filter(item->group.equals(item.getGroup()))
                 .map(item->StringUtils.isEmpty(item.getComment())?item.getPath():item.getComment()).collect(Collectors.toSet());
     }
 
     @Transactional
     public Long renameGroup(RenameGroupReq renameGroupReq) throws Exception {
-        List<ApiInfo> apiInfos = this.cacheApiInfo.values().stream().filter(item->item.getGroup().equals(renameGroupReq.getOldGroup())).collect(Collectors.toList());
+        List<ApiInfo> apiInfos = apiInfoCache.getAll().stream().filter(item->item.getGroup().equals(renameGroupReq.getOldGroup())).collect(Collectors.toList());
         for (ApiInfo apiInfo : apiInfos){
             apiInfo.setGroup(renameGroupReq.getNewGroup());
             StringBuilder script = new StringBuilder(dataSourceManager.updateApiInfoScript());
             parseService.buildParams(script,ApiParams.builder().param(apiInfo.toMap()).build());
             dataSourceManager.update(script,ApiInfo.builder().datasource(dataSourceManager.getStoreApiKey()).build(),null);
+
+            //更新缓存
+            apiInfoCache.put(apiInfo);
         }
         return Long.valueOf(apiInfos.size());
     }
@@ -488,5 +492,60 @@ public class QLRequestMappingFactory {
             }
             return null;
         }).collect(Collectors.toList());
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public void apiInfoSync(List<ApiInfo> apiInfos,Boolean increment) throws Exception {
+
+        Collection<ApiInfo> currApiInfos = this.getPathList(false);
+
+        //全量同步
+        if(!increment){
+
+            //删除历史信息
+            for (ApiInfo dbInfo : currApiInfos){
+                ApiParams apiParams = ApiParams.builder().param(dbInfo.toMap()).build();
+                StringBuilder script = new StringBuilder(dataSourceManager.deleteApiInfoScript());
+                parseService.buildParams(script,apiParams);
+                dataSourceManager.remove(script,ApiInfo.builder().datasource(dataSourceManager.getStoreApiKey()).build(),null);
+            }
+            //添加新信息
+            for (ApiInfo apiInfo : apiInfos){
+                apiInfo.setCreateTime(new Date());
+                apiInfo.setUpdateTime(new Date());
+                ApiParams apiParams = ApiParams.builder().param(apiInfo.toMap()).build();
+                StringBuilder script = new StringBuilder(dataSourceManager.saveApiInfoScript());
+                parseService.buildParams(script,apiParams);
+                dataSourceManager.insert(script,ApiInfo.builder().datasource(dataSourceManager.getStoreApiKey()).build(),null);
+
+                //保存历史版本
+                saveApiHistory(apiInfo);
+            }
+        }else {
+            //增量同步
+            for (ApiInfo apiInfo : apiInfos){
+                ApiInfo dbInfo =  currApiInfos.stream().filter(item->item.getId().equals(apiInfo.getId())).findFirst().orElse(null);
+                if (dbInfo == null){
+                    apiInfo.setCreateTime(new Date());
+                    apiInfo.setUpdateTime(new Date());
+                    ApiParams apiParams = ApiParams.builder().param(apiInfo.toMap()).build();
+                    StringBuilder script = new StringBuilder(dataSourceManager.saveApiInfoScript());
+                    parseService.buildParams(script,apiParams);
+                    dataSourceManager.insert(script,ApiInfo.builder().datasource(dataSourceManager.getStoreApiKey()).build(),null);
+                }else{
+                    apiInfo.setUpdateTime(new Date());
+                    ApiParams apiParams = ApiParams.builder().param(apiInfo.toMap()).build();
+                    StringBuilder script = new StringBuilder(dataSourceManager.updateApiInfoScript());
+                    parseService.buildParams(script,apiParams);
+                    dataSourceManager.update(script,ApiInfo.builder().datasource(dataSourceManager.getStoreApiKey()).build(),null);
+                }
+
+                //保存历史版本
+                saveApiHistory(apiInfo);
+            }
+        }
+
+        //刷新缓存
+        this.getPathList(true);
     }
 }

@@ -21,7 +21,7 @@ spring:
       password: 123456
       port: 27017
   thymeleaf:
-    cache: true
+    cache: false
     check-template: true
     check-template-location: true
     enabled: true

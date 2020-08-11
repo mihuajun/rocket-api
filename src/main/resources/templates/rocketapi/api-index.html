@@ -214,6 +214,65 @@
     </div>
 </div>
 
+<!-- Remote Sync -->
+<div class="modal in export-dialog " id="remote-sync" aria-hidden="false" style="display:none;width:50%;left:25%;margin-left:0px;">
+    <div class="modal-header"><a class="close" onclick="hideRemoteSync()" data-dismiss="modal">×</a>
+        <h3>Remote Publishing <small></small></h3></div>
+    <div class="form-horizontal">
+        <fieldset>
+            <div class="control-group">
+                <label class="control-label file-label"><span> Filter </span></label>
+                <div class="controls file-input"><input type="text" style="width: 50%" onkeyup="searchSelectApi(this)" class="gwt-TextBox"></div>
+            </div>
+            <div class="control-group browser-repository">
+                <div class="controls browser-and-error">
+                    <div>
+                        <div>
+                            <ul class="tree">
+                                <li class="level0 drive">
+                                    <div class="tree-entry">
+                                        <label class="checkbox">
+                                            <input type="checkbox" value="on" tabindex="0"><span></span>
+                                        </label>
+                                        <a href="javascript:;" class="btn btn-link name">
+                                            <i class="icon-caret-down"></i>
+                                            <i class="node-icon node-icon-hidden"></i>
+                                            <span class="gwt-InlineHTML node-text" data-content="(will be created)">My drive</span>
+                                        </a>
+                                    </div>
+                                    <ul style="display: block;" class="api-list-body">
+                                    </ul>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="items-count">0 item selected</div>
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label file-label"><span> Remote URL </span></label>
+                <div class="controls file-input"><input style="width: 50%"  type="text" class="remote-url gwt-TextBox"></div>
+            </div>
+            <div class="control-group">
+                <label class="control-label file-label"><span> Secret Key </span></label>
+                <div class="controls file-input"><input style="width: 50%"  type="text" class="secret-key gwt-TextBox"></div>
+            </div>
+        </fieldset>
+    </div>
+    <div class="modal-footer">
+        <div class="error-message login-error-message" style="float: left;"></div>
+        <button class="r-btn" e2e-tag="modal-cancel" onclick="hideRemoteSync()">
+            <i class="fa fa-remove"></i><span>Close</span><span class="r-btn-indicator" aria-hidden="true" style="display: none;"></span>
+        </button>
+        <button class="r-btn r-btn-primary" e2e-tag="modal-cancel" title="增量同步" onclick="remoteSync(1)">
+            <i class="fa fa-upload"></i><span>Increment</span><span class="r-btn-indicator" aria-hidden="true" style="display: none;"></span>
+        </button>
+        <button class="r-btn r-btn-primary" onclick="remoteSync(0)" title="全量同步" e2e-tag="modal-ok">
+            <i class="fa fa-upload"></i><span>ALL</span><span class="r-btn-indicator" aria-hidden="true" style="display: none;"></span>
+        </button>
+    </div>
+</div>
+
 <div class="intercom-lightweight-app" aria-live="polite">
     <style id="intercom-lightweight-app-style">
         @keyframes intercom-lightweight-app-launcher {
@@ -246,7 +305,23 @@
                 transform: translateY(0);
             }
         }
-
+        #remote-sync .modal-body{
+            padding: 10px 0px;
+            overflow: hidden;
+            width: 100%;
+            height:450px;
+        }
+        #remote-sync .modal-body .input>span{
+            width:150px;
+            display: block;
+        }
+        #remote-sync .modal-body .input input{
+            width:80%;
+        }
+        #remote-sync .modal-body .input{
+            width: 80%;
+            margin:auto;
+        }
         .intercom-lightweight-app {
             position: fixed;
             z-index: 2147483000;
@@ -495,6 +570,7 @@
             background-color: #2b2b2b;
         }
 
+
         #editor-panel .bottom-tab  {
             background-color: #2b2b2b;
         }
@@ -536,7 +612,7 @@
         }
 
         .h-divider {
-            background-color: #f0f0f000;
+            background-color: #888888;
         }
 
         #editor-panel .code-body {

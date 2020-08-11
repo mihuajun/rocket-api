@@ -18,6 +18,7 @@ public class DefaultApiPager implements IApiPager {
         Map<String,Object> pager = new HashMap<>();
         pager.put("totalRecords",totalRecords);
         pager.put("data",data);
+        pager.put(this.getPageNoVarName(),apiParams.getParam());
         return pager;
     }
 

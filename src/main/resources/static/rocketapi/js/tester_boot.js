@@ -33,6 +33,7 @@ let lastExampleUrl = baseUrl + "/api-example/last";
 let deleteExampleUrl = baseUrl + "/api-example";
 let apiDocPushUrl = baseUrl + "/api-doc-push";
 let completionItemsUrl = baseUrl + "/completion-items";
+let remoteSyncUrl = baseUrl + "/remote-sync";
 let loginUrl = baseUrl + "/login";
 let logoutUrl = baseUrl + "/logout";
 
@@ -281,6 +282,73 @@ function loadHistoryScrollEvent() {
     });
 }
 
+function loadRemoteSyncChecboxEvent() {
+
+    //隐藏
+    $("#remote-sync").on("click",".level1 .icon-caret-down",function () {
+        $(this).parents(".level1").find(">ul").hide();
+        $(this).removeClass("icon-caret-down").addClass("icon-caret-right");
+        return false;
+    })
+
+    $("#remote-sync").on("click",".level1 .icon-caret-right",function () {
+        $(this).parents(".level1").find(">ul").show();
+        $(this).removeClass("icon-caret-right").addClass("icon-caret-down");
+        return false;
+    })
+
+    //根节点
+    $("#remote-sync").on("click",".level0>.tree-entry input:checkbox",function (e) {
+        let isChecked = $(this).prop('checked');
+        if (isChecked){
+            $(this).parents(".level0").find(".level1 .tree-entry input:checkbox").prop("checked","checked");
+        }else{
+            $(this).parents(".level0").find(".level1 .tree-entry input:checkbox").prop("checked","");
+        }
+
+        $("#remote-sync .items-count").text($("#remote-sync .level2>.tree-entry input:checkbox:checked").length+" item selected");
+    });
+
+    //二级节点
+    $("#remote-sync ").on("click",".level1>.tree-entry input:checkbox",function (e) {
+        let isChecked = $(this).prop('checked');
+        if (isChecked){
+            $(this).parents(".level1").find(".level2 .tree-entry input:checkbox").prop("checked","checked");
+        }else{
+            $(this).parents(".level1").find(".level2 .tree-entry input:checkbox").prop("checked","");
+        }
+        let checkedNum = $("#remote-sync .level1>.tree-entry input:checkbox:checked").length;
+        if (checkedNum == 0){
+            $("#remote-sync .level0>.tree-entry input:checkbox").prop("checked","");
+        }else {
+            $("#remote-sync .level0>.tree-entry input:checkbox").prop("checked","checked");
+        }
+        $("#remote-sync .items-count").text($("#remote-sync .level2>.tree-entry input:checkbox:checked").length+" item selected");
+    });
+
+    $("#remote-sync").on("click",".btn-link",function (e) {
+        $(this).parent().find("input:checkbox").click();
+    })
+
+    //三级节点
+    $("#remote-sync ").on("click",".level2>.tree-entry input:checkbox",function (e) {
+        let checked2Num = $(this).parents(".level1").find(".level2>.tree-entry input:checkbox:checked").length;
+        if (checked2Num == 0){
+            $(this).parents(".level1").find(">.tree-entry input:checkbox").prop("checked","");
+        }else{
+            $(this).parents(".level1").find(">.tree-entry input:checkbox").prop("checked","checked");
+        }
+
+        let checkedNum = $("#remote-sync .level1>.tree-entry input:checkbox:checked").length;
+        if (checkedNum == 0){
+            $("#remote-sync .level0>.tree-entry input:checkbox").prop("checked","");
+        }else{
+            $("#remote-sync .level0>.tree-entry input:checkbox").prop("checked","checked");
+        }
+        $("#remote-sync .items-count").text($("#remote-sync .level2>.tree-entry input:checkbox:checked").length+" item selected");
+    });
+}
+
 function loadEvent() {
     loadSelectBoxEvent();
     loadInputTypeEvent();
@@ -289,6 +357,7 @@ function loadEvent() {
     loadHistoryScrollEvent();
     loadLeftSideEvent();
     loadBottomSideEvent();
+    loadRemoteSyncChecboxEvent()
 }
 
 function openConfirmModal(msg,fun) {
@@ -827,7 +896,7 @@ function searchApi(e) {
             if (options[kv[0]] == kv[1]){
                 searchResult.push(item);
             }
-        }else if (item.comment.indexOf(keyword) >=0 || item.path.indexOf(keyword)>=0 || !keyword){
+        }else if (item.comment.indexOf(keyword) >=0 || item.path.indexOf(keyword)>=0 || item.group.indexOf(keyword)>=0 || !keyword){
             searchResult.push(item);
         }
     });
@@ -1837,8 +1906,8 @@ function showDiff(id) {
         $("#editor-section .diff-body").show();
         $("#editor-section .code-body").hide();
         $("#diff-editor").html("");
-        originalModel = monaco.editor.createModel(decodeURIComponent(apiHistory.script), "custom-language");
-        modifiedModel = monaco.editor.createModel(editorTextarea.getValue(), "custom-language");
+        originalModel = monaco.editor.createModel(decodeURIComponent(apiHistory.script), languageName);
+        modifiedModel = monaco.editor.createModel(editorTextarea.getValue(), languageName);
         let diffEditor = monaco.editor.createDiffEditor(document.getElementById("diff-editor"), {
             // You can optionally disable the resizing
             scrollBeyondLastLine:false,
@@ -2058,3 +2127,113 @@ function initCompletionItems() {
     })
 }
 //-------------------------------- api push end -------------------------------
+
+
+//-------------------------------- Remote Sync start ------------------------------
+function showRemoteSync() {
+    $("#remote-sync").show();
+    buildSelectApiTree(gdata.apiList,"collapsed")
+}
+
+function hideRemoteSync() {
+    $("#remote-sync").hide();
+}
+
+function remoteSync(increment) {
+    let apiInfoIds = [];
+    if (increment){
+        $.each($("#remote-sync .level2 input:checkbox:checked"),function () {
+            apiInfoIds.push($(this).val())
+        })
+    }
+
+    let params = {
+        "increment":increment,
+        "remoteUrl":$("#remote-sync .remote-url").val(),
+        "apiInfoIds":apiInfoIds,
+        "secretKey":$("#remote-sync .secret-key").val()
+    }
+    $.ajax({
+        type: "post",
+        url: remoteSyncUrl,
+        contentType : "application/json",
+        data: JSON.stringify(params),
+        success: function (data) {
+            data = unpackResult(data);
+            if (data.code !=200){
+                openMsgModal(data.msg);
+                return;
+            }
+        },complete:function () {
+            hideSendNotify();
+        }
+    });
+}
+
+function searchSelectApi(e) {
+    let keyword = $(e).val().trim();
+    let searchResult = [];
+    $.each(gdata.apiList,function (index,item) {
+        if (keyword.split("=").length == 2){
+            if (!item.options){
+                return;
+            }
+            let kv = keyword.split("=");
+            let options = JSON.parse(item.options);
+            if (options[kv[0]] == kv[1]){
+                searchResult.push(item);
+            }
+        }else if (item.comment.indexOf(keyword) >=0 || item.path.indexOf(keyword)>=0 || item.group.indexOf(keyword)>=0 || !keyword){
+            searchResult.push(item);
+        }
+    });
+    $("#remote-sync .items-count").text("0 item selected");
+    buildSelectApiTree(searchResult,"");
+}
+
+function buildSelectApiTree(list,collapsed) {
+
+    let group = {};
+    $.each(list,function(index,item){
+        let arrVal = group[item.group];
+        if (!arrVal){
+            arrVal = [];
+            group[item.group] = arrVal;
+        }
+        arrVal.push(item);
+    });
+    $("#remote-sync .api-list-body").html("");
+    //生成tree
+    $.each(group,function (key,value) {
+        let $lev1 = $('    <li class="level1 api" style="display: block;">\n' +
+            '        <div class="tree-entry">\n' +
+            '            <label class="checkbox">\n' +
+            '            <input type="checkbox" value="on" tabindex="0">\n' +
+            '            </label>\n' +
+            '            <a href="javascript:;"  class="btn btn-link name">\n' +
+            '                <i class="'+(collapsed?'icon-caret-right':'icon-caret-down')+'"></i>\n' +
+            '                <i class="node-icon api-tester-icon api-tester-project"></i>\n' +
+            '                <span class="gwt-InlineHTML node-text" >'+key+'</span>\n' +
+            '            </a>\n' +
+            '        </div>\n' +
+            '    </li>');
+
+        let $lev2 = $('<ul style="'+(collapsed?'display: none;':'display: block;')+'"></ul>');
+        $.each(value,function (index,item) {
+            $lev2.append('  <li class="level2 request">\n' +
+                '                <div class="tree-entry">\n' +
+                '                    <label class="checkbox" >\n' +
+                '                        <input type="checkbox" value="'+item.id+'" tabindex="0">\n' +
+                '                    </label>\n' +
+                '                    <a href="javascript:;" class="btn btn-link name"><i></i>\n' +
+                '                        <i class="node-icon api-tester-icon api-tester-request"></i>\n' +
+                '                        <span class="gwt-InlineHTML node-text" >'+(item.comment?item.comment:item.path)+'<span style="margin-left:10px;color:#8a8989;">['+item.path+']</span></span>\n' +
+                '                    </a>\n' +
+                '                </div>\n' +
+                '            </li>');
+        })
+        $lev1.append($lev2);
+        $("#remote-sync .api-list-body").append($lev1);
+    })
+}
+//-------------------------------- Remote Sync end ------------------------------
