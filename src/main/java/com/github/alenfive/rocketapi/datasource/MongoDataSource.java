@@ -2,6 +2,7 @@ package com.github.alenfive.rocketapi.datasource;
 
 import com.github.alenfive.rocketapi.entity.ApiInfo;
 import com.github.alenfive.rocketapi.entity.ApiParams;
+import com.github.alenfive.rocketapi.entity.vo.Page;
 import com.github.alenfive.rocketapi.extend.IApiPager;
 import com.github.alenfive.rocketapi.extend.IPagerDialect;
 import org.bson.Document;
@@ -350,34 +351,13 @@ public class MongoDataSource extends DataSourceDialect {
     }
 
     @Override
-    String buildCountScript(String script, ApiInfo apiInfo, ApiParams apiParams, IApiPager apiPager, Collection<IPagerDialect> pagerDialects) throws Exception {
+    String buildCountScript(String script, ApiInfo apiInfo, ApiParams apiParams, IApiPager apiPager, Page page, Collection<IPagerDialect> pagerDialects) throws Exception {
         return script;
     }
 
     @Override
-    String buildPageScript(String script, ApiInfo apiInfo, ApiParams apiParams, IApiPager apiPager, Collection<IPagerDialect> pagerDialects) throws Exception {
+    String buildPageScript(String script, ApiInfo apiInfo, ApiParams apiParams, IApiPager apiPager, Page page, Collection<IPagerDialect> pagerDialects) throws Exception {
         return script;
     }
 
-    public static void main(String[] args) {
-        String script = "{\n" +
-                "\t\"insert\":\"api_info\",\n" +
-                "\t\"documents\":[{\n" +
-                "\t\t\"_id\":ObjectId('5f2fc55ef8b91c2ae40f4f3d'),\n" +
-                "\t\t\"method\":'All',\n" +
-                "\t\t\"path\":'/hello/hello\\{99',\n" +
-                "\t\t\"type\":'Code',\n" +
-                "\t\t\"service\":'rocket-api',\n" +
-                "\t\t\"group\":'TestController',\n" +
-                "\t\t\"editor\":'admin',\n" +
-                "\t\t\"comment\":'',\n" +
-                "\t\t\"datasource\":'',\n" +
-                "\t\t\"script\":'',\n" +
-                "\t\t\"options\":'',\n" +
-                "\t\t\"create_time\":'2020-08-09 17:43:58',\n" +
-                "\t\t\"update_time\":'2020-08-09 17:43:58'\n" +
-                "\t}]\n" +
-                "}";
-        Document.parse(script);
-    }
 }

@@ -2,6 +2,7 @@ package com.github.alenfive.rocketapi.datasource;
 
 import com.github.alenfive.rocketapi.entity.ApiInfo;
 import com.github.alenfive.rocketapi.entity.ApiParams;
+import com.github.alenfive.rocketapi.entity.vo.Page;
 import com.github.alenfive.rocketapi.extend.IApiPager;
 import com.github.alenfive.rocketapi.extend.IPagerDialect;
 import org.springframework.util.StringUtils;
@@ -73,22 +74,22 @@ public abstract class DataSourceManager {
         return this.insert(script,apiInfo,apiParams,null);
     }
 
-    public String buildCountScript(String script, ApiInfo apiInfo, ApiParams apiParams, IApiPager apiPager, Collection<IPagerDialect> pagerDialects) throws Exception {
-        return this.buildCountScript(script,apiInfo,apiParams,null,apiPager,pagerDialects);
+    public String buildCountScript(String script, ApiInfo apiInfo, ApiParams apiParams,IApiPager apiPager, Page page, Collection<IPagerDialect> pagerDialects) throws Exception {
+        return this.buildCountScript(script,apiInfo,apiParams,null,apiPager,page,pagerDialects);
     }
 
-    public String buildCountScript(String script, ApiInfo apiInfo, ApiParams apiParams,String specifyDataSource,IApiPager apiPager,Collection<IPagerDialect> pagerDialects) throws Exception {
+    public String buildCountScript(String script, ApiInfo apiInfo, ApiParams apiParams, String specifyDataSource,IApiPager apiPager, Page page, Collection<IPagerDialect> pagerDialects) throws Exception {
         DataSourceDialect dataSourceDialect = buildDataSourceDialect(apiInfo.getDatasource(),specifyDataSource);
-        return dataSourceDialect.buildCountScript(script,apiInfo,apiParams,apiPager,pagerDialects);
+        return dataSourceDialect.buildCountScript(script,apiInfo,apiParams,apiPager,page,pagerDialects);
     }
 
-    public String buildPageScript(String script, ApiInfo apiInfo, ApiParams apiParams, IApiPager apiPager, Collection<IPagerDialect> pagerDialects) throws Exception {
-        return this.buildPageScript(script,apiInfo,apiParams,null,apiPager,pagerDialects);
+    public String buildPageScript(String script, ApiInfo apiInfo, ApiParams apiParams,IApiPager apiPager, Page page, Collection<IPagerDialect> pagerDialects) throws Exception {
+        return this.buildPageScript(script,apiInfo,apiParams,null,apiPager,page,pagerDialects);
     }
 
-    public String buildPageScript(String script, ApiInfo apiInfo, ApiParams apiParams,String specifyDataSource,IApiPager apiPager,Collection<IPagerDialect> pagerDialects) throws Exception {
+    public String buildPageScript(String script, ApiInfo apiInfo, ApiParams apiParams,String specifyDataSource,IApiPager apiPager,Page page,Collection<IPagerDialect> pagerDialects) throws Exception {
         DataSourceDialect dataSourceDialect = buildDataSourceDialect(apiInfo.getDatasource(),specifyDataSource);
-        return dataSourceDialect.buildPageScript(script,apiInfo,apiParams,apiPager,pagerDialects);
+        return dataSourceDialect.buildPageScript(script,apiInfo,apiParams,apiPager,page,pagerDialects);
     }
 
     public List<Map<String, Object>> find(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams, String specifyDataSource) throws Exception {

@@ -1,6 +1,7 @@
 package com.github.alenfive.rocketapi.function;
 
 import com.github.alenfive.rocketapi.datasource.DataSourceManager;
+import com.github.alenfive.rocketapi.entity.vo.Page;
 import com.github.alenfive.rocketapi.extend.ApiInfoContent;
 import com.github.alenfive.rocketapi.extend.IApiPager;
 import com.github.alenfive.rocketapi.extend.IPagerDialect;
@@ -39,6 +40,9 @@ public class DbFunction implements IFunction{
 
     @Autowired
     private ApplicationContext context;
+
+    @Autowired
+    private UtilsFunction utilsFunction;
 
     private Collection<IPagerDialect> pagerDialects;
 
@@ -115,11 +119,15 @@ public class DbFunction implements IFunction{
     }
 
     public Object pager(String script,String dataSource) throws Exception {
-        String totalSql = dataSourceManager.buildCountScript(script,apiInfoContent.getApiInfo(),apiInfoContent.getApiParams(),dataSource,apiPager,pagerDialects);
+        Page page = Page.builder()
+                .pageNo(Integer.valueOf(utilsFunction.val(apiPager.getPageNoVarName()).toString()))
+                .pageSize(Integer.valueOf(utilsFunction.val(apiPager.getPageSizeVarName()).toString()))
+                .build();
+        String totalSql = dataSourceManager.buildCountScript(script,apiInfoContent.getApiInfo(),apiInfoContent.getApiParams(),dataSource,apiPager,page,pagerDialects);
         Long total = this.count(totalSql);
         List<Map<String,Object>> data = null;
         if (total > 0){
-            String pageSql = dataSourceManager.buildPageScript(script,apiInfoContent.getApiInfo(),apiInfoContent.getApiParams(),dataSource,apiPager,pagerDialects);
+            String pageSql = dataSourceManager.buildPageScript(script,apiInfoContent.getApiInfo(),apiInfoContent.getApiParams(),dataSource,apiPager,page,pagerDialects);
             data = this.find(pageSql);
         }else{
             data = Collections.emptyList();

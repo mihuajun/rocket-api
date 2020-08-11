@@ -2,6 +2,7 @@ package com.github.alenfive.rocketapi.datasource;
 
 import com.github.alenfive.rocketapi.entity.ApiInfo;
 import com.github.alenfive.rocketapi.entity.ApiParams;
+import com.github.alenfive.rocketapi.entity.vo.Page;
 import com.github.alenfive.rocketapi.extend.IApiPager;
 import com.github.alenfive.rocketapi.extend.IPagerDialect;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -140,24 +141,22 @@ public class SqlDataSource extends DataSourceDialect {
     }
 
     @Override
-    String buildCountScript(String script, ApiInfo apiInfo, ApiParams apiParams,IApiPager apiPager,Collection<IPagerDialect> pagerDialects) throws Exception {
+    String buildCountScript(String script, ApiInfo apiInfo, ApiParams apiParams, IApiPager apiPager,Page page, Collection<IPagerDialect> pagerDialects) throws Exception {
         IPagerDialect pagerDialect = getIPagerDialect(pagerDialects,apiInfo.getDatasource());
         if (pagerDialect == null){
             return script;
         }
-        Integer offset = Integer.valueOf(apiParams.getParam().get(apiPager.getIndexVarName()).toString());
-        Integer limit = Integer.valueOf(apiParams.getParam().get(apiPager.getPageSizeVarName()).toString());
-        return  pagerDialect.buildCountScript(script,offset,limit);
+        Integer offset = apiPager.getIndexVarValue(page.getPageSize(),page.getPageNo());
+        return  pagerDialect.buildCountScript(script,offset,page.getPageSize());
     }
 
     @Override
-    String buildPageScript(String script, ApiInfo apiInfo, ApiParams apiParams, IApiPager apiPager,Collection<IPagerDialect> pagerDialects) throws Exception {
+    String buildPageScript(String script, ApiInfo apiInfo, ApiParams apiParams,  IApiPager apiPager,Page page,Collection<IPagerDialect> pagerDialects) throws Exception {
         IPagerDialect pagerDialect = getIPagerDialect(pagerDialects,apiInfo.getDatasource());
         if (pagerDialect == null){
             return script;
         }
-        Integer offset = Integer.valueOf(apiParams.getParam().get(apiPager.getIndexVarName()).toString());
-        Integer limit = Integer.valueOf(apiParams.getParam().get(apiPager.getPageSizeVarName()).toString());
-        return  pagerDialect.buildPageScript(script,offset,limit);
+        Integer offset = apiPager.getIndexVarValue(page.getPageSize(),page.getPageNo());
+        return  pagerDialect.buildPageScript(script,offset,page.getPageSize());
     }
 }
