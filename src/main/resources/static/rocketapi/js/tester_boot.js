@@ -955,8 +955,8 @@ function buildApiTree(list,collapsed) {
                 '                                                        <ul class="pull-right dropdown-menu">' +
                 '<li class="dropdown-item"  onclick="copyApi(this,\''+item.id+'\')"><a><i class="fa fa-copy"></i><span class="gwt-InlineHTML">Copy</span></a></li>' +
                 '<li class="dropdown-item"  onclick="moveApi(this,\''+item.id+'\')"><a><i class="fa fa-random"></i><span class="gwt-InlineHTML">Move</span></a></li>' +
-                '<li class="dropdown-item" onclick="removeApi(this,\''+item.id+'\')"><a><i class="fa fa-trash-o"></i><span class="gwt-InlineHTML">Transh</span></a></li>' +
-                '<li class="dropdown-item" onclick="apiPush(\''+item.id+'\')"><a><i class="fa fa-cloud-upload"></i><span class="gwt-InlineHTML">Push Doc</span></a></li>' +
+                '<li class="dropdown-item" onclick="apiPush(\''+item.id+'\')"><a><i class="fa fa-cloud-upload"></i><span class="gwt-InlineHTML">Doc</span></a></li>' +
+                '<li class="dropdown-item" onclick="removeApi(this,\''+item.id+'\')"><a><i class="fa fa-trash-o"></i><span class="gwt-InlineHTML">Trash</span></a></li>' +
                 '</ul>\n' +
                 '                                                    </div>\n' +
                 '                                                </div>' +
