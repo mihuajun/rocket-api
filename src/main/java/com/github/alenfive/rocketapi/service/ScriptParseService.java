@@ -376,8 +376,9 @@ public class ScriptParseService {
         return "'"+transcoding(val.toString())+"'";
     }
 
-    private String transcoding(String input){
+    public String transcoding(String input){
         return input
+                .replace("\\","\\\\")
                 .replace("\"","\\\"")
                 .replace("\'","\\\'");
     }
