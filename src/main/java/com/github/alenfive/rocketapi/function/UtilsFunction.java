@@ -71,7 +71,7 @@ public class UtilsFunction implements IFunction{
      * @param inputStream
      * @return
      */
-    public ResponseEntity<InputStreamResource> imgView(InputStream inputStream) {
+    public ResponseEntity<InputStreamResource> preview(InputStream inputStream) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.IMAGE_JPEG);
         InputStreamResource inputStreamResource = new InputStreamResource(inputStream);
