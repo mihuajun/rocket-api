@@ -17,6 +17,8 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.web.ServerProperties;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.http.server.ServletServerHttpRequest;
 import org.springframework.stereotype.Component;
@@ -164,9 +166,9 @@ public class QLRequestMappingFactory {
     /**
      * 执行脚本逻辑
      */
-    @ResponseBody
     @RequestMapping
-    public Object execute(@PathVariable(required = false) Map<String,String> pathVar,
+    @ResponseBody
+    public ResponseEntity execute(@PathVariable(required = false) Map<String,String> pathVar,
                           @RequestParam(required = false) Map<String,Object> param,
                           HttpServletRequest request) throws Throwable {
 
@@ -199,16 +201,25 @@ public class QLRequestMappingFactory {
         ApiInfo apiInfo = apiInfoCache.get(ApiInfo.builder().method(method).path(path).build());
 
         StringBuilder script = new StringBuilder(scriptEncrypt.decrypt(apiInfo.getScript()));
-
         try {
             Object data = scriptParse.runScript(script.toString(),apiInfo,apiParams);
-            if (data instanceof IgnoreWrapper){
-                return ((IgnoreWrapper)data).getData();
+            if (data instanceof ResponseEntity){
+                return (ResponseEntity) data;
             }
-            return resultWrapper.wrapper("0","succeeded",data,request,response);
+
+            if (data instanceof IgnoreWrapper){
+                return ResponseEntity.ok()
+                        .contentType(MediaType.APPLICATION_JSON_UTF8)
+                        .body(((IgnoreWrapper)data).getData());
+            }
+            return ResponseEntity.ok()
+                    .contentType(MediaType.APPLICATION_JSON_UTF8)
+                    .body(resultWrapper.wrapper("0","succeeded",data,request,response));
         }catch (Exception e){
             e.printStackTrace();
-            return resultWrapper.wrapper("500",e.getMessage(),null,request,response);
+            return ResponseEntity.ok()
+                    .contentType(MediaType.APPLICATION_JSON_UTF8)
+                    .body(resultWrapper.wrapper("500",e.getMessage(),null,request,response));
         }finally {
             apiInfoContent.removeAll();
         }
