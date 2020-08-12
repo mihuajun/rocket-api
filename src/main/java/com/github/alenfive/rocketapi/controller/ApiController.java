@@ -195,27 +195,31 @@ public class ApiController {
         }else{
             apiInfos = mappingFactory.getPathList(false);
         }
+        try {
+            //签名验证
+            Map<String,Object> signMap = new HashMap<>(4);
+            signMap.put("timestamp",System.currentTimeMillis());
+            signMap.put("increment",syncReq.getIncrement());
+            signMap.put("apiInfos",objectMapper.writeValueAsString(apiInfos));
+            String sign = SignUtils.build(syncReq.getSecretKey(),signMap);
+            signMap.put("apiInfos",apiInfos);
+            signMap.put("sign",sign);
 
-        //签名验证
-        Map<String,Object> signMap = new HashMap<>(4);
-        signMap.put("timestamp",System.currentTimeMillis());
-        signMap.put("increment",syncReq.getIncrement());
-        signMap.put("apiInfos",objectMapper.writeValueAsString(apiInfos));
-        String sign = SignUtils.build(syncReq.getSecretKey(),signMap);
-        signMap.put("apiInfos",apiInfos);
-        signMap.put("sign",sign);
-
-        String remoteUrl = syncReq.getRemoteUrl().endsWith("/")?syncReq.getRemoteUrl().substring(0,syncReq.getRemoteUrl().length()-1):syncReq.getRemoteUrl();
-        String url = remoteUrl+(rocketApiProperties.getBaseRegisterPath()+"/accept-sync").replace("//","/");
-        SimpleClientHttpRequestFactory factory=new SimpleClientHttpRequestFactory();
-        factory.setConnectTimeout(60000);
-        factory.setReadTimeout(60000);
-        RestTemplate restTemplate = new RestTemplate(factory);
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON_UTF8);
-        HttpEntity<String> requestHttpEntity = new HttpEntity<>(objectMapper.writeValueAsString(signMap), headers);
-        ResponseEntity<Object> postForEntity = restTemplate.postForEntity(url, requestHttpEntity, Object.class);
-        return postForEntity.getBody();
+            String remoteUrl = syncReq.getRemoteUrl().endsWith("/")?syncReq.getRemoteUrl().substring(0,syncReq.getRemoteUrl().length()-1):syncReq.getRemoteUrl();
+            String url = remoteUrl+(rocketApiProperties.getBaseRegisterPath()+"/accept-sync").replace("//","/");
+            SimpleClientHttpRequestFactory factory=new SimpleClientHttpRequestFactory();
+            factory.setConnectTimeout(60000);
+            factory.setReadTimeout(60000);
+            RestTemplate restTemplate = new RestTemplate(factory);
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON_UTF8);
+            HttpEntity<String> requestHttpEntity = new HttpEntity<>(objectMapper.writeValueAsString(signMap), headers);
+            ResponseEntity<Object> postForEntity = restTemplate.postForEntity(url, requestHttpEntity, Object.class);
+            return postForEntity.getBody();
+        }catch (Exception e){
+            e.printStackTrace();
+            return ApiResult.fail(e.toString());
+        }
     }
 
 

@@ -2153,6 +2153,7 @@ function remoteSync(increment) {
         "apiInfoIds":apiInfoIds,
         "secretKey":$("#remote-sync .secret-key").val()
     }
+    showSendNotify("Remote release")
     $.ajax({
         type: "post",
         url: remoteSyncUrl,
@@ -2164,6 +2165,7 @@ function remoteSync(increment) {
                 openMsgModal(data.msg);
                 return;
             }
+            $("#remote-sync .error-message").text("Remote release successful size:"+apiInfoIds.length)
         },complete:function () {
             hideSendNotify();
         }

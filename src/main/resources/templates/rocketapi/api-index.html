@@ -59,13 +59,7 @@
         </div>
     </div>
 </div>
-<div class="notification-container">
-    <div id="notification" class="notification-area info" style="display: none">
-        <div id="spinner"><i class="fa fa-spinner fa-spin"></i></div>
-        <div id="notification-message">Sending request</div>
-    </div>
-    <div id="alt-notification" class="alt-notification-area" style="display: none"></div>
-</div>
+
 
 
 <input type="file" id="filePicker" style="display: none">
@@ -217,10 +211,10 @@
 <!-- Remote Sync -->
 <div class="modal in export-dialog " id="remote-sync" aria-hidden="false" style="display:none;width:50%;left:25%;margin-left:0px;">
     <div class="modal-header"><a class="close" onclick="hideRemoteSync()" data-dismiss="modal">×</a>
-        <h3>Remote Publishing <small></small></h3></div>
+        <h3>Remote Release <small></small></h3></div>
     <div class="form-horizontal">
         <fieldset>
-            <div class="control-group">
+            <div class="control-group" style="margin-top: 20px">
                 <label class="control-label file-label"><span> Filter </span></label>
                 <div class="controls file-input"><input type="text" style="width: 50%" onkeyup="searchSelectApi(this)" class="gwt-TextBox"></div>
             </div>
@@ -712,7 +706,14 @@
 </div>
 <div id="modal-backdrop" class="modal-backdrop  in" style="display: none;"></div>
 
-
+<!--请求发送状态-->
+<div class="notification-container">
+    <div id="notification" class="notification-area info" style="display: none">
+        <div id="spinner"><i class="fa fa-spinner fa-spin"></i></div>
+        <div id="notification-message">Sending request</div>
+    </div>
+    <div id="alt-notification" class="alt-notification-area" style="display: none"></div>
+</div>
 
 <script  type="text/javascript">
     let query = window.location.search.substring(1);
