@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.github.alenfive.rocketapi.datasource.DataSourceManager;
 import com.github.alenfive.rocketapi.entity.*;
+import com.github.alenfive.rocketapi.entity.vo.IgnoreWrapper;
 import com.github.alenfive.rocketapi.entity.vo.RenameGroupReq;
 import com.github.alenfive.rocketapi.extend.*;
 import com.github.alenfive.rocketapi.script.IScriptParse;
@@ -201,6 +202,9 @@ public class QLRequestMappingFactory {
 
         try {
             Object data = scriptParse.runScript(script.toString(),apiInfo,apiParams);
+            if (data instanceof IgnoreWrapper){
+                return ((IgnoreWrapper)data).getData();
+            }
             return resultWrapper.wrapper("0","succeeded",data,request,response);
         }catch (Exception e){
             e.printStackTrace();

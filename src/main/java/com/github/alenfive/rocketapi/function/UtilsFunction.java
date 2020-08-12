@@ -1,5 +1,6 @@
 package com.github.alenfive.rocketapi.function;
 
+import com.github.alenfive.rocketapi.entity.vo.IgnoreWrapper;
 import com.github.alenfive.rocketapi.extend.ApiInfoContent;
 import com.github.alenfive.rocketapi.service.ScriptParseService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,5 +29,14 @@ public class UtilsFunction implements IFunction{
      */
     public Object val(String varName){
         return scriptParseService.buildParamItem(apiInfoContent.getApiParams(),varName);
+    }
+
+    /**
+     * 无返回结构体方法
+     * @param data
+     * @return
+     */
+    public IgnoreWrapper ignoreWrapper(Object data){
+        return new IgnoreWrapper(data);
     }
 }

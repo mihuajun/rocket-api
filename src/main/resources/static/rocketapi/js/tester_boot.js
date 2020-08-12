@@ -945,7 +945,7 @@ function buildApiTree(list,collapsed) {
                 '                                                    <div class="play-icon" title="Launch request"\n' +
                 '                                                         e2e-tag="drive|'+(item.comment?item.comment:item.path)+'|play"><i\n' +
                 '                                                            class="fa fa-play"></i></div>\n' +
-                '                                                    <span class="gwt-InlineHTML node-text"\n' +
+                '                                                    <span class="gwt-InlineHTML node-text '+(item.type=='Code'?'fa fa-file-o':'')+'"\n' +
                 '                                                          e2e-tag="drive|'+(item.comment?item.comment:item.path)+'">'+(item.comment?item.comment:item.path)+'<span style=\'margin-left:10px;color:#8a8989;\'>'+('['+item.path+']')+'</span></span>\n' +
                 '                                                    <div class="status" aria-hidden="true" style="display: none;"></div>\n' +
                 '                                                    <div class="btn-group ctrls dropdown-primary"  data-id="'+item.id+'" ><a\n' +
