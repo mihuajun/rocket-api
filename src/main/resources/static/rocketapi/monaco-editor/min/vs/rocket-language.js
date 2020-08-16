@@ -132,7 +132,7 @@ monaco.languages.registerCompletionItemProvider(languageName, {
     triggerCharacters:['.'],
     provideCompletionItems(model, position,item,token) {
 
-        //方法匹配
+        //变量匹配
         word = model.getValueInRange({
             startLineNumber: position.lineNumber,
             endLineNumber: position.lineNumber,
@@ -148,20 +148,52 @@ monaco.languages.registerCompletionItemProvider(languageName, {
             }
         }
 
+        //
         word = model.getWordUntilPosition(position);
-        //类型匹配
         let range = {
             startLineNumber: position.lineNumber,
             endLineNumber: position.lineNumber,
-            startColumn: word.startColumn-1,
-            endColumn: word.endColumn-1
+            startColumn: word.startColumn,
+            endColumn: word.endColumn
         }
+
+        //import 匹配
+        let lineContent = model.getLineContent(position.lineNumber);
+        if (lineContent.indexOf("import ") == 0){
+            return {
+                suggestions: provideCompletionImport(range)
+            };
+        }
+
+        //类型匹配
         return {
             suggestions: provideCompletionTypes(range,word.word,model.getValue())
         };
 
     }
 });
+
+function provideCompletionImport(range) {
+    let suggestions = [];
+    if (!gdata.completionItems.clazzs){
+        return suggestions;
+    }
+
+    $.each(gdata.completionItems.clazzs,function (key,value) {
+        let label = key.substring(key.lastIndexOf(".")+1);
+        let detail = key.substring(0,key.lastIndexOf("."));
+        suggestions.push({
+            label: label,
+            kind: monaco.languages.CompletionItemKind.Class,
+            detail: detail,
+            insertText: key,
+            filterText: buildFilterText(label),
+            insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+            range: range
+        })
+    })
+    return suggestions;
+}
 
 function provideCompletionTypes(range,word,fullValue){
 
@@ -170,13 +202,28 @@ function provideCompletionTypes(range,word,fullValue){
         return suggestions;
     }
 
-    $.each(gdata.completionItems,function (index,item) {
+    //内置变量
+    $.each(gdata.completionItems.variables,function (key,value) {
         suggestions.push({
-            label: item.label,
-            kind: monaco.languages.CompletionItemKind.TypeParameter,
-            detail: item.detail?item.detail:item.label,
-            insertText: item.insertText?item.insertText:item.label,
-            filterText: buildFilterText(item.label),
+            label: key,
+            kind: monaco.languages.CompletionItemKind.Variable,
+            detail: value,
+            insertText: key,
+            filterText: buildFilterText(key),
+            insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+            range: range
+        })
+    });
+
+    //全局CLASS类型
+    $.each(gdata.completionItems.clazzs,function (key,value) {
+        let label = key.substring(key.lastIndexOf(".")+1);
+        suggestions.push({
+            label: label,
+            kind: monaco.languages.CompletionItemKind.Class,
+            detail: key,
+            insertText: label,
+            filterText: buildFilterText(label),
             insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
             range: range
         })
@@ -210,23 +257,32 @@ function provideCompletionTypes(range,word,fullValue){
 
 function provideCompletionFunc(varName){
     let suggestions = [];
-    $.each(gdata.completionItems,function (index,item) {
-        if (varName != item.varName){
-            return;
-        }
-        if (!item.funcList){
-            return;
-        }
+    let clazz = gdata.completionItems.variables[varName];
+    if (!clazz)return suggestions;
 
-        $.each(item.funcList,function (index,item) {
-            suggestions.push({
-                label: item.label,
-                kind: monaco.languages.CompletionItemKind.Function,
-                detail: item.detail?item.detail:item.label,
-                filterText:buildFilterText(item.label),
-                insertText: item.insertText?item.insertText:item.label,
-                insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-            })
+    let methods = gdata.completionItems.clazzs[clazz];
+    if (!methods){
+        return suggestions;
+    }
+    $.each(methods,function (index,item) {
+        let label  = "";
+        let insertText = "";
+        let kind = monaco.languages.CompletionItemKind.Method;
+        if (item.type == 'field'){
+            label = item.varName +" ";
+            insertText = item.varName;
+            kind = monaco.languages.CompletionItemKind.Property;
+        }else{
+            label = item.varName +"("+item.params+") ";
+            insertText = item.varName+"(${1})";
+        }
+        suggestions.push({
+            label: label,
+            kind: kind,
+            detail: item.resultType.substring(item.resultType.lastIndexOf(".")+1),
+            filterText:buildFilterText(label),
+            insertText: insertText,
+            insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
         })
     });
     return suggestions;

@@ -209,8 +209,6 @@ $(function(){
 
         prefixRange = new monaco.Range(selectRange.selectionStartLineNumber, selectRange.selectionStartColumn, selectRange.selectionStartLineNumber, selectRange.selectionStartColumn);
         postfixRange = new monaco.Range(selectRange.endLineNumber, selectRange.endColumn , selectRange.endLineNumber, selectRange.endColumn);
-        console.log(prefixRange);
-        console.log(postfixRange);
         prefixOp = {"range":prefixRange,"text":"/*"};
         postfixOp = {"range":postfixRange,"text":"*/"};
         editorTextarea.executeEdits('insert-code',[prefixOp])

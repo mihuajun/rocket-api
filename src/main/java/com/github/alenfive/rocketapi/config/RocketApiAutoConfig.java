@@ -156,12 +156,6 @@ public class RocketApiAutoConfig {
 
     @Bean
     @ConditionalOnMissingBean
-    public ExportFunction getExportFunction(){
-        return new ExportFunction();
-    }
-
-    @Bean
-    @ConditionalOnMissingBean
     public LogFunction getLogFunction(){
         return new LogFunction();
     }
