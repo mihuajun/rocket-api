@@ -26,4 +26,9 @@ public class CompletionResult {
      * 变量描述
      */
     private Map<String,String> variables;
+
+    /**
+     * 常用语法
+     */
+    private Map<String,String> syntax;
 }

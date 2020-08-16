@@ -202,6 +202,19 @@ function provideCompletionTypes(range,word,fullValue){
         return suggestions;
     }
 
+    //语法
+    $.each(gdata.completionItems.syntax,function (key,value) {
+        suggestions.push({
+            label: key,
+            kind: monaco.languages.CompletionItemKind.Struct,
+            detail: value,
+            insertText: value,
+            filterText: buildFilterText(key),
+            insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+            range: range
+        })
+    });
+
     //内置变量
     $.each(gdata.completionItems.variables,function (key,value) {
         suggestions.push({

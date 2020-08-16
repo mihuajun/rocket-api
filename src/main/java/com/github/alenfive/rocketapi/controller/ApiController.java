@@ -476,9 +476,11 @@ public class ApiController {
         completionResult = new CompletionResult();
         Map<String,List<MethodVo>> clazzs = new LinkedHashMap<>();
         Map<String,String> variables = new HashMap<>();
+        Map<String,String> syntax = new HashMap<>();
+
         completionResult.setClazzs(clazzs);
         completionResult.setVariables(variables);
-
+        completionResult.setSyntax(syntax);
         //获取内置自定义函数变量
         Collection<IFunction> functionList = context.getBeansOfType(IFunction.class).values();
         functionList.forEach(item->{
@@ -500,11 +502,11 @@ public class ApiController {
 
 
         //常用语法提示
-/*      types.add(CompletionType.builder().label("foreach").insertText("for( item in ${1:collection}){\n\t\n}").build());
-        types.add(CompletionType.builder().label("fori").insertText("for(${1:i}=0;${1:i}<;${1:i}++){\n\t\n}").build());
-        types.add(CompletionType.builder().label("for").insertText("for( ${1} ){\n\t\n}").build());
-        types.add(CompletionType.builder().label("if").insertText("if(${1:condition}){\n\n}").build());
-        types.add(CompletionType.builder().label("ifelse").insertText("if(${1:condition}){\n\t\n}else{\n\t\n}").build());*/
+        syntax.put("foreach","for(item in ${1:collection}){\n\t\n}");
+        syntax.put("fori","for(${1:i}=0;${1:i}<;${1:i}++){\n\t\n}");
+        syntax.put("for","for(${1}){\n\t\n}");
+        syntax.put("if","if(${1:condition}){\n\n}");
+        syntax.put("ifelse","if(${1:condition}){\n\t\n}else{\n\t\n}");
 
         //数据库类型获取
 
