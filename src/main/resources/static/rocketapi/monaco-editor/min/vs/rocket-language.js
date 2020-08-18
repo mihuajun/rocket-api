@@ -129,7 +129,7 @@ monaco.editor.defineTheme(languageTheme, {
 });
 
 monaco.languages.registerCompletionItemProvider(languageName, {
-    triggerCharacters:['.',' '],
+    triggerCharacters:['.',' ',',','#'],
     provideCompletionItems(model, position,item,token) {
 
         //当前光标所在的单词
@@ -165,20 +165,6 @@ monaco.languages.registerCompletionItemProvider(languageName, {
             }
         }
 
-        //sql脚本提示
-        //#表名提示
-        //"insert into #{table}"
-        //"update #{table}"
-        //"delete from #{table}"
-        //"select * from #{table}"
-        console.log(point)
-        console.log(varNamePoint)
-        if (point == " " && varNamePoint == "form"){
-            return {
-                suggestions: provideCompletionTables()
-            }
-        }
-
         let range = {
             startLineNumber: position.lineNumber,
             endLineNumber: position.lineNumber,
@@ -192,6 +178,15 @@ monaco.languages.registerCompletionItemProvider(languageName, {
             return {
                 suggestions: provideCompletionImport(range)
             };
+        }
+
+        //sql脚本提示
+        //是否在SQL引号范围内
+        let sqlStr = getSqlStrContext(model,position);
+        if (sqlStr){
+            return {
+                suggestions: provideCompletionSqlInfo(model,position,range,lineContent,sqlStr)
+            }
         }
 
         //变量命名自动生成
@@ -212,6 +207,189 @@ monaco.languages.registerCompletionItemProvider(languageName, {
 
     }
 });
+
+function provideCompletionSqlInfo(model,position,range,lineContent,sqlStr) {
+    let suggestions = [];
+    let linePreStr = lineContent.substring(0,position.column-1);
+
+    //sql内变量提示 #{},${}
+    if (linePreStr.match(/#$/gi)){
+        let tableNames = getTablesForSql(sqlStr);
+        tableNames.forEach(function (index,tableName) {
+            //遍历数据源
+            $.each(gdata.completionItems.dbInfos,function (key,value) {
+                //遍历表
+                $.each(value,function (index2,table) {
+                    if(table.name == tableName){
+                        //遍历字段
+                        let allField = "";
+                        $.each(table.fields,function (index3,field) {
+                            let label = "#{"+toHump(field.name)+"}";
+                            allField += label+",";
+                            suggestions.push({
+                                label: label,
+                                kind: monaco.languages.CompletionItemKind.Enum,
+                                detail: (field.comment?field.comment:"")+"("+table.name+")",
+                                filterText:buildFilterText(label),
+                                insertText: label,
+                                insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                                range:{
+                                    startLineNumber: range.startLineNumber,
+                                    endLineNumber: range.endLineNumber,
+                                    startColumn: range.startColumn-1,
+                                    endColumn: range.endColumn
+                                }
+                            })
+                        })
+
+                        suggestions.push({
+                            label: "#{}",
+                            kind: monaco.languages.CompletionItemKind.Enum,
+                            detail: "all field ("+table.name+")",
+                            filterText:buildFilterText("#"),
+                            insertText: allField.substring(0,allField.length-1),
+                            insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                            range:{
+                                startLineNumber: range.startLineNumber,
+                                endLineNumber: range.endLineNumber,
+                                startColumn: range.startColumn-1,
+                                endColumn: range.endColumn
+                            }
+                        })
+                    }
+                })
+            })
+        })
+        return suggestions
+    }
+
+    //select
+    //表名 + 字段提示
+    if (linePreStr.match(/(select +)$/gi)){
+        $.each(gdata.completionItems.dbInfos,function (key,value) {
+            $.each(value,function (index,table) {
+                let allField = "";
+                $.each(table.fields,function (index3,field) {
+                    allField += (field.name+",");
+                })
+                suggestions.push({
+                    label: table.name,
+                    kind: monaco.languages.CompletionItemKind.Enum,
+                    detail: "all field ("+(table.comment?table.comment:table.name)+")",
+                    filterText:buildFilterText(table.name),
+                    insertText: allField.substring(0,allField.length-1) +" from "+table.name,
+                    insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet
+                })
+            })
+        })
+        return suggestions
+    }
+
+    //#表名提示
+    //"insert into #{table}"
+    //"insert ignore into #{table}"
+    //"update #{table}"
+    //"delete from #{table}"
+    //"select * from #{table}"
+
+    if (linePreStr.match(/((from +)|(into +)|(update +))$/gi)){
+        $.each(gdata.completionItems.dbInfos,function (key,value) {
+            $.each(value,function (index,item) {
+                suggestions.push({
+                    label: item.name,
+                    kind: monaco.languages.CompletionItemKind.Enum,
+                    detail: item.comment,
+                    filterText:buildFilterText(item.name),
+                    insertText: item.name,
+                    insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                })
+            })
+        })
+        return suggestions
+    }
+
+    //字段提示
+    //获取范围内的表名
+    let tableNames = getTablesForSql(sqlStr);
+    tableNames.forEach(function (index,tableName) {
+        //遍历数据源
+        $.each(gdata.completionItems.dbInfos,function (key,value) {
+            //遍历表
+            $.each(value,function (index2,table) {
+                if(table.name == tableName){
+                    //遍历字段
+                    let allField = "";
+                    $.each(table.fields,function (index3,field) {
+                        allField += (field.name+",");
+                        suggestions.push({
+                            label: field.name,
+                            kind: monaco.languages.CompletionItemKind.Enum,
+                            detail: (field.comment?field.comment:"")+"("+table.name+")",
+                            filterText:buildFilterText(field.name),
+                            insertText: field.name,
+                            insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                        })
+                    })
+
+                    suggestions.push({
+                        label: "*",
+                        kind: monaco.languages.CompletionItemKind.Enum,
+                        detail: "all field ("+table.name+")",
+                        filterText:buildFilterText("*"),
+                        insertText: allField.substring(0,allField.length-1),
+                        insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                        range:{
+                            startLineNumber: range.startLineNumber,
+                            endLineNumber: range.endLineNumber,
+                            startColumn: range.startColumn-1,
+                            endColumn: range.endColumn
+                        }
+                    })
+                }
+            })
+        })
+    })
+
+    return suggestions
+}
+
+function toHump(name) {
+    return name.replace(/\_(\w)/g, function(all, letter){
+        return letter.toUpperCase();
+    });
+}
+
+function getTablesForSql(sqlStr) {
+    let tables = new Set();
+    //"insert into #{table}"
+    //"update #{table}"
+    //"delete from #{table}"
+    //"select * from #{table}"
+    let matchs = sqlStr.match(/(from +[a-zA-Z_0-9]+)|(into +[a-zA-Z_0-9]+)|(update +[a-zA-Z_0-9]+)/gim);
+    $.each(matchs,function (index,item) {
+        tables.add(item.substring(item.lastIndexOf(" ")+1));
+    })
+    return tables;
+}
+
+function getSqlStrContext(model,position) {
+    let preMatchAll = model.findPreviousMatch("\"\"\"sql",position,true,false,null,true);
+    let preMatch = model.findPreviousMatch("\"\"\"",position,true,false,null,true);
+    if (!preMatchAll || !preMatch || preMatchAll.range.startLineNumber != preMatch.range.startLineNumber || preMatchAll.range.startColumn != preMatch.range.startColumn){
+        return null;
+    }
+    let nextMatch = model.findNextMatch("\"\"\"",position,false,false,null,true);
+    if (!nextMatch){
+        return null;
+    }
+    let sqlStr = model.getValueInRange({
+        startLineNumber: preMatchAll.range.startLineNumber,
+        startColumn: preMatchAll.range.endColumn,
+        endLineNumber: nextMatch.range.startLineNumber,
+        endColumn: nextMatch.range.startColumn
+    });
+    return sqlStr.trim();
+}
 
 function provideCompletionImport(range) {
     let suggestions = [];
@@ -332,18 +510,7 @@ function provideCompletionTypes(range,word,fullValue){
 
 function provideCompletionTables() {
     let suggestions = [];
-    $.each(gdata.completionItems.dbInfos,function (key,value) {
-        $.each(value,function (index,item) {
-            suggestions.push({
-                label: item.name,
-                kind: monaco.languages.CompletionItemKind.Enum,
-                detail: item.comment,
-                filterText:buildFilterText(item.name),
-                insertText: item.name,
-                insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-            })
-        })
-    })
+
 
     return suggestions;
 }
