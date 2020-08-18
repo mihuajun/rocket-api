@@ -49,6 +49,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.github.alenfive.rocketapi.utils.PackageUtil.getClasses;
+
 /**
  * Api ui 数据接口
  */
@@ -501,7 +503,19 @@ public class ApiController {
         }
 
         //本包JAVA类
-        List<Class> classList = PackageUtil.loadClassByLoader(this.getClass().getClassLoader());
+        List<Class> classList = PackageUtil.loadClassByLoader(Thread.currentThread().getContextClassLoader());
+        for (Class clazz : classList){
+            buildClazz(clazzs,clazz);
+        }
+
+        //基础包 java.util java类
+        classList = PackageUtil.getClasses("java.util");
+        for (Class clazz : classList){
+            buildClazz(clazzs,clazz);
+        }
+
+        //基础包 java.lang java类
+        classList = PackageUtil.getClasses("java.lang");
         for (Class clazz : classList){
             buildClazz(clazzs,clazz);
         }
@@ -529,7 +543,7 @@ public class ApiController {
     }
 
     private void buildClazz(Map<String, List<MethodVo>> clazzs, Class clazz) {
-        if (clazzs.get(clazz.getName()) != null){
+        if (clazzs.get(clazz.getName()) != null || clazz.getName().indexOf("$") !=-1){
             return;
         }
 
