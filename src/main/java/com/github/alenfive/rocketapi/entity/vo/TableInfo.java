@@ -15,7 +15,16 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class TableInfo {
+    /**
+     * 表名
+     */
     private String name;
+    /**
+     * 注释
+     */
     private String comment;
+    /**
+     * 字段描述
+     */
     List<FieldInfo> fields;
 }

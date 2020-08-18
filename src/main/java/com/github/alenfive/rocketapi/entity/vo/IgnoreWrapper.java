@@ -6,23 +6,12 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * 字段描述
+ * 取消返回结构体的封装
  */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class FieldInfo {
-    /**
-     * 字段名
-     */
-    private String name;
-    /**
-     * 注释
-     */
-    private String comment;
-    /**
-     * 类型
-     */
-    private String type;
+public class IgnoreWrapper {
+    private Object data;
 }

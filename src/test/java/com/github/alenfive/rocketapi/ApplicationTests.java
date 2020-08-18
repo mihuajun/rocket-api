@@ -29,13 +29,14 @@ public class ApplicationTests {
 
     @Test
     public void testVar() {
-        StringBuilder script  = new StringBuilder("where id in = #{id} and name=#{name}");
+        StringBuilder script  = new StringBuilder("from ${table} where id in = #{id} and name=#{name123456789}#{name123456789}");
         ApiParams apiParams = new ApiParams();
         apiParams.putParam("id","123");
-        apiParams.putParam("name","456");
+        apiParams.putParam("table","t_user");
+        apiParams.putParam("name123456789"," and #{phone}");
         parseService.buildParams(script,apiParams);
         log.info("testVar:{}",script);
-        assert script.toString().equals("where id in = '123' and name='456'");
+        assert script.toString().equals("from t_user where id in = '123' and name=' and #{phone}'' and #{phone}'");
     }
 
     @Test

@@ -2,10 +2,10 @@ package com.github.alenfive.rocketapi.datasource;
 
 import com.github.alenfive.rocketapi.entity.ApiInfo;
 import com.github.alenfive.rocketapi.entity.ApiParams;
+import com.github.alenfive.rocketapi.entity.vo.Page;
+import com.github.alenfive.rocketapi.entity.vo.TableInfo;
 import com.github.alenfive.rocketapi.extend.IApiPager;
-import com.github.alenfive.rocketapi.extend.IPagerDialect;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,7 +16,6 @@ import java.util.Map;
 public abstract class DataSourceDialect {
 
     protected boolean storeApi = false;
-
     public boolean isStoreApi() {
         return storeApi;
     }
@@ -74,7 +73,9 @@ public abstract class DataSourceDialect {
     }
 
 
-    abstract String buildCountScript(String script, ApiInfo apiInfo, ApiParams apiParams, IApiPager apiPager, Collection<IPagerDialect> pagerDialects) throws Exception;
+    public abstract String buildCountScript(String script, ApiInfo apiInfo, ApiParams apiParams, IApiPager apiPager, Page page);
 
-    abstract String buildPageScript(String script, ApiInfo apiInfo, ApiParams apiParams, IApiPager apiPager, Collection<IPagerDialect> pagerDialects) throws Exception;
+    public abstract String buildPageScript(String script, ApiInfo apiInfo, ApiParams apiParams, IApiPager apiPager, Page page);
+
+    public abstract List<TableInfo> buildTableInfo();
 }

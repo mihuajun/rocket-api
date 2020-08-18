@@ -3,6 +3,9 @@ package com.github.alenfive.rocketapi.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.alenfive.rocketapi.config.QLRequestMappingFactory;
+import com.github.alenfive.rocketapi.config.RocketApiProperties;
+import com.github.alenfive.rocketapi.datasource.DataSourceDialect;
+import com.github.alenfive.rocketapi.datasource.DataSourceManager;
 import com.github.alenfive.rocketapi.entity.*;
 import com.github.alenfive.rocketapi.entity.vo.*;
 import com.github.alenfive.rocketapi.extend.ApiInfoContent;
@@ -13,25 +16,36 @@ import com.github.alenfive.rocketapi.function.IFunction;
 import com.github.alenfive.rocketapi.script.IScriptParse;
 import com.github.alenfive.rocketapi.service.LoginService;
 import com.github.alenfive.rocketapi.utils.GenerateId;
+import com.github.alenfive.rocketapi.utils.PackageUtil;
 import com.github.alenfive.rocketapi.utils.RequestUtils;
+import com.github.alenfive.rocketapi.utils.SignUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -69,6 +83,15 @@ public class ApiController {
 
     @Autowired
     private ApplicationContext context;
+
+    @Autowired
+    private RocketApiProperties rocketApiProperties;
+
+    @Autowired
+    private DataSourceManager dataSourceManager;
+
+    @Autowired
+    private Map<String,Object> cache = new ConcurrentHashMap<>();
 
     /**
      * LOAD API LIST
@@ -132,6 +155,85 @@ public class ApiController {
         }
 
     }
+
+    /**
+     * 接收远程同步过来的API INFO信息
+     * @param syncReq
+     */
+    @PostMapping("/accept-sync")
+    public ApiResult apiInfoSync(@RequestBody AcceptApiInfoSyncReq syncReq) throws Exception {
+        if (syncReq == null
+                || StringUtils.isEmpty(syncReq.getSign())
+                || syncReq.getApiInfos() == null
+                || syncReq.getTimestamp() == null
+                || syncReq.getIncrement() == null){
+            return ApiResult.fail("Parameter is missing");
+        }
+
+        //签名验证
+        Map<String,Object> signMap = new HashMap<>();
+        signMap.put("timestamp",syncReq.getTimestamp());
+        signMap.put("increment",syncReq.getIncrement());
+        signMap.put("apiInfos",objectMapper.writeValueAsString(syncReq.getApiInfos()));
+        String sign = SignUtils.build(rocketApiProperties.getSecretKey(),signMap);
+        if (!syncReq.getSign().equals(sign)){
+            return ApiResult.fail("Signature abnormal");
+        }
+        mappingFactory.apiInfoSync(syncReq.getApiInfos(),syncReq.getIncrement() == 1);
+        return ApiResult.success(null);
+    }
+
+    /**
+     * 向远程服务进行同步
+     */
+    @PostMapping("/remote-sync")
+    public Object apiInfoRemoteSync(@RequestBody RemoteApiInfoSyncReq syncReq,HttpServletRequest request) throws Exception {
+
+        if (syncReq == null
+                || StringUtils.isEmpty(syncReq.getRemoteUrl())
+                || StringUtils.isEmpty(syncReq.getSecretKey())
+                || syncReq.getIncrement() == null){
+            return ApiResult.fail("Parameter is missing");
+        }
+
+        String user = loginService.getUser(request);
+        if(StringUtils.isEmpty(user)){
+            return ApiResult.fail("Permission denied");
+        }
+
+        Collection<ApiInfo> apiInfos = null;
+        if (syncReq.getIncrement() == 1){
+            apiInfos = mappingFactory.getPathList(false).stream().filter(item->syncReq.getApiInfoIds().contains(item.getId())).collect(Collectors.toList());
+        }else{
+            apiInfos = mappingFactory.getPathList(false);
+        }
+        try {
+            //签名验证
+            Map<String,Object> signMap = new HashMap<>(4);
+            signMap.put("timestamp",System.currentTimeMillis());
+            signMap.put("increment",syncReq.getIncrement());
+            signMap.put("apiInfos",objectMapper.writeValueAsString(apiInfos));
+            String sign = SignUtils.build(syncReq.getSecretKey(),signMap);
+            signMap.put("apiInfos",apiInfos);
+            signMap.put("sign",sign);
+
+            String remoteUrl = syncReq.getRemoteUrl().endsWith("/")?syncReq.getRemoteUrl().substring(0,syncReq.getRemoteUrl().length()-1):syncReq.getRemoteUrl();
+            String url = remoteUrl+(rocketApiProperties.getBaseRegisterPath()+"/accept-sync").replace("//","/");
+            SimpleClientHttpRequestFactory factory=new SimpleClientHttpRequestFactory();
+            factory.setConnectTimeout(60000);
+            factory.setReadTimeout(60000);
+            RestTemplate restTemplate = new RestTemplate(factory);
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON_UTF8);
+            HttpEntity<String> requestHttpEntity = new HttpEntity<>(objectMapper.writeValueAsString(signMap), headers);
+            ResponseEntity<Object> postForEntity = restTemplate.postForEntity(url, requestHttpEntity, Object.class);
+            return postForEntity.getBody();
+        }catch (Exception e){
+            e.printStackTrace();
+            return ApiResult.fail(e.toString());
+        }
+    }
+
 
     /**
      * change group name
@@ -368,41 +470,92 @@ public class ApiController {
      * 自动完成，类型获取
      */
     @GetMapping("/completion-items")
-    public ApiResult provideCompletionTypes(){
-        List<CompletionType> types = new ArrayList<>();
+    public ApiResult provideCompletionTypes() throws Exception {
+        String cacheKey = "completion-items-cache";
+        CompletionResult result = null;
+        if ((result = (CompletionResult) cache.get(cacheKey)) != null){
+            return ApiResult.success(result);
+        }
 
-        //获取内置自定义函数
+        result = new CompletionResult();
+        Map<String,List<MethodVo>> clazzs = new LinkedHashMap<>();
+        Map<String,String> variables = new HashMap<>();
+        Map<String,String> syntax = new HashMap<>();
+        Map<String,List<TableInfo>> dbInfos = new HashMap<>();
+        result.setClazzs(clazzs);
+        result.setVariables(variables);
+        result.setSyntax(syntax);
+        result.setDbInfos(dbInfos);
+
+        //获取内置自定义函数变量
         Collection<IFunction> functionList = context.getBeansOfType(IFunction.class).values();
         functionList.forEach(item->{
-            Class c = item.getClass();
-            List<CompletionType> funcList = new ArrayList<>();
-            types.add(CompletionType.builder()
-                    .varName(item.getVarName())
-                    .type(c.getName())
-                    .label(item.getVarName())
-                    .funcList(funcList)
-                    .build());
-            for (Method method : c.getDeclaredMethods()){
-                funcList.add(CompletionType.builder()
-                        .insertText(method.getName()+"(${1})")
-                        .label(method.getName()+"("+ Stream.of(method.getParameters()).map(item2->item2.getName()).collect(Collectors.joining(","))+") "+method.getReturnType().getSimpleName())
-                        .build());
+            variables.put(item.getVarName(),item.getClass().getName());
+        });
+
+        //spring bean对象获取
+        Map<String,Object> beans = context.getBeansOfType(Object.class);
+
+        for (String key : beans.keySet()){
+            buildClazz(clazzs,beans.get(key).getClass());
+        }
+
+        //本包JAVA类
+        List<Class> classList = PackageUtil.loadClassByLoader(this.getClass().getClassLoader());
+        for (Class clazz : classList){
+            buildClazz(clazzs,clazz);
+        }
+
+        //常用语法提示
+        syntax.put("foreach","for(item in ${1:collection}){\n\t\n}");
+        syntax.put("fori","for(${1:i}=0;${1:i}<;${1:i}++){\n\t\n}");
+        syntax.put("for","for(${1}){\n\t\n}");
+        syntax.put("if","if(${1:condition}){\n\n}");
+        syntax.put("ifelse","if(${1:condition}){\n\t\n}else{\n\t\n}");
+
+        //数据库信息获取
+        Map<String, DataSourceDialect> dataSourceDialectMap = dataSourceManager.getDialectMap();
+        dataSourceDialectMap.forEach((key,value)->{
+            List<TableInfo> tableInfos = value.buildTableInfo();
+            if (tableInfos != null){
+                dbInfos.put(key,tableInfos);
             }
         });
-        //常用语法提示
-        types.add(CompletionType.builder().label("foreach").insertText("for( item in ${1:collection}){\n\t\n}").build());
-        types.add(CompletionType.builder().label("fori").insertText("for(${1:i}=0;${1:i}<;${1:i}++){\n\t\n}").build());
-        types.add(CompletionType.builder().label("for").insertText("for( ${1} ){\n\t\n}").build());
-        types.add(CompletionType.builder().label("if").insertText("if(${1:condition}){\n\n}").build());
-        types.add(CompletionType.builder().label("ifelse").insertText("if(${1:condition}){\n\t\n}else{\n\t\n}").build());
-
-        //数据库类型获取
-
 
         //常用工具类获取
 
+        cache.put(cacheKey,result);
+        return ApiResult.success(result);
+    }
 
-        return ApiResult.success(types);
+    private void buildClazz(Map<String, List<MethodVo>> clazzs, Class clazz) {
+        if (clazzs.get(clazz.getName()) != null){
+            return;
+        }
+
+        List<MethodVo> methodVos = new ArrayList<>();
+        clazzs.put(clazz.getName(),methodVos);
+
+        //成员变量
+        for(Field field : clazz.getFields()){
+            methodVos.add(MethodVo.builder()
+                    .type("field")
+                    .varName(field.getName())
+                    .resultType(field.getType().getName())
+                    .build());
+        }
+
+        //方法
+        for (Method method : clazz.getDeclaredMethods()){
+            boolean isStatic = Modifier.isStatic(method.getModifiers());
+            String params = Stream.of(method.getParameters()).map(item->item.getType().getSimpleName()+" "+item.getName()).collect(Collectors.joining(","));
+            methodVos.add(MethodVo.builder()
+                    .type(isStatic?"static":"public")
+                    .varName(method.getName())
+                    .params(params)
+                    .resultType(method.getReturnType().getName())
+                    .build());
+        }
     }
 
     /**

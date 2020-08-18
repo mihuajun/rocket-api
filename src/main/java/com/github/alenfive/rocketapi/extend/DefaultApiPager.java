@@ -2,6 +2,8 @@ package com.github.alenfive.rocketapi.extend;
 
 import com.github.alenfive.rocketapi.entity.ApiInfo;
 import com.github.alenfive.rocketapi.entity.ApiParams;
+import com.github.alenfive.rocketapi.function.UtilsFunction;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
@@ -13,11 +15,23 @@ import java.util.Map;
  */
 @Component
 public class DefaultApiPager implements IApiPager {
+
+    @Autowired
+    private UtilsFunction utilsFunction;
+
     @Override
     public Object buildPager(Long totalRecords, List data, ApiInfo apiInfo, ApiParams apiParams) {
         Map<String,Object> pager = new HashMap<>();
+        Integer pageSize = Integer.valueOf(utilsFunction.val(this.getPageSizeVarName()).toString());
+        Integer pageNo = Integer.valueOf(utilsFunction.val(this.getPageNoVarName()).toString());
+        Integer index = Integer.valueOf(utilsFunction.val(this.getIndexVarName()).toString());
+
         pager.put("totalRecords",totalRecords);
+        pager.put("totalPages",Integer.valueOf((int) ((totalRecords + pageSize - 1) / pageSize)));
         pager.put("data",data);
+        pager.put(this.getPageNoVarName(),pageNo);
+        pager.put(this.getPageSizeVarName(),pageSize);
+        pager.put(this.getIndexVarName(),index);
         return pager;
     }
 

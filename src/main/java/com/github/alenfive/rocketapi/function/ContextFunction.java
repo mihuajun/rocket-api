@@ -21,4 +21,7 @@ public class ContextFunction implements IFunction{
     public Object getBean(String beanName){
         return context.getBean(beanName);
     }
+    public <T> T getBean(Class<T> beanType){
+        return context.getBean(beanType);
+    }
 }

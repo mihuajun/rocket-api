@@ -14,11 +14,13 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CompletionType {
-    private String type;
+public class ClazzVo {
+    /**
+     * 类全名，包含包名
+     */
     private String varName;
-
-    private String label;
-    private String insertText;
-    List<CompletionType> funcList;
+    /**
+     * 方法
+     */
+    private List<MethodVo> methods;
 }
