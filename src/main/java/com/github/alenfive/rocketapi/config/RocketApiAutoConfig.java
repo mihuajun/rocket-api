@@ -141,7 +141,6 @@ public class RocketApiAutoConfig {
         return new AssertFunction();
     }
 
-
     @Bean
     @ConditionalOnMissingBean
     public DbFunction getDbFunction(){
@@ -172,33 +171,4 @@ public class RocketApiAutoConfig {
         return new UtilsFunction();
     }
 
-    @Bean
-    @ConditionalOnMissingBean
-    public PagerDB2Dialect getPagerDB2Dialect(){
-        return new PagerDB2Dialect();
-    }
-
-    @Bean
-    @ConditionalOnMissingBean
-    public PagerMySQLDialect getPagerMySQLDialect(){
-        return new PagerMySQLDialect();
-    }
-
-    @Bean
-    @ConditionalOnMissingBean
-    public OraclePagerDialect getOraclePagerDialect(){
-        return new OraclePagerDialect();
-    }
-
-    @Bean
-    @ConditionalOnMissingBean
-    public PagerPostgreSQLDialect getPagerPostgreSQLDialect(){
-        return new PagerPostgreSQLDialect();
-    }
-
-    @Bean
-    @ConditionalOnMissingBean
-    public PagerSQLServerDialect getPagerSQLServerDialect(){
-        return new PagerSQLServerDialect();
-    }
 }

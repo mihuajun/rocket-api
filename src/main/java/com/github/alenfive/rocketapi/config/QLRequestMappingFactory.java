@@ -149,7 +149,8 @@ public class QLRequestMappingFactory {
 
     private String buildLocalLink(){
         String content = serverProperties.getServlet().getContextPath() == null?"":serverProperties.getServlet().getContextPath();
-        return "http://localhost:"+serverProperties.getPort() + ("/"+content+ properties.getBaseRegisterPath()).replace("//","/");
+        Integer port = serverProperties.getPort() == null?8080:serverProperties.getPort();
+        return "http://localhost:"+ port + ("/"+content+ properties.getBaseRegisterPath()).replace("//","/");
     }
 
     private void clear(){

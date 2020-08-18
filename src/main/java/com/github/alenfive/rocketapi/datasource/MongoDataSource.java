@@ -3,8 +3,8 @@ package com.github.alenfive.rocketapi.datasource;
 import com.github.alenfive.rocketapi.entity.ApiInfo;
 import com.github.alenfive.rocketapi.entity.ApiParams;
 import com.github.alenfive.rocketapi.entity.vo.Page;
+import com.github.alenfive.rocketapi.entity.vo.TableInfo;
 import com.github.alenfive.rocketapi.extend.IApiPager;
-import com.github.alenfive.rocketapi.extend.IPagerDialect;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -350,14 +350,19 @@ public class MongoDataSource extends DataSourceDialect {
         return map;
     }
 
+
     @Override
-    String buildCountScript(String script, ApiInfo apiInfo, ApiParams apiParams, IApiPager apiPager, Page page, Collection<IPagerDialect> pagerDialects) throws Exception {
+    public String buildCountScript(String script, ApiInfo apiInfo, ApiParams apiParams, IApiPager apiPager, Page page) {
         return script;
     }
 
     @Override
-    String buildPageScript(String script, ApiInfo apiInfo, ApiParams apiParams, IApiPager apiPager, Page page, Collection<IPagerDialect> pagerDialects) throws Exception {
+    public String buildPageScript(String script, ApiInfo apiInfo, ApiParams apiParams, IApiPager apiPager, Page page) {
         return script;
     }
 
+    @Override
+    public List<TableInfo> buildTableInfo() {
+        return null;
+    }
 }

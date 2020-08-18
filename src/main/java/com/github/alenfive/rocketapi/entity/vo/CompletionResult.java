@@ -31,4 +31,9 @@ public class CompletionResult {
      * 常用语法
      */
     private Map<String,String> syntax;
+
+    /**
+     * 数据库描述
+     */
+    private Map<String,List<TableInfo>> dbInfos;
 }

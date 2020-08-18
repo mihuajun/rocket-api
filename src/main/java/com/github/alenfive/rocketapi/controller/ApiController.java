@@ -4,6 +4,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.alenfive.rocketapi.config.QLRequestMappingFactory;
 import com.github.alenfive.rocketapi.config.RocketApiProperties;
+import com.github.alenfive.rocketapi.datasource.DataSourceDialect;
+import com.github.alenfive.rocketapi.datasource.DataSourceManager;
 import com.github.alenfive.rocketapi.entity.*;
 import com.github.alenfive.rocketapi.entity.vo.*;
 import com.github.alenfive.rocketapi.extend.ApiInfoContent;
@@ -40,7 +42,6 @@ import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.lang.reflect.Parameter;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.*;
@@ -85,6 +86,9 @@ public class ApiController {
 
     @Autowired
     private RocketApiProperties rocketApiProperties;
+
+    @Autowired
+    private DataSourceManager dataSourceManager;
 
     @Autowired
     private Map<String,Object> cache = new ConcurrentHashMap<>();
@@ -468,19 +472,21 @@ public class ApiController {
     @GetMapping("/completion-items")
     public ApiResult provideCompletionTypes() throws Exception {
         String cacheKey = "completion-items-cache";
-        CompletionResult completionResult = null;
-        if ((completionResult = (CompletionResult) cache.get(cacheKey)) != null){
-            return ApiResult.success(completionResult);
+        CompletionResult result = null;
+        if ((result = (CompletionResult) cache.get(cacheKey)) != null){
+            return ApiResult.success(result);
         }
 
-        completionResult = new CompletionResult();
+        result = new CompletionResult();
         Map<String,List<MethodVo>> clazzs = new LinkedHashMap<>();
         Map<String,String> variables = new HashMap<>();
         Map<String,String> syntax = new HashMap<>();
+        Map<String,List<TableInfo>> dbInfos = new HashMap<>();
+        result.setClazzs(clazzs);
+        result.setVariables(variables);
+        result.setSyntax(syntax);
+        result.setDbInfos(dbInfos);
 
-        completionResult.setClazzs(clazzs);
-        completionResult.setVariables(variables);
-        completionResult.setSyntax(syntax);
         //获取内置自定义函数变量
         Collection<IFunction> functionList = context.getBeansOfType(IFunction.class).values();
         functionList.forEach(item->{
@@ -500,7 +506,6 @@ public class ApiController {
             buildClazz(clazzs,clazz);
         }
 
-
         //常用语法提示
         syntax.put("foreach","for(item in ${1:collection}){\n\t\n}");
         syntax.put("fori","for(${1:i}=0;${1:i}<;${1:i}++){\n\t\n}");
@@ -508,13 +513,19 @@ public class ApiController {
         syntax.put("if","if(${1:condition}){\n\n}");
         syntax.put("ifelse","if(${1:condition}){\n\t\n}else{\n\t\n}");
 
-        //数据库类型获取
+        //数据库信息获取
+        Map<String, DataSourceDialect> dataSourceDialectMap = dataSourceManager.getDialectMap();
+        dataSourceDialectMap.forEach((key,value)->{
+            List<TableInfo> tableInfos = value.buildTableInfo();
+            if (tableInfos != null){
+                dbInfos.put(key,tableInfos);
+            }
+        });
 
         //常用工具类获取
 
-
-        cache.put(cacheKey,completionResult);
-        return ApiResult.success(completionResult);
+        cache.put(cacheKey,result);
+        return ApiResult.success(result);
     }
 
     private void buildClazz(Map<String, List<MethodVo>> clazzs, Class clazz) {

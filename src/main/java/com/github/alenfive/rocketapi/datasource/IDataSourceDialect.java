@@ -1,9 +1,13 @@
-package com.github.alenfive.rocketapi.extend;
+package com.github.alenfive.rocketapi.datasource;
+
+import com.github.alenfive.rocketapi.entity.vo.TableInfo;
+
+import java.util.List;
 
 /**
  * 分页方言
  */
-public interface IPagerDialect {
+public interface IDataSourceDialect {
 
     /**
      * JDBC url 匹配项
@@ -20,4 +24,9 @@ public interface IPagerDialect {
      */
     String buildPageScript(String script, Integer offset,Integer limit);
 
+    /**
+     * 表结构信息获取
+     * @return
+     */
+    public List<TableInfo> buildTableInfo();
 }
