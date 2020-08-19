@@ -280,6 +280,19 @@ function loadHistoryScrollEvent() {
     });
 }
 
+function loadKeyCodeEvent() {
+
+    $(document).keydown(function (event) {
+        if (event.keyCode == 87 && event.altKey){
+            if (currPage == "example"){
+                showEditorPanel();
+            }else {
+                showExamplePanel();
+            }
+        }
+    });
+}
+
 function loadRemoteSyncChecboxEvent() {
 
     //隐藏
@@ -356,6 +369,7 @@ function loadEvent() {
     loadLeftSideEvent();
     loadBottomSideEvent();
     loadRemoteSyncChecboxEvent()
+    loadKeyCodeEvent()
 }
 
 function openConfirmModal(msg,fun) {

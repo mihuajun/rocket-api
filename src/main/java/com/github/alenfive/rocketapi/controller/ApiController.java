@@ -526,6 +526,7 @@ public class ApiController {
         syntax.put("for","for(${1}){\n\t\n}");
         syntax.put("if","if(${1:condition}){\n\n}");
         syntax.put("ifelse","if(${1:condition}){\n\t\n}else{\n\t\n}");
+        syntax.put("import","import");
 
         //数据库信息获取
         Map<String, DataSourceDialect> dataSourceDialectMap = dataSourceManager.getDialectMap();
