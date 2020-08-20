@@ -49,7 +49,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.github.alenfive.rocketapi.utils.PackageUtil.getClasses;
 
 /**
  * Api ui 数据接口
@@ -441,15 +440,16 @@ public class ApiController {
     @GetMapping("/api-doc-push")
     public ApiResult apiDocPush(String apiInfoId) throws Exception {
         Collection<ApiInfo> apiInfos = mappingFactory.getPathList(false);
+        String result = null;
         if (!StringUtils.isEmpty(apiInfoId)){
             ApiInfo apiInfo = apiInfos.stream().filter(item->item.getId().equals(apiInfoId)).findFirst().orElse(null);
-            apiDocSync.sync(apiInfo,buildLastApiExample(apiInfo.getId()));
+            result = apiDocSync.sync(apiInfo,buildLastApiExample(apiInfo.getId()));
         }else{
             for(ApiInfo apiInfo : apiInfos){
-                apiDocSync.sync(apiInfo,buildLastApiExample(apiInfo.getId()));
+                result = apiDocSync.sync(apiInfo,buildLastApiExample(apiInfo.getId()));
             }
         }
-        return ApiResult.success(null);
+        return ApiResult.success(result);
     }
 
     private ApiExample buildLastApiExample(String apiInfoId) throws Exception {
@@ -509,14 +509,8 @@ public class ApiController {
         }
 
         //基础包 java.util java类
-        classList = PackageUtil.getClasses("java.util");
-        for (Class clazz : classList){
-            buildClazz(clazzs,clazz);
-        }
-
-        //基础包 java.lang java类
-        classList = PackageUtil.getClasses("java.lang");
-        for (Class clazz : classList){
+        List<String> classNames = PackageUtil.scan();
+        for (String clazz : classNames){
             buildClazz(clazzs,clazz);
         }
 
@@ -526,7 +520,9 @@ public class ApiController {
         syntax.put("for","for(${1}){\n\t\n}");
         syntax.put("if","if(${1:condition}){\n\n}");
         syntax.put("ifelse","if(${1:condition}){\n\t\n}else{\n\t\n}");
-        syntax.put("import","import");
+        syntax.put("import","import ");
+        syntax.put("continue","continue;");
+        syntax.put("break","break;");
 
         //数据库信息获取
         Map<String, DataSourceDialect> dataSourceDialectMap = dataSourceManager.getDialectMap();
@@ -543,14 +539,34 @@ public class ApiController {
         return ApiResult.success(result);
     }
 
+    private void buildClazz(Map<String, List<MethodVo>> clazzs, String clazz) {
+        if (clazzs.get(clazz) != null || clazz.indexOf("$") !=-1){
+            return;
+        }
+        clazzs.put(clazz,Collections.EMPTY_LIST);
+    }
+
     private void buildClazz(Map<String, List<MethodVo>> clazzs, Class clazz) {
         if (clazzs.get(clazz.getName()) != null || clazz.getName().indexOf("$") !=-1){
             return;
         }
+        clazzs.put(clazz.getName(),buildMethod(clazz));
+    }
 
+    /**
+     * 自动完成，方法解析
+     */
+    @PostMapping("/completion-clazz")
+    public ApiResult provideCompletionItems(@RequestBody ProvideCompletionReq completionReq){
+        try {
+            Class clazz = Class.forName(completionReq.getClazz());
+            return ApiResult.success(buildMethod(clazz));
+        }catch (Throwable e){}
+        return ApiResult.success(Collections.emptyList());
+    }
+
+    private List<MethodVo> buildMethod(Class clazz){
         List<MethodVo> methodVos = new ArrayList<>();
-        clazzs.put(clazz.getName(),methodVos);
-
         //成员变量
         for(Field field : clazz.getFields()){
             methodVos.add(MethodVo.builder()
@@ -571,14 +587,6 @@ public class ApiController {
                     .resultType(method.getReturnType().getName())
                     .build());
         }
-    }
-
-    /**
-     * 自动完成，方法解析
-     */
-    @PostMapping("/completion-type")
-    public ApiResult provideCompletionItems(@RequestBody ProvideCompletionReq completionReq){
-
-        return ApiResult.success(null);
+        return methodVos;
     }
 }

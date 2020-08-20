@@ -493,20 +493,22 @@ function provideCompletionTypes(range,word,fullValue){
         })
     });
 
-    //全局CLASS类型
-    $.each(gdata.completionItems.clazzs,function (key,value) {
-        let label = key.substring(key.lastIndexOf(".")+1);
+    //全局CLASS类型 import的类
+    regex = new RegExp("^(import) +.*[;]?",'gm');
+    let matches = fullValue.match(regex);
+    $.each(matches,function (index,item) {
+        let key = item.replace(/import +/,"").replace(";","").trim();
+        key = key.substring(key.lastIndexOf(".")+1);
         suggestions.push({
-            label: label,
-            kind: monaco.languages.CompletionItemKind.Class,
-            detail: key,
-            insertText: label,
-            filterText: buildFilterText(label),
+            label: key,
+            kind: monaco.languages.CompletionItemKind.Variable,
+            detail: item,
+            insertText: key,
+            filterText: buildFilterText(key),
             insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
             range: range
         })
     })
-
     return suggestions;
 }
 
@@ -529,8 +531,6 @@ function provideCompletionFunc(context,varName){
     parseClazz(clazz,suggestions)
 
     //链式调用
-
-
     return suggestions;
 }
 
@@ -538,8 +538,12 @@ function parseClazz(clazz,suggestions) {
     if (!clazz)return;
 
     let methods = gdata.completionItems.clazzs[clazz];
-    if (!methods){
-        return;
+    if (!methods || methods.length == 0){
+        buildMethodsForClazz(clazz);
+        methods = gdata.completionItems.clazzs[clazz];
+        if (!methods || methods.length == 0){
+            return;
+        }
     }
 
     $.each(methods,function (index,item) {
@@ -585,18 +589,12 @@ function findClazz(context,varName) {
     }
     let clazzSimpleName = matchItem[0].substring(0,matchItem[0].indexOf(" "));
     let regex = new RegExp("^(import) +.*("+clazzSimpleName+")[;]?",'m');
+
     let importName = context.match(regex);
     if (importName){
-        clazz = importName[0].replace(/import +/,"").replace(";","");
-    }else{
-        $.each(gdata.completionItems.clazzs,function (key,value) {
-            if(key.substring(key.lastIndexOf(".")+1) == clazzSimpleName){
-                clazz = key;
-                return false;
-            }
-        })
+        return importName[0].replace(/import +/,"").replace(";","").trim();
     }
-    return clazz;
+    return null;
 }
 
 function buildFilterText(label) {

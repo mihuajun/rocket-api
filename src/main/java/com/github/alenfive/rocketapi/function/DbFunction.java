@@ -57,12 +57,11 @@ public class DbFunction implements IFunction{
         script = parseSql(script);
        List<Map<String,Object>> list = find(script,dataSource);
        if (CollectionUtils.isEmpty(list))return 0L;
+        if (list.size()>1){
+            return Long.valueOf(list.size());
+        }
 
-       Object count = list.get(0).values().toArray()[0];
-       if (count == null){
-           count = list.size();
-       }
-       return Long.valueOf(count.toString());
+       return Long.valueOf(list.get(0).values().toArray()[0].toString());
     }
 
     public Map<String,Object> findOne(String script,String dataSource) throws Exception {

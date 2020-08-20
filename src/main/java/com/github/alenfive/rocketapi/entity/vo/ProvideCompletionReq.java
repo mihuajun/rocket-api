@@ -7,6 +7,5 @@ import lombok.Data;
  */
 @Data
 public class ProvideCompletionReq {
-    private String keyword;
-    private String type;
+    private String clazz;
 }

@@ -33,6 +33,7 @@ let lastExampleUrl = baseUrl + "/api-example/last";
 let deleteExampleUrl = baseUrl + "/api-example";
 let apiDocPushUrl = baseUrl + "/api-doc-push";
 let completionItemsUrl = baseUrl + "/completion-items";
+let completionClazzUrl = baseUrl + "/completion-clazz";
 let remoteSyncUrl = baseUrl + "/remote-sync";
 let loginUrl = baseUrl + "/login";
 let logoutUrl = baseUrl + "/logout";
@@ -2124,6 +2125,7 @@ function apiPush(apiInfoId) {
                 openMsgModal(data.msg);
                 return;
             }
+            $("#repository>.buttons>div").text(data.data);
         },complete:function () {
             hideSendNotify();
         }
@@ -2137,6 +2139,18 @@ function initCompletionItems() {
         data = unpackResult(data);
         gdata.completionItems = data.data;
     })
+}
+function buildMethodsForClazz(clazz) {
+    $.ajax({
+        type: "post",
+        url: completionClazzUrl,
+        contentType : "application/json",
+        data: JSON.stringify({"clazz":clazz}),
+        success: function (data) {
+            data = unpackResult(data);
+            gdata.completionItems.clazzs[clazz] = data.data;
+        }
+    });
 }
 //-------------------------------- api push end -------------------------------
 
