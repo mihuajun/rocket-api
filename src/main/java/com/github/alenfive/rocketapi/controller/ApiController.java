@@ -577,7 +577,7 @@ public class ApiController {
         }
 
         //方法
-        for (Method method : clazz.getDeclaredMethods()){
+        for (Method method : clazz.getMethods()){
             boolean isStatic = Modifier.isStatic(method.getModifiers());
             String params = Stream.of(method.getParameters()).map(item->item.getType().getSimpleName()+" "+item.getName()).collect(Collectors.joining(","));
             methodVos.add(MethodVo.builder()
