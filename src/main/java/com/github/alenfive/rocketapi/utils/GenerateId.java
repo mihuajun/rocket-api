@@ -1,23 +1,7 @@
-/*
- * Copyright 2008-present MongoDB, Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.github.alenfive.rocketapi.utils;
 
-import org.bson.diagnostics.Logger;
-import org.bson.diagnostics.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
 import java.net.NetworkInterface;
@@ -28,60 +12,43 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.bson.assertions.Assertions.isTrueArgument;
-import static org.bson.assertions.Assertions.notNull;
 
-/**
- * <p>A globally unique identifier for objects.</p>
- *
- * <p>Consists of 12 bytes, divided as follows:</p>
- * <table border="1">
- *     <caption>ObjectID layout</caption>
- *     <tr>
- *         <td>0</td><td>1</td><td>2</td><td>3</td><td>4</td><td>5</td><td>6</td><td>7</td><td>8</td><td>9</td><td>10</td><td>11</td>
- *     </tr>
- *     <tr>
- *         <td colspan="4">time</td><td colspan="3">machine</td> <td colspan="2">pid</td><td colspan="3">inc</td>
- *     </tr>
- * </table>
- *
- * <p>Instances of this class are immutable.</p>
- *
- * @mongodb.driver.manual core/object-id ObjectId
- */
 public final class GenerateId implements Comparable<GenerateId>, Serializable {
 
     private static final long serialVersionUID = 3670079982654483072L;
 
-    static final Logger LOGGER = Loggers.getLogger("ObjectId");
-
     private static final int LOW_ORDER_THREE_BYTES = 0x00ffffff;
 
     private static final int MACHINE_IDENTIFIER;
+
     private static final short PROCESS_IDENTIFIER;
+
     private static final AtomicInteger NEXT_COUNTER = new AtomicInteger(new SecureRandom().nextInt());
 
-    private static final char[] HEX_CHARS = new char[] {
-      '0', '1', '2', '3', '4', '5', '6', '7',
-      '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' };
+    private static final Logger LOG = LoggerFactory.getLogger(GenerateId.class);
 
     private final int timestamp;
+
     private final int machineIdentifier;
+
     private final short processIdentifier;
+
     private final int counter;
 
     /**
      * Gets a new object id.
      *
+     * @return the new id
      */
     public static GenerateId get() {
         return new GenerateId();
     }
 
     /**
-     * Checks if a string could be an {@code ObjectId}.
+     * Checks if a string could be an {@code Objectx}.
      *
-     * @param hexString a potential ObjectId as a String.
+     * @param hexString a potential Objectx as a String.
+     * @return whether the string could be an object id
      * @throws IllegalArgumentException if hexString is null
      */
     public static boolean isValid(final String hexString) {
@@ -115,6 +82,7 @@ public final class GenerateId implements Comparable<GenerateId>, Serializable {
     /**
      * Gets the generated machine identifier.
      *
+     * @return an int representing the machine identifier
      */
     public static int getGeneratedMachineIdentifier() {
         return MACHINE_IDENTIFIER;
@@ -123,6 +91,7 @@ public final class GenerateId implements Comparable<GenerateId>, Serializable {
     /**
      * Gets the generated process identifier.
      *
+     * @return the process id
      */
     public static int getGeneratedProcessIdentifier() {
         return PROCESS_IDENTIFIER;
@@ -131,25 +100,27 @@ public final class GenerateId implements Comparable<GenerateId>, Serializable {
     /**
      * Gets the current value of the auto-incrementing counter.
      *
+     * @return the current counter value.
      */
     public static int getCurrentCounter() {
         return NEXT_COUNTER.get();
     }
 
     /**
-     * <p>Creates an ObjectId using time, machine and inc values.  The Java driver used to create all ObjectIds this way, but it does not
-     * match the <a href="http://docs.mongodb.org/manual/reference/object-id/">ObjectId specification</a>, which requires four values, not
+     * <p>Creates an Objectx using time, machine and inc values.  The Java driver used to create all Objectxs this way, but it does not
+     * match the <a href="http://docs.mongodb.org/manual/reference/object-id/">Objectx specification</a>, which requires four values, not
      * three. This major release of the Java driver conforms to the specification, but still supports clients that are relying on the
      * behavior of the previous major release by providing this explicit factory method that takes three parameters instead of four.</p>
-     *
+     * <p>
      * <p>Ordinary users of the driver will not need this method.  It's only for those that have written there own BSON decoders.</p>
-     *
-     * <p>NOTE: This will not break any application that use ObjectIds.  The 12-byte representation will be round-trippable from old to new
+     * <p>
+     * <p>NOTE: This will not break any application that use Objectxs.  The 12-byte representation will be round-trippable from old to new
      * driver releases.</p>
      *
      * @param time    time in seconds
      * @param machine machine ID
      * @param inc     incremental value
+     * @return a new {@code Objectx} created from the given values
      * @since 2.12.0
      */
     public static GenerateId createFromLegacyFormat(final int time, final int machine, final int inc) {
@@ -197,7 +168,7 @@ public final class GenerateId implements Comparable<GenerateId>, Serializable {
     }
 
     /**
-     * Creates an ObjectId using the given time, machine identifier, process identifier, and counter.
+     * Creates an Objectx using the given time, machine identifier, process identifier, and counter.
      *
      * @param timestamp         the time in seconds
      * @param machineIdentifier the machine identifier
@@ -227,7 +198,7 @@ public final class GenerateId implements Comparable<GenerateId>, Serializable {
      * Constructs a new instance from a 24-byte hexadecimal string representation.
      *
      * @param hexString the string to convert
-     * @throws IllegalArgumentException if the string is not a valid hex string representation of an ObjectId
+     * @throws IllegalArgumentException if the string is not a valid hex string representation of an Objectx
      */
     public GenerateId(final String hexString) {
         this(parseHexString(hexString));
@@ -240,11 +211,21 @@ public final class GenerateId implements Comparable<GenerateId>, Serializable {
      * @throws IllegalArgumentException if array is null or not of length 12
      */
     public GenerateId(final byte[] bytes) {
-        this(ByteBuffer.wrap(notNull("bytes", bytes)));
+        if (bytes == null) {
+            throw new IllegalArgumentException();
+        }
+        if (bytes.length != 12) {
+            throw new IllegalArgumentException("need 12 bytes");
+        }
+
+        timestamp = makeInt(bytes[0], bytes[1], bytes[2], bytes[3]);
+        machineIdentifier = makeInt((byte) 0, bytes[4], bytes[5], bytes[6]);
+        processIdentifier = (short) makeInt((byte) 0, (byte) 0, bytes[7], bytes[8]);
+        counter = makeInt((byte) 0, bytes[9], bytes[10], bytes[11]);
     }
 
     /**
-     * Creates an ObjectId
+     * Creates an Objectx
      *
      * @param timestamp                   time in seconds
      * @param machineAndProcessIdentifier machine and process identifier
@@ -252,25 +233,6 @@ public final class GenerateId implements Comparable<GenerateId>, Serializable {
      */
     GenerateId(final int timestamp, final int machineAndProcessIdentifier, final int counter) {
         this(legacyToBytes(timestamp, machineAndProcessIdentifier, counter));
-    }
-
-    /**
-     * Constructs a new instance from the given ByteBuffer
-     *
-     * @param buffer the ByteBuffer
-     * @throws IllegalArgumentException if the buffer is null or does not have at least 12 bytes remaining
-     * @since 3.4
-     */
-    public GenerateId(final ByteBuffer buffer) {
-        notNull("buffer", buffer);
-        isTrueArgument("buffer.remaining() >=12", buffer.remaining() >= 12);
-
-        // Note: Cannot use ByteBuffer.getInt because it depends on tbe buffer's byte order
-        // and ObjectId's are always in big-endian order.
-        timestamp = makeInt(buffer.get(), buffer.get(), buffer.get(), buffer.get());
-        machineIdentifier = makeInt((byte) 0, buffer.get(), buffer.get(), buffer.get());
-        processIdentifier = (short) makeInt((byte) 0, (byte) 0, buffer.get(), buffer.get());
-        counter = makeInt((byte) 0, buffer.get(), buffer.get(), buffer.get());
     }
 
     private static byte[] legacyToBytes(final int timestamp, final int machineAndProcessIdentifier, final int counter) {
@@ -293,42 +255,29 @@ public final class GenerateId implements Comparable<GenerateId>, Serializable {
     /**
      * Convert to a byte array.  Note that the numbers are stored in big-endian order.
      *
+     * @return the byte array
      */
     public byte[] toByteArray() {
-        ByteBuffer buffer = ByteBuffer.allocate(12);
-        putToByteBuffer(buffer);
-        return buffer.array();  // using .allocate ensures there is a backing array that can be returned
+        byte[] bytes = new byte[12];
+        bytes[0] = int3(timestamp);
+        bytes[1] = int2(timestamp);
+        bytes[2] = int1(timestamp);
+        bytes[3] = int0(timestamp);
+        bytes[4] = int2(machineIdentifier);
+        bytes[5] = int1(machineIdentifier);
+        bytes[6] = int0(machineIdentifier);
+        bytes[7] = short1(processIdentifier);
+        bytes[8] = short0(processIdentifier);
+        bytes[9] = int2(counter);
+        bytes[10] = int1(counter);
+        bytes[11] = int0(counter);
+        return bytes;
     }
-
-    /**
-      * Convert to bytes and put those bytes to the provided ByteBuffer.
-      * Note that the numbers are stored in big-endian order.
-      *
-      * @param buffer the ByteBuffer
-      * @throws IllegalArgumentException if the buffer is null or does not have at least 12 bytes remaining
-      * @since 3.4
-      */
-    public void putToByteBuffer(final ByteBuffer buffer) {
-        notNull("buffer", buffer);
-        isTrueArgument("buffer.remaining() >=12", buffer.remaining() >= 12);
-
-        buffer.put(int3(timestamp));
-        buffer.put(int2(timestamp));
-        buffer.put(int1(timestamp));
-        buffer.put(int0(timestamp));
-        buffer.put(int2(machineIdentifier));
-        buffer.put(int1(machineIdentifier));
-        buffer.put(int0(machineIdentifier));
-        buffer.put(short1(processIdentifier));
-        buffer.put(short0(processIdentifier));
-        buffer.put(int2(counter));
-        buffer.put(int1(counter));
-        buffer.put(int0(counter));
-   }
 
     /**
      * Gets the timestamp (number of seconds since the Unix epoch).
      *
+     * @return the timestamp
      */
     public int getTimestamp() {
         return timestamp;
@@ -337,6 +286,7 @@ public final class GenerateId implements Comparable<GenerateId>, Serializable {
     /**
      * Gets the machine identifier.
      *
+     * @return the machine identifier
      */
     public int getMachineIdentifier() {
         return machineIdentifier;
@@ -345,6 +295,7 @@ public final class GenerateId implements Comparable<GenerateId>, Serializable {
     /**
      * Gets the process identifier.
      *
+     * @return the process identifier
      */
     public short getProcessIdentifier() {
         return processIdentifier;
@@ -353,6 +304,7 @@ public final class GenerateId implements Comparable<GenerateId>, Serializable {
     /**
      * Gets the counter.
      *
+     * @return the counter
      */
     public int getCounter() {
         return counter;
@@ -361,6 +313,7 @@ public final class GenerateId implements Comparable<GenerateId>, Serializable {
     /**
      * Gets the timestamp as a {@code Date} instance.
      *
+     * @return the Date
      */
     public Date getDate() {
         return new Date(timestamp * 1000L);
@@ -369,15 +322,16 @@ public final class GenerateId implements Comparable<GenerateId>, Serializable {
     /**
      * Converts this instance into a 24-byte hexadecimal string representation.
      *
+     * @return a string representation of the Objectx in hexadecimal format
      */
     public String toHexString() {
-      char[] chars = new char[24];
-      int i = 0;
-      for (byte b : toByteArray()) {
-        chars[i++] = HEX_CHARS[b >> 4 & 0xF];
-        chars[i++] = HEX_CHARS[b & 0xF];
-      }
-      return new String(chars);
+        StringBuilder buf = new StringBuilder(24);
+
+        for (final byte b : toByteArray()) {
+            buf.append(String.format("%02x", b & 0xff));
+        }
+
+        return buf.toString();
     }
 
     @Override
@@ -389,22 +343,18 @@ public final class GenerateId implements Comparable<GenerateId>, Serializable {
             return false;
         }
 
-        GenerateId objectId = (GenerateId) o;
+        GenerateId Objectx = (GenerateId) o;
 
-        if (counter != objectId.counter) {
+        if (counter != Objectx.counter) {
             return false;
         }
-        if (machineIdentifier != objectId.machineIdentifier) {
+        if (machineIdentifier != Objectx.machineIdentifier) {
             return false;
         }
-        if (processIdentifier != objectId.processIdentifier) {
+        if (processIdentifier != Objectx.processIdentifier) {
             return false;
         }
-        if (timestamp != objectId.timestamp) {
-            return false;
-        }
-
-        return true;
+        return timestamp == Objectx.timestamp;
     }
 
     @Override
@@ -422,49 +372,26 @@ public final class GenerateId implements Comparable<GenerateId>, Serializable {
             throw new NullPointerException();
         }
 
-        byte[] byteArray = toByteArray();
-        byte[] otherByteArray = other.toByteArray();
-        for (int i = 0; i < 12; i++) {
-            if (byteArray[i] != otherByteArray[i]) {
-                return ((byteArray[i] & 0xff) < (otherByteArray[i] & 0xff)) ? -1 : 1;
-            }
+        int x = timestamp - other.timestamp;
+        if (x != 0) {
+            return x;
         }
-        return 0;
+
+        x = machineIdentifier - other.machineIdentifier;
+        if (x != 0) {
+            return x;
+        }
+
+        x = processIdentifier - other.processIdentifier;
+        if (x != 0) {
+            return x;
+        }
+
+        return counter - other.counter;
     }
 
     @Override
     public String toString() {
-        return toHexString();
-    }
-
-    // Deprecated methods
-
-    /**
-     * Gets the time of this ID, in seconds.
-     *
-     * @deprecated Use #getTimestamp instead
-     */
-    @Deprecated
-    public int getTimeSecond() {
-        return timestamp;
-    }
-
-    /**
-     * Gets the time of this instance, in milliseconds.
-     *
-     * @deprecated Use #getDate instead
-     */
-    @Deprecated
-    public long getTime() {
-        return timestamp * 1000L;
-    }
-
-    /**
-     * @see GenerateId#toHexString()
-     * @deprecated use {@link #toHexString()}
-     */
-    @Deprecated
-    public String toStringMongod() {
         return toHexString();
     }
 
@@ -493,22 +420,23 @@ public final class GenerateId implements Comparable<GenerateId>, Serializable {
                         sb.append(bb.getChar());
                         sb.append(bb.getChar());
                         sb.append(bb.getChar());
-                    } catch (BufferUnderflowException shortHardwareAddressException) { //NOPMD
+                    } catch (BufferUnderflowException shortHardwareAddressException) { // NOPMD
                         // mac with less than 6 bytes. continue
                     }
                 }
             }
             machinePiece = sb.toString().hashCode();
         } catch (Throwable t) {
-            // exception sometimes happens with IBM JVM, use SecureRandom instead
+            // exception sometimes happens with IBM JVM, use random
             machinePiece = (new SecureRandom().nextInt());
-            LOGGER.debug("Failed to get machine identifier from network interface, using SecureRandom instead");
+            LOG.warn("Failed to get machine identifier from network interface, using random number instead,error:{}", t);
         }
         machinePiece = machinePiece & LOW_ORDER_THREE_BYTES;
         return machinePiece;
     }
 
-    // Creates the process identifier.  This does not have to be unique per class loader because
+    // Creates the process identifier. This does not have to be unique per class
+    // loader because
     // NEXT_COUNTER will provide the uniqueness.
     private static short createProcessIdentifier() {
         short processId;
@@ -521,9 +449,8 @@ public final class GenerateId implements Comparable<GenerateId>, Serializable {
             }
 
         } catch (Throwable t) {
-            // JMX not available on Android, use SecureRandom instead
             processId = (short) new SecureRandom().nextInt();
-            LOGGER.debug("Failed to get process identifier from JMX, using SecureRandom instead");
+            LOG.warn("Failed to get process identifier from JMX, using random number instead,error:{}", t);
         }
 
         return processId;
@@ -531,7 +458,7 @@ public final class GenerateId implements Comparable<GenerateId>, Serializable {
 
     private static byte[] parseHexString(final String s) {
         if (!isValid(s)) {
-            throw new IllegalArgumentException("invalid hexadecimal representation of an ObjectId: [" + s + "]");
+            throw new IllegalArgumentException("invalid hexadecimal representation of an Objectx: [" + s + "]");
         }
 
         byte[] b = new byte[12];
@@ -545,14 +472,9 @@ public final class GenerateId implements Comparable<GenerateId>, Serializable {
         return (int) (time.getTime() / 1000);
     }
 
-    // Big-Endian helpers, in this class because all other BSON numbers are little-endian
-
     private static int makeInt(final byte b3, final byte b2, final byte b1, final byte b0) {
         // CHECKSTYLE:OFF
-        return (((b3) << 24) |
-                ((b2 & 0xff) << 16) |
-                ((b1 & 0xff) << 8) |
-                ((b0 & 0xff)));
+        return (((b3) << 24) | ((b2 & 0xff) << 16) | ((b1 & 0xff) << 8) | ((b0 & 0xff)));
         // CHECKSTYLE:ON
     }
 
@@ -580,4 +502,3 @@ public final class GenerateId implements Comparable<GenerateId>, Serializable {
         return (byte) (x);
     }
 }
-
