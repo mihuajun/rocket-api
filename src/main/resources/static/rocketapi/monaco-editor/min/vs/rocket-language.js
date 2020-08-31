@@ -134,6 +134,32 @@ monaco.languages.registerCompletionItemProvider(languageName, {
 
         //当前光标所在的单词
         let word = model.getWordUntilPosition(position);
+
+        let range = {
+            startLineNumber: position.lineNumber,
+            endLineNumber: position.lineNumber,
+            startColumn: word.startColumn,
+            endColumn: word.endColumn
+        }
+
+        //import 匹配
+        let lineContent = model.getLineContent(position.lineNumber);
+        if (lineContent.indexOf("import ") == 0){
+            return {
+                suggestions: provideCompletionImport(range)
+            };
+        }
+
+        //sql脚本提示
+        //是否在SQL引号范围内
+        let sqlStr = getSqlStrContext(model,position);
+        if (sqlStr){
+            return {
+                suggestions: provideCompletionSqlInfo(model,position,range,lineContent,sqlStr)
+            }
+        }
+
+        //方法自动提示
         //最后输入是否为 "."
         let point = model.getValueInRange({
             startLineNumber: position.lineNumber,
@@ -162,30 +188,6 @@ monaco.languages.registerCompletionItemProvider(languageName, {
                 return {
                     suggestions: provideCompletionFunc(model.getValue(),varName)
                 };
-            }
-        }
-
-        let range = {
-            startLineNumber: position.lineNumber,
-            endLineNumber: position.lineNumber,
-            startColumn: word.startColumn,
-            endColumn: word.endColumn
-        }
-
-        //import 匹配
-        let lineContent = model.getLineContent(position.lineNumber);
-        if (lineContent.indexOf("import ") == 0){
-            return {
-                suggestions: provideCompletionImport(range)
-            };
-        }
-
-        //sql脚本提示
-        //是否在SQL引号范围内
-        let sqlStr = getSqlStrContext(model,position);
-        if (sqlStr){
-            return {
-                suggestions: provideCompletionSqlInfo(model,position,range,lineContent,sqlStr)
             }
         }
 
@@ -292,7 +294,7 @@ function provideCompletionSqlInfo(model,position,range,lineContent,sqlStr) {
     //"delete from #{table}"
     //"select * from #{table}"
 
-    if (linePreStr.match(/((from +)|(into +)|(update +))$/gi)){
+    if (linePreStr.match(/((from +)|(into +)|(update +)|(join +))$/gi)){
         $.each(gdata.completionItems.dbInfos,function (key,value) {
             $.each(value,function (index,item) {
                 suggestions.push({
@@ -365,7 +367,7 @@ function getTablesForSql(sqlStr) {
     //"update #{table}"
     //"delete from #{table}"
     //"select * from #{table}"
-    let matchs = sqlStr.match(/(from +[a-zA-Z_0-9]+)|(into +[a-zA-Z_0-9]+)|(update +[a-zA-Z_0-9]+)/gim);
+    let matchs = sqlStr.match(/(from +[a-zA-Z_0-9]+)|(into +[a-zA-Z_0-9]+)|(update +[a-zA-Z_0-9]+)|(join +[a-zA-Z_0-9]+)/gim);
     $.each(matchs,function (index,item) {
         tables.add(item.substring(item.lastIndexOf(" ")+1));
     })
@@ -491,20 +493,22 @@ function provideCompletionTypes(range,word,fullValue){
         })
     });
 
-    //全局CLASS类型
-    $.each(gdata.completionItems.clazzs,function (key,value) {
-        let label = key.substring(key.lastIndexOf(".")+1);
+    //全局CLASS类型 import的类
+    regex = new RegExp("^(import) +.*[;]?",'gm');
+    let matches = fullValue.match(regex);
+    $.each(matches,function (index,item) {
+        let key = item.replace(/import +/,"").replace(";","").trim();
+        key = key.substring(key.lastIndexOf(".")+1);
         suggestions.push({
-            label: label,
-            kind: monaco.languages.CompletionItemKind.Class,
-            detail: key,
-            insertText: label,
-            filterText: buildFilterText(label),
+            label: key,
+            kind: monaco.languages.CompletionItemKind.Variable,
+            detail: item,
+            insertText: key,
+            filterText: buildFilterText(key),
             insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
             range: range
         })
     })
-
     return suggestions;
 }
 
@@ -526,6 +530,7 @@ function provideCompletionFunc(context,varName){
     clazz = findClazz(context,varName);
     parseClazz(clazz,suggestions)
 
+    //链式调用
     return suggestions;
 }
 
@@ -533,8 +538,12 @@ function parseClazz(clazz,suggestions) {
     if (!clazz)return;
 
     let methods = gdata.completionItems.clazzs[clazz];
-    if (!methods){
-        return;
+    if (!methods || methods.length == 0){
+        buildMethodsForClazz(clazz);
+        methods = gdata.completionItems.clazzs[clazz];
+        if (!methods || methods.length == 0){
+            return;
+        }
     }
 
     $.each(methods,function (index,item) {
@@ -547,7 +556,12 @@ function parseClazz(clazz,suggestions) {
             kind = monaco.languages.CompletionItemKind.Property;
         }else{
             label = item.varName +"("+item.params+") ";
-            insertText = item.varName+"(${1})";
+            if (item.params){
+                insertText = item.varName+"(${1})";
+            }else{
+                insertText = item.varName+"()";
+            }
+
         }
         suggestions.push({
             label: label,
@@ -562,24 +576,25 @@ function parseClazz(clazz,suggestions) {
 
 function findClazz(context,varName) {
     let matchItem = context.match("[A-Z]{1}[a-zA-z]* +"+varName);
-    if (!matchItem){
-        return null;
-    }
-    let clazzSimpleName = matchItem[0].substring(0,matchItem[0].indexOf(" "));
-    let regex = new RegExp("^(import) +.*("+clazzSimpleName+")[;]?",'m');
-    let importName = context.match(regex);
     let clazz = null;
-    if (importName){
-        clazz = importName[0].replace(/import +/,"").replace(";","");
-    }else{
+
+    if (!matchItem){
         $.each(gdata.completionItems.clazzs,function (key,value) {
-            if(key.substring(key.lastIndexOf(".")+1) == clazzSimpleName){
+            if(key.substring(key.lastIndexOf(".")+1) == varName){
                 clazz = key;
                 return false;
             }
         })
+        return clazz;
     }
-    return clazz;
+    let clazzSimpleName = matchItem[0].substring(0,matchItem[0].indexOf(" "));
+    let regex = new RegExp("^(import) +.*("+clazzSimpleName+")[;]?",'m');
+
+    let importName = context.match(regex);
+    if (importName){
+        return importName[0].replace(/import +/,"").replace(";","").trim();
+    }
+    return null;
 }
 
 function buildFilterText(label) {

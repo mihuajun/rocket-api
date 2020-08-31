@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 public class DefaultApiDocSync implements IApiDocSync {
 
     @Override
-    public void sync(ApiInfo apiInfo, ApiExample apiExample) {
-
+    public String sync(ApiInfo apiInfo, ApiExample apiExample) {
+        return "Successful push";
     }
 }

@@ -33,6 +33,7 @@ let lastExampleUrl = baseUrl + "/api-example/last";
 let deleteExampleUrl = baseUrl + "/api-example";
 let apiDocPushUrl = baseUrl + "/api-doc-push";
 let completionItemsUrl = baseUrl + "/completion-items";
+let completionClazzUrl = baseUrl + "/completion-clazz";
 let remoteSyncUrl = baseUrl + "/remote-sync";
 let loginUrl = baseUrl + "/login";
 let logoutUrl = baseUrl + "/logout";
@@ -280,6 +281,19 @@ function loadHistoryScrollEvent() {
     });
 }
 
+function loadKeyCodeEvent() {
+
+    $(document).keydown(function (event) {
+        if (event.keyCode == 87 && event.altKey){
+            if (currPage == "example"){
+                showEditorPanel();
+            }else {
+                showExamplePanel();
+            }
+        }
+    });
+}
+
 function loadRemoteSyncChecboxEvent() {
 
     //隐藏
@@ -356,6 +370,7 @@ function loadEvent() {
     loadLeftSideEvent();
     loadBottomSideEvent();
     loadRemoteSyncChecboxEvent()
+    loadKeyCodeEvent()
 }
 
 function openConfirmModal(msg,fun) {
@@ -951,10 +966,10 @@ function buildApiTree(list,collapsed) {
                 '                                                            e2e-tag="drive|'+(item.comment?item.comment:item.path)+'|more"><i\n' +
                 '                                                            class="sli-icon-options-vertical"></i></a>\n' +
                 '                                                        <ul class="pull-right dropdown-menu">' +
-                '<li class="dropdown-item"  onclick="copyApi(this,\''+item.id+'\')"><a><i class="fa fa-copy"></i><span class="gwt-InlineHTML">Copy</span></a></li>' +
-                '<li class="dropdown-item"  onclick="moveApi(this,\''+item.id+'\')"><a><i class="fa fa-random"></i><span class="gwt-InlineHTML">Move</span></a></li>' +
-                '<li class="dropdown-item" onclick="apiPush(\''+item.id+'\')"><a><i class="fa fa-cloud-upload"></i><span class="gwt-InlineHTML">Doc</span></a></li>' +
-                '<li class="dropdown-item" onclick="removeApi(this,\''+item.id+'\')"><a><i class="fa fa-trash-o"></i><span class="gwt-InlineHTML">Trash</span></a></li>' +
+                '<li class="dropdown-item"  title="复制" onclick="copyApi(this,\''+item.id+'\')"><a><i class="fa fa-copy"></i><span class="gwt-InlineHTML">Copy</span></a></li>' +
+                '<li class="dropdown-item"  title="移动" onclick="moveApi(this,\''+item.id+'\')"><a><i class="fa fa-random"></i><span class="gwt-InlineHTML">Move</span></a></li>' +
+                '<li class="dropdown-item"  title="文档同步" onclick="apiPush(\''+item.id+'\')"><a><i class="fa fa-cloud-upload"></i><span class="gwt-InlineHTML">Doc</span></a></li>' +
+                '<li class="dropdown-item"  title="移除" onclick="removeApi(this,\''+item.id+'\')"><a><i class="fa fa-trash-o"></i><span class="gwt-InlineHTML">Trash</span></a></li>' +
                 '</ul>\n' +
                 '                                                    </div>\n' +
                 '                                                </div>' +
@@ -2110,6 +2125,7 @@ function apiPush(apiInfoId) {
                 openMsgModal(data.msg);
                 return;
             }
+            $("#repository>.buttons>div").text(data.data);
         },complete:function () {
             hideSendNotify();
         }
@@ -2123,6 +2139,18 @@ function initCompletionItems() {
         data = unpackResult(data);
         gdata.completionItems = data.data;
     })
+}
+function buildMethodsForClazz(clazz) {
+    $.ajax({
+        type: "post",
+        url: completionClazzUrl,
+        contentType : "application/json",
+        data: JSON.stringify({"clazz":clazz}),
+        success: function (data) {
+            data = unpackResult(data);
+            gdata.completionItems.clazzs[clazz] = data.data;
+        }
+    });
 }
 //-------------------------------- api push end -------------------------------
 

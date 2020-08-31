@@ -114,6 +114,14 @@ public class UtilsFunction implements IFunction{
         return this.download(fileName+".csv",new ByteArrayInputStream(sb.toString().getBytes("utf-8")));
     }
 
+    public ResponseEntity<InputStreamResource> exportCsv(String fileName, List<Map<String,Object>> list) throws IOException {
+        Map<String,String> title = new LinkedHashMap<>();
+        if (list.size() > 0){
+            list.get(0).keySet().stream().forEach(item->title.put(item,item));
+        }
+        return exportCsv(fileName,title,list);
+    }
+
     /**
      * 导出xls
      * @param fileName
@@ -170,6 +178,7 @@ public class UtilsFunction implements IFunction{
      * @param list
      */
     public void exportXlsx(String fileName, LinkedHashMap title, List<Map<String,Object>> list){
+
     }
 
     /**
@@ -177,12 +186,39 @@ public class UtilsFunction implements IFunction{
      * @param in
      * @return
      */
-    public List<List<String>> parseCsv(InputStream in) throws IOException {
-        List<List<String>> result = new ArrayList<>();
+    public List<Map<String,String>> parseCsv(List<String> titles,InputStream in) throws IOException {
+        List<Map<String,String>> result = new ArrayList<>();
         String line = null;
         @Cleanup BufferedReader reader = new BufferedReader(new InputStreamReader(in));
         while((line=reader.readLine())!=null){
-            result.add(Arrays.asList(line.split(",")));
+            Map<String,String> item = new LinkedHashMap<>();
+            List<String> itemData = Arrays.asList(line.split(","));
+            for (int i=0;i<titles.size();i++){
+                item.put(titles.get(i).trim(),itemData.get(i).trim());
+            }
+            result.add(item);
+        }
+        return result;
+    }
+
+    public List<Map<String,String>> parseCsv(InputStream in) throws IOException {
+        List<Map<String,String>> result = new ArrayList<>();
+        String line = null;
+        List<String> titles = null;
+        @Cleanup BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+        boolean isFirst = true;
+        while((line=reader.readLine())!=null){
+            if (isFirst){
+                titles = Arrays.asList(line.split(","));
+                isFirst = false;
+                continue;
+            }
+            Map<String,String> item = new LinkedHashMap<>();
+            List<String> itemData = Arrays.asList(line.split(","));
+            for (int i=0;i<titles.size();i++){
+                item.put(titles.get(i).trim(),itemData.get(i).trim());
+            }
+            result.add(item);
         }
         return result;
     }

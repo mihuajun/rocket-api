@@ -171,4 +171,9 @@ public class RocketApiAutoConfig {
         return new UtilsFunction();
     }
 
+    @Bean
+    @ConditionalOnMissingBean
+    public ContextFunction getContextFunction(){
+        return new ContextFunction();
+    }
 }

@@ -57,12 +57,11 @@ public class DbFunction implements IFunction{
         script = parseSql(script);
        List<Map<String,Object>> list = find(script,dataSource);
        if (CollectionUtils.isEmpty(list))return 0L;
+        if (list.size()>1){
+            return Long.valueOf(list.size());
+        }
 
-       Object count = list.get(0).values().toArray()[0];
-       if (count == null){
-           count = list.size();
-       }
-       return Long.valueOf(count.toString());
+       return Long.valueOf(list.get(0).values().toArray()[0].toString());
     }
 
     public Map<String,Object> findOne(String script,String dataSource) throws Exception {
@@ -76,11 +75,17 @@ public class DbFunction implements IFunction{
         script = parseSql(script);
         StringBuilder sbScript = new StringBuilder(script);
         parseService.parse(sbScript,apiInfoContent.getApiParams());
-        List<Map<String,Object>> result = dataSourceManager.find(sbScript,apiInfoContent.getApiInfo(),apiInfoContent.getApiParams(),dataSource);
-        if (apiInfoContent.getIsDebug()){
-            apiInfoContent.putLog("generate script:  " + sbScript);
+
+        List<Map<String,Object>> result = null;
+        try {
+            result = dataSourceManager.find(sbScript,apiInfoContent.getApiInfo(),apiInfoContent.getApiParams(),dataSource);
+        }finally {
+            if (apiInfoContent.getIsDebug()){
+                apiInfoContent.putLog("generate script:  " + sbScript);
+            }
+            log.info("generate script:{}",sbScript);
         }
-        log.info("generate script:{}",sbScript);
+
         return result;
     }
 
@@ -88,11 +93,15 @@ public class DbFunction implements IFunction{
         script = parseSql(script);
         StringBuilder sbScript = new StringBuilder(script);
         parseService.parse(sbScript,apiInfoContent.getApiParams());
-        Object result = dataSourceManager.insert(sbScript,apiInfoContent.getApiInfo(),apiInfoContent.getApiParams(),dataSource);
-        if (apiInfoContent.getIsDebug()){
-            apiInfoContent.putLog("generate script:  " + sbScript);
+        Object result = null;
+        try {
+            result = dataSourceManager.insert(sbScript,apiInfoContent.getApiInfo(),apiInfoContent.getApiParams(),dataSource);
+        }finally {
+            if (apiInfoContent.getIsDebug()){
+                apiInfoContent.putLog("generate script:  " + sbScript);
+            }
+            log.info("generate script:{}",sbScript);
         }
-        log.info("generate script:{}",sbScript);
         return result;
     }
 
@@ -100,11 +109,15 @@ public class DbFunction implements IFunction{
         script = parseSql(script);
         StringBuilder sbScript = new StringBuilder(script);
         parseService.parse(sbScript,apiInfoContent.getApiParams());
-        Object result =  dataSourceManager.remove(sbScript,apiInfoContent.getApiInfo(),apiInfoContent.getApiParams(),dataSource);
-        if (apiInfoContent.getIsDebug()){
-            apiInfoContent.putLog("generate script:  " + sbScript);
+        Object result =  null;
+        try {
+            result = dataSourceManager.remove(sbScript,apiInfoContent.getApiInfo(),apiInfoContent.getApiParams(),dataSource);
+        }finally {
+            if (apiInfoContent.getIsDebug()){
+                apiInfoContent.putLog("generate script:  " + sbScript);
+            }
+            log.info("generate script:{}",sbScript);
         }
-        log.info("generate script:{}",sbScript);
         return result;
     }
 
@@ -112,11 +125,15 @@ public class DbFunction implements IFunction{
         script = parseSql(script);
         StringBuilder sbScript = new StringBuilder(script);
         parseService.parse(sbScript,apiInfoContent.getApiParams());
-        Long result =  dataSourceManager.update(sbScript,apiInfoContent.getApiInfo(),apiInfoContent.getApiParams(),dataSource);
-        if (apiInfoContent.getIsDebug()){
-            apiInfoContent.putLog("generate script:  " + sbScript);
+        Long result =  null;
+        try {
+            result = dataSourceManager.update(sbScript,apiInfoContent.getApiInfo(),apiInfoContent.getApiParams(),dataSource);
+        }finally {
+            if (apiInfoContent.getIsDebug()){
+                apiInfoContent.putLog("generate script:  " + sbScript);
+            }
+            log.info("generate script:{}",sbScript);
         }
-        log.info("generate script:{}",sbScript);
         return result;
     }
 
