@@ -43,13 +43,13 @@ public class DefaultDataSourceManager extends DataSourceManager {
 ```
 
 #3. 关系型数据库建表，非关系型不用
-最新建表脚本查看: <a href="https://github.com/alenfive/rocket-api/tree/master/src/main/resources/script" target="_blank">https://github.com/alenfive/rocket-api/tree/master/src/main/resources/script</a> 
+最新建表脚本查看: https://gitee.com/mihuajun/rocket-api-doc/wikis/pages?sort_id=2670007&doc_id=859283
 
->启动项目，访问地址: http://localhost:8080/api-ui
+>启动项目，访问地址: http://localhost:8080/interface-ui
 
->在线演示，访问地址:http://39.98.181.90:8081/api-ui
+>在线演示，访问地址:http://39.98.181.90:8081/interface-ui
 
 >文档地址1: https://github.com/alenfive/rocket-api/wiki 
 
->文档地址2: https://gitee.com/mihuajun/rocket-api/wikis/Home
+>文档地址2: https://gitee.com/mihuajun/rocket-api-doc/wikis/pages
   
