@@ -20,7 +20,7 @@
 </dependency>
 ```
 
-版本查看: https://github.com/alenfive/rocket-api/releases  
+版本查看: https://gitee.com/mihuajun/rocket-api-doc/wikis/pages?sort_id=2667224&doc_id=859283  
 
 #2. 配置数据源,继承`com.github.alenfive.rocketapi.datasource.DataSourceManager` 注入数据源
 
