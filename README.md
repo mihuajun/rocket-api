@@ -7,6 +7,8 @@
 4. 无需编写一行代码即可完成大部分的需求开发，使用难度级别（测试 or 运维）也可参与开发
 5. 动态编译，无需重启，即时生效
 
+![输入图片说明](https://images.gitee.com/uploads/images/2020/0831/100733_5a880e41_5139840.png "屏幕截图.png")
+
 ### 快速开始
 #1. 添加依赖
 
@@ -41,7 +43,7 @@ public class DefaultDataSourceManager extends DataSourceManager {
 ```
 
 #3. 关系型数据库建表，非关系型不用
-最新建表脚本查看: https://github.com/alenfive/rocket-api/tree/master/src/main/resources/script
+最新建表脚本查看: <a href="https://github.com/alenfive/rocket-api/tree/master/src/main/resources/script" target="_blank">https://github.com/alenfive/rocket-api/tree/master/src/main/resources/script</a> 
 
 >启动项目，访问地址: http://localhost:8080/api-ui
 
