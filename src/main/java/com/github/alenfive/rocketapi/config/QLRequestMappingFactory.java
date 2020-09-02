@@ -94,6 +94,8 @@ public class QLRequestMappingFactory {
     @Autowired
     private ServerProperties serverProperties;
 
+    private List<String> bodyMethods = Arrays.asList("POST","PUT","PATCH");
+
     /**
      * 初始化db mapping
      */
@@ -178,7 +180,7 @@ public class QLRequestMappingFactory {
         Map<String,Object> body = new HashMap<>();
 
 
-        if (Arrays.asList("POST","PUT","PATCH").contains(method)){
+        if (bodyMethods.contains(method)){
             if (request.getContentType() != null && request.getContentType().indexOf("application/json") > -1){
                 try {
                     body.putAll(objectMapper.readValue(request.getInputStream(),Map.class));
