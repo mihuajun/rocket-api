@@ -178,15 +178,17 @@ public class QLRequestMappingFactory {
         Map<String,Object> body = new HashMap<>();
 
 
-        if (request.getContentType() != null && request.getContentType().indexOf("application/json") > -1){
-            try {
-                body.putAll(objectMapper.readValue(request.getInputStream(),Map.class));
-            }catch (MismatchedInputException exception){
-                throw new HttpMessageNotReadableException("Required request body is missing",exception,new ServletServerHttpRequest(request));
+        if (Arrays.asList("POST","PUT","PATCH").contains(method)){
+            if (request.getContentType() != null && request.getContentType().indexOf("application/json") > -1){
+                try {
+                    body.putAll(objectMapper.readValue(request.getInputStream(),Map.class));
+                }catch (MismatchedInputException exception){
+                    throw new HttpMessageNotReadableException("Required request body is missing",exception,new ServletServerHttpRequest(request));
+                }
+            }else if(request.getContentType() != null && request.getContentType().indexOf("multipart/form-data") > -1){
+                MultipartHttpServletRequest multipartHttpServletRequest = (MultipartHttpServletRequest) request;
+                body.putAll(multipartHttpServletRequest.getMultiFileMap());
             }
-        }else if(request.getContentType() != null && request.getContentType().indexOf("multipart/form-data") > -1){
-            MultipartHttpServletRequest multipartHttpServletRequest = (MultipartHttpServletRequest) request;
-            body.putAll(multipartHttpServletRequest.getMultiFileMap());
         }
 
         ApiParams apiParams = ApiParams.builder()
