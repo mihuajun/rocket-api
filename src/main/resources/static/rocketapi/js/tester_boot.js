@@ -1919,7 +1919,7 @@ function showDiff(id) {
         $("#editor-section .diff-body").show();
         $("#editor-section .code-body").hide();
         $("#diff-editor").html("");
-        originalModel = monaco.editor.createModel(decodeURIComponent(apiHistory.script), languageName);
+        originalModel = monaco.editor.createModel(apiHistory.script, languageName);
         modifiedModel = monaco.editor.createModel(editorTextarea.getValue(), languageName);
         let diffEditor = monaco.editor.createDiffEditor(document.getElementById("diff-editor"), {
             // You can optionally disable the resizing
