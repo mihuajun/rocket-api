@@ -109,7 +109,7 @@ public class SqlDataSource extends DataSourceDialect {
             return ps;
         };
         jdbcTemplate.update(preparedStatementCreator, keyHolder);
-        return keyHolder.getKey();
+        return keyHolder.getKeyList().stream().map(item->item.get("GENERATED_KEY")).collect(Collectors.toList());
     }
 
     @Override
