@@ -41,7 +41,7 @@ public class SqlDataSource extends DataSourceDialect {
 
     @Override
     String lastApiInfoHistoryScript() {
-        return "select id,api_info_id,method,path,datasource,`type`,`service`,`group`,editor,`comment`,script,options,create_time from api_info_history where service = #{service} ?{apiInfoId,and api_info_id = #{apiInfoId}} order by id desc limit #{index},#{pageSize}";
+        return "select id,api_info_id,method,path,datasource,`type`,`service`,`group`,editor,`comment`,script,options,create_time from api_info_history where service = #{service} ?{apiInfoId,and api_info_id = #{apiInfoId}} order by create_time desc limit #{index},#{pageSize}";
     }
 
     @Override
@@ -77,7 +77,7 @@ public class SqlDataSource extends DataSourceDialect {
 
     @Override
     public String lastApiExampleScript() {
-        return "select id,api_info_id,method,url,request_header,request_body,response_header,response_body,status,time,options,editor,create_time from api_example where api_info_id = #{apiInfoId} order by id desc limit #{limit}";
+        return "select id,api_info_id,method,url,request_header,request_body,response_header,response_body,status,time,options,editor,create_time from api_example where api_info_id = #{apiInfoId} order by create_time desc limit #{limit}";
     }
 
     @Override
