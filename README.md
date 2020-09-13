@@ -20,7 +20,7 @@
 </dependency>
 ```
 
-版本查看: https://gitee.com/mihuajun/rocket-api-doc/wikis/pages?sort_id=2667224&doc_id=859283  
+版本查看: https://gitee.com/alenfive/rocket-api-doc/wikis/pages?sort_id=2667224&doc_id=859283  
 
 #2. 配置数据源,继承`com.github.alenfive.rocketapi.datasource.DataSourceManager` 注入数据源
 
@@ -43,7 +43,7 @@ public class DefaultDataSourceManager extends DataSourceManager {
 ```
 
 #3. 关系型数据库建表，非关系型不用
-最新建表脚本查看: https://gitee.com/mihuajun/rocket-api-doc/wikis/pages?sort_id=2670007&doc_id=859283
+最新建表脚本查看: https://gitee.com/alenfive/rocket-api-doc/wikis/pages?sort_id=2670007&doc_id=859283
 
 
 >启动项目，访问地址: http://localhost:8080/interface-ui
@@ -52,5 +52,5 @@ public class DefaultDataSourceManager extends DataSourceManager {
 
 >文档地址1: https://github.com/alenfive/rocket-api/wiki 
 
->文档地址2: https://gitee.com/mihuajun/rocket-api-doc/wikis/pages
+>文档地址2: https://gitee.com/alenfive/rocket-api-doc/wikis/pages
   
