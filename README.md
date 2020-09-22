@@ -36,7 +36,7 @@
 
 #### 相关开源
 DataWay https://www.hasor.net/doc/pages/viewpage.action?pageId=1573290  
-magic-api http://www.ssssssss.org/intro.html 
+magic-api http://www.ssssssss.org/intro.html  
 apijson http://apijson.org/  
 graphql https://graphql.cn/ 
 
