@@ -17,8 +17,9 @@
 11. 经过多次项目验证，传统业务型开发，服务端效率能够提升3-5倍，前后端联调提升效率1倍，测试效率2倍提升
 
 ### 工作原理
-1.将API信息，请求方式，请求PATH，处理逻辑存储于数据库中，调用springboot提供的RequestMappingHandlerMapping.registerMapping/unregisterMapping 实现动态管理RequestMapping。
-2.依赖于java1.8提供的ScriptEngineManager方法，调用Groovy引擎，使代码逻辑能够实现动态编译，发布，而不用重启
+1.将API信息，请求方式，请求PATH，处理逻辑存储于数据库中，调用springboot提供的RequestMappingHandlerMapping.registerMapping/unregisterMapping 实现动态管理RequestMapping。  
+2.依赖于java1.8提供的ScriptEngineManager方法，调用Groovy引擎，使代码逻辑能够实现动态编译，发布，而不用重启  
+3.以springboot starter形式，集成在业务项目中
 
 
 ### 资源地址
@@ -31,16 +32,16 @@
 
 >文档地址2: https://github.com/alenfive/rocket-api/wiki 
   
-  
+### 项目预览  
 ![输入图片说明](https://images.gitee.com/uploads/images/2020/0922/162539_b59a4464_5139840.png "屏幕截图.png")
 ![输入图片说明](https://images.gitee.com/uploads/images/2020/0922/162711_70f6adb8_5139840.png "屏幕截图.png")
 
 
 #### 相关开源
-DataWay https://www.hasor.net/doc/pages/viewpage.action?pageId=1573290  
-magic-api http://www.ssssssss.org/intro.html  
-apijson http://apijson.org/  
-graphql https://graphql.cn/ 
+Dataway https://www.hasor.net/doc/pages/viewpage.action?pageId=1573290  
+Magic-API http://www.ssssssss.org/intro.html  
+APIjson http://apijson.org/  
+Graphql https://graphql.cn/ 
 
 #### 问题反馈 微信号:`freedom-Union`
 
