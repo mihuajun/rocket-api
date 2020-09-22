@@ -24,13 +24,11 @@
 
 ### 资源地址
 
->在线演示:http://39.98.181.90:8081/interface-ui    
+>在线演示：http://39.98.181.90:8081/interface-ui    
 
 >代码仓库：https://gitee.com/alenfive/rocket-api    
 
->文档地址1: https://gitee.com/alenfive/rocket-api-doc/wikis/pages 
-
->文档地址2: https://github.com/alenfive/rocket-api/wiki 
+>文档地址: https://gitee.com/alenfive/rocket-api-doc/wikis/pages 
   
 ### 项目预览  
 ![输入图片说明](https://images.gitee.com/uploads/images/2020/0922/162539_b59a4464_5139840.png "屏幕截图.png")
