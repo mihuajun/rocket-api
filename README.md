@@ -37,12 +37,14 @@
 ![输入图片说明](https://images.gitee.com/uploads/images/2020/0922/162711_70f6adb8_5139840.png "屏幕截图.png")
 
 
-#### 相关开源
+### 相关开源
 Dataway https://www.hasor.net/doc/pages/viewpage.action?pageId=1573290  
 Magic-API http://www.ssssssss.org/intro.html  
 APIjson http://apijson.org/  
 Graphql https://graphql.cn/ 
 
-#### 问题反馈 微信号:`freedom-Union`
-
+### 问题反馈 
+微信号: freedom-Union  
+邮件交流： kobe96688@126.com   
+报告issue: https://github.com/alenfive/rocket-api/issues  
 ![输入图片说明](https://images.gitee.com/uploads/images/2020/0915/183440_93549b7f_5139840.png "屏幕截图.png")
