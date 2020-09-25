@@ -116,6 +116,9 @@ public abstract class DataSourceManager {
 
     public void setDialectMap(Map<String, DataSourceDialect> dialectMap) {
         this.dialectMap = dialectMap;
+        if (this.getStoreApiKey() == null){
+            throw new IllegalArgumentException("storeApi is not found");
+        }
     }
 
     public DataSourceDialect buildDataSourceDialect(String defaultDataSource,String specifyDataSource){
