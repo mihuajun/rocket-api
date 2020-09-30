@@ -38,14 +38,8 @@ public class OracleDataSource extends SqlDataSource {
 
     @Override
     public String transcoding(String param) {
-        // 单引号是oracle字符串的边界,oralce中用2个单引号代表1个单引号
-        String afterDecode = param.replaceAll("'", "''");
-        // 由于使用了/作为ESCAPE的转义特殊字符,所以需要对该字符进行转义
-        // 使用转义字符 /,对oracle特殊字符% 进行转义,只作为普通查询字符，不是模糊匹配
-        afterDecode = afterDecode.replaceAll("%", "/%");
-        // 使用转义字符 /,对oracle特殊字符_ 进行转义,只作为普通查询字符，不是模糊匹配
-        afterDecode = afterDecode.replaceAll("_", "/_");
-        return afterDecode;
+        return param
+                .replace("'", "''");
     }
 
     @Override
