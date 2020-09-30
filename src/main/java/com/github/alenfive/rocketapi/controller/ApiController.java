@@ -124,8 +124,7 @@ public class ApiController {
      */
     @GetMapping("/api-info/last")
     public ApiResult lastApiInfo(String apiInfoId,Integer pageSize,Integer pageNo) throws Exception {
-        Integer index = (pageNo-1)*pageSize;
-        List<ApiInfoHistory> historyList = mappingFactory.lastApiInfo(apiInfoId,index,pageSize);
+        List<ApiInfoHistory> historyList = mappingFactory.lastApiInfo(apiInfoId,pageSize,pageNo);
         for (ApiInfoHistory history : historyList) {
             history.setScript(scriptEncrypt.decrypt(history.getScript()));
         }
@@ -387,8 +386,9 @@ public class ApiController {
      * 查询最近一次模拟数据
      */
     @GetMapping("/api-example/last")
-    public ApiResult lastApiExample(String apiInfoId,Integer limit) throws Exception {
-        List<Map<String,Object>> result = mappingFactory.lastApiExample(apiInfoId,limit);
+    public ApiResult lastApiExample(String apiInfoId,Integer pageSize,Integer pageNo) throws Exception {
+
+        List<Map<String,Object>> result = mappingFactory.listApiExampleScript(apiInfoId,pageSize,pageNo);
         result.forEach(item->{
             if (!StringUtils.isEmpty(item.get("responseBody"))){
                 try {
@@ -423,7 +423,7 @@ public class ApiController {
             return ApiResult.success(loginService.getToken(loginVo));
         }
 
-        return ApiResult.fail("Incorrect user name or password");
+        return ApiResult.fail("Incorrect username or password");
     }
 
     /**
@@ -453,7 +453,7 @@ public class ApiController {
     }
 
     private ApiExample buildLastApiExample(String apiInfoId) throws Exception {
-        List<Map<String,Object>> result = mappingFactory.lastApiExample(apiInfoId,1);
+        List<Map<String,Object>> result = mappingFactory.listApiExampleScript(apiInfoId,1,1);
         ApiExample apiExample = null;
         if (!CollectionUtils.isEmpty(result)){
             apiExample = objectMapper.readValue(objectMapper.writeValueAsBytes(result.get(0)),ApiExample.class);

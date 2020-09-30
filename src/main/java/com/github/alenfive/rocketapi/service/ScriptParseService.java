@@ -1,6 +1,7 @@
 package com.github.alenfive.rocketapi.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.alenfive.rocketapi.datasource.DataSourceDialect;
 import com.github.alenfive.rocketapi.entity.ApiParams;
 import com.github.alenfive.rocketapi.entity.ParamScope;
 import com.github.alenfive.rocketapi.entity.vo.ArrVar;
@@ -38,9 +39,9 @@ public class ScriptParseService {
 
     private Set<String> scopeSet = Stream.of(ParamScope.values()).map(ParamScope::name).collect(Collectors.toSet());
 
-    public void parse(StringBuilder script,ApiParams apiParams){
+    public void parse(StringBuilder script, ApiParams apiParams, DataSourceDialect sourceDialect){
         buildIf(script,apiParams);
-        buildParams(script,apiParams);
+        buildParams(script,apiParams,sourceDialect);
     }
 
     /**多行文本替换
@@ -152,7 +153,7 @@ public class ScriptParseService {
      * @param script
      * @param apiParams
      */
-    public void buildParams(StringBuilder script, ApiParams apiParams){
+    public void buildParams(StringBuilder script, ApiParams apiParams,DataSourceDialect sourceDialect){
         //匹配参数#{}
         Pattern r = Pattern.compile("#\\{[A-Za-z0-9-\\[\\]_\\.]+\\}");
 
@@ -162,7 +163,7 @@ public class ScriptParseService {
             String group = m.group();
             String varName = group.replace("#{","").replace("}","");
             Object value = buildParamItem(apiParams,varName);
-            String replaceValue = buildValue(value);
+            String replaceValue = buildValue(value,sourceDialect);
             if (replaceValue == null){
                 replaceValue = "null";
             }
@@ -357,29 +358,29 @@ public class ScriptParseService {
         return valStr.toString();
     }
 
-    private String buildValue(Object val) {
+    private String buildValue(Object val,DataSourceDialect sourceDialect) {
         if (val == null)return null;
         StringBuilder valStr = new StringBuilder();
         if (val instanceof Collection){
-            valStr.append(((Collection)val).stream().map(item->buildStrValue(item)).collect(Collectors.joining(",")));
+            valStr.append(((Collection)val).stream().map(item->buildStrValue(item,sourceDialect)).collect(Collectors.joining(",")));
         }else {
-            valStr.append(buildStrValue(val));
+            valStr.append(buildStrValue(val,sourceDialect));
         }
         return valStr.toString();
     }
 
-    private String buildStrValue(Object val){
+    private String buildStrValue(Object val, DataSourceDialect sourceDialect){
         if (val == null)return null;
         if (val instanceof Number){
             return val.toString();
         }
-        return "'"+transcoding(val.toString())+"'";
+        return "'"+transcoding(val.toString(),sourceDialect)+"'";
     }
 
-    public String transcoding(String input){
-        return input
-                .replace("\\","\\\\")
-                .replace("\"","\\\"")
-                .replace("\'","\\\'");
+    public String transcoding(String input, DataSourceDialect sourceDialect){
+        if (sourceDialect == null){
+            return input;
+        }
+        return sourceDialect.transcoding(input);
     }
 }

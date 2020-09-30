@@ -7,6 +7,6 @@ import lombok.Data;
  */
 @Data
 public class RenameGroupReq {
-    private String newGroup;
-    private String oldGroup;
+    private String newGroupName;
+    private String oldGroupName;
 }

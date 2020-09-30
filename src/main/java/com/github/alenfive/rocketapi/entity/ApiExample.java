@@ -27,7 +27,7 @@ public class ApiExample {
     private String responseHeader;
     private String responseBody;
     private String status;
-    private Integer time;
+    private Integer elapsedTime;
     private String editor;
     private String options;
     private Date createTime;
@@ -43,7 +43,7 @@ public class ApiExample {
         result.put("responseHeader",responseHeader);
         result.put("responseBody",responseBody);
         result.put("status",status);
-        result.put("time",time);
+        result.put("elapsedTime", elapsedTime);
         result.put("options",options);
         result.put("editor",editor);
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");

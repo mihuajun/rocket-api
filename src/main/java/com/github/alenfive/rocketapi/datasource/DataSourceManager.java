@@ -4,6 +4,8 @@ import com.github.alenfive.rocketapi.entity.ApiInfo;
 import com.github.alenfive.rocketapi.entity.ApiParams;
 import com.github.alenfive.rocketapi.entity.vo.Page;
 import com.github.alenfive.rocketapi.extend.IApiPager;
+import com.github.alenfive.rocketapi.service.ScriptParseService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
@@ -16,6 +18,12 @@ public abstract class DataSourceManager {
 
     private Map<String,DataSourceDialect> dialectMap;
 
+    private ScriptParseService parseService;
+
+    public void setParseService(ScriptParseService parseService) {
+        this.parseService = parseService;
+    }
+
     /**
      * 查询API存储的数据源
      */
@@ -26,17 +34,14 @@ public abstract class DataSourceManager {
         return dialectMap.get(getStoreApiKey()).listApiInfoScript();
     }
 
-    public String lastApiInfoHistoryScript() {
-        return dialectMap.get(getStoreApiKey()).lastApiInfoHistoryScript();
+    public String listApiInfoHistoryScript() {
+        return dialectMap.get(getStoreApiKey()).listApiInfoHistoryScript();
     }
 
     public String saveApiInfoHistoryScript() {
         return dialectMap.get(getStoreApiKey()).saveApiInfoHistoryScript();
     }
 
-    public String getApiInfoScript(){
-        return dialectMap.get(getStoreApiKey()).getApiInfoScript();
-    }
     public String saveApiInfoScript(){
         return dialectMap.get(getStoreApiKey()).saveApiInfoScript();
     }
@@ -49,8 +54,8 @@ public abstract class DataSourceManager {
     public String saveApiExampleScript() {
         return dialectMap.get(getStoreApiKey()).saveApiExampleScript();
     }
-    public String lastApiExampleScript() {
-        return dialectMap.get(getStoreApiKey()).lastApiExampleScript();
+    public String listApiExampleScript() {
+        return dialectMap.get(getStoreApiKey()).listApiExampleScript();
     }
     public String deleteExampleScript() {
         return dialectMap.get(getStoreApiKey()).deleteExampleScript();
@@ -92,21 +97,25 @@ public abstract class DataSourceManager {
 
     public List<Map<String, Object>> find(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams, String specifyDataSource) throws Exception {
         DataSourceDialect dataSourceDialect = buildDataSourceDialect(apiInfo.getDatasource(),specifyDataSource);
+        parseService.parse(script,apiParams,dataSourceDialect);
         return dataSourceDialect.find(script,apiInfo,apiParams);
     }
 
     public Long remove(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams,String specifyDataSource) throws Exception {
         DataSourceDialect dataSourceDialect = buildDataSourceDialect(apiInfo.getDatasource(),specifyDataSource);
+        parseService.parse(script,apiParams,dataSourceDialect);
         return dataSourceDialect.remove(script,apiInfo,apiParams);
     }
 
     public Object insert(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams,String specifyDataSource) throws Exception {
         DataSourceDialect dataSourceDialect = buildDataSourceDialect(apiInfo.getDatasource(),specifyDataSource);
+        parseService.parse(script,apiParams,dataSourceDialect);
         return dataSourceDialect.insert(script,apiInfo,apiParams);
     }
 
     public Long update(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams,String specifyDataSource) throws Exception {
         DataSourceDialect dataSourceDialect = buildDataSourceDialect(apiInfo.getDatasource(),specifyDataSource);
+        parseService.parse(script,apiParams,dataSourceDialect);
         return dataSourceDialect.update(script,apiInfo,apiParams);
     }
 
