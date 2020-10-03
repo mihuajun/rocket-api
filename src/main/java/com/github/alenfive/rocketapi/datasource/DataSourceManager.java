@@ -83,7 +83,9 @@ public abstract class DataSourceManager {
 
     public String buildCountScript(String script, ApiInfo apiInfo, ApiParams apiParams, String specifyDataSource,IApiPager apiPager, Page page) throws Exception {
         DataSourceDialect dataSourceDialect = buildDataSourceDialect(apiInfo.getDatasource(),specifyDataSource);
-        return dataSourceDialect.buildCountScript(script,apiInfo,apiParams,apiPager,page);
+        StringBuilder sb = new StringBuilder(script);
+        parseService.parse(sb,apiParams,dataSourceDialect);
+        return dataSourceDialect.buildCountScript(sb.toString(),apiInfo,apiParams,apiPager,page);
     }
 
     public String buildPageScript(String script, ApiInfo apiInfo, ApiParams apiParams,IApiPager apiPager, Page page) throws Exception {
@@ -92,7 +94,9 @@ public abstract class DataSourceManager {
 
     public String buildPageScript(String script, ApiInfo apiInfo, ApiParams apiParams,String specifyDataSource,IApiPager apiPager,Page page) throws Exception {
         DataSourceDialect dataSourceDialect = buildDataSourceDialect(apiInfo.getDatasource(),specifyDataSource);
-        return dataSourceDialect.buildPageScript(script,apiInfo,apiParams,apiPager,page);
+        StringBuilder sb = new StringBuilder(script);
+        parseService.parse(sb,apiParams,dataSourceDialect);
+        return dataSourceDialect.buildPageScript(sb.toString(),apiInfo,apiParams,apiPager,page);
     }
 
     public List<Map<String, Object>> find(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams, String specifyDataSource) throws Exception {

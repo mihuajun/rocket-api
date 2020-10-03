@@ -343,7 +343,12 @@ public class MongoDataSource extends DataSourceDialect {
 
     @Override
     public String buildCountScript(String script, ApiInfo apiInfo, ApiParams apiParams, IApiPager apiPager, Page page) {
-        return script;
+        Document document = Document.parse(script);
+        document.put("count",document.get("find"));
+        document.put("query",document.get("filter"));
+        document.remove("find");
+        document.remove("filter");
+        return document.toJson();
     }
 
     @Override
