@@ -52,7 +52,7 @@ let currExample = {
     responseHeader:null,
     responseBody:null,
     status:null,
-    time:0,
+    elapsedTime:0,
     options:null
 }
 
@@ -282,8 +282,7 @@ function loadHistoryScrollEvent() {
 }
 
 function loadKeyCodeEvent() {
-
-    $(document).keydown(function (event) {
+    $(document).keyup(function (event) {
         if (event.keyCode == 87 && event.altKey){
             if (currPage == "example"){
                 showEditorPanel();
@@ -291,6 +290,7 @@ function loadKeyCodeEvent() {
                 showExamplePanel();
             }
         }
+        return false;
     });
 }
 
@@ -772,7 +772,6 @@ function buildApiOptionsDom(optionsJsonStr) {
     $("#bottom-side .query-parameters-form-block").html("")
     let map = {};
     if (optionsJsonStr){
-        console.log(optionsJsonStr)
         map = JSON.parse(optionsJsonStr);
     }
     map = $.extend({}, rocketUser.setting.options, map);
@@ -1101,7 +1100,7 @@ function loadExample(apiInfo,example) {
     $form.find(".save-example-btn .changes-indicator").remove();
 
     //------构建example
-    currExample = example?example:{
+    currExample = $.extend({
         apiInfoId:apiInfo.id,
         url:buildDefaultUrl(apiInfo.path),
         method:apiInfo.method,
@@ -1110,9 +1109,9 @@ function loadExample(apiInfo,example) {
         responseHeader:"{}",
         responseBody:"",
         status:200,
-        time:0,
+        elapsedTime:0,
         options:"{}"
-    };
+    },example);
     $form.find(".example-method").val(currExample.method);
     $form.find(".example-url").val(currExample.url).blur();
 
@@ -1130,7 +1129,7 @@ function loadExample(apiInfo,example) {
     //响应状态码
     buildResponseStatus(currExample.status);
     //耗时
-    $("#response .el-time").html('<span title="'+currExample.time+'ms">Elapsed time: '+currExample.time+'ms</span>');
+    $("#response .el-time").html('<span title="'+currExample.elapsedTime+'ms">Elapsed time: '+currExample.elapsedTime+'ms</span>');
     //响应header
     setResponseHeader(JSON.parse(currExample.responseHeader));
     //响应体
@@ -1173,7 +1172,7 @@ function saveExample() {
         responseHeader:currExample.responseHeader,
         responseBody:currExample.responseBody,
         status:currExample.status,
-        time:currExample.time,
+        elapsedTime:currExample.elapsedTime,
         options:currExample.options
     }
     showSendNotify("Saveing example")
@@ -1259,7 +1258,7 @@ function requestExample(url,ableRedirect){
                 responseHeader:JSON.stringify(responseHeader),
                 responseBody:req.responseText,
                 status:status,
-                time:(currTime-startTime),
+                elapsedTime:(currTime-startTime),
                 options:"{}"
             }
 

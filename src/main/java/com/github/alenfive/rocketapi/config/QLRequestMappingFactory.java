@@ -95,8 +95,8 @@ public class QLRequestMappingFactory {
     @Autowired
     private ServerProperties serverProperties;
 
-    @Autowired
-    private IApiPager apiPager;
+
+    private IApiPager apiPager = new SysApiPager();
 
     private List<String> bodyMethods = Arrays.asList("POST","PUT","PATCH");
 
