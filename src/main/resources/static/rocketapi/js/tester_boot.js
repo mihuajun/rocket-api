@@ -190,7 +190,7 @@ $(function(){
     //多行注释
     editorTextarea.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.US_SLASH ,function () {
         let selectRange = editorTextarea.getSelection();
-        let prefixRange = new monaco.Range(selectRange.selectionStartLineNumber, selectRange.selectionStartColumn, selectRange.selectionStartLineNumber, selectRange.selectionStartColumn+2);
+        let prefixRange = new monaco.Range(selectRange.startLineNumber, selectRange.startColumn, selectRange.startLineNumber, selectRange.startColumn+2);
         let prefix = editorTextarea.getModel().getValueInRange(prefixRange);
         let postfixRange = new monaco.Range(selectRange.endLineNumber, selectRange.endColumn-2, selectRange.endLineNumber, selectRange.endColumn);
         let postfix = editorTextarea.getModel().getValueInRange(postfixRange);
@@ -200,7 +200,7 @@ $(function(){
         //取消注释
         if (prefix == '/*' && postfix == "*/"){
             editorTextarea.executeEdits('insert-code',[prefixOp])
-            if (selectRange.selectionStartLineNumber == selectRange.endLineNumber){
+            if (selectRange.startLineNumber == selectRange.endLineNumber){
                 postfixOp.range.startColumn = postfixOp.range.startColumn - 2;
                 postfixOp.range.endColumn = postfixOp.range.endColumn - 2;
             }
@@ -208,12 +208,12 @@ $(function(){
             return;
         }
 
-        prefixRange = new monaco.Range(selectRange.selectionStartLineNumber, selectRange.selectionStartColumn, selectRange.selectionStartLineNumber, selectRange.selectionStartColumn);
+        prefixRange = new monaco.Range(selectRange.startLineNumber, selectRange.startColumn, selectRange.startLineNumber, selectRange.startColumn);
         postfixRange = new monaco.Range(selectRange.endLineNumber, selectRange.endColumn , selectRange.endLineNumber, selectRange.endColumn);
         prefixOp = {"range":prefixRange,"text":"/*"};
         postfixOp = {"range":postfixRange,"text":"*/"};
         editorTextarea.executeEdits('insert-code',[prefixOp])
-        if (selectRange.selectionStartLineNumber == selectRange.endLineNumber){
+        if (selectRange.startLineNumber == selectRange.endLineNumber){
             postfixOp.range.startColumn = postfixOp.range.startColumn + 2;
             postfixOp.range.endColumn = postfixOp.range.endColumn + 2;
         }
