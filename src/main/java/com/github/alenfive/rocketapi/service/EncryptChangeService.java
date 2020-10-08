@@ -29,8 +29,7 @@ public class EncryptChangeService {
             apiInfo.setScript(predicate.apply(apiInfo.getScript()));
             ApiParams apiParams = ApiParams.builder().param(apiInfo.toMap()).build();
             StringBuilder script = new StringBuilder(dataSourceManager.updateApiInfoScript());
-            parseService.buildParams(script,apiParams);
-            dataSourceManager.update(script,ApiInfo.builder().datasource(dataSourceManager.getStoreApiKey()).build(),null);
+            dataSourceManager.update(script,ApiInfo.builder().datasource(dataSourceManager.getStoreApiKey()).build(),apiParams);
         }
     }
 }

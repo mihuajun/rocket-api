@@ -52,7 +52,7 @@ let currExample = {
     responseHeader:null,
     responseBody:null,
     status:null,
-    time:0,
+    elapsedTime:0,
     options:null
 }
 
@@ -190,7 +190,7 @@ $(function(){
     //多行注释
     editorTextarea.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.US_SLASH ,function () {
         let selectRange = editorTextarea.getSelection();
-        let prefixRange = new monaco.Range(selectRange.selectionStartLineNumber, selectRange.selectionStartColumn, selectRange.selectionStartLineNumber, selectRange.selectionStartColumn+2);
+        let prefixRange = new monaco.Range(selectRange.startLineNumber, selectRange.startColumn, selectRange.startLineNumber, selectRange.startColumn+2);
         let prefix = editorTextarea.getModel().getValueInRange(prefixRange);
         let postfixRange = new monaco.Range(selectRange.endLineNumber, selectRange.endColumn-2, selectRange.endLineNumber, selectRange.endColumn);
         let postfix = editorTextarea.getModel().getValueInRange(postfixRange);
@@ -200,7 +200,7 @@ $(function(){
         //取消注释
         if (prefix == '/*' && postfix == "*/"){
             editorTextarea.executeEdits('insert-code',[prefixOp])
-            if (selectRange.selectionStartLineNumber == selectRange.endLineNumber){
+            if (selectRange.startLineNumber == selectRange.endLineNumber){
                 postfixOp.range.startColumn = postfixOp.range.startColumn - 2;
                 postfixOp.range.endColumn = postfixOp.range.endColumn - 2;
             }
@@ -208,12 +208,12 @@ $(function(){
             return;
         }
 
-        prefixRange = new monaco.Range(selectRange.selectionStartLineNumber, selectRange.selectionStartColumn, selectRange.selectionStartLineNumber, selectRange.selectionStartColumn);
+        prefixRange = new monaco.Range(selectRange.startLineNumber, selectRange.startColumn, selectRange.startLineNumber, selectRange.startColumn);
         postfixRange = new monaco.Range(selectRange.endLineNumber, selectRange.endColumn , selectRange.endLineNumber, selectRange.endColumn);
         prefixOp = {"range":prefixRange,"text":"/*"};
         postfixOp = {"range":postfixRange,"text":"*/"};
         editorTextarea.executeEdits('insert-code',[prefixOp])
-        if (selectRange.selectionStartLineNumber == selectRange.endLineNumber){
+        if (selectRange.startLineNumber == selectRange.endLineNumber){
             postfixOp.range.startColumn = postfixOp.range.startColumn + 2;
             postfixOp.range.endColumn = postfixOp.range.endColumn + 2;
         }
@@ -282,8 +282,7 @@ function loadHistoryScrollEvent() {
 }
 
 function loadKeyCodeEvent() {
-
-    $(document).keydown(function (event) {
+    $(document).keyup(function (event) {
         if (event.keyCode == 87 && event.altKey){
             if (currPage == "example"){
                 showEditorPanel();
@@ -291,6 +290,7 @@ function loadKeyCodeEvent() {
                 showExamplePanel();
             }
         }
+        return false;
     });
 }
 
@@ -397,7 +397,7 @@ function copyApi(e,id) {
         }
     })
     delete cApi.id;
-    cApi.comment = (cApi.comment?cApi.comment:cApi.path) +"-Copy"
+    cApi.name = (cApi.name?cApi.name:cApi.path) +"-Copy"
     cApi.path = cApi.path+"-TEMP-"+uuid();
     cApi.script = editorTextarea.getValue();
     saveExecuter(cApi);
@@ -430,9 +430,9 @@ function addARequest(e) {
         "method": "GET",
         "datasource":$("#editor-section").find(".api-info-datasource").attr("default-value"),
         "path": "TEMP-"+uuid(),
-        "group": $(e).parents(".service").children(".name").attr("title"),
+        "groupName": $(e).parents(".service").children(".name").attr("title"),
         "editor": editor,
-        "comment": "Request",
+        "name": "Request",
         "script": "",
         "options":"{}"
     });
@@ -449,22 +449,22 @@ function renameApi(e) {
 }
 //确认重命名组
 function confirmRenameDialog(e) {
-    let newGroup = $("#rename-dialog").find(".newname").val();
-    let oldGroup = $("#rename-dialog").find(".oldname").val();
+    let newGroupName = $("#rename-dialog").find(".newname").val();
+    let oldGroupName = $("#rename-dialog").find(".oldname").val();
     showSendNotify("Renameing group")
     $.ajax({
         type: "put",
         url: renameGroupUrl,
         contentType : "application/json",
-        data: JSON.stringify({"newGroup":newGroup,"oldGroup":oldGroup}),
+        data: JSON.stringify({"newGroupName":newGroupName,"oldGroupName":oldGroupName}),
         success: function (data) {
             data = unpackResult(data);
             if (data.code !=200){
                 openMsgModal(data.msg);
                 return;
             }
-            $(".authenticated .renameing").children(".name").attr("title",newGroup);
-            $(".authenticated .renameing").children(".name").children(".gwt-InlineHTML").text(newGroup);
+            $(".authenticated .renameing").children(".name").attr("title",newGroupName);
+            $(".authenticated .renameing").children(".name").children(".gwt-InlineHTML").text(newGroupName);
             cancelDialog('#rename-dialog');
         },complete:function () {
             hideSendNotify();
@@ -649,6 +649,10 @@ function loadDetailByHistoryId(id, form) {
 function loadDetailById(id,form,callback) {
     $.getJSON(getApiUrl+id,function (data) {
         data = unpackResult(data).data;
+        if (!data){
+            newRequest();
+            return;
+        }
         loadDetail(data,form,callback);
     });
 
@@ -680,9 +684,9 @@ function loadDetail(apiInfo,form,callback) {
     $(form).find(".api-info-method").val(currApiInfo.method);
     $(form).find(".api-info-datasource").val(currApiInfo.datasource),
     $(form).find(".api-info-path").val(currApiInfo.path.startsWith("TEMP-")?"":currApiInfo.path).blur();
-    $(form).find(".api-info-group").val(currApiInfo.group);
+    $(form).find(".api-info-group").val(currApiInfo.groupName);
     $(form).find(".api-info-editor").val(currApiInfo.editor);
-    $(form).find(".api-info-comment").val(currApiInfo.comment);
+    $(form).find(".api-info-comment").val(currApiInfo.name);
 
     $(form).find(".api-info-method").removeAttr("readonly").parent().removeClass("disabled");
     $(form).find(".api-info-path").removeAttr("readonly");
@@ -697,7 +701,7 @@ function loadDetail(apiInfo,form,callback) {
         $(form).find(".api-info-datasource").parent().addClass("disabled");
     }
 
-    document.title = currApiInfo.comment?currApiInfo.comment:currApiInfo.path;
+    document.title = currApiInfo.name?currApiInfo.name:currApiInfo.path;
     buildApiOptionsDom(currApiInfo.options);
     editorTextarea.setValue(currApiInfo.script?currApiInfo.script:"");
 
@@ -722,7 +726,7 @@ function apiOptionAdd(key,value) {
 }
 
 function saveAsEditor() {
-    showDialogGroup();
+    showDialogGroup(null);
 }
 
 function closeModal() {
@@ -743,9 +747,9 @@ function confirmDialog(form) {
         "method": $(form).find(".api-info-method").val(),
         "datasource":$(form).find(".api-info-datasource").val(),
         "path": $(form).find(".api-info-path").val(),
-        "group": group?group:"公共API",
+        "groupName": group?group:"公共API",
         "editor": $(form).find(".api-info-editor").val(),
-        "comment": $("#save-dialog .input-xlarge").val(),
+        "name": $("#save-dialog .input-xlarge").val(),
         "script": editorTextarea.getValue(),
         "options":buildApiOptionsJsonStr()
     }
@@ -791,7 +795,7 @@ function confirmGroup() {
 function addGroup() {
     $(".new-path>a").hide();
     $(".new-path>div").show();
-    $(".new-path .left-label").text("Group");
+    $(".new-path .flex-container>input").val("GroupName");
 }
 
 function cancelGroup() {
@@ -844,7 +848,7 @@ function saveEditor(form) {
     let id = $(form).find(".api-info-id").val();
 
     if (!id){
-        showDialogGroup();
+        showDialogGroup(null);
         return;
     }
 
@@ -853,9 +857,9 @@ function saveEditor(form) {
         "method": $(form).find(".api-info-method").val(),
         "datasource":$(form).find(".api-info-datasource").val(),
         "path": $(form).find(".api-info-path").val(),
-        "group": $(form).find(".api-info-group").val(),
+        "groupName": $(form).find(".api-info-group").val(),
         "editor": $(form).find(".api-info-editor").val(),
-        "comment": $(form).find(".api-info-comment").val(),
+        "name": $(form).find(".api-info-comment").val(),
         "script": editorTextarea.getValue(),
         "options":buildApiOptionsJsonStr()
     };
@@ -909,7 +913,7 @@ function searchApi(e) {
             if (options[kv[0]] == kv[1]){
                 searchResult.push(item);
             }
-        }else if (item.comment.indexOf(keyword) >=0 || item.path.indexOf(keyword)>=0 || item.group.indexOf(keyword)>=0 || !keyword){
+        }else if (item.name.indexOf(keyword) >=0 || item.path.indexOf(keyword)>=0 || item.groupName.indexOf(keyword)>=0 || !keyword){
             searchResult.push(item);
         }
     });
@@ -919,10 +923,10 @@ function searchApi(e) {
 function buildApiTree(list,collapsed) {
     let group = {};
     $.each(list,function(index,item){
-        let arrVal = group[item.group];
+        let arrVal = group[item.groupName];
         if (!arrVal){
             arrVal = [];
-            group[item.group] = arrVal;
+            group[item.groupName] = arrVal;
         }
         arrVal.push(item);
     });
@@ -951,19 +955,19 @@ function buildApiTree(list,collapsed) {
 
         let $lev2 = $('<ul></ul>');
         $.each(value,function (index,item) {
-            $lev2.append('<li class="'+collapsed+' request level2 request'+item.id+'" ><div class="name" onclick="loadDetailById(\''+item.id+'\',\'#editor-section\')" title="'+(item.comment?item.comment:item.path)+'"><i\n' +
+            $lev2.append('<li class="'+collapsed+' request level2 request'+item.id+'" ><div class="name" onclick="loadDetailById(\''+item.id+'\',\'#editor-section\')" title="'+(item.name?item.name:item.path)+'"><i\n' +
                 '                                                        class="fa fa-caret-right invisible" aria-hidden="true"\n' +
-                '                                                        e2e-tag="drive|'+(item.comment?item.comment:item.path)+'|expand"\n' +
+                '                                                        e2e-tag="drive|'+(item.name?item.name:item.path)+'|expand"\n' +
                 '                                                        style="display: none;"></i>\n' +
                 '                                                    <div class="play-icon" title="Launch request"\n' +
-                '                                                         e2e-tag="drive|'+(item.comment?item.comment:item.path)+'|play"><i\n' +
+                '                                                         e2e-tag="drive|'+(item.name?item.name:item.path)+'|play"><i\n' +
                 '                                                            class="fa fa-play"></i></div>\n' +
                 '                                                    <span class="gwt-InlineHTML node-text '+(item.type=='Code'?'fa fa-file-o':'')+'"\n' +
-                '                                                          e2e-tag="drive|'+(item.comment?item.comment:item.path)+'">'+(item.comment?item.comment:item.path)+'<span style=\'margin-left:10px;color:#8a8989;\'>'+('['+item.path+']')+'</span></span>\n' +
+                '                                                          e2e-tag="drive|'+(item.name?item.name:item.path)+'">'+(item.name?item.name:item.path)+'<span style=\'margin-left:10px;color:#8a8989;\'>'+('['+item.path+']')+'</span></span>\n' +
                 '                                                    <div class="status" aria-hidden="true" style="display: none;"></div>\n' +
                 '                                                    <div class="btn-group ctrls dropdown-primary"  data-id="'+item.id+'" ><a\n' +
                 '                                                            class="btn-mini dropdown-toggle" data-toggle="dropdown"\n' +
-                '                                                            e2e-tag="drive|'+(item.comment?item.comment:item.path)+'|more"><i\n' +
+                '                                                            e2e-tag="drive|'+(item.name?item.name:item.path)+'|more"><i\n' +
                 '                                                            class="sli-icon-options-vertical"></i></a>\n' +
                 '                                                        <ul class="pull-right dropdown-menu">' +
                 '<li class="dropdown-item"  title="复制" onclick="copyApi(this,\''+item.id+'\')"><a><i class="fa fa-copy"></i><span class="gwt-InlineHTML">Copy</span></a></li>' +
@@ -1096,7 +1100,7 @@ function loadExample(apiInfo,example) {
     $form.find(".save-example-btn .changes-indicator").remove();
 
     //------构建example
-    currExample = example?example:{
+    currExample = $.extend({
         apiInfoId:apiInfo.id,
         url:buildDefaultUrl(apiInfo.path),
         method:apiInfo.method,
@@ -1105,9 +1109,9 @@ function loadExample(apiInfo,example) {
         responseHeader:"{}",
         responseBody:"",
         status:200,
-        time:0,
+        elapsedTime:0,
         options:"{}"
-    };
+    },example);
     $form.find(".example-method").val(currExample.method);
     $form.find(".example-url").val(currExample.url).blur();
 
@@ -1125,7 +1129,7 @@ function loadExample(apiInfo,example) {
     //响应状态码
     buildResponseStatus(currExample.status);
     //耗时
-    $("#response .el-time").html('<span title="'+currExample.time+'ms">Elapsed time: '+currExample.time+'ms</span>');
+    $("#response .el-time").html('<span title="'+currExample.elapsedTime+'ms">Elapsed time: '+currExample.elapsedTime+'ms</span>');
     //响应header
     setResponseHeader(JSON.parse(currExample.responseHeader));
     //响应体
@@ -1168,7 +1172,7 @@ function saveExample() {
         responseHeader:currExample.responseHeader,
         responseBody:currExample.responseBody,
         status:currExample.status,
-        time:currExample.time,
+        elapsedTime:currExample.elapsedTime,
         options:currExample.options
     }
     showSendNotify("Saveing example")
@@ -1254,7 +1258,7 @@ function requestExample(url,ableRedirect){
                 responseHeader:JSON.stringify(responseHeader),
                 responseBody:req.responseText,
                 status:status,
-                time:(currTime-startTime),
+                elapsedTime:(currTime-startTime),
                 options:"{}"
             }
 
@@ -1735,7 +1739,7 @@ function showRepository() {
 }
 
 function loadExampleHistory(apiInfo, isLoadExample) {
-    $.getJSON(lastExampleUrl+"?limit=1&apiInfoId="+apiInfo.id,function (data) {
+    $.getJSON(lastExampleUrl+"?pageNo=1&pageSize=1&apiInfoId="+apiInfo.id,function (data) {
         data = unpackResult(data);
         gdata.exampleHistoryList = data.data;
         if (isLoadExample){
@@ -1919,7 +1923,7 @@ function showDiff(id) {
         $("#editor-section .diff-body").show();
         $("#editor-section .code-body").hide();
         $("#diff-editor").html("");
-        originalModel = monaco.editor.createModel(decodeURIComponent(apiHistory.script), languageName);
+        originalModel = monaco.editor.createModel(apiHistory.script, languageName);
         modifiedModel = monaco.editor.createModel(editorTextarea.getValue(), languageName);
         let diffEditor = monaco.editor.createDiffEditor(document.getElementById("diff-editor"), {
             // You can optionally disable the resizing
@@ -2211,7 +2215,7 @@ function searchSelectApi(e) {
             if (options[kv[0]] == kv[1]){
                 searchResult.push(item);
             }
-        }else if (item.comment.indexOf(keyword) >=0 || item.path.indexOf(keyword)>=0 || item.group.indexOf(keyword)>=0 || !keyword){
+        }else if (item.name.indexOf(keyword) >=0 || item.path.indexOf(keyword)>=0 || item.groupName.indexOf(keyword)>=0 || !keyword){
             searchResult.push(item);
         }
     });
@@ -2223,10 +2227,10 @@ function buildSelectApiTree(list,collapsed) {
 
     let group = {};
     $.each(list,function(index,item){
-        let arrVal = group[item.group];
+        let arrVal = group[item.groupName];
         if (!arrVal){
             arrVal = [];
-            group[item.group] = arrVal;
+            group[item.groupName] = arrVal;
         }
         arrVal.push(item);
     });
@@ -2255,7 +2259,7 @@ function buildSelectApiTree(list,collapsed) {
                 '                    </label>\n' +
                 '                    <a href="javascript:;" class="btn btn-link name"><i></i>\n' +
                 '                        <i class="node-icon api-tester-icon api-tester-request"></i>\n' +
-                '                        <span class="gwt-InlineHTML node-text" >'+(item.comment?item.comment:item.path)+'<span style="margin-left:10px;color:#8a8989;">['+item.path+']</span></span>\n' +
+                '                        <span class="gwt-InlineHTML node-text" >'+(item.name?item.name:item.path)+'<span style="margin-left:10px;color:#8a8989;">['+item.path+']</span></span>\n' +
                 '                    </a>\n' +
                 '                </div>\n' +
                 '            </li>');

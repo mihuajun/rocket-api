@@ -40,6 +40,14 @@ public class MySQLDataSource extends SqlDataSource {
     }
 
     @Override
+    public String transcoding(String param) {
+        return param
+                .replace("\\","\\\\")
+                .replace("\"","\\\"")
+                .replace("\'","\\\'");
+    }
+
+    @Override
     public List<TableInfo> buildTableInfo(){
         List<TableInfo> tableInfos = new ArrayList<>();
         List<Map<String,Object>> tables = jdbcTemplate.queryForList("show tables");

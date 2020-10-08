@@ -1,10 +1,13 @@
 package com.github.alenfive.rocketapi.datasource;
 
+import com.github.alenfive.rocketapi.entity.ApiExample;
 import com.github.alenfive.rocketapi.entity.ApiInfo;
+import com.github.alenfive.rocketapi.entity.ApiInfoHistory;
 import com.github.alenfive.rocketapi.entity.ApiParams;
 import com.github.alenfive.rocketapi.entity.vo.Page;
 import com.github.alenfive.rocketapi.entity.vo.TableInfo;
 import com.github.alenfive.rocketapi.extend.IApiPager;
+import com.github.alenfive.rocketapi.utils.FieldUtils;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -17,7 +20,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * 关系型数据源，`JdbcTemplate`所操作的数据源
+ * 关系型数据源，JdbcTemplate所操作的数据源
  */
 public class SqlDataSource extends DataSourceDialect {
 
@@ -35,33 +38,13 @@ public class SqlDataSource extends DataSourceDialect {
     }
 
     @Override
-    public String listApiInfoScript() {
-        return "select id,method,path,datasource,`type`,`service`,`group`,editor,`comment`,script,options,create_time,update_time from api_info where service = #{service}";
-    }
-
-    @Override
-    String lastApiInfoHistoryScript() {
-        return "select id,api_info_id,method,path,datasource,`type`,`service`,`group`,editor,`comment`,script,options,create_time from api_info_history where service = #{service} ?{apiInfoId,and api_info_id = #{apiInfoId}} order by id desc limit #{index},#{pageSize}";
-    }
-
-    @Override
-    public String saveApiInfoHistoryScript() {
-        return "insert into api_info_history(id,api_info_id,method,path,datasource,`type`,`service`,`group`,editor,`comment`,script,options,create_time) values(#{id},#{apiInfoId},#{method},#{path},#{datasource},#{type},#{service},#{group},#{editor},#{comment},#{script},#{options},#{createTime})";
-    }
-
-    @Override
-    public String getApiInfoScript() {
-        return "select id,method,path,datasource,`type`,`service`,`group`,editor,`comment`,script,options,create_time,update_time from api_info where id = #{id}";
-    }
-
-    @Override
     public String saveApiInfoScript() {
-        return "insert into api_info(id,method,path,datasource,`type`,`service`,`group`,editor,`comment`,script,options,create_time,update_time) values(#{id},#{method},#{path},#{datasource},#{type},#{service},#{group},#{editor},#{comment},#{script},#{options},#{createTime},#{updateTime})";
-    }
-
-    @Override
-    public String updateApiInfoScript() {
-        return "update api_info set method=#{method},path=#{path},datasource=#{datasource},`service`=#{service},`group`=#{group},editor=#{editor},`comment`=#{comment},script=#{script},options=#{options},update_time=#{updateTime} where id = #{id}";
+        return new StringBuilder("insert into api_info(")
+                .append(String.join(",", FieldUtils.allFields(ApiInfo.class)))
+                .append(")values(")
+                .append(FieldUtils.allFields(ApiInfo.class).stream().map(item->"#{"+FieldUtils.underlineToCamel(item)+"}").collect(Collectors.joining(",")))
+                .append(")")
+                .toString();
     }
 
     @Override
@@ -70,19 +53,61 @@ public class SqlDataSource extends DataSourceDialect {
     }
 
     @Override
-    public String saveApiExampleScript() {
-        return "insert into api_example(id,api_info_id,method,url,request_header,request_body,response_header,response_body,status,time,options,editor,create_time) " +
-                "values(#{id},#{apiInfoId},#{method},#{url},#{requestHeader},#{requestBody},#{responseHeader},#{responseBody},#{status},#{time},#{options},#{editor},#{createTime})";
+    public String updateApiInfoScript() {
+        return new StringBuilder("update api_info set ")
+                .append(FieldUtils.updateFields(ApiInfo.class).stream().map(item->new StringBuilder(item).append("=").append("#{"+FieldUtils.underlineToCamel(item)+"}")).collect(Collectors.joining(",")))
+                .append(" where id = #{id}")
+                .toString();
     }
 
     @Override
-    public String lastApiExampleScript() {
-        return "select id,api_info_id,method,url,request_header,request_body,response_header,response_body,status,time,options,editor,create_time from api_example where api_info_id = #{apiInfoId} order by id desc limit #{limit}";
+    public String listApiInfoScript() {
+        return new StringBuilder("select ")
+                .append(String.join(",",FieldUtils.allFields(ApiInfo.class)))
+                .append(" from api_info where service = #{service} ?{id, and id = #{id}}")
+                .toString();
+    }
+
+    @Override
+    public String saveApiInfoHistoryScript() {
+        return new StringBuilder("insert into api_info_history(")
+                .append(String.join(",", FieldUtils.allFields(ApiInfoHistory.class)))
+                .append(") values(")
+                .append(FieldUtils.allFields(ApiInfoHistory.class).stream().map(item->"#{"+FieldUtils.underlineToCamel(item)+"}").collect(Collectors.joining(",")))
+                .append(")")
+                .toString();
+    }
+
+    @Override
+    String listApiInfoHistoryScript() {
+        return new StringBuilder("select ")
+                .append(String.join(",",FieldUtils.allFields(ApiInfoHistory.class)))
+                .append(" from api_info_history where service = #{service} ?{apiInfoId,and api_info_id = #{apiInfoId}} order by create_time desc")
+                .toString();
+    }
+
+
+    @Override
+    public String saveApiExampleScript() {
+        return new StringBuilder("insert into api_example(")
+                .append(String.join(",", FieldUtils.allFields(ApiExample.class)))
+                .append(")values(")
+                .append(FieldUtils.allFields(ApiExample.class).stream().map(item->"#{"+FieldUtils.underlineToCamel(item)+"}").collect(Collectors.joining(",")))
+                .append(")")
+                .toString();
     }
 
     @Override
     public String deleteExampleScript() {
         return "delete from api_example where id in (#{ids})";
+    }
+
+    @Override
+    public String listApiExampleScript() {
+        return new StringBuilder("select ")
+                .append(String.join(",", FieldUtils.allFields(ApiExample.class)))
+                .append(" from api_example where api_info_id = #{apiInfoId} order by create_time desc")
+                .toString();
     }
 
     @Override
@@ -109,7 +134,7 @@ public class SqlDataSource extends DataSourceDialect {
             return ps;
         };
         jdbcTemplate.update(preparedStatementCreator, keyHolder);
-        return keyHolder.getKey();
+        return keyHolder.getKeyList().stream().map(item->item.get("GENERATED_KEY")).collect(Collectors.toList());
     }
 
     @Override
@@ -120,6 +145,11 @@ public class SqlDataSource extends DataSourceDialect {
     @Override
     public String buildPageScript(String script, ApiInfo apiInfo, ApiParams apiParams,  IApiPager apiPager,Page page) {
         return script;
+    }
+
+    @Override
+    public String transcoding(String param) {
+        return param;
     }
 
     @Override

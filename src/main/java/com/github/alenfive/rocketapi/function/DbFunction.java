@@ -4,10 +4,8 @@ import com.github.alenfive.rocketapi.datasource.DataSourceManager;
 import com.github.alenfive.rocketapi.entity.vo.Page;
 import com.github.alenfive.rocketapi.extend.ApiInfoContent;
 import com.github.alenfive.rocketapi.extend.IApiPager;
-import com.github.alenfive.rocketapi.service.ScriptParseService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
@@ -30,13 +28,7 @@ public class DbFunction implements IFunction{
     private ApiInfoContent apiInfoContent;
 
     @Autowired
-    private ScriptParseService parseService;
-
-    @Autowired
     private IApiPager apiPager;
-
-    @Autowired
-    private ApplicationContext context;
 
     @Autowired
     private UtilsFunction utilsFunction;
@@ -48,7 +40,13 @@ public class DbFunction implements IFunction{
 
     private String parseSql(String script){
         if (script.startsWith("sql")){
-            return script.substring(3);
+            script = script.substring(3);
+        }
+        if (script.startsWith("\n")){
+            script = script.substring(1);
+        }
+        if (script.endsWith("\n")){
+            script = script.substring(0,script.length()-1);
         }
         return script;
     }
@@ -74,8 +72,6 @@ public class DbFunction implements IFunction{
     public List<Map<String,Object>> find(String script,String dataSource) throws Exception {
         script = parseSql(script);
         StringBuilder sbScript = new StringBuilder(script);
-        parseService.parse(sbScript,apiInfoContent.getApiParams());
-
         List<Map<String,Object>> result = null;
         try {
             result = dataSourceManager.find(sbScript,apiInfoContent.getApiInfo(),apiInfoContent.getApiParams(),dataSource);
@@ -92,7 +88,6 @@ public class DbFunction implements IFunction{
     public Object insert(String script,String dataSource) throws Exception {
         script = parseSql(script);
         StringBuilder sbScript = new StringBuilder(script);
-        parseService.parse(sbScript,apiInfoContent.getApiParams());
         Object result = null;
         try {
             result = dataSourceManager.insert(sbScript,apiInfoContent.getApiInfo(),apiInfoContent.getApiParams(),dataSource);
@@ -108,7 +103,6 @@ public class DbFunction implements IFunction{
     public Object remove(String script,String dataSource) throws Exception {
         script = parseSql(script);
         StringBuilder sbScript = new StringBuilder(script);
-        parseService.parse(sbScript,apiInfoContent.getApiParams());
         Object result =  null;
         try {
             result = dataSourceManager.remove(sbScript,apiInfoContent.getApiInfo(),apiInfoContent.getApiParams(),dataSource);
@@ -124,7 +118,6 @@ public class DbFunction implements IFunction{
     public Long update(String script,String dataSource) throws Exception {
         script = parseSql(script);
         StringBuilder sbScript = new StringBuilder(script);
-        parseService.parse(sbScript,apiInfoContent.getApiParams());
         Long result =  null;
         try {
             result = dataSourceManager.update(sbScript,apiInfoContent.getApiInfo(),apiInfoContent.getApiParams(),dataSource);
@@ -144,11 +137,11 @@ public class DbFunction implements IFunction{
                 .pageSize(Integer.valueOf(utilsFunction.val(apiPager.getPageSizeVarName()).toString()))
                 .build();
         String totalSql = dataSourceManager.buildCountScript(script,apiInfoContent.getApiInfo(),apiInfoContent.getApiParams(),dataSource,apiPager,page);
-        Long total = this.count(totalSql);
+        Long total = this.count(totalSql,dataSource);
         List<Map<String,Object>> data = null;
         if (total > 0){
             String pageSql = dataSourceManager.buildPageScript(script,apiInfoContent.getApiInfo(),apiInfoContent.getApiParams(),dataSource,apiPager,page);
-            data = this.find(pageSql);
+            data = this.find(pageSql,dataSource);
         }else{
             data = Collections.emptyList();
         }

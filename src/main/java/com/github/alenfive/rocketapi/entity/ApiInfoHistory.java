@@ -45,7 +45,7 @@ public class ApiInfoHistory {
     /**
      * 注释说明
      */
-    private String comment;
+    private String name;
     /**
      * 数据源
      */
@@ -61,7 +61,7 @@ public class ApiInfoHistory {
     /**
      * 分组
      */
-    private String group;
+    private String groupName;
 
     /**
      * 最后一次编辑者
@@ -81,11 +81,11 @@ public class ApiInfoHistory {
         result.put("path",path);
         result.put("options", options);
         result.put("type",type);
-        result.put("comment",comment);
+        result.put("name", name);
         result.put("datasource",datasource);
         result.put("script",script);
         result.put("service",service);
-        result.put("group",group);
+        result.put("groupName", groupName);
         result.put("editor",editor);
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         if (createTime != null){

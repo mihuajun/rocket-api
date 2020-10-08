@@ -10,7 +10,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import java.util.List;
 
 /**
- * oracle 分页构造
+ * oracle 数据源
  */
 public class OracleDataSource extends SqlDataSource {
 
@@ -31,9 +31,15 @@ public class OracleDataSource extends SqlDataSource {
     @Override
     public String buildPageScript(String script, ApiInfo apiInfo, ApiParams apiParams, IApiPager apiPager, Page page) {
         Integer offset = apiPager.getIndexVarValue(page.getPageSize(),page.getPageNo());
-        Integer limit = (offset >= 1) ? (offset + page.getPageSize()) : page.getPageSize();
+        Integer endIndex = offset + page.getPageSize();
         return "SELECT * FROM ( SELECT TMP.*, ROWNUM ROW_ID FROM ( " +
-                script + " ) TMP WHERE ROWNUM <= "+limit+" ) WHERE ROW_ID > "+offset;
+                script + " ) TMP WHERE ROWNUM <= "+endIndex+" ) WHERE ROW_ID > "+offset;
+    }
+
+    @Override
+    public String transcoding(String param) {
+        return param
+                .replace("'", "''");
     }
 
     @Override

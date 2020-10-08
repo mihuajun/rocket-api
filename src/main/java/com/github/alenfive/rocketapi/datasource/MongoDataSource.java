@@ -5,6 +5,7 @@ import com.github.alenfive.rocketapi.entity.ApiParams;
 import com.github.alenfive.rocketapi.entity.vo.Page;
 import com.github.alenfive.rocketapi.entity.vo.TableInfo;
 import com.github.alenfive.rocketapi.extend.IApiPager;
+import com.github.alenfive.rocketapi.utils.FieldUtils;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -43,21 +44,20 @@ public class MongoDataSource extends DataSourceDialect {
                 "\t\"find\":\"api_info\",\n" +
                 "\t\"filter\":{\n" +
                 "\t\t\"service\":#{service}\n" +
+                "\t\t,?{id,\"_id\":ObjectId(#{id})}\n" +
                 "\t}\n" +
                 "}";
     }
 
     @Override
-    String lastApiInfoHistoryScript() {
+    String listApiInfoHistoryScript() {
         return "{\n" +
                 "\t\"find\":\"api_info_history\",\n" +
                 "\t\"filter\":{\n" +
                 "\t\t\"service\":#{service}\n" +
                 "\t\t,?{apiInfoId,\"api_info_id\":ObjectId(#{apiInfoId})}\n" +
                 "\t}," +
-                "sort:{_id:-1},\n" +
-                "skip:#{index}\n" +
-                "limit:#{pageSize}\n" +
+                "sort:{_id:-1}\n" +
                 "}";
     }
 
@@ -72,23 +72,14 @@ public class MongoDataSource extends DataSourceDialect {
                 "\t\t\"path\":#{path},\n" +
                 "\t\t\"type\":#{type},\n" +
                 "\t\t\"service\":#{service},\n" +
-                "\t\t\"group\":#{group},\n" +
+                "\t\t\"group_name\":#{groupName},\n" +
                 "\t\t\"editor\":#{editor},\n" +
-                "\t\t\"comment\":#{comment},\n" +
+                "\t\t\"name\":#{name},\n" +
                 "\t\t\"datasource\":#{datasource},\n" +
                 "\t\t\"script\":#{script},\n" +
                 "\t\t\"options\":#{options},\n" +
                 "\t\t\"create_time\":#{createTime},\n" +
                 "\t}]\n" +
-                "}";
-    }
-
-    @Override
-    public String getApiInfoScript() {
-        return "{\n" +
-                "     find: \"api_info\",\n" +
-                "     filter: { _id: ObjectId(#{id})},\n" +
-                "     limit: 1\n" +
                 "}";
     }
 
@@ -102,9 +93,9 @@ public class MongoDataSource extends DataSourceDialect {
                 "\t\t\"path\":#{path},\n" +
                 "\t\t\"type\":#{type},\n" +
                 "\t\t\"service\":#{service},\n" +
-                "\t\t\"group\":#{group},\n" +
+                "\t\t\"group_name\":#{groupName},\n" +
                 "\t\t\"editor\":#{editor},\n" +
-                "\t\t\"comment\":#{comment},\n" +
+                "\t\t\"name\":#{name},\n" +
                 "\t\t\"datasource\":#{datasource},\n" +
                 "\t\t\"script\":#{script},\n" +
                 "\t\t\"options\":#{options},\n" +
@@ -121,7 +112,7 @@ public class MongoDataSource extends DataSourceDialect {
                 "     updates: \n" +
                 "     \t[{\n" +
                 "     \t\tq:{_id:ObjectId(#{id})},\n" +
-                "     \t\tu:{$set:{method:#{method},path:#{path},datasource:#{datasource},group:#{group},editor:#{editor},comment:#{comment},script:#{script},options:#{options},update_time:#{updateTime}}},\n" +
+                "     \t\tu:{$set:{method:#{method},path:#{path},datasource:#{datasource},groupName:#{groupName},editor:#{editor},name:#{name},script:#{script},options:#{options},update_time:#{updateTime}}},\n" +
                 "     \t\tupsert:false,\n" +
                 "     \t\tmulti:false\n" +
                 "     \t}]\n" +
@@ -162,12 +153,11 @@ public class MongoDataSource extends DataSourceDialect {
     }
 
     @Override
-    public String lastApiExampleScript() {
+    public String listApiExampleScript() {
         return "{\n" +
                 "     find: \"api_example\",\n" +
                 "     filter: { api_info_id: ObjectId(#{apiInfoId}) }," +
-                "     sort:{_id:-1},\n" +
-                "     limit: #{limit}\n" +
+                "     sort:{_id:-1}\n" +
                 "}";
     }
 
@@ -340,7 +330,7 @@ public class MongoDataSource extends DataSourceDialect {
            if ("_id".equals(key)){
                key = "id";
            }
-           key = super.underlineToCamel(key);
+           key = FieldUtils.underlineToCamel(key);
            if (value instanceof Document){
                map.put(key,toMap((Document) value));
                continue;
@@ -353,12 +343,28 @@ public class MongoDataSource extends DataSourceDialect {
 
     @Override
     public String buildCountScript(String script, ApiInfo apiInfo, ApiParams apiParams, IApiPager apiPager, Page page) {
-        return script;
+        Document document = Document.parse(script);
+        document.put("count",document.get("find"));
+        document.put("query",document.get("filter"));
+        document.remove("find");
+        document.remove("filter");
+        return document.toJson();
     }
 
     @Override
     public String buildPageScript(String script, ApiInfo apiInfo, ApiParams apiParams, IApiPager apiPager, Page page) {
-        return script;
+        Document document = Document.parse(script);
+        document.put("skip",apiPager.getIndexVarValue(page.getPageSize(),page.getPageNo()));
+        document.put("limit",page.getPageSize());
+        return document.toJson();
+    }
+
+    @Override
+    public String transcoding(String param) {
+        return param
+                .replace("\\","\\\\")
+                .replace("\"","\\\"")
+                .replace("\'","\\\'");
     }
 
     @Override

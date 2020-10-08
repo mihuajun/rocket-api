@@ -15,11 +15,11 @@ import java.util.List;
 @Component
 public class ApiInfoContent {
 
-    private ThreadLocal<Boolean> isDebug = new ThreadLocal<>();
-    private ThreadLocal<ApiInfo> apiInfo = new ThreadLocal<>();
-    private ThreadLocal<ApiParams> apiParams = new ThreadLocal<>();
-    private ThreadLocal<List<String>> logs = new ThreadLocal<>();
-    private ThreadLocal<ScriptEngine> engine = new ThreadLocal<>();
+    private ThreadLocal<Boolean> isDebug = new InheritableThreadLocal<>();
+    private ThreadLocal<ApiInfo> apiInfo = new InheritableThreadLocal<>();
+    private ThreadLocal<ApiParams> apiParams = new InheritableThreadLocal<>();
+    private ThreadLocal<List<String>> logs = new InheritableThreadLocal<>();
+    private ThreadLocal<ScriptEngine> engine = new InheritableThreadLocal<>();
 
     public Boolean getIsDebug() {
         return isDebug.get() == null?false:isDebug.get();

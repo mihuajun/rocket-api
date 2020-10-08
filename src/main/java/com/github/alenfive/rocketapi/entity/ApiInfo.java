@@ -1,5 +1,6 @@
 package com.github.alenfive.rocketapi.entity;
 
+import com.github.alenfive.rocketapi.annotation.ApiUpdateField;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -23,43 +24,52 @@ public class ApiInfo {
     /**
      * 路径
      */
+    @ApiUpdateField
     private String path;
     /**
      * 方法支持列表
      */
+    @ApiUpdateField
     private String method;
     /**
      * API选项
      */
+    @ApiUpdateField
     private String options;
     /**
-     * API模式，CODE/SQL，分别为代码模式，或SQL模式
+     * API模式，CODE/QL，分别为代码模式，或QL模式
      */
     private String type;
     /**
      * 注释说明
      */
-    private String comment;
+    @ApiUpdateField
+    private String name;
     /**
      * 数据源
      */
+    @ApiUpdateField
     private String datasource;
     /**
      * SQL模式下的执行脚本
      */
+    @ApiUpdateField
     private String script;
     /**
      * 服务
      */
+    @ApiUpdateField
     private String service;
     /**
      * 分组
      */
-    private String group;
+    @ApiUpdateField
+    private String groupName;
 
     /**
      * 最后一次编辑者
      */
+    @ApiUpdateField
     private String editor;
 
     /**
@@ -69,6 +79,7 @@ public class ApiInfo {
     /**
      * 更新时间
      */
+    @ApiUpdateField
     private Date updateTime;
 
     public Map<String,Object> toMap(){
@@ -78,11 +89,11 @@ public class ApiInfo {
         result.put("path",path);
         result.put("options", options);
         result.put("type",type);
-        result.put("comment",comment);
+        result.put("name", name);
         result.put("datasource",datasource);
         result.put("script",script);
         result.put("service",service);
-        result.put("group",group);
+        result.put("groupName",groupName);
         result.put("editor",editor);
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         if (createTime != null){
@@ -93,4 +104,5 @@ public class ApiInfo {
         }
         return result;
     }
+
 }
