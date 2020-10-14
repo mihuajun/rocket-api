@@ -52,7 +52,7 @@ Graphql https://graphql.cn/
 ### FAQ
 https://gitee.com/alenfive/rocket-api-doc/wikis/pages
 
-### 快速开始  
+### 1分钟快速集成  
 https://gitee.com/alenfive/rocket-api-doc/wikis/pages?sort_id=2670009&doc_id=859283
 
 ### 来都来了，不点亮个星(Star)？
