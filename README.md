@@ -53,7 +53,7 @@ Graphql https://graphql.cn/
 https://gitee.com/alenfive/rocket-api-doc/wikis/pages?sort_id=2670009&doc_id=859283
 
 ### FAQ
-https://gitee.com/alenfive/rocket-api-doc/wikis/pages
+https://gitee.com/alenfive/rocket-api-doc/wikis/pages?sort_id=2910306&doc_id=859283
 
 ### 来都来了，不点亮个星(Star)？
 
