@@ -47,7 +47,7 @@ public class GroovyScriptParse implements IScriptParse{
     @PostConstruct
     public void init(){
         //初始化引擎
-        factory.getEngineByName("groovy");
+        engine = factory.getEngineByName("groovy");
 
         //加载函数
         functionList = context.getBeansOfType(IFunction.class).values();
