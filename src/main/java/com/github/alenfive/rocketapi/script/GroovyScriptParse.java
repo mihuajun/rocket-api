@@ -40,8 +40,15 @@ public class GroovyScriptParse implements IScriptParse{
 
     private Collection<IFunction> functionList;
 
+    private ScriptEngineManager factory = new ScriptEngineManager();
+
+    private ScriptEngine engine = null;
+
     @PostConstruct
     public void init(){
+        //初始化引擎
+        factory.getEngineByName("groovy");
+
         //加载函数
         functionList = context.getBeansOfType(IFunction.class).values();
     }
@@ -57,8 +64,7 @@ public class GroovyScriptParse implements IScriptParse{
         apiParams.putParam(apiPager.getIndexVarName(),apiPager.getIndexVarValue(pageSize,pageNo));
 
         try {
-            ScriptEngineManager factory = new ScriptEngineManager();
-            ScriptEngine engine = factory.getEngineByName("groovy");
+
 
             //注入变量
             apiInfoContent.setApiInfo(apiInfo);
