@@ -57,7 +57,7 @@ public abstract class DataSourceDialect {
     protected Map<String,Object> toReplaceKeyLow(Map<String,Object> map){
         Map<String,Object> result = new HashMap<>(map.size());
         for(String key : map.keySet()){
-            result.put(FieldUtils.underlineToCamel(key.toLowerCase()),map.get(key));
+            result.put(FieldUtils.underlineToCamel(key),map.get(key));
         }
         return result;
     }
