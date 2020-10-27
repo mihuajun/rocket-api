@@ -28,7 +28,7 @@
 
 >代码仓库：https://gitee.com/alenfive/rocket-api    
 
->文档地址: https://gitee.com/alenfive/rocket-api-doc/wikis/pages 
+>文档地址: https://alenfive.gitbook.io/rocket-api/ 
 
 >一分钟系列: https://blog.csdn.net/maple_son/article/details/108196584
   
@@ -50,12 +50,13 @@ Graphql https://graphql.cn/
 ![输入图片说明](https://images.gitee.com/uploads/images/2020/0915/183440_93549b7f_5139840.png "屏幕截图.png")
 
 ### 一分钟快速项目集成  
-https://gitee.com/alenfive/rocket-api-doc/wikis/pages?sort_id=2670009&doc_id=859283
+https://alenfive.gitbook.io/rocket-api/fast-start
 
 ### FAQ
-https://gitee.com/alenfive/rocket-api-doc/wikis/pages?sort_id=2910306&doc_id=859283
+https://alenfive.gitbook.io/rocket-api/faq
 
-### 来都来了，不点亮个星(Star)？
+## 来都来了，不点亮个星(Star)？
+
 
 
 
