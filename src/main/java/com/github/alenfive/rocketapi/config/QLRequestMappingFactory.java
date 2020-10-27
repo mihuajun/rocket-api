@@ -187,7 +187,11 @@ public class QLRequestMappingFactory {
         if (bodyMethods.contains(method)){
             if (request.getContentType() != null && request.getContentType().indexOf("application/json") > -1){
                 try {
-                    body.putAll(objectMapper.readValue(request.getInputStream(),Map.class));
+                    Object bodyObject = objectMapper.readValue(request.getInputStream(),Object.class);
+                    if (bodyObject instanceof Map){
+                        body.putAll((Map<? extends String, ?>) bodyObject);
+                    }
+                    body.put(properties.getBodyRootKey(),bodyObject);
                 }catch (MismatchedInputException exception){
                     throw new HttpMessageNotReadableException("Required request body is missing",exception,new ServletServerHttpRequest(request));
                 }
