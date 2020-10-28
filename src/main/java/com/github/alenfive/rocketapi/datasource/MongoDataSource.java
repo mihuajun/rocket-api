@@ -184,7 +184,17 @@ public class MongoDataSource extends DataSourceDialect {
             result.add(count);
             return result;
         }
-        List<Document> documents = (List<Document>) ((Document)document.get("cursor")).get("firstBatch");
+        Document cursor = (Document) document.get("cursor");
+        List<Document> documents = (List<Document>) cursor.get("firstBatch");
+
+        while (Long.valueOf(cursor.get("id").toString()) > 0L){
+            Document more = new Document();
+            more.put("getMore",cursor.get("id"));
+            more.put("collection",cursor.get("ns").toString().split("\\.")[1]);
+            document = mongoTemplate.executeCommand(more);
+            cursor = (Document) document.get("cursor");
+            documents.addAll((List<Document>) cursor.get("nextBatch"));
+        }
         return documents.stream().map(item->toMap(item)).collect(Collectors.toList());
     }
 

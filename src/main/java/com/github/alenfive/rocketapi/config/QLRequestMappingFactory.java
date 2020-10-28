@@ -133,7 +133,7 @@ public class QLRequestMappingFactory {
             apiParams = ApiParams.builder().param(codeInfo.toMap()).build();
             script = new StringBuilder(dataSourceManager.saveApiInfoScript());
             dataSourceManager.insert(script,ApiInfo.builder().datasource(dataSourceManager.getStoreApiKey()).build(),apiParams);
-            apiInfoCache.put(getDbInfo(codeInfo));
+            apiInfoCache.put(codeInfo);
         }
 
         //注册mapping
