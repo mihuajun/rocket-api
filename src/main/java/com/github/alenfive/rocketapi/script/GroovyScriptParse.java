@@ -10,7 +10,6 @@ import com.github.alenfive.rocketapi.extend.ApiInfoContent;
 import com.github.alenfive.rocketapi.extend.IApiPager;
 import com.github.alenfive.rocketapi.function.IFunction;
 import com.github.alenfive.rocketapi.service.ScriptParseService;
-import jdk.nashorn.api.scripting.ScriptObjectMirror;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
@@ -78,13 +77,6 @@ public class GroovyScriptParse implements IScriptParse{
             //注入属性变量
             buildScriptParams(engine,apiParams);
             Object result = engine.eval(script);
-            if (!(result instanceof ScriptObjectMirror)){
-                return result;
-            }
-            ScriptObjectMirror som = (ScriptObjectMirror)result ;
-            if (som.isArray()){
-                return som.values();
-            }
             return result;
         }catch (Exception e){
             if (e.getCause() != null && e.getCause().getCause() != null){
