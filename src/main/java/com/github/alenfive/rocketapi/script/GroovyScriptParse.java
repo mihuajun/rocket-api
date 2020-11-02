@@ -18,8 +18,10 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.PostConstruct;
+import javax.script.Bindings;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
+import javax.script.SimpleBindings;
 import java.util.Collection;
 
 @Component
@@ -64,19 +66,20 @@ public class GroovyScriptParse implements IScriptParse{
 
         try {
 
-
             //注入变量
             apiInfoContent.setApiInfo(apiInfo);
             apiInfoContent.setApiParams(apiParams);
-            apiInfoContent.setEngine(engine);
 
+            Bindings bindings = new SimpleBindings();
+
+            apiInfoContent.setEngineBindings(bindings);
             for(IFunction function : functionList){
-                engine.put(function.getVarName(),function);
+                bindings.put(function.getVarName(),function);
             }
 
             //注入属性变量
-            buildScriptParams(engine,apiParams);
-            Object result = engine.eval(script);
+            buildScriptParams(bindings,apiParams);
+            Object result = engine.eval(script,bindings);
             return result;
         }catch (Exception e){
             if (e.getCause() != null && e.getCause().getCause() != null){
@@ -106,53 +109,53 @@ public class GroovyScriptParse implements IScriptParse{
         return Integer.valueOf(value.toString());
     }
 
-    private void buildScriptParams(ScriptEngine engine, ApiParams apiParams) {
-        engine.put("pathVar",apiParams.getPathVar());
-        engine.put("param",apiParams.getParam());
-        engine.put("body",apiParams.getBody());
-        engine.put("header",apiParams.getHeader());
-        engine.put("cookie",apiParams.getCookie());
-        engine.put("session",apiParams.getSession());
+    private void buildScriptParams(Bindings bindings, ApiParams apiParams) {
+        bindings.put("pathVar",apiParams.getPathVar());
+        bindings.put("param",apiParams.getParam());
+        bindings.put("body",apiParams.getBody());
+        bindings.put("header",apiParams.getHeader());
+        bindings.put("cookie",apiParams.getCookie());
+        bindings.put("session",apiParams.getSession());
 
         if (!CollectionUtils.isEmpty(apiParams.getSession())){
             apiParams.getSession().forEach((key,value)->{
                 if (StringUtils.isEmpty(key))return;
-                engine.put(key,value);
+                bindings.put(key,value);
             });
         }
 
         if (!CollectionUtils.isEmpty(apiParams.getCookie())){
             apiParams.getCookie().forEach((key,value)->{
                 if (StringUtils.isEmpty(key))return;
-                engine.put(key,value);
+                bindings.put(key,value);
             });
         }
 
         if (!CollectionUtils.isEmpty(apiParams.getHeader())){
             apiParams.getHeader().forEach((key,value)->{
                 if (StringUtils.isEmpty(key))return;
-                engine.put(key,value);
+                bindings.put(key,value);
             });
         }
 
         if (!CollectionUtils.isEmpty(apiParams.getBody())){
             apiParams.getBody().forEach((key,value)->{
                 if (StringUtils.isEmpty(key))return;
-                engine.put(key,value);
+                bindings.put(key,value);
             });
         }
 
         if (!CollectionUtils.isEmpty(apiParams.getParam())){
             apiParams.getParam().forEach((key,value)->{
                 if (StringUtils.isEmpty(key))return;
-                engine.put(key,value);
+                bindings.put(key,value);
             });
         }
 
         if (!CollectionUtils.isEmpty(apiParams.getPathVar())){
             apiParams.getPathVar().forEach((key,value)->{
                 if (StringUtils.isEmpty(key))return;
-                engine.put(key,value);
+                bindings.put(key,value);
             });
         }
 
