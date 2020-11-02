@@ -155,38 +155,33 @@ public class ScriptParseService {
      */
     public void buildParams(StringBuilder script, ApiParams apiParams,DataSourceDialect sourceDialect){
         //匹配参数#{}
-        Pattern r = Pattern.compile("#\\{[A-Za-z0-9-\\[\\]_\\.]+\\}");
+        Pattern r = Pattern.compile("(#|\\$)\\{[A-Za-z0-9-\\[\\]_\\.]+\\}");
 
         Matcher m = r.matcher(script);
         int start = 0;
         while (m.find(start)){
             String group = m.group();
-            String varName = group.replace("#{","").replace("}","");
-            Object value = buildParamItem(apiParams,varName);
-            String replaceValue = buildValue(value,sourceDialect);
-            if (replaceValue == null){
-                replaceValue = "null";
+            if (group.startsWith("#")){
+                String varName = group.replace("#{","").replace("}","");
+                Object value = buildParamItem(apiParams,varName);
+                String replaceValue = buildValue(value,sourceDialect);
+                if (replaceValue == null){
+                    replaceValue = "null";
+                }
+                script = script.replace(m.start(),m.end(),replaceValue);
+                start = m.start() + replaceValue.length();
+            }else if(group.startsWith("$")){
+                String varName = group.replace("${","").replace("}","");
+                Object value = buildParamItem(apiParams,varName);
+                String replaceValue = buildSourceValue(value);
+                if (replaceValue == null){
+                    replaceValue = "null";
+                }
+                script = script.replace(m.start(),m.end(),replaceValue);
+                start = m.start() + replaceValue.length();
             }
-            script = script.replace(m.start(),m.end(),replaceValue);
-            start = m.start() + replaceValue.length();
-        }
 
-        //匹配参数${}
-        r = Pattern.compile("\\$\\{[A-Za-z0-9-\\[\\]_\\.]+\\}");
-        m = r.matcher(script);
-        start = 0;
-        while (m.find(start)){
-            String group = m.group();
-            String varName = group.replace("${","").replace("}","");
-            Object value = buildParamItem(apiParams,varName);
-            String replaceValue = buildSourceValue(value);
-            if (replaceValue == null){
-                replaceValue = "null";
-            }
-            script = script.replace(m.start(),m.end(),replaceValue);
-            start = m.start() + replaceValue.length();
         }
-
     }
 
     public Object buildParamItem(ApiParams apiParams, String varName) {
