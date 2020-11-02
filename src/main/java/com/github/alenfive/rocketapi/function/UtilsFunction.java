@@ -1,5 +1,7 @@
 package com.github.alenfive.rocketapi.function;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.alenfive.rocketapi.entity.vo.IgnoreWrapper;
 import com.github.alenfive.rocketapi.extend.ApiInfoContent;
 import com.github.alenfive.rocketapi.service.ScriptParseService;
@@ -29,6 +31,9 @@ public class UtilsFunction implements IFunction{
 
     @Autowired
     private ScriptParseService scriptParseService;
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @Override
     public String getVarName() {
@@ -143,5 +148,25 @@ public class UtilsFunction implements IFunction{
      */
     public List<List<String>> parseXls(InputStream in) throws IOException {
         return ExcelUtils.parseXls(in);
+    }
+
+    /**
+     * json转对象
+     * @param jsonObj
+     * @return
+     * @throws JsonProcessingException
+     */
+    public String pasreJsonToString(Object jsonObj) throws JsonProcessingException {
+        return objectMapper.writeValueAsString(jsonObj);
+    }
+
+    /**
+     * 字符串转json
+     * @param jsonStr
+     * @return
+     * @throws IOException
+     */
+    public Object pasreStringToJson(String jsonStr) throws IOException {
+        return objectMapper.readValue(jsonStr,Object.class);
     }
 }
