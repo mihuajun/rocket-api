@@ -151,22 +151,22 @@ public class UtilsFunction implements IFunction{
     }
 
     /**
-     * json转对象
-     * @param jsonObj
+     * json转Object
+     * @param obj
      * @return
      * @throws JsonProcessingException
      */
-    public String pasreJsonToString(Object jsonObj) throws JsonProcessingException {
-        return objectMapper.writeValueAsString(jsonObj);
+    public String pasreToString(Object obj) throws JsonProcessingException {
+        return objectMapper.writeValueAsString(obj);
     }
 
     /**
-     * 字符串转json
-     * @param jsonStr
+     * 字符串转Object
+     * @param str
      * @return
      * @throws IOException
      */
-    public Object pasreStringToJson(String jsonStr) throws IOException {
-        return objectMapper.readValue(jsonStr,Object.class);
+    public Object pasreToObject(String str) throws IOException {
+        return objectMapper.readValue(str,Object.class);
     }
 }
