@@ -53,13 +53,17 @@ public class DbFunction implements IFunction{
 
     public Long count(String script,String dataSource) throws Exception {
         script = parseSql(script);
-       List<Map<String,Object>> list = find(script,dataSource);
-       if (CollectionUtils.isEmpty(list))return 0L;
+        List<Map<String,Object>> list = find(script,dataSource);
+        if (CollectionUtils.isEmpty(list))return 0L;
         if (list.size()>1){
             return Long.valueOf(list.size());
         }
+        Object[] fieldValues = list.get(0).values().toArray();
+        if (fieldValues.length>1 || !(fieldValues[0] instanceof Number)){
+            return 1L;
+        }
 
-       return Long.valueOf(list.get(0).values().toArray()[0].toString());
+        return Long.valueOf(fieldValues[0].toString());
     }
 
     public Map<String,Object> findOne(String script,String dataSource) throws Exception {
