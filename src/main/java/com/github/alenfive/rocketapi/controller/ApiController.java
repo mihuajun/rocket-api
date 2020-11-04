@@ -291,7 +291,7 @@ public class ApiController {
                     .header(decodeHeaderValue(runApiReq.getHeader()))
                     .pathVar(getPathVar(runApiReq.getPattern(),runApiReq.getUrl()))
                     .param(getParam(runApiReq.getUrl()))
-                    .body(runApiReq.getBody())
+                    .body(buildBody(runApiReq.getBody()))
                     .session(RequestUtils.buildSessionParams(request))
                     .build();
             Object value = scriptParse.runScript(apiInfo.getScript(),apiInfo,apiParams);
@@ -306,6 +306,14 @@ public class ApiController {
         }
     }
 
+    private Map<String, Object> buildBody(Object body) {
+        Map<String,Object> params = new HashMap<>();
+        if (body instanceof Map){
+            params.putAll((Map<? extends String, ?>) body);
+        }
+        params.put(rocketApiProperties.getBodyRootKey(),body);
+        return params;
+    }
 
 
     private Map<String,String> decodeHeaderValue(Map<String,String> header) throws UnsupportedEncodingException {

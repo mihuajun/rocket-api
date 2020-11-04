@@ -4,6 +4,7 @@ import com.github.alenfive.rocketapi.entity.ApiInfo;
 import com.github.alenfive.rocketapi.entity.ApiParams;
 import org.springframework.stereotype.Component;
 
+import javax.script.Bindings;
 import javax.script.ScriptEngine;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,7 +20,7 @@ public class ApiInfoContent {
     private ThreadLocal<ApiInfo> apiInfo = new InheritableThreadLocal<>();
     private ThreadLocal<ApiParams> apiParams = new InheritableThreadLocal<>();
     private ThreadLocal<List<String>> logs = new InheritableThreadLocal<>();
-    private ThreadLocal<ScriptEngine> engine = new InheritableThreadLocal<>();
+    private ThreadLocal<Bindings> engineBindings = new InheritableThreadLocal<>();
 
     public Boolean getIsDebug() {
         return isDebug.get() == null?false:isDebug.get();
@@ -55,19 +56,19 @@ public class ApiInfoContent {
         this.apiParams.set(apiParams);
     }
 
-    public void setEngine(ScriptEngine engine) {
-        this.engine.set(engine);
+    public void setEngineBindings(Bindings bindings) {
+        this.engineBindings.set(bindings);
     }
 
-    public ScriptEngine getEngine() {
-        return engine.get();
+    public Bindings getEngineBindings() {
+        return engineBindings.get();
     }
 
     public void removeAll(){
         apiInfo.remove();
         apiParams.remove();
         logs.remove();
-        engine.remove();
+        engineBindings.remove();
         isDebug.remove();
     }
 }

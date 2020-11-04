@@ -10,7 +10,6 @@ import com.github.alenfive.rocketapi.extend.ApiInfoContent;
 import com.github.alenfive.rocketapi.extend.IApiPager;
 import com.github.alenfive.rocketapi.function.IFunction;
 import com.github.alenfive.rocketapi.service.ScriptParseService;
-import jdk.nashorn.api.scripting.ScriptObjectMirror;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
@@ -19,8 +18,10 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.PostConstruct;
+import javax.script.Bindings;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
+import javax.script.SimpleBindings;
 import java.util.Collection;
 
 @Component
@@ -40,8 +41,15 @@ public class GroovyScriptParse implements IScriptParse{
 
     private Collection<IFunction> functionList;
 
+    private ScriptEngineManager factory = new ScriptEngineManager();
+
+    private ScriptEngine engine = null;
+
     @PostConstruct
     public void init(){
+        //初始化引擎
+        engine = factory.getEngineByName("groovy");
+
         //加载函数
         functionList = context.getBeansOfType(IFunction.class).values();
     }
@@ -57,28 +65,21 @@ public class GroovyScriptParse implements IScriptParse{
         apiParams.putParam(apiPager.getIndexVarName(),apiPager.getIndexVarValue(pageSize,pageNo));
 
         try {
-            ScriptEngineManager factory = new ScriptEngineManager();
-            ScriptEngine engine = factory.getEngineByName("groovy");
 
             //注入变量
             apiInfoContent.setApiInfo(apiInfo);
             apiInfoContent.setApiParams(apiParams);
-            apiInfoContent.setEngine(engine);
 
+            Bindings bindings = new SimpleBindings();
+
+            apiInfoContent.setEngineBindings(bindings);
             for(IFunction function : functionList){
-                engine.put(function.getVarName(),function);
+                bindings.put(function.getVarName(),function);
             }
 
             //注入属性变量
-            buildScriptParams(engine,apiParams);
-            Object result = engine.eval(script);
-            if (!(result instanceof ScriptObjectMirror)){
-                return result;
-            }
-            ScriptObjectMirror som = (ScriptObjectMirror)result ;
-            if (som.isArray()){
-                return som.values();
-            }
+            buildScriptParams(bindings,apiParams);
+            Object result = engine.eval(script,bindings);
             return result;
         }catch (Exception e){
             if (e.getCause() != null && e.getCause().getCause() != null){
@@ -108,53 +109,53 @@ public class GroovyScriptParse implements IScriptParse{
         return Integer.valueOf(value.toString());
     }
 
-    private void buildScriptParams(ScriptEngine engine, ApiParams apiParams) {
-        engine.put("pathVar",apiParams.getPathVar());
-        engine.put("param",apiParams.getParam());
-        engine.put("body",apiParams.getBody());
-        engine.put("header",apiParams.getHeader());
-        engine.put("cookie",apiParams.getCookie());
-        engine.put("session",apiParams.getSession());
+    private void buildScriptParams(Bindings bindings, ApiParams apiParams) {
+        bindings.put("pathVar",apiParams.getPathVar());
+        bindings.put("param",apiParams.getParam());
+        bindings.put("body",apiParams.getBody());
+        bindings.put("header",apiParams.getHeader());
+        bindings.put("cookie",apiParams.getCookie());
+        bindings.put("session",apiParams.getSession());
 
         if (!CollectionUtils.isEmpty(apiParams.getSession())){
             apiParams.getSession().forEach((key,value)->{
                 if (StringUtils.isEmpty(key))return;
-                engine.put(key,value);
+                bindings.put(key,value);
             });
         }
 
         if (!CollectionUtils.isEmpty(apiParams.getCookie())){
             apiParams.getCookie().forEach((key,value)->{
                 if (StringUtils.isEmpty(key))return;
-                engine.put(key,value);
+                bindings.put(key,value);
             });
         }
 
         if (!CollectionUtils.isEmpty(apiParams.getHeader())){
             apiParams.getHeader().forEach((key,value)->{
                 if (StringUtils.isEmpty(key))return;
-                engine.put(key,value);
+                bindings.put(key,value);
             });
         }
 
         if (!CollectionUtils.isEmpty(apiParams.getBody())){
             apiParams.getBody().forEach((key,value)->{
                 if (StringUtils.isEmpty(key))return;
-                engine.put(key,value);
+                bindings.put(key,value);
             });
         }
 
         if (!CollectionUtils.isEmpty(apiParams.getParam())){
             apiParams.getParam().forEach((key,value)->{
                 if (StringUtils.isEmpty(key))return;
-                engine.put(key,value);
+                bindings.put(key,value);
             });
         }
 
         if (!CollectionUtils.isEmpty(apiParams.getPathVar())){
             apiParams.getPathVar().forEach((key,value)->{
                 if (StringUtils.isEmpty(key))return;
-                engine.put(key,value);
+                bindings.put(key,value);
             });
         }
 

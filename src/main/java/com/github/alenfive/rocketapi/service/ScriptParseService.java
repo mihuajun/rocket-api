@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import javax.script.Bindings;
 import javax.script.ScriptContext;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -155,38 +156,33 @@ public class ScriptParseService {
      */
     public void buildParams(StringBuilder script, ApiParams apiParams,DataSourceDialect sourceDialect){
         //匹配参数#{}
-        Pattern r = Pattern.compile("#\\{[A-Za-z0-9-\\[\\]_\\.]+\\}");
+        Pattern r = Pattern.compile("(#|\\$)\\{[A-Za-z0-9-\\[\\]_\\.]+\\}");
 
         Matcher m = r.matcher(script);
         int start = 0;
         while (m.find(start)){
             String group = m.group();
-            String varName = group.replace("#{","").replace("}","");
-            Object value = buildParamItem(apiParams,varName);
-            String replaceValue = buildValue(value,sourceDialect);
-            if (replaceValue == null){
-                replaceValue = "null";
+            if (group.startsWith("#")){
+                String varName = group.replace("#{","").replace("}","");
+                Object value = buildParamItem(apiParams,varName);
+                String replaceValue = buildValue(value,sourceDialect);
+                if (replaceValue == null){
+                    replaceValue = "null";
+                }
+                script = script.replace(m.start(),m.end(),replaceValue);
+                start = m.start() + replaceValue.length();
+            }else if(group.startsWith("$")){
+                String varName = group.replace("${","").replace("}","");
+                Object value = buildParamItem(apiParams,varName);
+                String replaceValue = buildSourceValue(value);
+                if (replaceValue == null){
+                    replaceValue = "null";
+                }
+                script = script.replace(m.start(),m.end(),replaceValue);
+                start = m.start() + replaceValue.length();
             }
-            script = script.replace(m.start(),m.end(),replaceValue);
-            start = m.start() + replaceValue.length();
-        }
 
-        //匹配参数${}
-        r = Pattern.compile("\\$\\{[A-Za-z0-9-\\[\\]_\\.]+\\}");
-        m = r.matcher(script);
-        start = 0;
-        while (m.find(start)){
-            String group = m.group();
-            String varName = group.replace("${","").replace("}","");
-            Object value = buildParamItem(apiParams,varName);
-            String replaceValue = buildSourceValue(value);
-            if (replaceValue == null){
-                replaceValue = "null";
-            }
-            script = script.replace(m.start(),m.end(),replaceValue);
-            start = m.start() + replaceValue.length();
         }
-
     }
 
     public Object buildParamItem(ApiParams apiParams, String varName) {
@@ -196,7 +192,7 @@ public class ScriptParseService {
         Object value = null;
         if (scopeSet.contains(paramArr[0])){
             switch (ParamScope.valueOf(paramArr[0])){
-                case content:value = buildValueOfScriptContent(apiInfoContent.getEngine() == null?null:apiInfoContent.getEngine().getContext(),paramArr,1);break;
+                case content:value = buildValueOfScriptContent(apiInfoContent.getEngineBindings() == null?null:apiInfoContent.getEngineBindings(),paramArr,1);break;
                 case pathVar:value = buildValueOfPathVar(apiParams.getPathVar(),paramArr[1]);break;
                 case param:value = buildValueOfParameter(apiParams.getParam(),paramArr,1);break;
                 case body:value = buildValueOfBody(apiParams.getBody(),paramArr,1);break;
@@ -205,7 +201,7 @@ public class ScriptParseService {
                 case session:value = buildValueOfSession(apiParams.getSession(),paramArr,1);break;
             }
         }else {
-            value = buildValueOfScriptContent(apiInfoContent.getEngine() == null?null:apiInfoContent.getEngine().getContext(),paramArr,0);
+            value = buildValueOfScriptContent(apiInfoContent.getEngineBindings() == null?null:apiInfoContent.getEngineBindings(),paramArr,0);
             if (value == null){
                 value = buildValueOfPathVar(apiParams.getPathVar(),paramArr[0]);
             }
@@ -228,9 +224,9 @@ public class ScriptParseService {
         return value;
     }
 
-    private Object buildValueOfScriptContent(ScriptContext context ,String[] paramArr, int index) {
-        if (context == null)return null;
-        Object value = context.getAttribute(paramArr[index]);
+    private Object buildValueOfScriptContent(Bindings bindings, String[] paramArr, int index) {
+        if (bindings == null)return null;
+        Object value = bindings.get(paramArr[index]);
         if (paramArr.length-1 > index) {
             return buildObjectValue(value, paramArr, index + 1, paramArr[index + 1]);
         }

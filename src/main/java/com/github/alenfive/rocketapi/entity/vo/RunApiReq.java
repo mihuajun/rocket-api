@@ -14,7 +14,7 @@ public class RunApiReq {
     private String url;
     private String options;
     private Map<String,String> header;
-    private Map<String,Object> body;
+    private Object body;
     private String datasource;
     private String script;
 }

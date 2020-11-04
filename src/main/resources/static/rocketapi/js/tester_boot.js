@@ -889,6 +889,13 @@ function saveExecuter(params) {
             cancelDialogGroup();
             currApi = data.data;
             loadApiList(false);
+
+            if (params.id){
+                MtaH5.clickStat("api_save_success")
+            }else{
+                MtaH5.clickStat("api_new_success")
+            }
+
         },complete:function (req,data) {
             hideSendNotify();
         }

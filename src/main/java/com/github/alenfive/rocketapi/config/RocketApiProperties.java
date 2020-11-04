@@ -20,4 +20,6 @@ public class RocketApiProperties {
     //密钥KEY
     private String secretKey = "123456789";
 
+    //post传参 操作整个body部分的key值
+    private String bodyRootKey = "bodyRoot";
 }
