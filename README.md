@@ -61,6 +61,7 @@ https://alenfive.gitbook.io/rocket-api/faq
 ## 来都来了，不点亮个星(Star)？
 
 
-
+## Known Users         
+如果您在使用Rocket-API，请让我们知道，您的使用对我们非常重要：https://gitee.com/alenfive/rocket-api/issues/I23ZE9 （按登记顺序排列）
 
 
