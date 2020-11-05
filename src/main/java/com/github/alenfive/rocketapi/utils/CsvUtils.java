@@ -41,7 +41,7 @@ public class CsvUtils {
         boolean isFirst = true;
         while((line=reader.readLine())!=null){
             if (isFirst){
-                titles = Arrays.asList(line.split(","));
+                titles = Arrays.asList(line.split(",")).stream().map(item->item.trim()).collect(Collectors.toList());
                 isFirst = false;
                 continue;
             }

@@ -118,14 +118,15 @@ public class UtilsFunction implements IFunction{
         return this.download(fileName+".xls",inputStream);
     }
 
-    /**
-     * 导出xlsx
-     * @param fileName
-     * @param title
-     * @param list
-     */
-    public void exportXlsx(String fileName, LinkedHashMap title, List<Map<String,Object>> list){
 
+
+    /**
+     * 解析XLS文件
+     * @param in
+     * @return
+     */
+    public List<Map<String,String>> parseXls(InputStream in) throws IOException {
+        return ExcelUtils.parseXls(in);
     }
 
     /**
@@ -142,12 +143,23 @@ public class UtilsFunction implements IFunction{
     }
 
     /**
-     * 解析XLS文件
+     * 解析XLSX文件
      * @param in
      * @return
      */
-    public List<List<String>> parseXls(InputStream in) throws IOException {
-        return ExcelUtils.parseXls(in);
+    public List<Map<String,String>> parseXlsx(InputStream in) throws IOException {
+        return ExcelUtils.parseXlsx(in);
+    }
+
+    /**
+     * 导出xlsx
+     * @param fileName
+     * @param title
+     * @param list
+     */
+    public ResponseEntity<InputStreamResource> exportXlsx(String fileName, LinkedHashMap title, List<Map<String,Object>> list) throws IOException {
+        ByteArrayInputStream inputStream = ExcelUtils.writeXlsx(title,list);
+        return this.download(fileName+".xlsx",inputStream);
     }
 
     /**
