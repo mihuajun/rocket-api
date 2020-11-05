@@ -241,7 +241,7 @@ public class ScriptParseService {
     }
 
     private Object buildValueOfHeader(Map<String,String> header,String[] paramArr,int index) {
-        String varName = index == 0?paramArr[index].toLowerCase():paramArr[index];
+        String varName = paramArr[index].toLowerCase();
         if (header == null){
             return null;
         }
