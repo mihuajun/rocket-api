@@ -38,6 +38,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.lang.reflect.Method;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -128,8 +129,9 @@ public class QLRequestMappingFactory {
                 continue;
             }
             codeInfo.setId(GenerateId.get().toHexString());
-            codeInfo.setCreateTime(new Date());
-            codeInfo.setUpdateTime(new Date());
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            codeInfo.setCreateTime(sdf.format(new Date()));
+            codeInfo.setUpdateTime(sdf.format(new Date()));
             apiParams = ApiParams.builder().param(codeInfo.toMap()).build();
             script = new StringBuilder(dataSourceManager.saveApiInfoScript());
             dataSourceManager.insert(script,ApiInfo.builder().datasource(dataSourceManager.getStoreApiKey()).build(),apiParams);
@@ -263,7 +265,7 @@ public class QLRequestMappingFactory {
             return;
         }
         String pattern = apiInfo.getPath().replaceAll("/+","/");
-        log.debug("register mapping [{}]{}",apiInfo.getMethod(),pattern);
+        log.debug("Mapped [{}]{}",apiInfo.getMethod(),pattern);
         PatternsRequestCondition patternsRequestCondition = new PatternsRequestCondition(pattern);
         RequestMethodsRequestCondition methodsRequestCondition = new RequestMethodsRequestCondition(RequestMethod.valueOf(apiInfo.getMethod()));
         RequestMappingInfo mappingInfo = new RequestMappingInfo(patternsRequestCondition,methodsRequestCondition,null,null,null,null,null);
@@ -282,7 +284,7 @@ public class QLRequestMappingFactory {
         if (StringUtils.isEmpty(apiInfo.getPath()) || apiInfo.getPath().startsWith("TEMP-")){
             return;
         }
-        log.debug("unregister mapping [{}]{}",apiInfo.getMethod(),apiInfo.getPath());
+        log.debug("Cancel Mapping [{}]{}",apiInfo.getMethod(),apiInfo.getPath());
         PatternsRequestCondition patternsRequestCondition = new PatternsRequestCondition(apiInfo.getPath());
         RequestMethodsRequestCondition methodsRequestCondition = new RequestMethodsRequestCondition(RequestMethod.valueOf(apiInfo.getMethod()));
         RequestMappingInfo mappingInfo = new RequestMappingInfo(patternsRequestCondition,methodsRequestCondition,null,null,null,null,null);
@@ -304,10 +306,11 @@ public class QLRequestMappingFactory {
             throw new IllegalArgumentException("method: "+apiInfo.getMethod()+" path:"+apiInfo.getPath()+" already exist");
         }
 
-        apiInfo.setUpdateTime(new Date());
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        apiInfo.setUpdateTime(sdf.format(new Date()));
         if (apiInfo.getId() == null){
             apiInfo.setType(ApiType.Ql.name());
-            apiInfo.setCreateTime(new Date());
+            apiInfo.setCreateTime(sdf.format(new Date()));
             apiInfo.setService(service);
             apiInfo.setId(GenerateId.get().toHexString());
             ApiParams apiParams = ApiParams.builder().param(apiInfo.toMap()).build();
@@ -347,7 +350,8 @@ public class QLRequestMappingFactory {
         BeanUtils.copyProperties(dbInfo,history);
         history.setApiInfoId(dbInfo.getId());
         history.setId(GenerateId.get().toString());
-        history.setCreateTime(new Date());
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        history.setCreateTime(sdf.format(new Date()));
         ApiParams apiParams = ApiParams.builder().param(history.toMap()).build();
         StringBuilder script = new StringBuilder(dataSourceManager.saveApiInfoHistoryScript());
         dataSourceManager.insert(script,ApiInfo.builder().datasource(dataSourceManager.getStoreApiKey()).build(),apiParams);
@@ -523,6 +527,7 @@ public class QLRequestMappingFactory {
     public void apiInfoSync(List<ApiInfo> apiInfos,Boolean increment) throws Exception {
 
         Collection<ApiInfo> currApiInfos = this.getPathList(false);
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
         //全量同步
         if(!increment){
@@ -535,8 +540,8 @@ public class QLRequestMappingFactory {
             }
             //添加新信息
             for (ApiInfo apiInfo : apiInfos){
-                apiInfo.setCreateTime(new Date());
-                apiInfo.setUpdateTime(new Date());
+                apiInfo.setCreateTime(sdf.format(new Date()));
+                apiInfo.setUpdateTime(sdf.format(new Date()));
                 ApiParams apiParams = ApiParams.builder().param(apiInfo.toMap()).build();
                 StringBuilder script = new StringBuilder(dataSourceManager.saveApiInfoScript());
                 dataSourceManager.insert(script,ApiInfo.builder().datasource(dataSourceManager.getStoreApiKey()).build(),apiParams);
@@ -549,13 +554,13 @@ public class QLRequestMappingFactory {
             for (ApiInfo apiInfo : apiInfos){
                 ApiInfo dbInfo =  currApiInfos.stream().filter(item->item.getId().equals(apiInfo.getId())).findFirst().orElse(null);
                 if (dbInfo == null){
-                    apiInfo.setCreateTime(new Date());
-                    apiInfo.setUpdateTime(new Date());
+                    apiInfo.setCreateTime(sdf.format(new Date()));
+                    apiInfo.setUpdateTime(sdf.format(new Date()));
                     ApiParams apiParams = ApiParams.builder().param(apiInfo.toMap()).build();
                     StringBuilder script = new StringBuilder(dataSourceManager.saveApiInfoScript());
                     dataSourceManager.insert(script,ApiInfo.builder().datasource(dataSourceManager.getStoreApiKey()).build(),apiParams);
                 }else{
-                    apiInfo.setUpdateTime(new Date());
+                    apiInfo.setUpdateTime(sdf.format(new Date()));
                     ApiParams apiParams = ApiParams.builder().param(apiInfo.toMap()).build();
                     StringBuilder script = new StringBuilder(dataSourceManager.updateApiInfoScript());
                     dataSourceManager.update(script,ApiInfo.builder().datasource(dataSourceManager.getStoreApiKey()).build(),apiParams);

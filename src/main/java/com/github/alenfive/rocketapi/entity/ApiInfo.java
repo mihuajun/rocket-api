@@ -75,12 +75,12 @@ public class ApiInfo {
     /**
      * 创建时间
      */
-    private Date createTime;
+    private String createTime;
     /**
      * 更新时间
      */
     @ApiUpdateField
-    private Date updateTime;
+    private String updateTime;
 
     public Map<String,Object> toMap(){
         Map<String,Object> result = new HashMap<>();
@@ -95,13 +95,8 @@ public class ApiInfo {
         result.put("service",service);
         result.put("groupName",groupName);
         result.put("editor",editor);
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        if (createTime != null){
-            result.put("createTime",sdf.format(createTime));
-        }
-        if (updateTime != null){
-            result.put("updateTime",sdf.format(updateTime));
-        }
+        result.put("createTime",createTime);
+        result.put("updateTime",updateTime);
         return result;
     }
 
