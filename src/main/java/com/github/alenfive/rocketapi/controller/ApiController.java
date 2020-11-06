@@ -44,6 +44,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
@@ -381,7 +382,8 @@ public class ApiController {
             return ApiResult.fail("Send, then Save");
         }
         apiExample.setEditor(user);
-        apiExample.setCreateTime(new Date());
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        apiExample.setCreateTime(sdf.format(new Date()));
         apiExample.setId(GenerateId.get().toHexString());
         if (!StringUtils.isEmpty(apiExample.getResponseBody())){
             apiExample.setResponseBody(URLEncoder.encode(apiExample.getResponseBody(),"utf-8"));

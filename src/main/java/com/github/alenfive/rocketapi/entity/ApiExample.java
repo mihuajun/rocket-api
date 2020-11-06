@@ -30,7 +30,7 @@ public class ApiExample {
     private Integer elapsedTime;
     private String editor;
     private String options;
-    private Date createTime;
+    private String createTime;
 
     public Map toMap(){
         Map<String,Object> result = new HashMap<>();
@@ -46,10 +46,7 @@ public class ApiExample {
         result.put("elapsedTime", elapsedTime);
         result.put("options",options);
         result.put("editor",editor);
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        if (createTime != null){
-            result.put("createTime",sdf.format(createTime));
-        }
+        result.put("createTime",createTime);
         return result;
     }
 }

@@ -24,9 +24,31 @@ public class FieldUtils {
     }
 
     /**
+     * 所有字母大写时toLower(),
+     * 所有字母小写时启用驼峰转换，
+     * 大小写字母都有，不转换
      * 下划线转驼峰
      */
     public static String underlineToCamel(String name){
+        boolean allUpper = true;
+        boolean allLower = true;
+        for (int i = 0; i < name.length(); i++) {
+            char c = name.charAt(i);
+            if(Character.isLowerCase(c)){
+                allUpper = false;
+            }else if (Character.isUpperCase(c)){
+                allLower = false;
+            }
+        }
+
+        if (allUpper){
+            name = name.toLowerCase();
+            allLower = true;
+        }
+        if (!allLower){
+            return name;
+        }
+
         StringBuilder sb = new StringBuilder(name.length());
         for (int i = 0; i < name.length(); i++) {
             char c = name.charAt(i);

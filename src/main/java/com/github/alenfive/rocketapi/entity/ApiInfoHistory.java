@@ -71,7 +71,7 @@ public class ApiInfoHistory {
     /**
      * 创建时间
      */
-    private Date createTime;
+    private String createTime;
 
     public Map<String,Object> toMap(){
         Map<String,Object> result = new HashMap<>();
@@ -87,10 +87,7 @@ public class ApiInfoHistory {
         result.put("service",service);
         result.put("groupName", groupName);
         result.put("editor",editor);
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        if (createTime != null){
-            result.put("createTime",sdf.format(createTime));
-        }
+        result.put("createTime",createTime);
         return result;
     }
 }
