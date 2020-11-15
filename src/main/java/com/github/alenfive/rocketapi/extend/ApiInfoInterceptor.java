@@ -5,7 +5,10 @@ package com.github.alenfive.rocketapi.extend;
  */
 
 import com.github.alenfive.rocketapi.config.QLRequestMappingFactory;
+import com.github.alenfive.rocketapi.config.SpringContextUtils;
 import com.github.alenfive.rocketapi.entity.ApiInfo;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -14,15 +17,8 @@ import javax.servlet.http.HttpServletResponse;
 
 public abstract class ApiInfoInterceptor implements HandlerInterceptor {
 
-    private QLRequestMappingFactory mappingFactory;
-
-    private ApiInfoInterceptor(){}
-
-    public ApiInfoInterceptor(QLRequestMappingFactory mappingFactory){
-        this.mappingFactory = mappingFactory;
-    }
-
     private ApiInfo getApiInfo(HttpServletRequest request) throws Exception {
+        QLRequestMappingFactory mappingFactory = SpringContextUtils.getApplicationContext().getBean(QLRequestMappingFactory.class);
         String pattern = mappingFactory.buildPattern(request);
         String method = request.getMethod();
         return mappingFactory.getPathList(false).stream().filter(item->pattern.equals(item.getPath()) && (method.equals(item.getMethod()) || "ALL".equals(item.getMethod()))).findFirst().orElse(null);

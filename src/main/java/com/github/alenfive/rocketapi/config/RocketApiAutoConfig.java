@@ -13,6 +13,7 @@ import com.github.alenfive.rocketapi.service.ScriptParseService;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.cors.CorsConfiguration;
@@ -175,5 +176,11 @@ public class RocketApiAutoConfig {
     @ConditionalOnMissingBean
     public ContextFunction getContextFunction(){
         return new ContextFunction();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public SpringContextUtils getSpringContextUtils(ApplicationContext applicationContext){
+        return new SpringContextUtils(applicationContext);
     }
 }
