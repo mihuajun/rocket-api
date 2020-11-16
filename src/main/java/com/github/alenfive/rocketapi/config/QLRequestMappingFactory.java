@@ -250,6 +250,9 @@ public class QLRequestMappingFactory {
                 break;
             }
         }
+        if (currInfo == null){
+            return null;
+        }
         return currInfo.getPatternsCondition().getPatterns().iterator().next();
     }
 

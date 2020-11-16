@@ -20,6 +20,9 @@ public abstract class ApiInfoInterceptor implements HandlerInterceptor {
     private ApiInfo getApiInfo(HttpServletRequest request) throws Exception {
         QLRequestMappingFactory mappingFactory = SpringContextUtils.getApplicationContext().getBean(QLRequestMappingFactory.class);
         String pattern = mappingFactory.buildPattern(request);
+        if (pattern == null){
+            return null;
+        }
         String method = request.getMethod();
         return mappingFactory.getPathList(false).stream().filter(item->pattern.equals(item.getPath()) && (method.equals(item.getMethod()) || "ALL".equals(item.getMethod()))).findFirst().orElse(null);
     }
