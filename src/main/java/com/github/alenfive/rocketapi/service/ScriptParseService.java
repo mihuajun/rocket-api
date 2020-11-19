@@ -40,9 +40,9 @@ public class ScriptParseService {
 
     private Set<String> scopeSet = Stream.of(ParamScope.values()).map(ParamScope::name).collect(Collectors.toSet());
 
-    public void parse(StringBuilder script, ApiParams apiParams, DataSourceDialect sourceDialect){
-        buildIf(script,apiParams);
-        buildParams(script,apiParams,sourceDialect);
+    public void parse(StringBuilder script, ApiParams apiParams, DataSourceDialect sourceDialect,Map<String,Object> specifyParams){
+        buildIf(script,apiParams,specifyParams);
+        buildParams(script,apiParams,sourceDialect,specifyParams);
     }
 
     /**多行文本替换
@@ -105,7 +105,7 @@ public class ScriptParseService {
      * @param script
      * @param apiParams
      */
-    public void buildIf(StringBuilder script,ApiParams apiParams){
+    public void buildIf(StringBuilder script,ApiParams apiParams,Map<String,Object> specifyParams){
         String flag = "?{";
         //匹配参数#{}
         do{
@@ -140,7 +140,7 @@ public class ScriptParseService {
                 throw new IllegalArgumentException("missed if split ','");
             }
             String varName = script.substring(startIf+flag.length(),ifSplit);
-            Object value = buildParamItem(apiParams,varName);
+            Object value = buildParamItem(apiParams,specifyParams,varName);
             if (StringUtils.isEmpty(value)){
                 script = script.replace(startIf,endIf+1,"");
             }else{
@@ -154,7 +154,7 @@ public class ScriptParseService {
      * @param script
      * @param apiParams
      */
-    public void buildParams(StringBuilder script, ApiParams apiParams,DataSourceDialect sourceDialect){
+    public void buildParams(StringBuilder script, ApiParams apiParams,DataSourceDialect sourceDialect,Map<String,Object> specifyParams){
         //匹配参数#{}
         Pattern r = Pattern.compile("(#|\\$)\\{[A-Za-z0-9-\\[\\]_\\.]+\\}");
 
@@ -164,7 +164,7 @@ public class ScriptParseService {
             String group = m.group();
             if (group.startsWith("#")){
                 String varName = group.replace("#{","").replace("}","");
-                Object value = buildParamItem(apiParams,varName);
+                Object value = buildParamItem(apiParams,specifyParams,varName);
                 String replaceValue = buildValue(value,sourceDialect);
                 if (replaceValue == null){
                     replaceValue = "null";
@@ -173,7 +173,7 @@ public class ScriptParseService {
                 start = m.start() + replaceValue.length();
             }else if(group.startsWith("$")){
                 String varName = group.replace("${","").replace("}","");
-                Object value = buildParamItem(apiParams,varName);
+                Object value = buildParamItem(apiParams,specifyParams,varName);
                 String replaceValue = buildSourceValue(value);
                 if (replaceValue == null){
                     replaceValue = "null";
@@ -185,9 +185,12 @@ public class ScriptParseService {
         }
     }
 
-    public Object buildParamItem(ApiParams apiParams, String varName) {
+    public Object buildParamItem(ApiParams apiParams,Map<String,Object> specifyParams, String varName) {
         String[] paramArr = varName.split("\\.");
 
+        if (specifyParams != null){
+            return buildObjectValue(specifyParams,paramArr,0,varName);
+        }
 
         Object value = null;
         if (scopeSet.contains(paramArr[0])){

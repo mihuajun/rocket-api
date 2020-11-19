@@ -51,9 +51,9 @@ public class DbFunction implements IFunction{
         return script;
     }
 
-    public Long count(String script,String dataSource) throws Exception {
+    public Long count(String script,String dataSource,Map<String,Object> params) throws Exception {
         script = parseSql(script);
-        List<Map<String,Object>> list = find(script,dataSource);
+        List<Map<String,Object>> list = find(script,dataSource,params);
         if (CollectionUtils.isEmpty(list))return 0L;
         if (list.size()>1){
             return Long.valueOf(list.size());
@@ -66,19 +66,20 @@ public class DbFunction implements IFunction{
         return Long.valueOf(fieldValues[0].toString());
     }
 
-    public Map<String,Object> findOne(String script,String dataSource) throws Exception {
+    public Map<String,Object> findOne(String script,String dataSource,Map<String,Object> params) throws Exception {
         script = parseSql(script);
-        List<Map<String,Object>> list = find(script,dataSource);
+        List<Map<String,Object>> list = find(script,dataSource,params);
         if (list.size() == 0)return null;
         return list.get(0);
     }
 
-    public List<Map<String,Object>> find(String script,String dataSource) throws Exception {
+
+    public List<Map<String,Object>> find(String script,String dataSource,Map<String,Object> params) throws Exception {
         script = parseSql(script);
         StringBuilder sbScript = new StringBuilder(script);
         List<Map<String,Object>> result = null;
         try {
-            result = dataSourceManager.find(sbScript,apiInfoContent.getApiInfo(),apiInfoContent.getApiParams(),dataSource);
+            result = dataSourceManager.find(sbScript,apiInfoContent.getApiInfo(),apiInfoContent.getApiParams(),dataSource,params);
         }finally {
             if (apiInfoContent.getIsDebug()){
                 apiInfoContent.putLog("generate script:  " + sbScript);
@@ -89,12 +90,12 @@ public class DbFunction implements IFunction{
         return result;
     }
 
-    public Object insert(String script,String dataSource) throws Exception {
+    public Object insert(String script,String dataSource,Map<String,Object> params) throws Exception {
         script = parseSql(script);
         StringBuilder sbScript = new StringBuilder(script);
         Object result = null;
         try {
-            result = dataSourceManager.insert(sbScript,apiInfoContent.getApiInfo(),apiInfoContent.getApiParams(),dataSource);
+            result = dataSourceManager.insert(sbScript,apiInfoContent.getApiInfo(),apiInfoContent.getApiParams(),dataSource,params);
         }finally {
             if (apiInfoContent.getIsDebug()){
                 apiInfoContent.putLog("generate script:  " + sbScript);
@@ -104,12 +105,12 @@ public class DbFunction implements IFunction{
         return result;
     }
 
-    public Object remove(String script,String dataSource) throws Exception {
+    public Object remove(String script,String dataSource,Map<String,Object> params) throws Exception {
         script = parseSql(script);
         StringBuilder sbScript = new StringBuilder(script);
         Object result =  null;
         try {
-            result = dataSourceManager.remove(sbScript,apiInfoContent.getApiInfo(),apiInfoContent.getApiParams(),dataSource);
+            result = dataSourceManager.remove(sbScript,apiInfoContent.getApiInfo(),apiInfoContent.getApiParams(),dataSource,params);
         }finally {
             if (apiInfoContent.getIsDebug()){
                 apiInfoContent.putLog("generate script:  " + sbScript);
@@ -119,12 +120,12 @@ public class DbFunction implements IFunction{
         return result;
     }
 
-    public Long update(String script,String dataSource) throws Exception {
+    public Long update(String script,String dataSource,Map<String,Object> params) throws Exception {
         script = parseSql(script);
         StringBuilder sbScript = new StringBuilder(script);
         Long result =  null;
         try {
-            result = dataSourceManager.update(sbScript,apiInfoContent.getApiInfo(),apiInfoContent.getApiParams(),dataSource);
+            result = dataSourceManager.update(sbScript,apiInfoContent.getApiInfo(),apiInfoContent.getApiParams(),dataSource,params);
         }finally {
             if (apiInfoContent.getIsDebug()){
                 apiInfoContent.putLog("generate script:  " + sbScript);
@@ -134,57 +135,130 @@ public class DbFunction implements IFunction{
         return result;
     }
 
-    public Object pager(String script,String dataSource) throws Exception {
+    public Object pager(String script,String dataSource,Map<String,Object> params) throws Exception {
         script = parseSql(script);
         Page page = Page.builder()
                 .pageNo(Integer.valueOf(utilsFunction.val(apiPager.getPageNoVarName()).toString()))
                 .pageSize(Integer.valueOf(utilsFunction.val(apiPager.getPageSizeVarName()).toString()))
                 .build();
-        String totalSql = dataSourceManager.buildCountScript(script,apiInfoContent.getApiInfo(),apiInfoContent.getApiParams(),dataSource,apiPager,page);
-        Long total = this.count(totalSql,dataSource);
+        String totalSql = dataSourceManager.buildCountScript(script,apiInfoContent.getApiInfo(),apiInfoContent.getApiParams(),dataSource,params,apiPager,page);
+        Long total = this.count(totalSql,dataSource,params);
         List<Map<String,Object>> data = null;
         if (total > 0){
-            String pageSql = dataSourceManager.buildPageScript(script,apiInfoContent.getApiInfo(),apiInfoContent.getApiParams(),dataSource,apiPager,page);
-            data = this.find(pageSql,dataSource);
+            String pageSql = dataSourceManager.buildPageScript(script,apiInfoContent.getApiInfo(),apiInfoContent.getApiParams(),dataSource,params,apiPager,page);
+            data = this.find(pageSql,dataSource,params);
         }else{
             data = Collections.emptyList();
         }
         return apiPager.buildPager(total,data,apiInfoContent.getApiInfo(),apiInfoContent.getApiParams());
     }
 
+    /*重载 script*/
     public Object pager(String script) throws Exception {
         script = parseSql(script);
-        return this.pager(script,null);
+        return this.pager(script,null,null);
     }
 
     public Long count(String script) throws Exception {
         script = parseSql(script);
-        return this.count(script,null);
+        return this.count(script,null,null);
     }
 
     public Map<String,Object> findOne(String script) throws Exception {
         script = parseSql(script);
-        return this.findOne(script,null);
+        return this.findOne(script,null,null);
     }
 
     public List<Map<String,Object>> find(String script) throws Exception {
         script = parseSql(script);
-        return this.find(script,null);
+        return this.find(script,null,null);
     }
 
     public Object insert(String script) throws Exception {
         script = parseSql(script);
-        return this.insert(script,null);
+        return this.insert(script,null,null);
     }
 
     public Object remove(String script) throws Exception {
         script = parseSql(script);
-        return this.remove(script,null);
+        return this.remove(script,null,null);
     }
 
     public Long update(String script) throws Exception {
         script = parseSql(script);
-        return this.update(script,null);
+        return this.update(script,null,null);
     }
 
+
+    /*重载 datasource*/
+    public Object pager(String script,String datasource) throws Exception {
+        script = parseSql(script);
+        return this.pager(script,datasource,null);
+    }
+
+    public Long count(String script,String datasource) throws Exception {
+        script = parseSql(script);
+        return this.count(script,datasource,null);
+    }
+
+    public Map<String,Object> findOne(String script,String datasource) throws Exception {
+        script = parseSql(script);
+        return this.findOne(script,datasource,null);
+    }
+
+    public List<Map<String,Object>> find(String script,String datasource) throws Exception {
+        script = parseSql(script);
+        return this.find(script,datasource,null);
+    }
+
+    public Object insert(String script,String datasource) throws Exception {
+        script = parseSql(script);
+        return this.insert(script,datasource,null);
+    }
+
+    public Object remove(String script,String datasource) throws Exception {
+        script = parseSql(script);
+        return this.remove(script,datasource,null);
+    }
+
+    public Long update(String script,String datasource) throws Exception {
+        script = parseSql(script);
+        return this.update(script,datasource,null);
+    }
+
+    /*重载 params*/
+    public Object pager(String script,Map<String,Object> params) throws Exception {
+        script = parseSql(script);
+        return this.pager(script,null,params);
+    }
+
+    public Long count(String script,Map<String,Object> params) throws Exception {
+        script = parseSql(script);
+        return this.count(script,null,params);
+    }
+
+    public Map<String,Object> findOne(String script,Map<String,Object> params) throws Exception {
+        script = parseSql(script);
+        return this.findOne(script,null,params);
+    }
+
+    public List<Map<String,Object>> find(String script,Map<String,Object> params) throws Exception {
+        script = parseSql(script);
+        return this.find(script,null,params);
+    }
+
+    public Object insert(String script,Map<String,Object> params) throws Exception {
+        script = parseSql(script);
+        return this.insert(script,null,params);
+    }
+
+    public Object remove(String script,Map<String,Object> params) throws Exception {
+        script = parseSql(script);
+        return this.remove(script,null,params);
+    }
+
+    public Long update(String script,Map<String,Object> params) throws Exception {
+        script = parseSql(script);
+        return this.update(script,null,params);
+    }
 }

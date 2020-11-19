@@ -92,7 +92,7 @@ public class GroovyScriptParse implements IScriptParse{
     }
 
     private Integer buildPagerNo(ApiParams apiParams) {
-        Object value = parseService.buildParamItem(apiParams,apiPager.getPageNoVarName());
+        Object value = parseService.buildParamItem(apiParams,null,apiPager.getPageNoVarName());
         if (StringUtils.isEmpty(value)){
             apiParams.putParam(apiPager.getPageNoVarName(),apiPager.getPageNoDefaultValue());
             return apiPager.getPageNoDefaultValue();
@@ -101,7 +101,7 @@ public class GroovyScriptParse implements IScriptParse{
     }
 
     private Integer buildPagerSize(ApiParams apiParams) {
-        Object value = parseService.buildParamItem(apiParams,apiPager.getPageSizeVarName());
+        Object value = parseService.buildParamItem(apiParams,null,apiPager.getPageSizeVarName());
         if (StringUtils.isEmpty(value)){
             apiParams.putParam(apiPager.getPageSizeVarName(),apiPager.getPageSizeDefaultValue());
             return apiPager.getPageSizeDefaultValue();
