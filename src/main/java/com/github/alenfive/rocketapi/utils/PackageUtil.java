@@ -1,7 +1,5 @@
 package com.github.alenfive.rocketapi.utils;
 
-import sun.misc.Launcher;
-
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -72,7 +70,7 @@ public class PackageUtil {
                 classes.addAll(scan(((URLClassLoader) loader).getURLs()));
             }
         }while ((loader = loader.getParent()) != null);
-        classes.addAll(scan(Launcher.getBootstrapClassPath().getURLs()));
+        //classes.addAll(scan(Launcher.getBootstrapClassPath().getURLs()));
         return new ArrayList<>(classes);
     }
 
