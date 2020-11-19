@@ -1,6 +1,5 @@
 
-![输入图片说明](https://images.gitee.com/uploads/images/2020/1119/192630_cd6b8ad3_5139840.png "屏幕截图.png")
-
+![输入图片说明](https://images.gitee.com/uploads/images/2020/1119/195027_6ae6ae9d_5139840.png "QQ图片20201119194317.png")
 ### 定位
 拒绝CRUD。用尽可能简单的方式，完成尽可能多的需求。通过约定的方式 实现统一的标准。告别加班，拒绝重复劳动，远离搬砖
 
