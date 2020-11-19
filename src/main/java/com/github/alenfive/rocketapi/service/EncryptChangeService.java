@@ -21,15 +21,12 @@ public class EncryptChangeService {
     @Autowired
     private DataSourceManager dataSourceManager;
 
-    @Autowired
-    private ScriptParseService parseService;
-
     public void convert(UnaryOperator<String> predicate) throws Exception {
         for (ApiInfo apiInfo : mappingFactory.getPathList(false) ){
             apiInfo.setScript(predicate.apply(apiInfo.getScript()));
             ApiParams apiParams = ApiParams.builder().param(apiInfo.toMap()).build();
             StringBuilder script = new StringBuilder(dataSourceManager.updateApiInfoScript());
-            dataSourceManager.update(script,ApiInfo.builder().datasource(dataSourceManager.getStoreApiKey()).build(),apiParams);
+            dataSourceManager.update(script,ApiInfo.builder().datasource(dataSourceManager.getStoreApiKey()).build(),apiParams,null,null);
         }
     }
 }

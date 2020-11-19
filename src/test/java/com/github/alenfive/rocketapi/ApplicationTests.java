@@ -34,7 +34,7 @@ public class ApplicationTests {
         apiParams.putParam("id","123");
         apiParams.putParam("table","t_user");
         apiParams.putParam("name123456789"," and #{phone}");
-        parseService.buildParams(script,apiParams,null);
+        parseService.buildParams(script,apiParams,null,null);
         log.info("testVar:{}",script);
         assert script.toString().equals("from t_user where id in = '123' and name=' and #{phone}'' and #{phone}'");
     }
@@ -44,7 +44,7 @@ public class ApplicationTests {
         StringBuilder script  = new StringBuilder("where id in (#{idList})");
         ApiParams apiParams = new ApiParams();
         apiParams.putParam("idList", Arrays.asList("11",22));
-        parseService.buildParams(script,apiParams,null);
+        parseService.buildParams(script,apiParams,null,null);
         log.info("testFor:{}",script);
         assert script.toString().equals("where id in ('11',22)");
     }
@@ -60,7 +60,7 @@ public class ApplicationTests {
         list.add(1);
         list.add(child);
         apiParams.putParam("idList", list);
-        parseService.buildParams(script,apiParams,null);
+        parseService.buildParams(script,apiParams,null,null);
         log.info("testRandomArrayVar:{}",script);
         assert script.toString().equals("where id = '王'");
     }
@@ -70,13 +70,13 @@ public class ApplicationTests {
         StringBuilder script  = new StringBuilder("where ?{id,and id=#{id}} and 1=1");
         ApiParams apiParams = new ApiParams();
         apiParams.putParam("id","123");
-        parseService.buildIf(script,apiParams);
+        parseService.buildIf(script,apiParams,null);
         log.info("testIf:{}",script.toString());
         assert script.toString().equals("where and id=#{id} and 1=1");
 
         script  = new StringBuilder("where ?{id,and id=#{id}} and 1=1");
         apiParams = new ApiParams();
-        parseService.buildIf(script,apiParams);
+        parseService.buildIf(script,apiParams,null);
         log.info("testIf:{}",script.toString());
         assert script.toString().equals("where  and 1=1");
     }
@@ -99,7 +99,7 @@ public class ApplicationTests {
         apiParams.putParam("pageNo",2);
 
         Integer pageNo = null;
-        Object value = parseService.buildParamItem(apiParams,apiPager.getPageNoVarName());
+        Object value = parseService.buildParamItem(apiParams,null,apiPager.getPageNoVarName());
         if (StringUtils.isEmpty(value)){
             apiParams.putParam(apiPager.getPageNoVarName(),apiPager.getPageNoDefaultValue());
             pageNo = apiPager.getPageNoDefaultValue();
@@ -109,7 +109,7 @@ public class ApplicationTests {
 
         Integer pageSize = null;
 
-        value = parseService.buildParamItem(apiParams,apiPager.getPageSizeVarName());
+        value = parseService.buildParamItem(apiParams,null,apiPager.getPageSizeVarName());
         if (StringUtils.isEmpty(value)){
             apiParams.putParam(apiPager.getPageSizeVarName(),apiPager.getPageSizeDefaultValue());
             pageSize = apiPager.getPageSizeDefaultValue();
@@ -119,7 +119,7 @@ public class ApplicationTests {
         }
 
         apiParams.putParam(apiPager.getIndexVarName(),apiPager.getIndexVarValue(pageSize,pageNo));
-        parseService.buildParams(script,apiParams,null);
+        parseService.buildParams(script,apiParams,null,null);
         log.info("testPager:{}",script.toString());
         assert script.toString().equals("select * from user limit 15,15");
 

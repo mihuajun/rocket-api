@@ -115,7 +115,7 @@ public class QLRequestMappingFactory {
         //加载数据库API
         ApiParams apiParams = new ApiParams().putParam("service",service);
         StringBuilder script = new StringBuilder(dataSourceManager.listApiInfoScript());
-        List<Map<String,Object>> apiInfos = dataSourceManager.find(script, ApiInfo.builder().datasource(dataSourceManager.getStoreApiKey()).build(),apiParams);
+        List<Map<String,Object>> apiInfos = dataSourceManager.find(script, ApiInfo.builder().datasource(dataSourceManager.getStoreApiKey()).build(),apiParams,null,null);
         for (Map<String,Object> map : apiInfos){
             ApiInfo apiInfo = objectMapper.readValue(objectMapper.writeValueAsBytes(map),ApiInfo.class);
             apiInfoCache.put(apiInfo);
@@ -134,7 +134,7 @@ public class QLRequestMappingFactory {
             codeInfo.setUpdateTime(sdf.format(new Date()));
             apiParams = ApiParams.builder().param(codeInfo.toMap()).build();
             script = new StringBuilder(dataSourceManager.saveApiInfoScript());
-            dataSourceManager.insert(script,ApiInfo.builder().datasource(dataSourceManager.getStoreApiKey()).build(),apiParams);
+            dataSourceManager.insert(script,ApiInfo.builder().datasource(dataSourceManager.getStoreApiKey()).build(),apiParams,null,null);
             apiInfoCache.put(codeInfo);
         }
 
@@ -318,12 +318,12 @@ public class QLRequestMappingFactory {
             apiInfo.setId(GenerateId.get().toHexString());
             ApiParams apiParams = ApiParams.builder().param(apiInfo.toMap()).build();
             StringBuilder script = new StringBuilder(dataSourceManager.saveApiInfoScript());
-            dataSourceManager.insert(script,ApiInfo.builder().datasource(dataSourceManager.getStoreApiKey()).build(),apiParams);
+            dataSourceManager.insert(script,ApiInfo.builder().datasource(dataSourceManager.getStoreApiKey()).build(),apiParams,null,null);
         }else{
             apiInfo.setService(service);
             ApiParams apiParams = ApiParams.builder().param(apiInfo.toMap()).build();
             StringBuilder script = new StringBuilder(dataSourceManager.updateApiInfoScript());
-            dataSourceManager.update(script,ApiInfo.builder().datasource(dataSourceManager.getStoreApiKey()).build(),apiParams);
+            dataSourceManager.update(script,ApiInfo.builder().datasource(dataSourceManager.getStoreApiKey()).build(),apiParams,null,null);
 
             ApiInfo dbInfo = apiInfoCache.getAll().stream().filter(item->item.getId().equals(apiInfo.getId())).findFirst().orElse(null);
 
@@ -357,14 +357,14 @@ public class QLRequestMappingFactory {
         history.setCreateTime(sdf.format(new Date()));
         ApiParams apiParams = ApiParams.builder().param(history.toMap()).build();
         StringBuilder script = new StringBuilder(dataSourceManager.saveApiInfoHistoryScript());
-        dataSourceManager.insert(script,ApiInfo.builder().datasource(dataSourceManager.getStoreApiKey()).build(),apiParams);
+        dataSourceManager.insert(script,ApiInfo.builder().datasource(dataSourceManager.getStoreApiKey()).build(),apiParams,null,null);
     }
 
     public ApiInfo getDbInfo(ApiInfo apiInfo) throws Exception {
         ApiParams apiParams = ApiParams.builder().param(apiInfo.toMap()).build();
         StringBuilder script = new StringBuilder(dataSourceManager.listApiInfoScript());
 
-        List<Map<String,Object>> apiInfoMap = dataSourceManager.find(script,ApiInfo.builder().datasource(dataSourceManager.getStoreApiKey()).build(),apiParams);
+        List<Map<String,Object>> apiInfoMap = dataSourceManager.find(script,ApiInfo.builder().datasource(dataSourceManager.getStoreApiKey()).build(),apiParams,null,null);
         return objectMapper.readValue(objectMapper.writeValueAsBytes(apiInfoMap.get(0)),ApiInfo.class);
     }
 
@@ -390,7 +390,7 @@ public class QLRequestMappingFactory {
 
         //清数据库
         StringBuilder script = new StringBuilder(dataSourceManager.deleteApiInfoScript());
-        Long num = dataSourceManager.remove(script,ApiInfo.builder().datasource(dataSourceManager.getStoreApiKey()).build(),apiParams);
+        Long num = dataSourceManager.remove(script,ApiInfo.builder().datasource(dataSourceManager.getStoreApiKey()).build(),apiParams,null,null);
 
         //清缓存
         apiInfoCache.remove(dbInfo);
@@ -466,7 +466,7 @@ public class QLRequestMappingFactory {
         for (ApiInfo apiInfo : apiInfos){
             apiInfo.setGroupName(renameGroupReq.getNewGroupName());
             StringBuilder script = new StringBuilder(dataSourceManager.updateApiInfoScript());
-            dataSourceManager.update(script,ApiInfo.builder().datasource(dataSourceManager.getStoreApiKey()).build(),ApiParams.builder().param(apiInfo.toMap()).build());
+            dataSourceManager.update(script,ApiInfo.builder().datasource(dataSourceManager.getStoreApiKey()).build(),ApiParams.builder().param(apiInfo.toMap()).build(),null,null);
 
             //更新缓存
             apiInfoCache.put(apiInfo);
@@ -477,7 +477,7 @@ public class QLRequestMappingFactory {
     @Transactional
     public Object saveExample(ApiExample apiExample) throws Exception {
         StringBuilder script = new StringBuilder(dataSourceManager.saveApiExampleScript());
-        return dataSourceManager.insert(script,ApiInfo.builder().datasource(dataSourceManager.getStoreApiKey()).build(),ApiParams.builder().param(apiExample.toMap()).build());
+        return dataSourceManager.insert(script,ApiInfo.builder().datasource(dataSourceManager.getStoreApiKey()).build(),ApiParams.builder().param(apiExample.toMap()).build(),null,null);
     }
 
     public List<Map<String,Object>> listApiExampleScript(String apiInfoId, Integer pageSize,Integer pageNo) throws Exception {
@@ -487,14 +487,14 @@ public class QLRequestMappingFactory {
         ApiInfo apiInfo = ApiInfo.builder().datasource(dataSourceManager.getStoreApiKey()).build();
         Page page = Page.builder().pageNo(pageNo).pageSize(pageSize).build();
         StringBuilder script = new StringBuilder(dataSourceManager.listApiExampleScript());
-        script = new StringBuilder(dataSourceManager.buildPageScript(script.toString(),apiInfo,apiParams,apiPager, page));
-        return dataSourceManager.find(script,apiInfo,apiParams);
+        script = new StringBuilder(dataSourceManager.buildPageScript(script.toString(),apiInfo,apiParams,null,null,apiPager, page));
+        return dataSourceManager.find(script,apiInfo,apiParams,null,null);
     }
 
     @Transactional
     public Long deleteExampleList(ArrayList<ApiExample> apiExampleList) throws Exception {
         StringBuilder script = new StringBuilder(dataSourceManager.deleteExampleScript());
-        return dataSourceManager.remove(script,ApiInfo.builder().datasource(dataSourceManager.getStoreApiKey()).build(),new ApiParams().putParam("ids",apiExampleList.stream().map(ApiExample::getId).collect(Collectors.toSet())));
+        return dataSourceManager.remove(script,ApiInfo.builder().datasource(dataSourceManager.getStoreApiKey()).build(),new ApiParams().putParam("ids",apiExampleList.stream().map(ApiExample::getId).collect(Collectors.toSet())),null,null);
     }
 
     public void addInterceptor(ApiInfoInterceptor interceptor){
@@ -513,9 +513,9 @@ public class QLRequestMappingFactory {
         ApiInfo apiInfo = ApiInfo.builder().datasource(dataSourceManager.getStoreApiKey()).build();
         Page page = Page.builder().pageNo(pageNo).pageSize(pageSize).build();
         StringBuilder script = new StringBuilder(dataSourceManager.listApiInfoHistoryScript());
-        script = new StringBuilder(dataSourceManager.buildPageScript(script.toString(),apiInfo,apiParams,apiPager,page));
+        script = new StringBuilder(dataSourceManager.buildPageScript(script.toString(),apiInfo,apiParams,null,null,apiPager,page));
 
-        return dataSourceManager.find(script,apiInfo,apiParams)
+        return dataSourceManager.find(script,apiInfo,apiParams,null,null)
                 .stream().map(item-> {
             try {
                 return objectMapper.readValue(objectMapper.writeValueAsBytes(item),ApiInfoHistory.class);
@@ -539,7 +539,7 @@ public class QLRequestMappingFactory {
             for (ApiInfo dbInfo : currApiInfos){
                 ApiParams apiParams = ApiParams.builder().param(dbInfo.toMap()).build();
                 StringBuilder script = new StringBuilder(dataSourceManager.deleteApiInfoScript());
-                dataSourceManager.remove(script,ApiInfo.builder().datasource(dataSourceManager.getStoreApiKey()).build(),apiParams);
+                dataSourceManager.remove(script,ApiInfo.builder().datasource(dataSourceManager.getStoreApiKey()).build(),apiParams,null,null);
             }
             //添加新信息
             for (ApiInfo apiInfo : apiInfos){
@@ -547,7 +547,7 @@ public class QLRequestMappingFactory {
                 apiInfo.setUpdateTime(sdf.format(new Date()));
                 ApiParams apiParams = ApiParams.builder().param(apiInfo.toMap()).build();
                 StringBuilder script = new StringBuilder(dataSourceManager.saveApiInfoScript());
-                dataSourceManager.insert(script,ApiInfo.builder().datasource(dataSourceManager.getStoreApiKey()).build(),apiParams);
+                dataSourceManager.insert(script,ApiInfo.builder().datasource(dataSourceManager.getStoreApiKey()).build(),apiParams,null,null);
 
                 //保存历史版本
                 saveApiHistory(apiInfo);
@@ -561,12 +561,12 @@ public class QLRequestMappingFactory {
                     apiInfo.setUpdateTime(sdf.format(new Date()));
                     ApiParams apiParams = ApiParams.builder().param(apiInfo.toMap()).build();
                     StringBuilder script = new StringBuilder(dataSourceManager.saveApiInfoScript());
-                    dataSourceManager.insert(script,ApiInfo.builder().datasource(dataSourceManager.getStoreApiKey()).build(),apiParams);
+                    dataSourceManager.insert(script,ApiInfo.builder().datasource(dataSourceManager.getStoreApiKey()).build(),apiParams,null,null);
                 }else{
                     apiInfo.setUpdateTime(sdf.format(new Date()));
                     ApiParams apiParams = ApiParams.builder().param(apiInfo.toMap()).build();
                     StringBuilder script = new StringBuilder(dataSourceManager.updateApiInfoScript());
-                    dataSourceManager.update(script,ApiInfo.builder().datasource(dataSourceManager.getStoreApiKey()).build(),apiParams);
+                    dataSourceManager.update(script,ApiInfo.builder().datasource(dataSourceManager.getStoreApiKey()).build(),apiParams,null,null);
                 }
 
                 //保存历史版本

@@ -45,7 +45,7 @@ public class UtilsFunction implements IFunction{
      * @param varName
      */
     public Object val(String varName){
-        return scriptParseService.buildParamItem(apiInfoContent.getApiParams(),varName);
+        return scriptParseService.buildParamItem(apiInfoContent.getApiParams(),null,varName);
     }
 
     /**
