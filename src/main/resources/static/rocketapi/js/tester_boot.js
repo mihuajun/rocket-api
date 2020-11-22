@@ -1120,7 +1120,12 @@ function loadExample(apiInfo,example) {
         options:"{}"
     },example);
     $form.find(".example-method").val(currExample.method);
-    $form.find(".example-url").val(currExample.url).blur();
+    let url = buildDefaultUrl(apiInfo.path);
+    if(currExample.url.indexOf("?") !=-1){
+        url += currExample.url.substring(currExample.url.indexOf("?"));
+    }
+
+    $form.find(".example-url").val(url).blur();
 
     if (example){
         hasResponse = true;
@@ -1148,6 +1153,13 @@ function loadExample(apiInfo,example) {
         showEditorPanel();
     }
 
+}
+
+function fullPath(target){
+    let value = $(target).val();
+    if (value.indexOf("/") != 0){
+        $(target).val("/"+value);
+    }
 }
 
 function toNotSave() {
