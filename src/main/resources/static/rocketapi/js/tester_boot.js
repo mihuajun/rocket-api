@@ -735,6 +735,12 @@ function closeModal() {
 }
 
 function openMsgModal(msg) {
+
+    if ("Permission denied" == msg){
+        showLoginDialog();
+        return;
+    }
+
     $("#modal-backdrop").show();
     $("#msgModal").show();
     $("#msgModal .modal-body").text(msg);
@@ -753,6 +759,7 @@ function confirmDialog(form) {
         "script": editorTextarea.getValue(),
         "options":buildApiOptionsJsonStr()
     }
+
     saveExecuter(params);
 }
 
@@ -863,6 +870,7 @@ function saveEditor(form) {
         "script": editorTextarea.getValue(),
         "options":buildApiOptionsJsonStr()
     };
+
     saveExecuter(params);
 }
 
@@ -874,6 +882,7 @@ function hideSendNotify() {
 }
 
 function saveExecuter(params) {
+
     showSendNotify("Saveing api");
     $.ajax({
         type: "post",
@@ -888,6 +897,10 @@ function saveExecuter(params) {
             }
             cancelDialogGroup();
             currApi = data.data;
+
+            //参数保存
+            saveExample(currApi);
+
             loadApiList(false);
 
             if (params.id){
@@ -1120,7 +1133,12 @@ function loadExample(apiInfo,example) {
         options:"{}"
     },example);
     $form.find(".example-method").val(currExample.method);
-    $form.find(".example-url").val(currExample.url).blur();
+    let url = buildDefaultUrl(apiInfo.path);
+    if(currExample.url.indexOf("?") !=-1){
+        url += currExample.url.substring(currExample.url.indexOf("?"));
+    }
+
+    $form.find(".example-url").val(url).blur();
 
     if (example){
         hasResponse = true;
@@ -1150,6 +1168,13 @@ function loadExample(apiInfo,example) {
 
 }
 
+function fullPath(target){
+    let value = $(target).val();
+    if (value.indexOf("/") != 0){
+        $(target).val("/"+value);
+    }
+}
+
 function toNotSave() {
     let $form = $("#example-section");
     $form.find(".save-example-btn .changes-indicator").remove();
@@ -1164,8 +1189,15 @@ function formatJson(body){
     }
 }
 
-function saveExample() {
-    let apiInfoId = $("#editor-section .api-info-id").val();
+function saveExample(id) {
+    let apiInfoId = null;
+
+    if (id){
+        apiInfoId = id;
+    }else{
+        apiInfoId = $("#editor-section .api-info-id").val();
+    }
+
     if (apiInfoId == ""){
         openMsgModal("API is not stored ");
         return;
@@ -1199,7 +1231,9 @@ function saveExample() {
             //
             params.id = data.data;
             params.createTime = "now";
-            gdata.exampleHistoryList.splice(0,0,params);
+            if (gdata.exampleHistoryList){
+                gdata.exampleHistoryList.splice(0,0,params);
+            }
             let template = buildHistoryItemStr(params);
             $("#history-section .history tbody").prepend(template);
         },complete:function () {
@@ -1652,13 +1686,13 @@ function showEditorPanel() {
 
 //--------------------------------login start -----------------------------------
 function hideLoginDialog() {
-    $("#top-section .login-dialog").hide();
+    $("#loginDialog").hide();
     $("#modal-backdrop").hide();
 }
 
 function showLoginDialog() {
-    $("#top-section .login-error-message").text("");
-    $("#top-section .login-dialog").show();
+    $("#loginDialog .login-error-message").text("");
+    $("#loginDialog").show();
     $("#modal-backdrop").show();
 }
 
@@ -1691,8 +1725,8 @@ function logout() {
 }
 
 function login() {
-    let username = $("#top-section .username").val();
-    let password = $("#top-section .password").val();
+    let username = $("#loginDialog .username").val();
+    let password = $("#loginDialog .password").val();
 
     showSendNotify("login ...");
     $.ajax({
@@ -1706,7 +1740,7 @@ function login() {
         success: function (data) {
             data = unpackResult(data);
             if (data.code !=200){
-                $("#top-section .login-error-message").text(data.msg);
+                $("#loginDialog .login-error-message").text(data.msg);
                 return;
             }
             rocketUser.user.username = username;
