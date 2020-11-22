@@ -656,6 +656,38 @@
         }
     </style>
 </div>
+
+<!--登录框-->
+<div id="loginDialog" class="modal login-dialog in" aria-hidden="false" style="display: none">
+    <div class="modal-header"><a class="close" onclick="hideLoginDialog()" data-dismiss="modal">×</a>
+        <h3>Sign in <small></small></h3></div>
+    <div class="modal-body">
+        <div class="form-horizontal">
+            <fieldset>
+                <div class="control-group">
+                    <label class="control-label"> <span class="gwt-InlineHTML"> username </span> </label>
+                    <div class="controls">
+                        <input type="text" class="username" id="username" maxlength="256" placeholder="Enter username" >
+                        <div class="error-message"></div>
+                    </div>
+                    <label class="control-label" style="margin-top:15px;"> <span class="gwt-InlineHTML"> password </span> </label>
+                    <div class="controls" style="margin-top:20px;">
+                        <input type="password" class="password" id="password" maxlength="256" autocomplete="new-password" placeholder="Enter password">
+                        <div class="error-message"></div>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <div class="error-message login-error-message" style="float: left;"></div>
+        <button class="r-btn" e2e-tag="modal-cancel" onclick="hideLoginDialog()"><i class="fa fa-remove"></i><span>Cancel</span><span class="r-btn-indicator" aria-hidden="true"
+                                                                                                                                      style="display: none;"></span></button>
+        <button class="r-btn r-btn-primary" onclick="login()" e2e-tag="modal-ok"><i class="fa fa-plus"></i><span>Login</span><span class="r-btn-indicator" aria-hidden="true"
+                                                                                                                                   style="display: none;"></span></button>
+    </div>
+</div>
+
 <!--消息框-->
 <div id="msgModal" class="modal modal-dialog" style="display: none">
     <div class="modal-header"><h3>Prompt message</h3></div>
