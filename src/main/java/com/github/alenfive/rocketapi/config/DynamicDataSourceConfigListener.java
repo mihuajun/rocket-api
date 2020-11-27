@@ -31,21 +31,25 @@ public class DynamicDataSourceConfigListener{
 
     private List<DataSourceProperty> multiDatasource;
 
-    public void setMultiDatasource(List<DataSourceProperty> multiDatasource) throws Exception {
+    public void setMultiDatasource(List<DataSourceProperty> multiDatasource) {
+        try {
+            String currMd5 = null;
+            if (!CollectionUtils.isEmpty(multiDatasource)){
+                currMd5 = MD5Utils.getMD5Str(objectMapper.writeValueAsString(multiDatasource));
+            }
+            if (lastMd5 == null && currMd5 == null){
+                return;
+            }else if(lastMd5 != null && currMd5 != null && lastMd5.equals(currMd5)){
+                return;
+            }
 
-        String currMd5 = null;
-        if (!CollectionUtils.isEmpty(multiDatasource)){
-            currMd5 = MD5Utils.getMD5Str(objectMapper.writeValueAsString(multiDatasource));
-        }
-        if (lastMd5 == null && currMd5 == null){
-            return;
-        }else if(lastMd5 != null && currMd5 != null && lastMd5.equals(currMd5)){
-            return;
+            this.multiDatasource = multiDatasource;
+            execute();
+            lastMd5 = currMd5;
+        }catch (Exception e){
+            e.printStackTrace();
         }
 
-        this.multiDatasource = multiDatasource;
-        execute();
-        lastMd5 = currMd5;
     }
 
     public void execute() throws Exception {
