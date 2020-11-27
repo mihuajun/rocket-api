@@ -28,9 +28,9 @@ public class DefaultDataSourceManager extends DataSourceManager {
     @PostConstruct
     public void init() {
         Map<String, DataSourceDialect> dialects = new LinkedHashMap<>();
-        dialects.put("mysql",new MySQLDataSource(jdbcTemplate,true));
+        dialects.put("mysql",new MySQLDataSource(jdbcTemplate,false));
         //dialects.put("oracle",new OracleDataSource(jdbcTemplate,true));
-        dialects.put("mongodb",new MongoDataSource(mongoTemplate,false));
+        dialects.put("mongodb",new MongoDataSource(mongoTemplate,true));
         super.setDialectMap(dialects);
     }
 }
