@@ -16,4 +16,7 @@ public class SpringContextUtils {
         return applicationContext;
     }
 
+    public ApplicationContext getContext(){
+        return SpringContextUtils.applicationContext;
+    }
 }
