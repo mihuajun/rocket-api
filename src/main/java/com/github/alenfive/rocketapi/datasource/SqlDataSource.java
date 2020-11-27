@@ -1,9 +1,6 @@
 package com.github.alenfive.rocketapi.datasource;
 
-import com.github.alenfive.rocketapi.entity.ApiExample;
-import com.github.alenfive.rocketapi.entity.ApiInfo;
-import com.github.alenfive.rocketapi.entity.ApiInfoHistory;
-import com.github.alenfive.rocketapi.entity.ApiParams;
+import com.github.alenfive.rocketapi.entity.*;
 import com.github.alenfive.rocketapi.entity.vo.Page;
 import com.github.alenfive.rocketapi.entity.vo.TableInfo;
 import com.github.alenfive.rocketapi.extend.IApiPager;
@@ -107,6 +104,32 @@ public class SqlDataSource extends DataSourceDialect {
         return new StringBuilder("select ")
                 .append(String.join(",", FieldUtils.allFields(ApiExample.class)))
                 .append(" from api_example where api_info_id = #{apiInfoId} order by create_time desc")
+                .toString();
+    }
+
+    @Override
+    String saveApiConfigScript() {
+        return new StringBuilder("insert into api_config(")
+                .append(String.join(",", FieldUtils.allFields(ApiConfig.class)))
+                .append(")values(")
+                .append(FieldUtils.allFields(ApiConfig.class).stream().map(item->"#{"+FieldUtils.underlineToCamel(item)+"}").collect(Collectors.joining(",")))
+                .append(")")
+                .toString();
+    }
+
+    @Override
+    String updateApiConfigScript() {
+        return new StringBuilder("update api_config set ")
+                .append(FieldUtils.updateFields(ApiConfig.class).stream().map(item->new StringBuilder(item).append("=").append("#{"+FieldUtils.underlineToCamel(item)+"}")).collect(Collectors.joining(",")))
+                .append(" where id = #{id}")
+                .toString();
+    }
+
+    @Override
+    String listApiConfigScript() {
+        return new StringBuilder("select ")
+                .append(String.join(",", FieldUtils.allFields(ApiConfig.class)))
+                .append(" from api_config where service = #{service}")
                 .toString();
     }
 

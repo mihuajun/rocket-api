@@ -5,7 +5,6 @@ import com.github.alenfive.rocketapi.entity.ApiParams;
 import com.github.alenfive.rocketapi.entity.vo.Page;
 import com.github.alenfive.rocketapi.extend.IApiPager;
 import com.github.alenfive.rocketapi.service.ScriptParseService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
@@ -59,6 +58,16 @@ public abstract class DataSourceManager {
     }
     public String deleteExampleScript() {
         return dialectMap.get(getStoreApiKey()).deleteExampleScript();
+    }
+
+    public String saveApiConfigScript(){
+        return dialectMap.get(getStoreApiKey()).saveApiConfigScript();
+    }
+    public String updateApiConfigScript(){
+        return dialectMap.get(getStoreApiKey()).updateApiConfigScript();
+    }
+    public String listApiConfigScript(){
+        return dialectMap.get(getStoreApiKey()).listApiConfigScript();
     }
 
 

@@ -1,7 +1,6 @@
 package com.github.alenfive.rocketapi.function;
 
 import com.github.alenfive.rocketapi.extend.ApiInfoContent;
-import com.github.alenfive.rocketapi.extend.DefaultApiPager;
 import com.github.alenfive.rocketapi.extend.IApiPager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

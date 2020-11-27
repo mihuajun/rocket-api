@@ -1,31 +1,36 @@
 package com.github.alenfive.rocketapi.datasource;
 
-import com.github.alenfive.rocketapi.entity.ApiExample;
 import com.github.alenfive.rocketapi.entity.ApiInfo;
-import com.github.alenfive.rocketapi.entity.ApiInfoHistory;
 import com.github.alenfive.rocketapi.entity.ApiParams;
 import com.github.alenfive.rocketapi.entity.vo.Page;
 import com.github.alenfive.rocketapi.entity.vo.TableInfo;
 import com.github.alenfive.rocketapi.extend.IApiPager;
 import com.github.alenfive.rocketapi.utils.FieldUtils;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * 数据源方言抽象类
  */
 public abstract class DataSourceDialect {
 
+    private boolean isDynamic = false;
+
     protected boolean storeApi = false;
+
     public boolean isStoreApi() {
         return storeApi;
     }
 
+    public boolean isDynamic() {
+        return isDynamic;
+    }
 
+    public void setDynamic(boolean dynamic) {
+        isDynamic = dynamic;
+    }
 
     abstract String saveApiInfoScript();
     abstract String deleteApiInfoScript();
@@ -38,6 +43,10 @@ public abstract class DataSourceDialect {
     abstract String saveApiExampleScript();
     abstract String listApiExampleScript();
     abstract String deleteExampleScript();
+
+    abstract String saveApiConfigScript();
+    abstract String updateApiConfigScript();
+    abstract String listApiConfigScript();
 
     //查询对象
     abstract List<Map<String,Object>> find(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams) throws Exception;

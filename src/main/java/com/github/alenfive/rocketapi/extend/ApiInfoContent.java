@@ -5,7 +5,6 @@ import com.github.alenfive.rocketapi.entity.ApiParams;
 import org.springframework.stereotype.Component;
 
 import javax.script.Bindings;
-import javax.script.ScriptEngine;
 import java.util.ArrayList;
 import java.util.List;
 
