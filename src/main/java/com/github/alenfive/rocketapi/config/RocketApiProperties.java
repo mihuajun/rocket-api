@@ -22,4 +22,8 @@ public class RocketApiProperties {
 
     //post传参 操作整个body部分的key值
     private String bodyRootKey = "bodyRoot";
+
+    //启用YML配置
+    private boolean configEnabled = false;
+
 }

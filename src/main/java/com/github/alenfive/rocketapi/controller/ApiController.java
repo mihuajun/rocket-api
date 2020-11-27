@@ -479,6 +479,48 @@ public class ApiController {
     }
 
     /**
+     * 动态配置数据源获取
+     * @param request
+     * @return
+     */
+    @GetMapping("/api-config")
+    public ApiResult getApiConfig(HttpServletRequest request){
+        String user = loginService.getUser(request);
+        if(StringUtils.isEmpty(user)){
+            return ApiResult.fail("Permission denied");
+        }
+
+        Object result = null;
+        try {
+            result = mappingFactory.getApiConfig();
+        } catch (Exception e) {
+            return ApiResult.fail(e.getMessage());
+        }
+        return ApiResult.success(result);
+    }
+
+    /**
+     * 动态数据库修改
+     * @param params
+     * @return
+     */
+    @PostMapping("/api-config")
+    public ApiResult saveApiConfig(@RequestBody String configContext,HttpServletRequest request){
+        String user = loginService.getUser(request);
+        if(StringUtils.isEmpty(user)){
+            return ApiResult.fail("Permission denied");
+        }
+
+        try {
+            mappingFactory.saveApiConfig(configContext);
+        } catch (Exception e) {
+            return ApiResult.fail(e.getMessage());
+        }
+        return ApiResult.success(null);
+    }
+
+
+    /**
      * 自动完成，类型获取
      */
     @GetMapping("/completion-items")

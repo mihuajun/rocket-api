@@ -3,6 +3,8 @@ package com.github.alenfive.rocketapi.config;
 import com.github.alenfive.rocketapi.controller.ApiController;
 import com.github.alenfive.rocketapi.controller.ViewController;
 import com.github.alenfive.rocketapi.datasource.DataSourceManager;
+import com.github.alenfive.rocketapi.datasource.factory.MySQLFactory;
+import com.github.alenfive.rocketapi.datasource.factory.SQLFactory;
 import com.github.alenfive.rocketapi.extend.*;
 import com.github.alenfive.rocketapi.function.*;
 import com.github.alenfive.rocketapi.script.GroovyScriptParse;
@@ -12,6 +14,7 @@ import com.github.alenfive.rocketapi.service.LoginService;
 import com.github.alenfive.rocketapi.service.ScriptParseService;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -183,4 +186,23 @@ public class RocketApiAutoConfig {
     public SpringContextUtils getSpringContextUtils(ApplicationContext applicationContext){
         return new SpringContextUtils(applicationContext);
     }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public SQLFactory getSQLFactory(){
+        return new SQLFactory();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public MySQLFactory getMySQLFactory(){
+        return new MySQLFactory();
+    }
+
+    @Bean
+    @ConditionalOnProperty(value = "spring.rocket-api.config-enabled",havingValue = "true")
+    public RefreshApiConfig getRefreshApiConfig(){
+        return new RefreshApiConfig();
+    }
+
 }

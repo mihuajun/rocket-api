@@ -17,13 +17,21 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.config.YamlPropertiesFactoryBean;
 import org.springframework.boot.autoconfigure.web.ServerProperties;
+import org.springframework.boot.env.YamlPropertySourceLoader;
+import org.springframework.core.env.ConfigurableEnvironment;
+import org.springframework.core.env.MutablePropertySources;
+import org.springframework.core.env.PropertiesPropertySource;
+import org.springframework.core.env.PropertySource;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.http.server.ServletServerHttpRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.method.HandlerMethod;
@@ -40,6 +48,7 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -96,6 +105,11 @@ public class QLRequestMappingFactory {
     @Autowired
     private ServerProperties serverProperties;
 
+    @Autowired
+    private ConfigurableEnvironment environment;
+
+    @Autowired(required = false)
+    private RefreshApiConfig refreshApiConfig;
 
     private IApiPager apiPager = new SysApiPager();
 
@@ -111,6 +125,9 @@ public class QLRequestMappingFactory {
 
         //load banner
         loadBanner();
+
+        //加载配置
+        reloadApiConfig();
 
         //加载数据库API
         ApiParams apiParams = new ApiParams().putParam("service",service);
@@ -169,8 +186,109 @@ public class QLRequestMappingFactory {
     }
 
 
+    /**
+     * 加载配置
+     * @throws Exception
+     */
+    public void reloadApiConfig() throws Exception {
+        MutablePropertySources propertySources = environment.getPropertySources();
+        String apiConfigName = "applicationConfig:[db:/rocket-api.yml]";
+        if (!properties.isConfigEnabled()){
+            propertySources.remove(apiConfigName);
+            return;
+        }
+
+        ApiConfig apiConfig = this.getApiConfig();
+
+        YamlPropertiesFactoryBean factoryBean = new YamlPropertiesFactoryBean();
+        if (apiConfig != null && !StringUtils.isEmpty(apiConfig.getConfigContext())){
+            factoryBean.setResources(new ByteArrayResource(apiConfig.getConfigContext().getBytes()));
+        }
+
+        Properties properties = factoryBean.getObject();
+
+        PropertiesPropertySource constants = new PropertiesPropertySource(apiConfigName, properties);
+
+        Pattern p = Pattern.compile("^applicationConfig.*");
+        String name = null;
+        boolean exists = propertySources.contains(apiConfigName);
+
+        if (exists){
+            name = apiConfigName;
+        }else{
+            for (PropertySource<?> source : propertySources) {
+                if (p.matcher(source.getName()).matches()) {
+                    name = source.getName();
+                    break;
+                }
+            }
+        }
+
+        if (exists){
+            propertySources.replace(name,constants);
+        }else if (name != null) {
+            propertySources.addBefore(name, constants);
+        } else {
+            propertySources.addFirst(constants);
+        }
+
+        //配置刷新
+        if (refreshApiConfig != null){
+            refreshApiConfig.refresh();
+        }
+    }
 
 
+
+    /**
+     * 配置获取
+     * @return
+     */
+    public ApiConfig getApiConfig() throws Exception {
+        ApiParams apiParams = new ApiParams().putParam("service",service);
+        StringBuilder script = new StringBuilder(dataSourceManager.listApiConfigScript());
+        List<Map<String,Object>> configs = dataSourceManager.find(script, ApiInfo.builder().datasource(dataSourceManager.getStoreApiKey()).build(),apiParams,null,null);
+        if (CollectionUtils.isEmpty(configs)){
+            return null;
+        }
+
+        ApiConfig apiConfig = objectMapper.readValue(objectMapper.writeValueAsBytes(configs.get(0)),ApiConfig.class);
+        return apiConfig;
+    }
+
+    /**
+     * 配置更新
+     * @param configContext
+     * @return
+     */
+    public void saveApiConfig(String configContext) throws Exception {
+        PropertySource<?> propertySource = new YamlPropertySourceLoader().load("api-config", new ByteArrayResource(configContext.getBytes())).get(0);
+        StringBuilder script = null;
+
+        ApiConfig apiConfig = this.getApiConfig();
+        if (apiConfig == null){
+            apiConfig = ApiConfig.builder()
+                    .id(GenerateId.get().toHexString())
+                    .configContext(configContext)
+                    .service(service)
+                    .build();
+            script = new StringBuilder(dataSourceManager.saveApiConfigScript());
+            dataSourceManager.insert(script, ApiInfo.builder().datasource(dataSourceManager.getStoreApiKey()).build(),null,null,apiConfig.toMap());
+        }else{
+            script = new StringBuilder(dataSourceManager.updateApiConfigScript());
+            apiConfig.setConfigContext(configContext);
+            dataSourceManager.update(script, ApiInfo.builder().datasource(dataSourceManager.getStoreApiKey()).build(),null,null,apiConfig.toMap());
+        }
+
+        reloadApiConfig();
+    }
+
+    private Object buildToBean(PropertySource<?> propertySource,String prefix, Class<?> clazz) {
+        if (clazz.isAssignableFrom(Collection.class)){
+
+        }
+        return null;
+    }
 
     /**
      * 执行脚本逻辑
@@ -184,7 +302,6 @@ public class QLRequestMappingFactory {
         String path = buildPattern(request);
         String method = request.getMethod();
         Map<String,Object> body = new HashMap<>();
-
 
         if (bodyMethods.contains(method)){
             if (request.getContentType() != null && request.getContentType().indexOf("application/json") > -1){
@@ -577,4 +694,6 @@ public class QLRequestMappingFactory {
         //刷新缓存
         this.getPathList(true);
     }
+
+
 }

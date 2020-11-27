@@ -171,6 +171,42 @@ public class MongoDataSource extends DataSourceDialect {
                 "}";
     }
 
+    @Override
+    String saveApiConfigScript() {
+        return "{\n" +
+                "\t\"insert\":\"api_config\",\n" +
+                "\t\"documents\":[{\n" +
+                "\t\t\"_id\":ObjectId(#{id}),\n" +
+                "\t\t\"service\":#{service},\n" +
+                "\t\t\"config_context\":#{configContext}\n" +
+                "\t}]\n" +
+                "}";
+    }
+
+    @Override
+    String updateApiConfigScript() {
+        return "{\n" +
+                "     update: \"api_config\",\n" +
+                "     updates: \n" +
+                "     \t[{\n" +
+                "     \t\tq:{_id:ObjectId(#{id})},\n" +
+                "     \t\tu:{$set:{config_context:#{configContext}}},\n" +
+                "     \t\tupsert:false,\n" +
+                "     \t\tmulti:false\n" +
+                "     \t}]\n" +
+                "     \n" +
+                "}";
+    }
+
+    @Override
+    String listApiConfigScript() {
+        return "{\n" +
+                "     find: \"api_config\",\n" +
+                "     filter: { " +
+                "\t\t\"service\":#{service}\n" +
+                "}" +
+                "}";
+    }
 
     @Override
     public List<Map<String,Object>> find(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams)  throws Exception {

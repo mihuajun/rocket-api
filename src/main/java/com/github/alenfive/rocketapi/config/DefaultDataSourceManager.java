@@ -1,13 +1,16 @@
 package com.github.alenfive.rocketapi.config;
 
-import com.github.alenfive.rocketapi.datasource.*;
+import com.github.alenfive.rocketapi.datasource.DataSourceDialect;
+import com.github.alenfive.rocketapi.datasource.DataSourceManager;
+import com.github.alenfive.rocketapi.datasource.MongoDataSource;
+import com.github.alenfive.rocketapi.datasource.MySQLDataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -24,10 +27,10 @@ public class DefaultDataSourceManager extends DataSourceManager {
 
     @PostConstruct
     public void init() {
-        Map<String, DataSourceDialect> dialects = new HashMap<>();
-        dialects.put("mysql",new MySQLDataSource(jdbcTemplate,false));
+        Map<String, DataSourceDialect> dialects = new LinkedHashMap<>();
+        dialects.put("mysql",new MySQLDataSource(jdbcTemplate,true));
         //dialects.put("oracle",new OracleDataSource(jdbcTemplate,true));
-        dialects.put("mongodb",new MongoDataSource(mongoTemplate,true));
+        dialects.put("mongodb",new MongoDataSource(mongoTemplate,false));
         super.setDialectMap(dialects);
     }
 }

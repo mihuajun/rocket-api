@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import javax.script.Bindings;
-import javax.script.ScriptContext;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;

@@ -3,9 +3,6 @@ package com.github.alenfive.rocketapi.config;
 import com.github.alenfive.rocketapi.entity.ApiInfo;
 import com.github.alenfive.rocketapi.entity.ApiParams;
 import com.github.alenfive.rocketapi.extend.IApiPager;
-import com.github.alenfive.rocketapi.function.UtilsFunction;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.List;

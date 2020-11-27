@@ -195,7 +195,7 @@
 <!-- global setting -->
 <div class="modal in" id="global-setting" aria-hidden="false" style="width:50%;left:25%;margin-left:0px;display: none">
     <div class="modal-header"><a class="close" onclick="hideGlobalConfig()" data-dismiss="modal">×</a>
-        <h3>Global Setting <small></small></h3></div>
+        <h3>Local Setting <small></small></h3></div>
     <div class="modal-body" style="overflow: hidden;width: 100%;padding: 0px;height:450px;">
 
     </div>
@@ -205,6 +205,22 @@
                                                                                                                                       style="display: none;"></span></button>
         <button class="r-btn r-btn-primary" onclick="saveGlobalConfig()" e2e-tag="modal-ok"><i class="fa fa-save"></i><span>Save</span><span class="r-btn-indicator" aria-hidden="true"
                                                                                                                                    style="display: none;"></span></button>
+    </div>
+</div>
+
+<!-- config setting -->
+<div class="modal in" id="datasource-setting" aria-hidden="false" style="width:50%;left:25%;margin-left:0px;display: none">
+    <div class="modal-header"><a class="close" onclick="hideDataSourceConfig()" data-dismiss="modal">×</a>
+        <h3>rocket-api.yml <small></small></h3></div>
+    <div class="modal-body" style="overflow: hidden;width: 100%;padding: 0px;height:450px;">
+
+    </div>
+    <div class="modal-footer">
+        <div class="error-message login-error-message" style="float: left;"></div>
+        <button class="r-btn" e2e-tag="modal-cancel" onclick="hideDataSourceConfig()"><i class="fa fa-remove"></i><span>Cancel</span><span class="r-btn-indicator" aria-hidden="true"
+                                                                                                                                       style="display: none;"></span></button>
+        <button class="r-btn r-btn-primary" onclick="saveDataSourceGlobalConfig()" e2e-tag="modal-ok"><i class="fa fa-save"></i><span>Save</span><span class="r-btn-indicator" aria-hidden="true"
+                                                                                                                                             style="display: none;"></span></button>
     </div>
 </div>
 
@@ -775,6 +791,7 @@
 <script src="rocketapi/monaco-editor/min/vs/editor/editor.main.nls.js"></script>
 <script src="rocketapi/monaco-editor/min/vs/editor/editor.main.js"></script>
 <script src="rocketapi/monaco-editor/min/vs/rocket-language.js"></script>
+<script src="https://microsoft.github.io/monaco-editor/node_modules/monaco-editor/min/vs/basic-languages/yaml/yaml.js"></script>
 <script>
     var _mtac = {"senseQuery":1};
     (function() {

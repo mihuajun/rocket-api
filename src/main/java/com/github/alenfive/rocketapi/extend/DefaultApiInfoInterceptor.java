@@ -1,7 +1,6 @@
 package com.github.alenfive.rocketapi.extend;
 
 import com.github.alenfive.rocketapi.entity.ApiInfo;
-import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;

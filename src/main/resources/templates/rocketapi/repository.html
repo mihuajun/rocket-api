@@ -10,10 +10,11 @@
                 <div class="btn-group ctrls dropdown-primary">
                     <a class="btn-mini dropdown-toggle" data-toggle="dropdown"><i class="sli-icon-options-vertical"></i></a>
                     <ul class="pull-right dropdown-menu">
-                        <li class="dropdown-item" onclick="showGlobalConfig()"><a><i class="fa fa-cogs"></i><span class="gwt-InlineHTML">Global Config</span></a></li>
+                        <li class="dropdown-item" onclick="showGlobalConfig()"><a><i class="fa fa-cogs"></i><span class="gwt-InlineHTML">Local Setting...</span></a></li>
                         <li class="dropdown-item" onclick="loadApiList(true)"><a><i class="fa fa-refresh"></i><span class="gwt-InlineHTML">Rebuild API List</span></a></li>
                         <li class="dropdown-item" onclick="apiPush()"><a><i class="fa fa-cloud-upload"></i><span class="gwt-InlineHTML">Doc Publishing</span></a></li>
                         <li class="dropdown-item" onclick="showRemoteSync()"><a><i class="fa fa-upload"></i><span class="gwt-InlineHTML">Remote Release</span></a></li>
+                        <li class="dropdown-item" th:style="@{(${configEnabled} ? '' : 'display:none')} + ''" onclick="showDataSourceConfig()"><a><i class="fa fa-wrench"></i><span class="gwt-InlineHTML">rocket-api.yml</span></a></li>
                     </ul>
                 </div>
             </div>

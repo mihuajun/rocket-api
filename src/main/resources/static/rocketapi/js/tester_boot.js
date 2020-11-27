@@ -37,6 +37,8 @@ let completionClazzUrl = baseUrl + "/completion-clazz";
 let remoteSyncUrl = baseUrl + "/remote-sync";
 let loginUrl = baseUrl + "/login";
 let logoutUrl = baseUrl + "/logout";
+let getApiConfigUrl = baseUrl + "/api-config";
+let saveApiConfigUrl = baseUrl + "/api-config";
 
 let editor = "admin";
 
@@ -65,6 +67,7 @@ let exampleTextarea;
 let originalModel;
 let modifiedModel;
 let settingTextarea;
+let apiSettingTextarea;
 
 let hasResponse;
 let gdata = {
@@ -2126,7 +2129,6 @@ function showGlobalConfig() {
     $("#global-setting .modal-body").html("");
     settingTextarea = monaco.editor.create($("#global-setting .modal-body")[0], {
         language: 'json',
-        theme:"myTheme",
         value:formatJson(JSON.stringify(rocketUser.setting)),
         wordWrap: 'on',  //自行换行
         verticalHasArrows: true,
@@ -2156,6 +2158,69 @@ function saveGlobalConfig() {
 
 }
 //-------------------------------- global setting end -------------------------------
+
+//-------------------------------- datasource setting start -------------------------------
+function showDataSourceConfig() {
+
+    showSendNotify("load Setting")
+    $.ajax({
+        type: "GET",
+        url: getApiConfigUrl,
+        success: function (data) {
+            data = unpackResult(data);
+            if (data.code !=200){
+                openMsgModal(data.msg);
+                return;
+            }
+            showDataSourceConfigView(data.data);
+        },complete:function () {
+            hideSendNotify();
+        }
+    });
+}
+
+function showDataSourceConfigView(data) {
+    $("#datasource-setting").show();
+    $("#datasource-setting .modal-body").html("");
+    apiSettingTextarea = monaco.editor.create($("#datasource-setting .modal-body")[0], {
+        language: 'yaml',
+        value:data?data.configContext:"",
+        /*verticalHasArrows: true,
+        horizontalHasArrows: true,*/
+        scrollBeyondLastLine: false,
+        /*contextmenu:false,*/
+        automaticLayout: true,
+        fontSize:13,
+        minimap: {
+            enabled: false // 关闭小地图
+        }
+    });
+}
+
+function hideDataSourceConfig() {
+    $("#datasource-setting").hide();
+}
+
+function saveDataSourceGlobalConfig() {
+    showSendNotify("Saving Setting")
+    $.ajax({
+        type: "post",
+        url: saveApiConfigUrl,
+        contentType : "application/json",
+        data: apiSettingTextarea.getValue(),
+        success: function (data) {
+            data = unpackResult(data);
+            if (data.code !=200){
+                openMsgModal(data.msg);
+                return;
+            }
+            hideDataSourceConfig();
+        },complete:function () {
+            hideSendNotify();
+        }
+    });
+}
+//-------------------------------- datasource setting end -------------------------------
 
 //-------------------------------- api push end -------------------------------
 function apiPush(apiInfoId) {

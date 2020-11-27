@@ -7,8 +7,6 @@ package com.github.alenfive.rocketapi.extend;
 import com.github.alenfive.rocketapi.config.QLRequestMappingFactory;
 import com.github.alenfive.rocketapi.config.SpringContextUtils;
 import com.github.alenfive.rocketapi.entity.ApiInfo;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
