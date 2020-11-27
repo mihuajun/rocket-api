@@ -125,6 +125,9 @@ public class ApiController {
      */
     @GetMapping("/api-info/last")
     public ApiResult lastApiInfo(String apiInfoId,Integer pageSize,Integer pageNo) throws Exception {
+        if (StringUtils.isEmpty(apiInfoId)){
+            return ApiResult.success(null);
+        }
         List<ApiInfoHistory> historyList = mappingFactory.lastApiInfo(apiInfoId,pageSize,pageNo);
         for (ApiInfoHistory history : historyList) {
             history.setScript(scriptEncrypt.decrypt(history.getScript()));

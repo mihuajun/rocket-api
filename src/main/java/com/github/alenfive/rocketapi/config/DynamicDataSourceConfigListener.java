@@ -11,8 +11,11 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * 动态数据源监听
@@ -26,6 +29,9 @@ public class DynamicDataSourceConfigListener{
 
     @Autowired
     private ObjectMapper objectMapper;
+
+    @Autowired
+    private SpringContextUtils springContextUtils;
 
     private String lastMd5 = null;
 
@@ -55,18 +61,20 @@ public class DynamicDataSourceConfigListener{
     public void execute() throws Exception {
 
         Map<String, DataSourceDialect> dialectMap = dataSourceManager.getDialectMap();
-        dialectMap.keySet().stream().forEach(key->{
-            if (dialectMap.get(key).isDynamic()){
-                dialectMap.remove(key);
-            };
-        });
+        Iterator<Map.Entry<String, DataSourceDialect>> it = dialectMap.entrySet().iterator();
+        while (it.hasNext()){
+            Map.Entry<String, DataSourceDialect> item = it.next();
+            if (item.getValue().isDynamic()){
+                it.remove();
+            }
+        }
 
         if (CollectionUtils.isEmpty(multiDatasource)){
             return;
         }
 
         for (DataSourceProperty item : multiDatasource){
-            IDataSourceDialectFactory factory = (IDataSourceDialectFactory) SpringContextUtils.getApplicationContext().getBean(Class.forName(item.getFactoryClassName()));
+            IDataSourceDialectFactory factory = (IDataSourceDialectFactory) springContextUtils.getContext().getBean(Class.forName(item.getFactoryClassName()));
             DataSourceDialect dialect = factory.factory(item.getConfig());
             dialect.setDynamic(true);
 
