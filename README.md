@@ -17,7 +17,8 @@
 8. 线上POSTMAN调试,保存POSTMAN信息或三方文档的自动生成，历史调用记录存储，回塑
 9. 代码提示，SQL提示，语法提示
 10. 用户管理控制，安全性控制，以及历史行为记录
-11. 经过多次项目验证，传统业务型开发，服务端效率能够提升3-5倍，前后端联调提升效率1倍，测试效率2倍提升
+11. 动态数据源管理，2.3.0.RELEASE 新增功能
+12. 经过多次项目验证，传统业务型开发，服务端效率能够提升3-5倍，前后端联调提升效率1倍，测试效率2倍提升
 
 ### 工作原理
 1.将API信息，请求方式，请求PATH，处理逻辑存储于数据库中，调用springboot提供的RequestMappingHandlerMapping.registerMapping/unregisterMapping 实现动态管理RequestMapping。  
