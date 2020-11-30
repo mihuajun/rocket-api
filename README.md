@@ -22,7 +22,7 @@
 
 ### 工作原理
 1.将API信息，请求方式，请求PATH，处理逻辑存储于数据库中，调用springboot提供的RequestMappingHandlerMapping.registerMapping/unregisterMapping 实现动态管理RequestMapping。  
-2.依赖于java1.8提供的ScriptEngineManager方法，调用Groovy引擎，使代码逻辑能够实现动态编译，发布，而不用重启   
+2.依赖于java1.8提供的ScriptEngineManager方法，调用Groovy引擎，赋于数据处理能力以及使代码逻辑能够实现动态编译，发布，而不用重启   
 3.以springboot starter形式，集成在业务项目中
 
  
