@@ -11,6 +11,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import javax.servlet.http.HttpServletRequest;
+
 /**
  * Api ui 页面显示
  */
@@ -29,11 +31,14 @@ public class ViewController {
     private String service;
 
     @GetMapping
-    public String index(Model model){
+    public String index(Model model, HttpServletRequest request){
         model.addAttribute("dataSourceList",dataSourceManager.getDialectMap().keySet());
         model.addAttribute("service", service);
         model.addAttribute("configEnabled",properties.isConfigEnabled());
         model.addAttribute("version", PackageUtils.getVersion());
+        if (request.getRequestURI().endsWith("/")){
+            return "redirect:"+properties.getBaseRegisterPath();
+        }
         return "rocketapi/api-index";
     }
 
