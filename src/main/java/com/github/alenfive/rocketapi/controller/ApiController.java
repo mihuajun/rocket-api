@@ -22,6 +22,7 @@ import com.github.alenfive.rocketapi.utils.SignUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -57,6 +58,7 @@ import java.util.stream.Stream;
 @Slf4j
 @RestController
 @RequestMapping("${spring.rocket-api.base-register-path:/interface-ui}")
+@ConditionalOnProperty(name = "spring.rocket-api.view-enabled",havingValue = "true",matchIfMissing = true)
 public class ApiController {
 
     @Autowired
@@ -158,33 +160,6 @@ public class ApiController {
             return ApiResult.fail(e.getMessage());
         }
 
-    }
-
-    /**
-     * 接收远程同步过来的API INFO信息
-     * @param syncReq
-     */
-    @PostMapping("/accept-sync")
-    public ApiResult apiInfoSync(@RequestBody AcceptApiInfoSyncReq syncReq) throws Exception {
-        if (syncReq == null
-                || StringUtils.isEmpty(syncReq.getSign())
-                || syncReq.getApiInfos() == null
-                || syncReq.getTimestamp() == null
-                || syncReq.getIncrement() == null){
-            return ApiResult.fail("Parameter is missing");
-        }
-
-        //签名验证
-        Map<String,Object> signMap = new HashMap<>();
-        signMap.put("timestamp",syncReq.getTimestamp());
-        signMap.put("increment",syncReq.getIncrement());
-        signMap.put("apiInfos",objectMapper.writeValueAsString(syncReq.getApiInfos()));
-        String sign = SignUtils.build(rocketApiProperties.getSecretKey(),signMap);
-        if (!syncReq.getSign().equals(sign)){
-            return ApiResult.fail("Signature abnormal");
-        }
-        mappingFactory.apiInfoSync(syncReq.getApiInfos(),syncReq.getIncrement() == 1);
-        return ApiResult.success(null);
     }
 
     /**
