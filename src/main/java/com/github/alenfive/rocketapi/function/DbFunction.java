@@ -4,6 +4,7 @@ import com.github.alenfive.rocketapi.datasource.DataSourceManager;
 import com.github.alenfive.rocketapi.entity.vo.Page;
 import com.github.alenfive.rocketapi.extend.ApiInfoContent;
 import com.github.alenfive.rocketapi.extend.IApiPager;
+import com.github.alenfive.rocketapi.extend.ISQLInterceptor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -32,6 +33,9 @@ public class DbFunction implements IFunction{
 
     @Autowired
     private UtilsFunction utilsFunction;
+
+    @Autowired
+    private ISQLInterceptor sqlInterceptor;
 
     @Override
     public String getVarName() {
@@ -76,7 +80,7 @@ public class DbFunction implements IFunction{
 
     public List<Map<String,Object>> find(String script,String dataSource,Map<String,Object> params) throws Exception {
         script = parseSql(script);
-        StringBuilder sbScript = new StringBuilder(script);
+        StringBuilder sbScript = new StringBuilder(sqlInterceptor.before(script));
         List<Map<String,Object>> result = null;
         try {
             result = dataSourceManager.find(sbScript,apiInfoContent.getApiInfo(),apiInfoContent.getApiParams(),dataSource,params);
@@ -85,6 +89,7 @@ public class DbFunction implements IFunction{
                 apiInfoContent.putLog("generate script:  " + sbScript);
             }
             log.info("generate script:{}",sbScript);
+            sqlInterceptor.after(sbScript.toString());
         }
 
         return result;
@@ -92,7 +97,7 @@ public class DbFunction implements IFunction{
 
     public Object insert(String script,String dataSource,Map<String,Object> params) throws Exception {
         script = parseSql(script);
-        StringBuilder sbScript = new StringBuilder(script);
+        StringBuilder sbScript = new StringBuilder(sqlInterceptor.before(script));
         Object result = null;
         try {
             result = dataSourceManager.insert(sbScript,apiInfoContent.getApiInfo(),apiInfoContent.getApiParams(),dataSource,params);
@@ -101,13 +106,14 @@ public class DbFunction implements IFunction{
                 apiInfoContent.putLog("generate script:  " + sbScript);
             }
             log.info("generate script:{}",sbScript);
+            sqlInterceptor.after(sbScript.toString());
         }
         return result;
     }
 
     public Object remove(String script,String dataSource,Map<String,Object> params) throws Exception {
         script = parseSql(script);
-        StringBuilder sbScript = new StringBuilder(script);
+        StringBuilder sbScript = new StringBuilder(sqlInterceptor.before(script));
         Object result =  null;
         try {
             result = dataSourceManager.remove(sbScript,apiInfoContent.getApiInfo(),apiInfoContent.getApiParams(),dataSource,params);
@@ -116,13 +122,14 @@ public class DbFunction implements IFunction{
                 apiInfoContent.putLog("generate script:  " + sbScript);
             }
             log.info("generate script:{}",sbScript);
+            sqlInterceptor.after(sbScript.toString());
         }
         return result;
     }
 
     public Long update(String script,String dataSource,Map<String,Object> params) throws Exception {
         script = parseSql(script);
-        StringBuilder sbScript = new StringBuilder(script);
+        StringBuilder sbScript = new StringBuilder(sqlInterceptor.before(script));
         Long result =  null;
         try {
             result = dataSourceManager.update(sbScript,apiInfoContent.getApiInfo(),apiInfoContent.getApiParams(),dataSource,params);
@@ -131,6 +138,7 @@ public class DbFunction implements IFunction{
                 apiInfoContent.putLog("generate script:  " + sbScript);
             }
             log.info("generate script:{}",sbScript);
+            sqlInterceptor.after(sbScript.toString());
         }
         return result;
     }

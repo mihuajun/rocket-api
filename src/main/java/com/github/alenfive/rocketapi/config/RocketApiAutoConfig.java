@@ -20,7 +20,6 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
@@ -215,4 +214,9 @@ public class RocketApiAutoConfig {
         return new RefreshApiConfig();
     }
 
+    @Bean
+    @ConditionalOnMissingBean
+    public ISQLInterceptor getSQLInterceptor(){
+        return new DefaultSQLInterceptor();
+    }
 }
