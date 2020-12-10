@@ -172,7 +172,8 @@ public class SqlDataSource extends DataSourceDialect {
 
     @Override
     public String transcoding(String param) {
-        return param;
+        return param
+                .replace("\'","\\\'");
     }
 
     @Override
