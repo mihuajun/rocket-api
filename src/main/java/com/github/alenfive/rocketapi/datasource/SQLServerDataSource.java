@@ -42,7 +42,7 @@ public class SQLServerDataSource extends SqlDataSource {
     @Override
     public String transcoding(String param) {
         return param
-                .replace("\'","''");
+                .replace("'","''");
     }
 
     @Override
