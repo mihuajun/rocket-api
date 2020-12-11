@@ -8,7 +8,6 @@ import com.github.alenfive.rocketapi.entity.vo.AcceptApiInfoSyncReq;
 import com.github.alenfive.rocketapi.utils.SignUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
