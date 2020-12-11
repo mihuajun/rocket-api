@@ -9,10 +9,7 @@ import com.github.alenfive.rocketapi.extend.IApiPager;
 import com.github.alenfive.rocketapi.utils.SqlUtils;
 import org.springframework.jdbc.core.JdbcTemplate;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * mysql 数据源
@@ -49,32 +46,38 @@ public class MySQLDataSource extends SqlDataSource {
 
     @Override
     public List<TableInfo> buildTableInfo(){
-        List<TableInfo> tableInfos = new ArrayList<>();
-        List<Map<String,Object>> tables = jdbcTemplate.queryForList("show tables");
-        for (Map<String,Object> table : tables){
-            Set<String> keys = table.keySet();
-            String tableName = table.get(keys.toArray(new String[]{})[0]).toString();
-            Map<String,Object> fields = jdbcTemplate.queryForMap("show create table "+tableName);
-            String tableInfo = fields.get("Create Table").toString();
-            String tableComment = SqlUtils.getByPattern(tableInfo, "\\) .* COMMENT='(.*)'", 1);
-            List<FieldInfo> fieldInfos = new ArrayList<>();
-            tableInfos.add(TableInfo.builder()
-                    .name(tableName)
-                    .comment(tableComment)
-                    .fields(fieldInfos)
-                    .build());
-            List<String> fieldStrList = SqlUtils.getColumnSqls(tableInfo);
-            for (String oneLine : fieldStrList) {
-                String fieldName = SqlUtils.getByPattern(oneLine, "`(.*)`", 1);
-                String fieldComment = SqlUtils.getByPattern(oneLine, "COMMENT '(.*)'", 1);
-                String fieldType = SqlUtils.getByPattern(oneLine, "`" + fieldName + "` ([A-Za-z]*)", 1);
-                fieldInfos.add(FieldInfo.builder()
-                        .name(fieldName)
-                        .comment(fieldComment)
-                        .type(fieldType)
+        try {
+            List<TableInfo> tableInfos = new ArrayList<>();
+            List<Map<String,Object>> tables = jdbcTemplate.queryForList("show tables");
+            for (Map<String,Object> table : tables){
+                Set<String> keys = table.keySet();
+                String tableName = table.get(keys.toArray(new String[]{})[0]).toString();
+                Map<String,Object> fields = jdbcTemplate.queryForMap("show create table "+tableName);
+                String tableInfo = fields.get("Create Table").toString();
+                String tableComment = SqlUtils.getByPattern(tableInfo, "\\) .* COMMENT='(.*)'", 1);
+                List<FieldInfo> fieldInfos = new ArrayList<>();
+                tableInfos.add(TableInfo.builder()
+                        .name(tableName)
+                        .comment(tableComment)
+                        .fields(fieldInfos)
                         .build());
+                List<String> fieldStrList = SqlUtils.getColumnSqls(tableInfo);
+                for (String oneLine : fieldStrList) {
+                    String fieldName = SqlUtils.getByPattern(oneLine, "`(.*)`", 1);
+                    String fieldComment = SqlUtils.getByPattern(oneLine, "COMMENT '(.*)'", 1);
+                    String fieldType = SqlUtils.getByPattern(oneLine, "`" + fieldName + "` ([A-Za-z]*)", 1);
+                    fieldInfos.add(FieldInfo.builder()
+                            .name(fieldName)
+                            .comment(fieldComment)
+                            .type(fieldType)
+                            .build());
+                }
             }
+            return tableInfos;
+        }catch (Exception e){
+            e.printStackTrace();
         }
-        return tableInfos;
+        return Collections.emptyList();
+
     }
 }

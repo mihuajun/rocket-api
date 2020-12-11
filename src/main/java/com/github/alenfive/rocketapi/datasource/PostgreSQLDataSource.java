@@ -34,6 +34,12 @@ public class PostgreSQLDataSource extends SqlDataSource {
     }
 
     @Override
+    public String transcoding(String param) {
+        return param
+                .replace("'","''");
+    }
+
+    @Override
     public List<TableInfo> buildTableInfo() {
         return null;
     }
