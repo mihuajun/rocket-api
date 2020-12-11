@@ -1366,7 +1366,7 @@ function parseUrlInput(e) {
     $("#example-section .subtitle-counter").text("")
 
     let path = $(e).val();
-    if (path.indexOf("http://") != 0){
+    if (path.indexOf("http") != 0){
         path = "http://"+path;
         $(e).val(path);
     }

@@ -102,7 +102,15 @@ public class ApiController {
      */
     @GetMapping("/api-list")
     public ApiResult getPathList(boolean isDb) throws Exception {
-        return  ApiResult.success(mappingFactory.getPathList(isDb));
+        return  ApiResult.success(mappingFactory.getPathList(isDb).stream().map(item->{
+            Map<String,Object> newItem = new HashMap<>();
+            newItem.put("id",item.getId());
+            newItem.put("groupName",item.getGroupName());
+            newItem.put("name",item.getName());
+            newItem.put("method",item.getMethod());
+            newItem.put("path",item.getPath());
+            return newItem;
+        }).collect(Collectors.toList()));
     }
 
     /**
