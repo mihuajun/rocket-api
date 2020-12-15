@@ -646,6 +646,10 @@ public class QLRequestMappingFactory {
     @Transactional(rollbackFor = Exception.class)
     public Object apiInfoSync(List<ApiInfo> apiInfos,Boolean increment) throws Exception {
 
+        if (CollectionUtils.isEmpty(apiInfos)){
+            return 0;
+        }
+
         Collection<ApiInfo> currApiInfos = this.getPathList(false);
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
