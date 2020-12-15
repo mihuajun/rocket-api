@@ -2301,7 +2301,7 @@ function remoteSync(increment) {
                 openMsgModal(data.msg);
                 return;
             }
-            $("#remote-sync .error-message").text("Remote release successful size:"+apiInfoIds.length)
+            $("#remote-sync .error-message").text("Remote release successful size:"+data.data)
         },complete:function () {
             hideSendNotify();
         }

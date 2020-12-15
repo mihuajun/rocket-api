@@ -644,10 +644,10 @@ public class QLRequestMappingFactory {
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public void apiInfoSync(List<ApiInfo> apiInfos,Boolean increment) throws Exception {
+    public Object apiInfoSync(List<ApiInfo> apiInfos,Boolean increment) throws Exception {
 
         Collection<ApiInfo> currApiInfos = this.getPathList(false);
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
         //全量同步
         if(!increment){
@@ -674,6 +674,9 @@ public class QLRequestMappingFactory {
             for (ApiInfo apiInfo : apiInfos){
                 ApiInfo dbInfo =  currApiInfos.stream().filter(item->item.getId().equals(apiInfo.getId())).findFirst().orElse(null);
                 if (dbInfo == null){
+                    if (existsPattern(apiInfo)){
+                        throw new IllegalArgumentException("method: "+apiInfo.getMethod()+" path:"+apiInfo.getPath()+" already exist");
+                    }
                     apiInfo.setCreateTime(sdf.format(new Date()));
                     apiInfo.setUpdateTime(sdf.format(new Date()));
                     ApiParams apiParams = ApiParams.builder().param(apiInfo.toMap()).build();
@@ -693,6 +696,7 @@ public class QLRequestMappingFactory {
 
         //刷新缓存
         this.getPathList(true);
+        return apiInfos.size();
     }
 
 
