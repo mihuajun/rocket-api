@@ -109,6 +109,7 @@ public class ApiController {
             newItem.put("name",item.getName());
             newItem.put("method",item.getMethod());
             newItem.put("path",item.getPath());
+            newItem.put("datasource",item.getDatasource());
             return newItem;
         }).collect(Collectors.toList()));
     }

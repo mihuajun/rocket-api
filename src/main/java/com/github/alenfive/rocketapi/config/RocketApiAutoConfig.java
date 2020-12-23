@@ -162,6 +162,12 @@ public class RocketApiAutoConfig {
 
     @Bean
     @ConditionalOnMissingBean
+    public MongoFunction getMongoFunction(){
+        return new MongoFunction();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
     public EnvFunction getEnvFunction(){
         return new EnvFunction();
     }
