@@ -34,8 +34,12 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.NativeWebRequest;
+import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
+import org.springframework.web.servlet.HandlerMapping;
 import org.springframework.web.servlet.mvc.condition.PatternsRequestCondition;
 import org.springframework.web.servlet.mvc.condition.RequestMethodsRequestCondition;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
@@ -360,17 +364,7 @@ public class QLRequestMappingFactory {
 
 
     public String buildPattern(HttpServletRequest request) {
-        Set<RequestMappingInfo> infos = requestMappingHandlerMapping.getHandlerMethods().keySet();
-        RequestMappingInfo currInfo = null;
-        for (RequestMappingInfo info : infos){
-            if ((currInfo = info.getMatchingCondition(request)) != null){
-                break;
-            }
-        }
-        if (currInfo == null){
-            return null;
-        }
-        return currInfo.getPatternsCondition().getPatterns().iterator().next();
+        return (String) request.getAttribute(HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE);
     }
 
     /**
