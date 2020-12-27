@@ -7,6 +7,7 @@ import com.github.alenfive.rocketapi.datasource.factory.IDataSourceDialectFactor
 import com.github.alenfive.rocketapi.entity.DataSourceProperty;
 import com.github.alenfive.rocketapi.utils.MD5Utils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
@@ -20,6 +21,7 @@ import java.util.Map;
  */
 @ConfigurationProperties(prefix = "spring.rocket-api",ignoreInvalidFields = true)
 @Component
+@ConditionalOnBean(DataSourceManager.class)
 public class DynamicDataSourceConfigListener{
 
     @Autowired

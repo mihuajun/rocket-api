@@ -61,7 +61,13 @@ public class RemoteController {
         if (!syncReq.getSign().equals(sign)){
             return ApiResult.fail("Signature abnormal");
         }
-        mappingFactory.apiInfoSync(syncReq.getApiInfos(),syncReq.getIncrement() == 1);
-        return ApiResult.success(null);
+        try {
+            Object result = mappingFactory.apiInfoSync(syncReq.getApiInfos(),syncReq.getIncrement() == 1);
+            return ApiResult.success(result);
+        }catch (Exception e){
+            e.printStackTrace();
+            return ApiResult.fail(e.getMessage());
+        }
+
     }
 }
