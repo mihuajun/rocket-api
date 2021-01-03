@@ -1,5 +1,7 @@
 package com.github.alenfive.rocketapi.datasource;
 
+import com.github.alenfive.rocketapi.config.RocketApiProperties;
+import com.github.alenfive.rocketapi.config.SpringContextUtils;
 import com.github.alenfive.rocketapi.entity.ApiInfo;
 import com.github.alenfive.rocketapi.entity.ApiParams;
 import com.github.alenfive.rocketapi.entity.vo.Page;
@@ -64,6 +66,10 @@ public abstract class DataSourceDialect {
      * 替换key
      */
     protected Map<String,Object> toReplaceKeyLow(Map<String,Object> map){
+        RocketApiProperties properties = SpringContextUtils.getApplicationContext().getBean(RocketApiProperties.class);
+        if (!properties.isMapUnderscoreToCamelase()){
+            return map;
+        }
         Map<String,Object> result = new HashMap<>(map.size());
         for(String key : map.keySet()){
             result.put(FieldUtils.underlineToCamel(key),map.get(key));

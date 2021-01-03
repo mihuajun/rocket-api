@@ -23,6 +23,9 @@ public class RocketApiProperties {
     //post传参 操作整个body部分的key值
     private String bodyRootKey = "bodyRoot";
 
+    //数据库大小写驼峰自动转换，默认true
+    private boolean mapUnderscoreToCamelase = true;
+
     //启用编辑管理界面，默认true,生产环境如果访问地址暴露在了外网，建议关闭
     private boolean viewEnabled = true;
 
