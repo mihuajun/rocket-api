@@ -1,7 +1,8 @@
 package com.github.alenfive.rocketapi.datasource;
 
-import com.github.alenfive.rocketapi.entity.ApiInfo;
-import com.github.alenfive.rocketapi.entity.ApiParams;
+import com.github.alenfive.rocketapi.config.RocketApiProperties;
+import com.github.alenfive.rocketapi.config.SpringContextUtils;
+import com.github.alenfive.rocketapi.entity.*;
 import com.github.alenfive.rocketapi.entity.vo.Page;
 import com.github.alenfive.rocketapi.entity.vo.TableInfo;
 import com.github.alenfive.rocketapi.extend.IApiPager;
@@ -32,21 +33,22 @@ public abstract class DataSourceDialect {
         isDynamic = dynamic;
     }
 
-    abstract String saveApiInfoScript();
-    abstract String deleteApiInfoScript();
-    abstract String updateApiInfoScript();
-    abstract String listApiInfoScript();
+    abstract void saveApiInfo(ApiInfo apiInfo);
+    abstract ApiInfo findApiInfoById(ApiInfo apiInfo);
+    abstract void deleteApiInfo(ApiInfo apiInfo);
+    abstract void updateApiInfo(ApiInfo apiInfo);
+    abstract List<ApiInfo> listApiInfoByEntity(ApiInfo apiInfo);
 
-    abstract String saveApiInfoHistoryScript();
-    abstract String listApiInfoHistoryScript();
+    abstract void saveApiInfoHistory(ApiInfoHistory apiInfoHistory);
+    abstract List<ApiInfoHistory> listApiInfoHistoryByEntity(ApiInfoHistory apiInfoHistory, IApiPager apiPager, Page page);
 
-    abstract String saveApiExampleScript();
-    abstract String listApiExampleScript();
-    abstract String deleteExampleScript();
+    abstract void saveApiExample(ApiExample apiExample);
+    abstract List<ApiExample> listApiExampleByEntity(ApiExample apiExample, IApiPager apiPager, Page page);
+    abstract void deleteExample(ApiExample apiExample);
 
-    abstract String saveApiConfigScript();
-    abstract String updateApiConfigScript();
-    abstract String listApiConfigScript();
+    abstract void saveApiConfig(ApiConfig apiConfig);
+    abstract void updateApiConfig(ApiConfig apiConfig);
+    abstract List<ApiConfig> listApiConfigByEntity(ApiConfig apiConfig);
 
     //查询对象
     abstract List<Map<String,Object>> find(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams) throws Exception;
@@ -64,6 +66,10 @@ public abstract class DataSourceDialect {
      * 替换key
      */
     protected Map<String,Object> toReplaceKeyLow(Map<String,Object> map){
+        RocketApiProperties properties = SpringContextUtils.getApplicationContext().getBean(RocketApiProperties.class);
+        if (!properties.isMapUnderscoreToamelCase()){
+            return map;
+        }
         Map<String,Object> result = new HashMap<>(map.size());
         for(String key : map.keySet()){
             result.put(FieldUtils.underlineToCamel(key),map.get(key));

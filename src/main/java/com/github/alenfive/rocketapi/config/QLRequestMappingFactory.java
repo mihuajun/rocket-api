@@ -19,7 +19,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.YamlPropertiesFactoryBean;
 import org.springframework.boot.autoconfigure.web.ServerProperties;
-import org.springframework.boot.env.YamlPropertySourceLoader;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.MutablePropertySources;
 import org.springframework.core.env.PropertiesPropertySource;
@@ -34,9 +33,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.context.request.NativeWebRequest;
-import org.springframework.web.context.request.RequestAttributes;
-import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.servlet.HandlerMapping;
@@ -48,7 +44,6 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandl
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -134,11 +129,8 @@ public class QLRequestMappingFactory {
         reloadApiConfig();
 
         //加载数据库API
-        ApiParams apiParams = new ApiParams().putParam("service",service);
-        StringBuilder script = new StringBuilder(dataSourceManager.listApiInfoScript());
-        List<Map<String,Object>> apiInfos = dataSourceManager.find(script, ApiInfo.builder().datasource(dataSourceManager.getStoreApiKey()).build(),apiParams,null,null);
-        for (Map<String,Object> map : apiInfos){
-            ApiInfo apiInfo = objectMapper.readValue(objectMapper.writeValueAsBytes(map),ApiInfo.class);
+        List<ApiInfo> apiInfos = dataSourceManager.listApiInfoByEntity(ApiInfo.builder().service(service).build());
+        for (ApiInfo apiInfo : apiInfos){
             apiInfoCache.put(apiInfo);
         }
 
@@ -153,9 +145,7 @@ public class QLRequestMappingFactory {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             codeInfo.setCreateTime(sdf.format(new Date()));
             codeInfo.setUpdateTime(sdf.format(new Date()));
-            apiParams = ApiParams.builder().param(codeInfo.toMap()).build();
-            script = new StringBuilder(dataSourceManager.saveApiInfoScript());
-            dataSourceManager.insert(script,ApiInfo.builder().datasource(dataSourceManager.getStoreApiKey()).build(),apiParams,null,null);
+            dataSourceManager.saveApiInfo(codeInfo);
             apiInfoCache.put(codeInfo);
         }
 
@@ -248,16 +238,9 @@ public class QLRequestMappingFactory {
      * 配置获取
      * @return
      */
-    public ApiConfig getApiConfig() throws Exception {
-        ApiParams apiParams = new ApiParams().putParam("service",service);
-        StringBuilder script = new StringBuilder(dataSourceManager.listApiConfigScript());
-        List<Map<String,Object>> configs = dataSourceManager.find(script, ApiInfo.builder().datasource(dataSourceManager.getStoreApiKey()).build(),apiParams,null,null);
-        if (CollectionUtils.isEmpty(configs)){
-            return null;
-        }
-
-        ApiConfig apiConfig = objectMapper.readValue(objectMapper.writeValueAsBytes(configs.get(0)),ApiConfig.class);
-        return apiConfig;
+    public ApiConfig getApiConfig() {
+        List<ApiConfig> apiConfigList = dataSourceManager.listApiConfigByEntity(ApiConfig.builder().service(service).build());
+        return CollectionUtils.isEmpty(apiConfigList)?null:apiConfigList.get(0);
     }
 
     /**
@@ -266,9 +249,6 @@ public class QLRequestMappingFactory {
      * @return
      */
     public void saveApiConfig(String configContext) throws Exception {
-        PropertySource<?> propertySource = new YamlPropertySourceLoader().load("api-config", new ByteArrayResource(configContext.getBytes())).get(0);
-        StringBuilder script = null;
-
         ApiConfig apiConfig = this.getApiConfig();
         if (apiConfig == null){
             apiConfig = ApiConfig.builder()
@@ -276,12 +256,9 @@ public class QLRequestMappingFactory {
                     .configContext(configContext)
                     .service(service)
                     .build();
-            script = new StringBuilder(dataSourceManager.saveApiConfigScript());
-            dataSourceManager.insert(script, ApiInfo.builder().datasource(dataSourceManager.getStoreApiKey()).build(),null,null,apiConfig.toMap());
+            dataSourceManager.saveApiConfig(apiConfig);
         }else{
-            script = new StringBuilder(dataSourceManager.updateApiConfigScript());
-            apiConfig.setConfigContext(configContext);
-            dataSourceManager.update(script, ApiInfo.builder().datasource(dataSourceManager.getStoreApiKey()).build(),null,null,apiConfig.toMap());
+            dataSourceManager.updateApiConfig(apiConfig);
         }
 
         reloadApiConfig();
@@ -427,14 +404,10 @@ public class QLRequestMappingFactory {
             apiInfo.setCreateTime(sdf.format(new Date()));
             apiInfo.setService(service);
             apiInfo.setId(GenerateId.get().toHexString());
-            ApiParams apiParams = ApiParams.builder().param(apiInfo.toMap()).build();
-            StringBuilder script = new StringBuilder(dataSourceManager.saveApiInfoScript());
-            dataSourceManager.insert(script,ApiInfo.builder().datasource(dataSourceManager.getStoreApiKey()).build(),apiParams,null,null);
+            dataSourceManager.saveApiInfo(apiInfo);
         }else{
             apiInfo.setService(service);
-            ApiParams apiParams = ApiParams.builder().param(apiInfo.toMap()).build();
-            StringBuilder script = new StringBuilder(dataSourceManager.updateApiInfoScript());
-            dataSourceManager.update(script,ApiInfo.builder().datasource(dataSourceManager.getStoreApiKey()).build(),apiParams,null,null);
+            dataSourceManager.updateApiInfo(apiInfo);
 
             ApiInfo dbInfo = apiInfoCache.getAll().stream().filter(item->item.getId().equals(apiInfo.getId())).findFirst().orElse(null);
 
@@ -445,7 +418,7 @@ public class QLRequestMappingFactory {
             apiInfoCache.remove(dbInfo);
         }
 
-        ApiInfo dbInfo = getDbInfo(apiInfo);
+        ApiInfo dbInfo = dataSourceManager.findApiInfoById(apiInfo);
 
         //入缓存
         apiInfoCache.put(dbInfo);
@@ -459,24 +432,14 @@ public class QLRequestMappingFactory {
         return dbInfo.getId();
     }
 
-    private void saveApiHistory(ApiInfo dbInfo) throws Exception {
+    private void saveApiHistory(ApiInfo dbInfo) {
         ApiInfoHistory history = new ApiInfoHistory();
         BeanUtils.copyProperties(dbInfo,history);
         history.setApiInfoId(dbInfo.getId());
         history.setId(GenerateId.get().toString());
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         history.setCreateTime(sdf.format(new Date()));
-        ApiParams apiParams = ApiParams.builder().param(history.toMap()).build();
-        StringBuilder script = new StringBuilder(dataSourceManager.saveApiInfoHistoryScript());
-        dataSourceManager.insert(script,ApiInfo.builder().datasource(dataSourceManager.getStoreApiKey()).build(),apiParams,null,null);
-    }
-
-    public ApiInfo getDbInfo(ApiInfo apiInfo) throws Exception {
-        ApiParams apiParams = ApiParams.builder().param(apiInfo.toMap()).build();
-        StringBuilder script = new StringBuilder(dataSourceManager.listApiInfoScript());
-
-        List<Map<String,Object>> apiInfoMap = dataSourceManager.find(script,ApiInfo.builder().datasource(dataSourceManager.getStoreApiKey()).build(),apiParams,null,null);
-        return objectMapper.readValue(objectMapper.writeValueAsBytes(apiInfoMap.get(0)),ApiInfo.class);
+        dataSourceManager.saveApiInfoHistory(history);
     }
 
     private boolean existsPattern(ApiInfo apiInfo) {
@@ -488,27 +451,21 @@ public class QLRequestMappingFactory {
     }
 
     @Transactional
-    public Long deleteApiInfo(ApiInfo apiInfo) throws Exception {
+    public void deleteApiInfo(ApiInfo apiInfo) {
 
         ApiInfo dbInfo = apiInfoCache.getAll().stream().filter(item->item.getId().equals(apiInfo.getId())).findFirst().orElse(null);
         if (dbInfo == null){
-            return 0L;
+            return;
         }
 
-        ApiParams apiParams = ApiParams.builder()
-                .param(apiInfo.toMap())
-                .build();
-
         //清数据库
-        StringBuilder script = new StringBuilder(dataSourceManager.deleteApiInfoScript());
-        Long num = dataSourceManager.remove(script,ApiInfo.builder().datasource(dataSourceManager.getStoreApiKey()).build(),apiParams,null,null);
+        dataSourceManager.deleteApiInfo(apiInfo);
 
         //清缓存
         apiInfoCache.remove(dbInfo);
 
         //取消mapping注册
         unregisterMappingForApiInfo(dbInfo);
-        return num;
     }
 
     /**
@@ -573,11 +530,10 @@ public class QLRequestMappingFactory {
 
     @Transactional
     public Long renameGroup(RenameGroupReq renameGroupReq) throws Exception {
-        List<ApiInfo> apiInfos = apiInfoCache.getAll().stream().filter(item->item.getGroupName().equals(renameGroupReq.getOldGroupName())).collect(Collectors.toList());
+        List<ApiInfo> apiInfos = apiInfoCache.getAll().stream().filter(item->renameGroupReq.getOldGroupName().equals(item.getGroupName())).collect(Collectors.toList());
         for (ApiInfo apiInfo : apiInfos){
             apiInfo.setGroupName(renameGroupReq.getNewGroupName());
-            StringBuilder script = new StringBuilder(dataSourceManager.updateApiInfoScript());
-            dataSourceManager.update(script,ApiInfo.builder().datasource(dataSourceManager.getStoreApiKey()).build(),ApiParams.builder().param(apiInfo.toMap()).build(),null,null);
+            dataSourceManager.updateApiInfo(apiInfo);
 
             //更新缓存
             apiInfoCache.put(apiInfo);
@@ -586,26 +542,21 @@ public class QLRequestMappingFactory {
     }
 
     @Transactional
-    public Object saveExample(ApiExample apiExample) throws Exception {
-        StringBuilder script = new StringBuilder(dataSourceManager.saveApiExampleScript());
-        return dataSourceManager.insert(script,ApiInfo.builder().datasource(dataSourceManager.getStoreApiKey()).build(),ApiParams.builder().param(apiExample.toMap()).build(),null,null);
+    public Object saveExample(ApiExample apiExample) {
+        dataSourceManager.saveApiExample(apiExample);
+        return apiExample.getId();
     }
 
-    public List<Map<String,Object>> listApiExampleScript(String apiInfoId, Integer pageSize,Integer pageNo) throws Exception {
-        ApiParams apiParams = new ApiParams();
-        apiParams.putParam("apiInfoId",apiInfoId);
-
-        ApiInfo apiInfo = ApiInfo.builder().datasource(dataSourceManager.getStoreApiKey()).build();
+    public List<ApiExample> listApiExampleScript(String apiInfoId, Integer pageSize,Integer pageNo) {
         Page page = Page.builder().pageNo(pageNo).pageSize(pageSize).build();
-        StringBuilder script = new StringBuilder(dataSourceManager.listApiExampleScript());
-        script = new StringBuilder(dataSourceManager.buildPageScript(script.toString(),apiInfo,apiParams,null,null,apiPager, page));
-        return dataSourceManager.find(script,apiInfo,apiParams,null,null);
+        return dataSourceManager.listApiExampleByEntity(ApiExample.builder().apiInfoId(apiInfoId).build(),apiPager, page);
     }
 
     @Transactional
-    public Long deleteExampleList(ArrayList<ApiExample> apiExampleList) throws Exception {
-        StringBuilder script = new StringBuilder(dataSourceManager.deleteExampleScript());
-        return dataSourceManager.remove(script,ApiInfo.builder().datasource(dataSourceManager.getStoreApiKey()).build(),new ApiParams().putParam("ids",apiExampleList.stream().map(ApiExample::getId).collect(Collectors.toSet())),null,null);
+    public void deleteExampleList(ArrayList<ApiExample> apiExampleList) {
+        apiExampleList.stream().forEach(item->{
+            dataSourceManager.deleteExample(item);
+        });
     }
 
     public void addInterceptor(ApiInfoInterceptor interceptor){
@@ -615,26 +566,9 @@ public class QLRequestMappingFactory {
         this.interceptors.add(interceptor);
     }
 
-    public List<ApiInfoHistory> lastApiInfo(String apiInfoId,Integer pageSize, Integer pageNo) throws Exception {
-
-        ApiParams apiParams = new ApiParams();
-        apiParams.putParam("apiInfoId",apiInfoId);
-        apiParams.putParam("service",service);
-
-        ApiInfo apiInfo = ApiInfo.builder().datasource(dataSourceManager.getStoreApiKey()).build();
+    public List<ApiInfoHistory> lastApiInfo(String apiInfoId,Integer pageSize, Integer pageNo) {
         Page page = Page.builder().pageNo(pageNo).pageSize(pageSize).build();
-        StringBuilder script = new StringBuilder(dataSourceManager.listApiInfoHistoryScript());
-        script = new StringBuilder(dataSourceManager.buildPageScript(script.toString(),apiInfo,apiParams,null,null,apiPager,page));
-
-        return dataSourceManager.find(script,apiInfo,apiParams,null,null)
-                .stream().map(item-> {
-            try {
-                return objectMapper.readValue(objectMapper.writeValueAsBytes(item),ApiInfoHistory.class);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return null;
-        }).collect(Collectors.toList());
+        return dataSourceManager.listApiInfoHistoryByEntity(ApiInfoHistory.builder().apiInfoId(apiInfoId).service(service).build(),apiPager,page);
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -652,17 +586,13 @@ public class QLRequestMappingFactory {
 
             //删除历史信息
             for (ApiInfo dbInfo : currApiInfos){
-                ApiParams apiParams = ApiParams.builder().param(dbInfo.toMap()).build();
-                StringBuilder script = new StringBuilder(dataSourceManager.deleteApiInfoScript());
-                dataSourceManager.remove(script,ApiInfo.builder().datasource(dataSourceManager.getStoreApiKey()).build(),apiParams,null,null);
+                dataSourceManager.deleteApiInfo(dbInfo);
             }
             //添加新信息
             for (ApiInfo apiInfo : apiInfos){
                 apiInfo.setCreateTime(sdf.format(new Date()));
                 apiInfo.setUpdateTime(sdf.format(new Date()));
-                ApiParams apiParams = ApiParams.builder().param(apiInfo.toMap()).build();
-                StringBuilder script = new StringBuilder(dataSourceManager.saveApiInfoScript());
-                dataSourceManager.insert(script,ApiInfo.builder().datasource(dataSourceManager.getStoreApiKey()).build(),apiParams,null,null);
+                dataSourceManager.saveApiInfo(apiInfo);
 
                 //保存历史版本
                 saveApiHistory(apiInfo);
@@ -677,14 +607,10 @@ public class QLRequestMappingFactory {
                     }
                     apiInfo.setCreateTime(sdf.format(new Date()));
                     apiInfo.setUpdateTime(sdf.format(new Date()));
-                    ApiParams apiParams = ApiParams.builder().param(apiInfo.toMap()).build();
-                    StringBuilder script = new StringBuilder(dataSourceManager.saveApiInfoScript());
-                    dataSourceManager.insert(script,ApiInfo.builder().datasource(dataSourceManager.getStoreApiKey()).build(),apiParams,null,null);
+                    dataSourceManager.saveApiInfo(apiInfo);
                 }else{
                     apiInfo.setUpdateTime(sdf.format(new Date()));
-                    ApiParams apiParams = ApiParams.builder().param(apiInfo.toMap()).build();
-                    StringBuilder script = new StringBuilder(dataSourceManager.updateApiInfoScript());
-                    dataSourceManager.update(script,ApiInfo.builder().datasource(dataSourceManager.getStoreApiKey()).build(),apiParams,null,null);
+                    dataSourceManager.updateApiInfo(apiInfo);
                 }
 
                 //保存历史版本

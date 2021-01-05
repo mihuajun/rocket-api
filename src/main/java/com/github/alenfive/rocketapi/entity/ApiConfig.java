@@ -1,5 +1,7 @@
 package com.github.alenfive.rocketapi.entity;
 
+import com.github.alenfive.rocketapi.annotation.ApiId;
+import com.github.alenfive.rocketapi.annotation.ApiTable;
 import com.github.alenfive.rocketapi.annotation.ApiUpdateField;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -17,11 +19,13 @@ import java.util.Map;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@ApiTable("api_config")
 public class ApiConfig {
 
     /**
      * 唯一标识符
      */
+    @ApiId
     private String id;
 
     /**

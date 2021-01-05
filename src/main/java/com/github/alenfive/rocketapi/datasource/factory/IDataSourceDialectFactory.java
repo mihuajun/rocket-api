@@ -9,5 +9,5 @@ import java.util.Map;
  */
 
 public interface IDataSourceDialectFactory {
-    abstract DataSourceDialect factory(Map<String,Object> config) throws Exception;
+    abstract DataSourceDialect factory(Map<String, Object> config) throws Exception;
 }
