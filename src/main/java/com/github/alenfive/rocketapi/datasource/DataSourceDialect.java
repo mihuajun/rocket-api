@@ -67,7 +67,7 @@ public abstract class DataSourceDialect {
      */
     protected Map<String,Object> toReplaceKeyLow(Map<String,Object> map){
         RocketApiProperties properties = SpringContextUtils.getApplicationContext().getBean(RocketApiProperties.class);
-        if (!properties.isMapUnderscoreToamelCase()){
+        if (!properties.isMapUnderscoreToCamelCase()){
             return map;
         }
         Map<String,Object> result = new HashMap<>(map.size());
