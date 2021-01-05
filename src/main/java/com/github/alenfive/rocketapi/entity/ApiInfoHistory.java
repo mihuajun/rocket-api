@@ -1,5 +1,7 @@
 package com.github.alenfive.rocketapi.entity;
 
+import com.github.alenfive.rocketapi.annotation.ApiId;
+import com.github.alenfive.rocketapi.annotation.ApiTable;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,9 +17,10 @@ import java.util.Map;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@ApiTable("api_info_history")
 public class ApiInfoHistory {
 
-
+    @ApiId
     private String id;
 
     /**
