@@ -37,7 +37,7 @@ public class RocketApiProperties {
     /**
      * 驼峰自动转换配置，默认true
      */
-    private boolean mapUnderscoreToamelCase = true;
+    private boolean mapUnderscoreToCamelCase = true;
 
     /**
      * 启用远程发布入口，默认true,生产环境如果访问地址暴露在了外网，建议关闭
