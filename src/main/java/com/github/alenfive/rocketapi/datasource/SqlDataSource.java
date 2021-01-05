@@ -4,9 +4,10 @@ import com.github.alenfive.rocketapi.entity.*;
 import com.github.alenfive.rocketapi.entity.vo.Page;
 import com.github.alenfive.rocketapi.entity.vo.TableInfo;
 import com.github.alenfive.rocketapi.extend.IApiPager;
-import com.github.alenfive.rocketapi.utils.FieldUtils;
+import com.github.alenfive.rocketapi.utils.ApiJpaUtil;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCreator;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 
@@ -23,115 +24,87 @@ public class SqlDataSource extends DataSourceDialect {
 
     protected JdbcTemplate jdbcTemplate;
 
+    protected NamedParameterJdbcTemplate parameterJdbcTemplate;
+
     private SqlDataSource(){}
 
     public SqlDataSource(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
+        this.parameterJdbcTemplate = new NamedParameterJdbcTemplate(jdbcTemplate);
     }
 
     public SqlDataSource(JdbcTemplate jdbcTemplate, boolean storeApi) {
         this.storeApi = storeApi;
         this.jdbcTemplate = jdbcTemplate;
-    }
-
-    @Override
-    public String saveApiInfoScript() {
-        return new StringBuilder("insert into api_info(")
-                .append(String.join(",", FieldUtils.allFields(ApiInfo.class)))
-                .append(")values(")
-                .append(FieldUtils.allFields(ApiInfo.class).stream().map(item->"#{"+FieldUtils.underlineToCamel(item)+"}").collect(Collectors.joining(",")))
-                .append(")")
-                .toString();
-    }
-
-    @Override
-    public String deleteApiInfoScript() {
-        return "delete from api_info where id = #{id}";
-    }
-
-    @Override
-    public String updateApiInfoScript() {
-        return new StringBuilder("update api_info set ")
-                .append(FieldUtils.updateFields(ApiInfo.class).stream().map(item->new StringBuilder(item).append("=").append("#{"+FieldUtils.underlineToCamel(item)+"}")).collect(Collectors.joining(",")))
-                .append(" where id = #{id}")
-                .toString();
-    }
-
-    @Override
-    public String listApiInfoScript() {
-        return new StringBuilder("select ")
-                .append(String.join(",",FieldUtils.allFields(ApiInfo.class)))
-                .append(" from api_info where service = #{service} ?{id, and id = #{id}}")
-                .toString();
-    }
-
-    @Override
-    public String saveApiInfoHistoryScript() {
-        return new StringBuilder("insert into api_info_history(")
-                .append(String.join(",", FieldUtils.allFields(ApiInfoHistory.class)))
-                .append(") values(")
-                .append(FieldUtils.allFields(ApiInfoHistory.class).stream().map(item->"#{"+FieldUtils.underlineToCamel(item)+"}").collect(Collectors.joining(",")))
-                .append(")")
-                .toString();
-    }
-
-    @Override
-    String listApiInfoHistoryScript() {
-        return new StringBuilder("select ")
-                .append(String.join(",",FieldUtils.allFields(ApiInfoHistory.class)))
-                .append(" from api_info_history where service = #{service} ?{apiInfoId,and api_info_id = #{apiInfoId}} order by create_time desc")
-                .toString();
+        this.parameterJdbcTemplate = new NamedParameterJdbcTemplate(jdbcTemplate);
     }
 
 
     @Override
-    public String saveApiExampleScript() {
-        return new StringBuilder("insert into api_example(")
-                .append(String.join(",", FieldUtils.allFields(ApiExample.class)))
-                .append(")values(")
-                .append(FieldUtils.allFields(ApiExample.class).stream().map(item->"#{"+FieldUtils.underlineToCamel(item)+"}").collect(Collectors.joining(",")))
-                .append(")")
-                .toString();
+    public void saveApiInfo(ApiInfo apiInfo) {
+        ApiJpaUtil.insert(parameterJdbcTemplate,apiInfo);
     }
 
     @Override
-    public String deleteExampleScript() {
-        return "delete from api_example where id in (#{ids})";
+    public ApiInfo findApiInfoById(ApiInfo apiInfo) {
+        return ApiJpaUtil.findById(parameterJdbcTemplate,apiInfo);
     }
 
     @Override
-    public String listApiExampleScript() {
-        return new StringBuilder("select ")
-                .append(String.join(",", FieldUtils.allFields(ApiExample.class)))
-                .append(" from api_example where api_info_id = #{apiInfoId} order by create_time desc")
-                .toString();
+    public void deleteApiInfo(ApiInfo apiInfo) {
+        ApiJpaUtil.deleteById(parameterJdbcTemplate,apiInfo);
     }
 
     @Override
-    String saveApiConfigScript() {
-        return new StringBuilder("insert into api_config(")
-                .append(String.join(",", FieldUtils.allFields(ApiConfig.class)))
-                .append(")values(")
-                .append(FieldUtils.allFields(ApiConfig.class).stream().map(item->"#{"+FieldUtils.underlineToCamel(item)+"}").collect(Collectors.joining(",")))
-                .append(")")
-                .toString();
+    public void updateApiInfo(ApiInfo apiInfo) {
+        ApiJpaUtil.updateById(parameterJdbcTemplate,apiInfo);
     }
 
     @Override
-    String updateApiConfigScript() {
-        return new StringBuilder("update api_config set ")
-                .append(FieldUtils.updateFields(ApiConfig.class).stream().map(item->new StringBuilder(item).append("=").append("#{"+FieldUtils.underlineToCamel(item)+"}")).collect(Collectors.joining(",")))
-                .append(" where id = #{id}")
-                .toString();
+    public List<ApiInfo> listApiInfoByEntity(ApiInfo apiInfo) {
+        return ApiJpaUtil.listByEntity(parameterJdbcTemplate,apiInfo);
     }
 
     @Override
-    String listApiConfigScript() {
-        return new StringBuilder("select ")
-                .append(String.join(",", FieldUtils.allFields(ApiConfig.class)))
-                .append(" from api_config where service = #{service}")
-                .toString();
+    public void saveApiInfoHistory(ApiInfoHistory apiInfoHistory) {
+        ApiJpaUtil.insert(parameterJdbcTemplate,apiInfoHistory);
     }
+
+    @Override
+    public List<ApiInfoHistory> listApiInfoHistoryByEntity(ApiInfoHistory apiInfoHistory, IApiPager apiPager, Page page) {
+        return ApiJpaUtil.pageByEntity(parameterJdbcTemplate,apiInfoHistory,this,apiPager,page);
+    }
+
+    @Override
+    public void saveApiExample(ApiExample apiExample) {
+        ApiJpaUtil.insert(parameterJdbcTemplate,apiExample);
+    }
+
+    @Override
+    public List<ApiExample> listApiExampleByEntity(ApiExample apiExample, IApiPager apiPager, Page page) {
+        return ApiJpaUtil.pageByEntity(parameterJdbcTemplate,apiExample,this,apiPager,page);
+    }
+
+    @Override
+    public void deleteExample(ApiExample apiExample) {
+        ApiJpaUtil.deleteById(parameterJdbcTemplate,apiExample);
+    }
+
+    @Override
+    public void saveApiConfig(ApiConfig apiConfig) {
+        ApiJpaUtil.insert(parameterJdbcTemplate,apiConfig);
+    }
+
+    @Override
+    public void updateApiConfig(ApiConfig apiConfig) {
+        ApiJpaUtil.updateById(parameterJdbcTemplate,apiConfig);
+    }
+
+    @Override
+    public List<ApiConfig> listApiConfigByEntity(ApiConfig apiConfig) {
+        return ApiJpaUtil.listByEntity(parameterJdbcTemplate,apiConfig);
+    }
+
 
     @Override
     public List<Map<String,Object>> find(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams) {

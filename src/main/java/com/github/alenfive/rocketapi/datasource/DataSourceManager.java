@@ -1,7 +1,6 @@
 package com.github.alenfive.rocketapi.datasource;
 
-import com.github.alenfive.rocketapi.entity.ApiInfo;
-import com.github.alenfive.rocketapi.entity.ApiParams;
+import com.github.alenfive.rocketapi.entity.*;
 import com.github.alenfive.rocketapi.entity.vo.Page;
 import com.github.alenfive.rocketapi.extend.IApiPager;
 import com.github.alenfive.rocketapi.service.ScriptParseService;
@@ -29,45 +28,48 @@ public abstract class DataSourceManager {
     public String getStoreApiKey(){
         return dialectMap.keySet().stream().filter(key->dialectMap.get(key).isStoreApi()).findFirst().orElse(null);
     }
-    public String listApiInfoScript(){
-        return dialectMap.get(getStoreApiKey()).listApiInfoScript();
+    public List<ApiInfo> listApiInfoByEntity(ApiInfo apiInfo){
+        return dialectMap.get(getStoreApiKey()).listApiInfoByEntity(apiInfo);
     }
 
-    public String listApiInfoHistoryScript() {
-        return dialectMap.get(getStoreApiKey()).listApiInfoHistoryScript();
+    public List<ApiInfoHistory> listApiInfoHistoryByEntity(ApiInfoHistory apiInfoHistory, IApiPager apiPager, Page page) {
+        return dialectMap.get(getStoreApiKey()).listApiInfoHistoryByEntity(apiInfoHistory,apiPager,page);
     }
 
-    public String saveApiInfoHistoryScript() {
-        return dialectMap.get(getStoreApiKey()).saveApiInfoHistoryScript();
+    public void saveApiInfoHistory(ApiInfoHistory apiInfoHistory) {
+        dialectMap.get(getStoreApiKey()).saveApiInfoHistory(apiInfoHistory);
     }
 
-    public String saveApiInfoScript(){
-        return dialectMap.get(getStoreApiKey()).saveApiInfoScript();
+    public void saveApiInfo(ApiInfo apiInfo){
+        dialectMap.get(getStoreApiKey()).saveApiInfo(apiInfo);
     }
-    public String updateApiInfoScript(){
-        return dialectMap.get(getStoreApiKey()).updateApiInfoScript();
+    public ApiInfo findApiInfoById(ApiInfo apiInfo){
+       return dialectMap.get(getStoreApiKey()).findApiInfoById(apiInfo);
     }
-    public String deleteApiInfoScript(){
-        return dialectMap.get(getStoreApiKey()).deleteApiInfoScript();
+    public void updateApiInfo(ApiInfo apiInfo){
+        dialectMap.get(getStoreApiKey()).updateApiInfo(apiInfo);
     }
-    public String saveApiExampleScript() {
-        return dialectMap.get(getStoreApiKey()).saveApiExampleScript();
+    public void deleteApiInfo(ApiInfo apiInfo){
+        dialectMap.get(getStoreApiKey()).deleteApiInfo(apiInfo);
     }
-    public String listApiExampleScript() {
-        return dialectMap.get(getStoreApiKey()).listApiExampleScript();
+    public void saveApiExample(ApiExample apiExample) {
+        dialectMap.get(getStoreApiKey()).saveApiExample(apiExample);
     }
-    public String deleteExampleScript() {
-        return dialectMap.get(getStoreApiKey()).deleteExampleScript();
+    public List<ApiExample> listApiExampleByEntity(ApiExample apiExample, IApiPager apiPager, Page page) {
+        return dialectMap.get(getStoreApiKey()).listApiExampleByEntity(apiExample,apiPager,page);
+    }
+    public void deleteExample(ApiExample apiExample) {
+        dialectMap.get(getStoreApiKey()).deleteExample(apiExample);
     }
 
-    public String saveApiConfigScript(){
-        return dialectMap.get(getStoreApiKey()).saveApiConfigScript();
+    public void saveApiConfig(ApiConfig apiConfig){
+        dialectMap.get(getStoreApiKey()).saveApiConfig(apiConfig);
     }
-    public String updateApiConfigScript(){
-        return dialectMap.get(getStoreApiKey()).updateApiConfigScript();
+    public void updateApiConfig(ApiConfig apiConfig){
+        dialectMap.get(getStoreApiKey()).updateApiConfig(apiConfig);
     }
-    public String listApiConfigScript(){
-        return dialectMap.get(getStoreApiKey()).listApiConfigScript();
+    public List<ApiConfig> listApiConfigByEntity(ApiConfig apiConfig){
+        return dialectMap.get(getStoreApiKey()).listApiConfigByEntity(apiConfig);
     }
 
 

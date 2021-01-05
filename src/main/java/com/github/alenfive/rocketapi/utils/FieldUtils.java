@@ -13,8 +13,12 @@ public class FieldUtils {
 
     private static Pattern humpPattern = Pattern.compile("[A-Z]");
 
-    public static List<String> allFields(Class clazz){
+    public static List<String> allTableFields(Class clazz){
         return Arrays.stream(clazz.getDeclaredFields()).map(item->humpToLine2(item.getName())).collect(Collectors.toList());
+    }
+
+    public static List<String> allNameParamsFields(Class clazz){
+        return Arrays.stream(clazz.getDeclaredFields()).map(item->":"+item.getName()).collect(Collectors.toList());
     }
 
     public static List<String> updateFields(Class clazz){

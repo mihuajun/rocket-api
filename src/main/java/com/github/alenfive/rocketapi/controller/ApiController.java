@@ -247,7 +247,8 @@ public class ApiController {
         }
 
         try {
-            return ApiResult.success(mappingFactory.deleteApiInfo(apiInfo));
+            mappingFactory.deleteApiInfo(apiInfo);
+            return ApiResult.success(null);
         }catch (Exception e){
             e.printStackTrace();
             return ApiResult.fail(e.getMessage());
@@ -385,11 +386,11 @@ public class ApiController {
     @GetMapping("/api-example/last")
     public ApiResult lastApiExample(String apiInfoId,Integer pageSize,Integer pageNo) throws Exception {
 
-        List<Map<String,Object>> result = mappingFactory.listApiExampleScript(apiInfoId,pageSize,pageNo);
+        List<ApiExample> result = mappingFactory.listApiExampleScript(apiInfoId,pageSize,pageNo);
         result.forEach(item->{
-            if (!StringUtils.isEmpty(item.get("responseBody"))){
+            if (!StringUtils.isEmpty(item.getResponseBody())){
                 try {
-                    item.put("responseBody",URLDecoder.decode(item.get("responseBody").toString(),"utf-8"));
+                    item.setResponseBody(URLDecoder.decode(item.getResponseBody(),"utf-8"));
                 } catch (UnsupportedEncodingException e) {
                     e.printStackTrace();
                 }
@@ -407,7 +408,8 @@ public class ApiController {
         if(StringUtils.isEmpty(user)){
             return ApiResult.fail("Permission denied");
         }
-        return ApiResult.success(mappingFactory.deleteExampleList(deleteExamleReq.getApiExampleList()));
+        mappingFactory.deleteExampleList(deleteExamleReq.getApiExampleList());
+        return ApiResult.success(null);
     }
 
     /**
@@ -449,18 +451,16 @@ public class ApiController {
         return ApiResult.success(result);
     }
 
-    private ApiExample buildLastApiExample(String apiInfoId) throws Exception {
-        List<Map<String,Object>> result = mappingFactory.listApiExampleScript(apiInfoId,1,1);
-        ApiExample apiExample = null;
-        if (!CollectionUtils.isEmpty(result)){
-            apiExample = objectMapper.readValue(objectMapper.writeValueAsBytes(result.get(0)),ApiExample.class);
-            if (!StringUtils.isEmpty(apiExample.getResponseBody())){
-                try {
-                    apiExample.setResponseBody(URLDecoder.decode(apiExample.getResponseBody(),"utf-8"));
-                } catch (UnsupportedEncodingException e) {
-                    e.printStackTrace();
-                }
-            }
+    private ApiExample buildLastApiExample(String apiInfoId) {
+        List<ApiExample> result = mappingFactory.listApiExampleScript(apiInfoId,1,1);
+        if (CollectionUtils.isEmpty(result)){
+            return null;
+        }
+        ApiExample apiExample = result.get(0);
+        try {
+            apiExample.setResponseBody(URLDecoder.decode(apiExample.getResponseBody(),"utf-8"));
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
         }
         return apiExample;
     }

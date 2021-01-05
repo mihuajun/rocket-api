@@ -24,9 +24,7 @@ public class EncryptChangeService {
     public void convert(UnaryOperator<String> predicate) throws Exception {
         for (ApiInfo apiInfo : mappingFactory.getPathList(false) ){
             apiInfo.setScript(predicate.apply(apiInfo.getScript()));
-            ApiParams apiParams = ApiParams.builder().param(apiInfo.toMap()).build();
-            StringBuilder script = new StringBuilder(dataSourceManager.updateApiInfoScript());
-            dataSourceManager.update(script,ApiInfo.builder().datasource(dataSourceManager.getStoreApiKey()).build(),apiParams,null,null);
+            dataSourceManager.updateApiInfo(apiInfo);
         }
     }
 }

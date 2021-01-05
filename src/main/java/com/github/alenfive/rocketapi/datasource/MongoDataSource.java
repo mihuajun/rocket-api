@@ -1,15 +1,19 @@
 package com.github.alenfive.rocketapi.datasource;
 
-import com.github.alenfive.rocketapi.entity.ApiInfo;
-import com.github.alenfive.rocketapi.entity.ApiParams;
+import com.github.alenfive.rocketapi.entity.*;
 import com.github.alenfive.rocketapi.entity.vo.Page;
 import com.github.alenfive.rocketapi.entity.vo.TableInfo;
 import com.github.alenfive.rocketapi.extend.IApiPager;
+import com.github.alenfive.rocketapi.utils.ApiJpaUtil;
 import com.github.alenfive.rocketapi.utils.FieldUtils;
 import org.bson.Document;
 import org.bson.types.ObjectId;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -39,173 +43,80 @@ public class MongoDataSource extends DataSourceDialect {
     }
 
     @Override
-    public String listApiInfoScript() {
-        return "{\n" +
-                "\t\"find\":\"api_info\",\n" +
-                "\t\"filter\":{\n" +
-                "\t\t\"service\":#{service}\n" +
-                "\t\t,?{id,\"_id\":ObjectId(#{id})}\n" +
-                "\t}\n" +
-                "}";
+    void saveApiInfo(ApiInfo apiInfo) {
+        mongoTemplate.save(apiInfo, ApiJpaUtil.getApiTableName(ApiInfo.class));
     }
 
     @Override
-    String listApiInfoHistoryScript() {
-        return "{\n" +
-                "\t\"find\":\"api_info_history\",\n" +
-                "\t\"filter\":{\n" +
-                "\t\t\"service\":#{service}\n" +
-                "\t\t,?{apiInfoId,\"api_info_id\":ObjectId(#{apiInfoId})}\n" +
-                "\t}," +
-                "sort:{_id:-1}\n" +
-                "}";
+    public ApiInfo findApiInfoById(ApiInfo apiInfo) {
+        return mongoTemplate.findById(apiInfo.getId(),ApiInfo.class,ApiJpaUtil.getApiTableName(ApiInfo.class));
     }
 
     @Override
-    public String saveApiInfoHistoryScript() {
-        return "{\n" +
-                "\t\"insert\":\"api_info_history\",\n" +
-                "\t\"documents\":[{\n" +
-                "\t\t\"_id\":ObjectId(#{id}),\n" +
-                "\t\t\"api_info_id\":ObjectId(#{apiInfoId}),\n" +
-                "\t\t\"method\":#{method},\n" +
-                "\t\t\"path\":#{path},\n" +
-                "\t\t\"type\":#{type},\n" +
-                "\t\t\"service\":#{service},\n" +
-                "\t\t\"group_name\":#{groupName},\n" +
-                "\t\t\"editor\":#{editor},\n" +
-                "\t\t\"name\":#{name},\n" +
-                "\t\t\"datasource\":#{datasource},\n" +
-                "\t\t\"script\":#{script},\n" +
-                "\t\t\"options\":#{options},\n" +
-                "\t\t\"create_time\":#{createTime},\n" +
-                "\t}]\n" +
-                "}";
+    public void deleteApiInfo(ApiInfo apiInfo) {
+        mongoTemplate.remove(Query.query(Criteria.where("_id").is(new ObjectId(apiInfo.getId()))),ApiJpaUtil.getApiTableName(ApiInfo.class));
     }
 
     @Override
-    public String saveApiInfoScript() {
-        return "{\n" +
-                "\t\"insert\":\"api_info\",\n" +
-                "\t\"documents\":[{\n" +
-                "\t\t\"_id\":ObjectId(#{id}),\n" +
-                "\t\t\"method\":#{method},\n" +
-                "\t\t\"path\":#{path},\n" +
-                "\t\t\"type\":#{type},\n" +
-                "\t\t\"service\":#{service},\n" +
-                "\t\t\"group_name\":#{groupName},\n" +
-                "\t\t\"editor\":#{editor},\n" +
-                "\t\t\"name\":#{name},\n" +
-                "\t\t\"datasource\":#{datasource},\n" +
-                "\t\t\"script\":#{script},\n" +
-                "\t\t\"options\":#{options},\n" +
-                "\t\t\"create_time\":#{createTime},\n" +
-                "\t\t\"update_time\":#{updateTime}\n" +
-                "\t}]\n" +
-                "}";
+    public void updateApiInfo(ApiInfo apiInfo) {
+        mongoTemplate.save(apiInfo,ApiJpaUtil.getApiTableName(ApiInfo.class));
     }
 
     @Override
-    public String updateApiInfoScript() {
-        return "{\n" +
-                "     update: \"api_info\",\n" +
-                "     updates: \n" +
-                "     \t[{\n" +
-                "     \t\tq:{_id:ObjectId(#{id})},\n" +
-                "     \t\tu:{$set:{method:#{method},path:#{path},datasource:#{datasource},groupName:#{groupName},editor:#{editor},name:#{name},script:#{script},options:#{options},update_time:#{updateTime}}},\n" +
-                "     \t\tupsert:false,\n" +
-                "     \t\tmulti:false\n" +
-                "     \t}]\n" +
-                "     \n" +
-                "}";
+    public List<ApiInfo> listApiInfoByEntity(ApiInfo apiInfo) {
+        Query query = Query.query(Criteria.where("service").is(apiInfo.getService()));
+        return mongoTemplate.find(query,ApiInfo.class,ApiJpaUtil.getApiTableName(ApiInfo.class));
     }
 
     @Override
-    public String deleteApiInfoScript() {
-        return "{\n" +
-                "     delete: \"api_info\",\n" +
-                "     deletes: [\n" +
-                "     \t{q:{_id:ObjectId(#{id})},limit:1}\n" +
-                "     ]\n" +
-                "}";
+    public void saveApiInfoHistory(ApiInfoHistory apiInfoHistory) {
+        mongoTemplate.save(apiInfoHistory,ApiJpaUtil.getApiTableName(ApiInfoHistory.class));
     }
 
     @Override
-    public String saveApiExampleScript() {
-        return "{\n" +
-                "\t\"insert\":\"api_example\",\n" +
-                "\t\"documents\":[{\n" +
-                "\t\t\"_id\":ObjectId(#{id}),\n" +
-                "\t\t\"api_info_id\":ObjectId(#{apiInfoId}),\n" +
-                "\t\t\"method\":#{method},\n" +
-                "\t\t\"url\":#{url},\n" +
-                "\t\t\"request_header\":#{requestHeader},\n" +
-                "\t\t\"request_body\":#{requestBody},\n" +
-                "\t\t\"response_header\":#{responseHeader},\n" +
-                "\t\t\"response_body\":#{responseBody},\n" +
-                "\t\t\"status\":#{status},\n" +
-                "\t\t\"time\":#{time},\n" +
-                "\t\t\"editor\":#{editor},\n" +
-                "\t\t\"options\":#{options},\n" +
-                "\t\t\"create_time\":ISODate(#{createTime})\n" +
-                "\t}]\n" +
-                "}";
+    public List<ApiInfoHistory> listApiInfoHistoryByEntity(ApiInfoHistory apiInfoHistory, IApiPager apiPager, Page page) {
+        Criteria criteria = Criteria.where("service").is(apiInfoHistory.getService());
+        if (!StringUtils.isEmpty(apiInfoHistory.getApiInfoId())){
+            criteria.and("apiInfoId").is(apiInfoHistory.getApiInfoId());
+        }
+        Query query = Query.query(criteria);
+        query.skip(apiPager.getIndexVarValue(page.getPageSize(),page.getPageNo())).limit(page.getPageSize());
+        query.with(Sort.by(Sort.Direction.DESC,"_id"));
+        return mongoTemplate.find(query,ApiInfoHistory.class,ApiJpaUtil.getApiTableName(ApiInfoHistory.class));
     }
 
     @Override
-    public String listApiExampleScript() {
-        return "{\n" +
-                "     find: \"api_example\",\n" +
-                "     filter: { api_info_id: ObjectId(#{apiInfoId}) }," +
-                "     sort:{_id:-1}\n" +
-                "}";
+    public void saveApiExample(ApiExample apiExample) {
+        mongoTemplate.save(apiExample,ApiJpaUtil.getApiTableName(ApiExample.class));
     }
 
     @Override
-    public String deleteExampleScript() {
-        return "{\n" +
-                "     delete: \"api_example\",\n" +
-                "     deletes: [\n" +
-                "     \t{q:{_id:{$in:[ObjectId(#{ids})]}},limit:0}\n" +
-                "     ]\n" +
-                "}";
+    public List<ApiExample> listApiExampleByEntity(ApiExample apiExample, IApiPager apiPager, Page page) {
+        Query query = Query.query(Criteria.where("apiInfoId").is(apiExample.getApiInfoId()));
+        query.skip(apiPager.getIndexVarValue(page.getPageSize(),page.getPageNo())).limit(page.getPageSize());
+        query.with(Sort.by(Sort.Direction.DESC,"_id"));
+        return mongoTemplate.find(query,ApiExample.class,ApiJpaUtil.getApiTableName(ApiExample.class));
     }
 
     @Override
-    String saveApiConfigScript() {
-        return "{\n" +
-                "\t\"insert\":\"api_config\",\n" +
-                "\t\"documents\":[{\n" +
-                "\t\t\"_id\":ObjectId(#{id}),\n" +
-                "\t\t\"service\":#{service},\n" +
-                "\t\t\"config_context\":#{configContext}\n" +
-                "\t}]\n" +
-                "}";
+    public void deleteExample(ApiExample apiExample) {
+        mongoTemplate.remove(Query.query(Criteria.where("_id").is(new ObjectId(apiExample.getId()))),ApiJpaUtil.getApiTableName(ApiExample.class));
     }
 
     @Override
-    String updateApiConfigScript() {
-        return "{\n" +
-                "     update: \"api_config\",\n" +
-                "     updates: \n" +
-                "     \t[{\n" +
-                "     \t\tq:{_id:ObjectId(#{id})},\n" +
-                "     \t\tu:{$set:{config_context:#{configContext}}},\n" +
-                "     \t\tupsert:false,\n" +
-                "     \t\tmulti:false\n" +
-                "     \t}]\n" +
-                "     \n" +
-                "}";
+    public void saveApiConfig(ApiConfig apiConfig) {
+        mongoTemplate.save(apiConfig,ApiJpaUtil.getApiTableName(ApiConfig.class));
     }
 
     @Override
-    String listApiConfigScript() {
-        return "{\n" +
-                "     find: \"api_config\",\n" +
-                "     filter: { " +
-                "\t\t\"service\":#{service}\n" +
-                "}" +
-                "}";
+    public void updateApiConfig(ApiConfig apiConfig) {
+        mongoTemplate.save(apiConfig,ApiJpaUtil.getApiTableName(ApiConfig.class));
+    }
+
+    @Override
+    public List<ApiConfig> listApiConfigByEntity(ApiConfig apiConfig) {
+        Query query = Query.query(Criteria.where("service").is(apiConfig.getService()));
+        return mongoTemplate.find(query,ApiConfig.class,ApiJpaUtil.getApiTableName(ApiConfig.class));
     }
 
     @Override
