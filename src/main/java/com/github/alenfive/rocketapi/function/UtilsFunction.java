@@ -2,8 +2,13 @@ package com.github.alenfive.rocketapi.function;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.alenfive.rocketapi.entity.ApiInfo;
+import com.github.alenfive.rocketapi.entity.ApiType;
 import com.github.alenfive.rocketapi.entity.vo.IgnoreWrapper;
 import com.github.alenfive.rocketapi.extend.ApiInfoContent;
+import com.github.alenfive.rocketapi.extend.IApiInfoCache;
+import com.github.alenfive.rocketapi.extend.IScriptEncrypt;
+import com.github.alenfive.rocketapi.script.IScriptParse;
 import com.github.alenfive.rocketapi.service.ScriptParseService;
 import com.github.alenfive.rocketapi.utils.CsvUtils;
 import com.github.alenfive.rocketapi.utils.ExcelUtils;
@@ -11,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.*;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -34,6 +40,15 @@ public class UtilsFunction implements IFunction{
 
     @Autowired
     private ObjectMapper objectMapper;
+
+    @Autowired
+    private IApiInfoCache apiInfoCache;
+
+    @Autowired
+    private IScriptEncrypt scriptEncrypt;
+
+    @Autowired
+    private IScriptParse scriptParse;
 
     @Override
     public String getVarName() {
@@ -180,5 +195,30 @@ public class UtilsFunction implements IFunction{
      */
     public Object pasreToObject(String str) throws IOException {
         return objectMapper.readValue(str,Object.class);
+    }
+
+    /**
+     * 接口调用
+     * @param target
+     * @return
+     */
+    public Object loadAPI(String target) throws Throwable {
+        if(StringUtils.isEmpty(target)){
+            throw new IllegalArgumentException("parameter `target` is empty");
+        }
+        String[] targetArr = target.split(":");
+        if (targetArr.length != 2){
+            throw new IllegalArgumentException("parameter `target` needs to \"GET:/test/pager\"");
+        }
+        String method = targetArr[0];
+        String path = targetArr[1];
+        ApiInfo apiInfo = apiInfoCache.get(ApiInfo.builder().method(method).path(path).build());
+
+        if (apiInfo == null || !ApiType.Ql.name().equals(apiInfo.getType())){
+            throw new IllegalArgumentException("API not found "+target);
+        }
+
+        StringBuilder script = new StringBuilder(scriptEncrypt.decrypt(apiInfo.getScript()));
+        return scriptParse.engineEval(script.toString(),apiInfoContent.getEngineBindings());
     }
 }

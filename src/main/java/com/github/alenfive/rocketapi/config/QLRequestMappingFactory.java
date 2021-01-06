@@ -397,19 +397,22 @@ public class QLRequestMappingFactory {
             throw new IllegalArgumentException("method: "+apiInfo.getMethod()+" path:"+apiInfo.getPath()+" already exist");
         }
 
+        ApiInfo dbInfo = apiInfoCache.getAll().stream().filter(item->item.getId().equals(apiInfo.getId())).findFirst().orElse(null);
+
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         apiInfo.setUpdateTime(sdf.format(new Date()));
-        if (apiInfo.getId() == null){
+        if (dbInfo == null){
             apiInfo.setType(ApiType.Ql.name());
             apiInfo.setCreateTime(sdf.format(new Date()));
             apiInfo.setService(service);
             apiInfo.setId(GenerateId.get().toHexString());
             dataSourceManager.saveApiInfo(apiInfo);
         }else{
-            apiInfo.setService(service);
-            dataSourceManager.updateApiInfo(apiInfo);
+            apiInfo.setType(dbInfo.getType());
+            apiInfo.setCreateTime(dbInfo.getCreateTime());
+            apiInfo.setService(dbInfo.getService());
 
-            ApiInfo dbInfo = apiInfoCache.getAll().stream().filter(item->item.getId().equals(apiInfo.getId())).findFirst().orElse(null);
+            dataSourceManager.updateApiInfo(apiInfo);
 
             //取消mapping注册
             unregisterMappingForApiInfo(dbInfo);
@@ -418,7 +421,7 @@ public class QLRequestMappingFactory {
             apiInfoCache.remove(dbInfo);
         }
 
-        ApiInfo dbInfo = dataSourceManager.findApiInfoById(apiInfo);
+        dbInfo = dataSourceManager.findApiInfoById(apiInfo);
 
         //入缓存
         apiInfoCache.put(dbInfo);
