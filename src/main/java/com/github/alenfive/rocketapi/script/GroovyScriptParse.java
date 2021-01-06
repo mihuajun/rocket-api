@@ -126,6 +126,8 @@ public class GroovyScriptParse implements IScriptParse{
         bindings.put("header",apiParams.getHeader());
         bindings.put("cookie",apiParams.getCookie());
         bindings.put("session",apiParams.getSession());
+        bindings.put("request",apiParams.getRequest());
+        bindings.put("response",apiParams.getResponse());
 
         if (!CollectionUtils.isEmpty(apiParams.getSession())){
             apiParams.getSession().forEach((key,value)->{

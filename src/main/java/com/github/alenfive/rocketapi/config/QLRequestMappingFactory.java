@@ -278,7 +278,7 @@ public class QLRequestMappingFactory {
     @ResponseBody
     public ResponseEntity execute(@PathVariable(required = false) Map<String,String> pathVar,
                           @RequestParam(required = false) Map<String,Object> param,
-                          HttpServletRequest request) throws Throwable {
+                          HttpServletRequest request,HttpServletResponse response) throws Throwable {
 
         String path = buildPattern(request);
         String method = request.getMethod();
@@ -308,6 +308,7 @@ public class QLRequestMappingFactory {
                 .body(body)
                 .session(RequestUtils.buildSessionParams(request))
                 .request(request)
+                .response(response)
                 .build();
 
 
@@ -360,7 +361,7 @@ public class QLRequestMappingFactory {
         PatternsRequestCondition patternsRequestCondition = new PatternsRequestCondition(pattern);
         RequestMethodsRequestCondition methodsRequestCondition = new RequestMethodsRequestCondition(RequestMethod.valueOf(apiInfo.getMethod()));
         RequestMappingInfo mappingInfo = new RequestMappingInfo(patternsRequestCondition,methodsRequestCondition,null,null,null,null,null);
-        Method targetMethod = QLRequestMappingFactory.class.getDeclaredMethod("execute", Map.class, Map.class,HttpServletRequest.class);
+        Method targetMethod = QLRequestMappingFactory.class.getDeclaredMethod("execute", Map.class, Map.class,HttpServletRequest.class,HttpServletResponse.class);
         requestMappingHandlerMapping.registerMapping(mappingInfo,this, targetMethod);
     }
 
