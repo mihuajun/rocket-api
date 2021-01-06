@@ -34,26 +34,11 @@ import java.util.stream.Collectors;
 @SuppressWarnings("DuplicatedCode")
 @Slf4j
 public class ApiJpaUtil {
+
     private static Map<String,String> apiJpaCache = new ConcurrentHashMap<>();
 
-    public static String getApiTableName(Class clazz){
-        ApiTable apiTable = (ApiTable) clazz.getAnnotation(ApiTable.class);
-        if (apiTable == null)throw new IllegalArgumentException("not found @ApiTable Annotation");
-        String tableName = apiTable.value();
-        if (StringUtils.isEmpty(tableName))throw new IllegalArgumentException("not found tableName for @ApiTable Annotation");
-        return tableName;
-    }
-
-    public static String getApiIdFieldName(Class clazz) {
-        Field idField = Arrays.asList(clazz.getDeclaredFields()).stream().filter(item->item.getAnnotation(ApiId.class) != null).findFirst().orElse(null);
-        if (idField == null) {
-            throw new IllegalArgumentException("not found @ApiId Annotation");
-        }
-        return idField.getName();
-    }
-
     public static void insert(NamedParameterJdbcTemplate jdbcTemplate, Object apiObject){
-        String tableName = getApiTableName(apiObject.getClass());
+        String tableName = ApiAnnotationUtil.getApiTableName(apiObject.getClass());
         String key = "insert:"+tableName;
         String sql = null;
         if ((sql = apiJpaCache.get(key)) == null ){
@@ -71,7 +56,7 @@ public class ApiJpaUtil {
     }
 
     public static<T> List<T> listByEntity(NamedParameterJdbcTemplate jdbcTemplate, T apiObject){
-        String tableName = getApiTableName(apiObject.getClass());
+        String tableName = ApiAnnotationUtil.getApiTableName(apiObject.getClass());
 
         String where = Arrays.asList(apiObject.getClass().getDeclaredFields()).stream().filter(item->{
             item.setAccessible(true);
@@ -97,8 +82,8 @@ public class ApiJpaUtil {
     }
 
     public static<T> void deleteById(NamedParameterJdbcTemplate jdbcTemplate,T apiObject) {
-        String tableName = getApiTableName(apiObject.getClass());
-        String idField = getApiIdFieldName(apiObject.getClass());
+        String tableName = ApiAnnotationUtil.getApiTableName(apiObject.getClass());
+        String idField = ApiAnnotationUtil.getApiIdFieldName(apiObject.getClass());
         String key = "deleteById:"+tableName;
         String sql = null;
         if ((sql = apiJpaCache.get(key)) == null ){
@@ -116,8 +101,8 @@ public class ApiJpaUtil {
     }
 
     public static<T> T findById(NamedParameterJdbcTemplate jdbcTemplate,T apiObject) {
-        String tableName = getApiTableName(apiObject.getClass());
-        String idField = getApiIdFieldName(apiObject.getClass());
+        String tableName = ApiAnnotationUtil.getApiTableName(apiObject.getClass());
+        String idField = ApiAnnotationUtil.getApiIdFieldName(apiObject.getClass());
         String key = "findById:"+tableName;
         String sql = null;
         if ((sql = apiJpaCache.get(key)) == null ){
@@ -141,8 +126,8 @@ public class ApiJpaUtil {
     }
 
     public static<T> void updateById(NamedParameterJdbcTemplate jdbcTemplate,T apiObject) {
-        String tableName = getApiTableName(apiObject.getClass());
-        String idField = getApiIdFieldName(apiObject.getClass());
+        String tableName = ApiAnnotationUtil.getApiTableName(apiObject.getClass());
+        String idField = ApiAnnotationUtil.getApiIdFieldName(apiObject.getClass());
         String key = "updateById:"+tableName;
         String sql = null;
         if ((sql = apiJpaCache.get(key)) == null ){
@@ -164,7 +149,7 @@ public class ApiJpaUtil {
 
 
     public static<T> List<T> pageByEntity(NamedParameterJdbcTemplate jdbcTemplate, T apiObject, DataSourceDialect sqlDataSource, IApiPager apiPager, Page page) {
-        String tableName = getApiTableName(apiObject.getClass());
+        String tableName = ApiAnnotationUtil.getApiTableName(apiObject.getClass());
 
         String where = Arrays.asList(apiObject.getClass().getDeclaredFields()).stream().filter(item->{
             item.setAccessible(true);
