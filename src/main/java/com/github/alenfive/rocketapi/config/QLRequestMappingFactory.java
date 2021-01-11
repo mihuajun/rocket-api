@@ -258,6 +258,7 @@ public class QLRequestMappingFactory {
                     .build();
             dataSourceManager.saveApiConfig(apiConfig);
         }else{
+            apiConfig.setConfigContext(configContext);
             dataSourceManager.updateApiConfig(apiConfig);
         }
 
