@@ -299,6 +299,7 @@ public class QLRequestMappingFactory {
             }else if(request.getContentType() != null && request.getContentType().indexOf("multipart/form-data") > -1){
                 MultipartHttpServletRequest multipartHttpServletRequest = (MultipartHttpServletRequest) request;
                 body.putAll(multipartHttpServletRequest.getMultiFileMap());
+                body.put(properties.getBodyRootKey(),multipartHttpServletRequest.getMultiFileMap());
             }
         }
 
