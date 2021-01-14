@@ -300,6 +300,13 @@ public class QLRequestMappingFactory {
                 MultipartHttpServletRequest multipartHttpServletRequest = (MultipartHttpServletRequest) request;
                 body.putAll(multipartHttpServletRequest.getMultiFileMap());
                 body.put(properties.getBodyRootKey(),multipartHttpServletRequest.getMultiFileMap());
+            }else if(request.getContentType() != null && request.getContentType().indexOf("application/x-www-form-urlencoded") > -1){
+                Map<String,List<Object>> parameterMap = new HashMap<>(request.getParameterMap().size());
+                request.getParameterMap().forEach((key,values)->{
+                    parameterMap.put(key,Arrays.asList(values));
+                });
+                body.putAll(parameterMap);
+                body.put(properties.getBodyRootKey(),parameterMap);
             }
         }
 
