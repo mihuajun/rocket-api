@@ -337,12 +337,12 @@ public class QLRequestMappingFactory {
             }
             return ResponseEntity.ok()
                     .contentType(MediaType.APPLICATION_JSON_UTF8)
-                    .body(resultWrapper.wrapper("0","succeeded",data,request,response));
+                    .body(resultWrapper.wrapper(data,request,response));
         }catch (Exception e){
             e.printStackTrace();
             return ResponseEntity.ok()
                     .contentType(MediaType.APPLICATION_JSON_UTF8)
-                    .body(resultWrapper.wrapper("500",e.getMessage(),null,request,response));
+                    .body(resultWrapper.throwable(e,request,response));
         }finally {
             apiInfoContent.removeAll();
         }
