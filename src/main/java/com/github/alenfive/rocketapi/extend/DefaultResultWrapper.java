@@ -13,7 +13,12 @@ import javax.servlet.http.HttpServletResponse;
 public class DefaultResultWrapper  implements IResultWrapper{
 
     @Override
-    public Object wrapper(String code, String msg, Object data, HttpServletRequest request, HttpServletResponse response) {
-        return new ResultWrapper(code,request.getRequestURI(),msg,data);
+    public Object wrapper(Object data, HttpServletRequest request, HttpServletResponse response) {
+        return new ResultWrapper("0",request.getRequestURI(),"succeed",data);
+    }
+
+    @Override
+    public Object throwable(Throwable throwable, HttpServletRequest request, HttpServletResponse response) {
+        return new ResultWrapper("500",request.getRequestURI(),throwable.getMessage(),null);
     }
 }

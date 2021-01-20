@@ -258,6 +258,7 @@ public class QLRequestMappingFactory {
                     .build();
             dataSourceManager.saveApiConfig(apiConfig);
         }else{
+            apiConfig.setConfigContext(configContext);
             dataSourceManager.updateApiConfig(apiConfig);
         }
 
@@ -278,7 +279,7 @@ public class QLRequestMappingFactory {
     @ResponseBody
     public ResponseEntity execute(@PathVariable(required = false) Map<String,String> pathVar,
                           @RequestParam(required = false) Map<String,Object> param,
-                          HttpServletRequest request) throws Throwable {
+                          HttpServletRequest request,HttpServletResponse response) throws Throwable {
 
         String path = buildPattern(request);
         String method = request.getMethod();
@@ -298,6 +299,14 @@ public class QLRequestMappingFactory {
             }else if(request.getContentType() != null && request.getContentType().indexOf("multipart/form-data") > -1){
                 MultipartHttpServletRequest multipartHttpServletRequest = (MultipartHttpServletRequest) request;
                 body.putAll(multipartHttpServletRequest.getMultiFileMap());
+                body.put(properties.getBodyRootKey(),multipartHttpServletRequest.getMultiFileMap());
+            }else if(request.getContentType() != null && request.getContentType().indexOf("application/x-www-form-urlencoded") > -1){
+                Map<String,List<Object>> parameterMap = new HashMap<>(request.getParameterMap().size());
+                request.getParameterMap().forEach((key,values)->{
+                    parameterMap.put(key,Arrays.asList(values));
+                });
+                body.putAll(parameterMap);
+                body.put(properties.getBodyRootKey(),parameterMap);
             }
         }
 
@@ -308,6 +317,7 @@ public class QLRequestMappingFactory {
                 .body(body)
                 .session(RequestUtils.buildSessionParams(request))
                 .request(request)
+                .response(response)
                 .build();
 
 
@@ -327,12 +337,12 @@ public class QLRequestMappingFactory {
             }
             return ResponseEntity.ok()
                     .contentType(MediaType.APPLICATION_JSON_UTF8)
-                    .body(resultWrapper.wrapper("0","succeeded",data,request,response));
+                    .body(resultWrapper.wrapper(data,request,response));
         }catch (Exception e){
             e.printStackTrace();
             return ResponseEntity.ok()
                     .contentType(MediaType.APPLICATION_JSON_UTF8)
-                    .body(resultWrapper.wrapper("500",e.getMessage(),null,request,response));
+                    .body(resultWrapper.throwable(e,request,response));
         }finally {
             apiInfoContent.removeAll();
         }
@@ -360,7 +370,7 @@ public class QLRequestMappingFactory {
         PatternsRequestCondition patternsRequestCondition = new PatternsRequestCondition(pattern);
         RequestMethodsRequestCondition methodsRequestCondition = new RequestMethodsRequestCondition(RequestMethod.valueOf(apiInfo.getMethod()));
         RequestMappingInfo mappingInfo = new RequestMappingInfo(patternsRequestCondition,methodsRequestCondition,null,null,null,null,null);
-        Method targetMethod = QLRequestMappingFactory.class.getDeclaredMethod("execute", Map.class, Map.class,HttpServletRequest.class);
+        Method targetMethod = QLRequestMappingFactory.class.getDeclaredMethod("execute", Map.class, Map.class,HttpServletRequest.class,HttpServletResponse.class);
         requestMappingHandlerMapping.registerMapping(mappingInfo,this, targetMethod);
     }
 
@@ -397,19 +407,22 @@ public class QLRequestMappingFactory {
             throw new IllegalArgumentException("method: "+apiInfo.getMethod()+" path:"+apiInfo.getPath()+" already exist");
         }
 
+        ApiInfo dbInfo = apiInfoCache.getAll().stream().filter(item->item.getId().equals(apiInfo.getId())).findFirst().orElse(null);
+
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         apiInfo.setUpdateTime(sdf.format(new Date()));
-        if (apiInfo.getId() == null){
+        if (dbInfo == null){
             apiInfo.setType(ApiType.Ql.name());
             apiInfo.setCreateTime(sdf.format(new Date()));
             apiInfo.setService(service);
             apiInfo.setId(GenerateId.get().toHexString());
             dataSourceManager.saveApiInfo(apiInfo);
         }else{
-            apiInfo.setService(service);
-            dataSourceManager.updateApiInfo(apiInfo);
+            apiInfo.setType(dbInfo.getType());
+            apiInfo.setCreateTime(dbInfo.getCreateTime());
+            apiInfo.setService(dbInfo.getService());
 
-            ApiInfo dbInfo = apiInfoCache.getAll().stream().filter(item->item.getId().equals(apiInfo.getId())).findFirst().orElse(null);
+            dataSourceManager.updateApiInfo(apiInfo);
 
             //取消mapping注册
             unregisterMappingForApiInfo(dbInfo);
@@ -418,7 +431,7 @@ public class QLRequestMappingFactory {
             apiInfoCache.remove(dbInfo);
         }
 
-        ApiInfo dbInfo = dataSourceManager.findApiInfoById(apiInfo);
+        dbInfo = dataSourceManager.findApiInfoById(apiInfo);
 
         //入缓存
         apiInfoCache.put(dbInfo);

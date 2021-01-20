@@ -18,10 +18,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.PostConstruct;
-import javax.script.Bindings;
-import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
-import javax.script.SimpleBindings;
+import javax.script.*;
 import java.util.Collection;
 
 @Component
@@ -79,7 +76,7 @@ public class GroovyScriptParse implements IScriptParse{
 
             //注入属性变量
             buildScriptParams(bindings,apiParams);
-            Object result = engine.eval(script,bindings);
+            Object result = this.engineEval(script,bindings);
             return result;
         }catch (Exception e){
             if (e.getCause() != null && e.getCause().getCause() != null){
@@ -89,6 +86,19 @@ public class GroovyScriptParse implements IScriptParse{
             }
         }
 
+    }
+
+    @Override
+    public Object engineEval(String script,Bindings bindings) throws Throwable {
+        try {
+            return engine.eval(script,bindings);
+        }catch (Exception e){
+            if (e.getCause() != null && e.getCause().getCause() != null){
+                throw e.getCause().getCause();
+            }else{
+                throw e;
+            }
+        }
     }
 
     private Integer buildPagerNo(ApiParams apiParams) {
@@ -116,6 +126,8 @@ public class GroovyScriptParse implements IScriptParse{
         bindings.put("header",apiParams.getHeader());
         bindings.put("cookie",apiParams.getCookie());
         bindings.put("session",apiParams.getSession());
+        bindings.put("request",apiParams.getRequest());
+        bindings.put("response",apiParams.getResponse());
 
         if (!CollectionUtils.isEmpty(apiParams.getSession())){
             apiParams.getSession().forEach((key,value)->{

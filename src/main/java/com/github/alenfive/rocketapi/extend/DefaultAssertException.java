@@ -9,10 +9,7 @@ import org.springframework.stereotype.Component;
 public class DefaultAssertException implements IAssertException {
 
     @Override
-    public void exception(String... input) {
-        if (input.length != 1){
-            throw new RuntimeException("Parameter length mismatch" + input.toString());
-        }
-        throw new RuntimeException(input[0]);
+    public void exception(String throwMsg,String... input) {
+        throw new RuntimeException(throwMsg);
     }
 }

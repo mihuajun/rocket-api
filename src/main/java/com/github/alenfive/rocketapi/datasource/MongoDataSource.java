@@ -4,6 +4,7 @@ import com.github.alenfive.rocketapi.entity.*;
 import com.github.alenfive.rocketapi.entity.vo.Page;
 import com.github.alenfive.rocketapi.entity.vo.TableInfo;
 import com.github.alenfive.rocketapi.extend.IApiPager;
+import com.github.alenfive.rocketapi.utils.ApiAnnotationUtil;
 import com.github.alenfive.rocketapi.utils.ApiJpaUtil;
 import com.github.alenfive.rocketapi.utils.FieldUtils;
 import org.bson.Document;
@@ -44,33 +45,33 @@ public class MongoDataSource extends DataSourceDialect {
 
     @Override
     void saveApiInfo(ApiInfo apiInfo) {
-        mongoTemplate.save(apiInfo, ApiJpaUtil.getApiTableName(ApiInfo.class));
+        mongoTemplate.save(apiInfo, ApiAnnotationUtil.getApiTableName(ApiInfo.class));
     }
 
     @Override
     public ApiInfo findApiInfoById(ApiInfo apiInfo) {
-        return mongoTemplate.findById(apiInfo.getId(),ApiInfo.class,ApiJpaUtil.getApiTableName(ApiInfo.class));
+        return mongoTemplate.findById(apiInfo.getId(),ApiInfo.class,ApiAnnotationUtil.getApiTableName(ApiInfo.class));
     }
 
     @Override
     public void deleteApiInfo(ApiInfo apiInfo) {
-        mongoTemplate.remove(Query.query(Criteria.where("_id").is(new ObjectId(apiInfo.getId()))),ApiJpaUtil.getApiTableName(ApiInfo.class));
+        mongoTemplate.remove(Query.query(Criteria.where("_id").is(new ObjectId(apiInfo.getId()))),ApiAnnotationUtil.getApiTableName(ApiInfo.class));
     }
 
     @Override
     public void updateApiInfo(ApiInfo apiInfo) {
-        mongoTemplate.save(apiInfo,ApiJpaUtil.getApiTableName(ApiInfo.class));
+        mongoTemplate.save(apiInfo,ApiAnnotationUtil.getApiTableName(ApiInfo.class));
     }
 
     @Override
     public List<ApiInfo> listApiInfoByEntity(ApiInfo apiInfo) {
         Query query = Query.query(Criteria.where("service").is(apiInfo.getService()));
-        return mongoTemplate.find(query,ApiInfo.class,ApiJpaUtil.getApiTableName(ApiInfo.class));
+        return mongoTemplate.find(query,ApiInfo.class,ApiAnnotationUtil.getApiTableName(ApiInfo.class));
     }
 
     @Override
     public void saveApiInfoHistory(ApiInfoHistory apiInfoHistory) {
-        mongoTemplate.save(apiInfoHistory,ApiJpaUtil.getApiTableName(ApiInfoHistory.class));
+        mongoTemplate.save(apiInfoHistory,ApiAnnotationUtil.getApiTableName(ApiInfoHistory.class));
     }
 
     @Override
@@ -82,12 +83,12 @@ public class MongoDataSource extends DataSourceDialect {
         Query query = Query.query(criteria);
         query.skip(apiPager.getIndexVarValue(page.getPageSize(),page.getPageNo())).limit(page.getPageSize());
         query.with(Sort.by(Sort.Direction.DESC,"_id"));
-        return mongoTemplate.find(query,ApiInfoHistory.class,ApiJpaUtil.getApiTableName(ApiInfoHistory.class));
+        return mongoTemplate.find(query,ApiInfoHistory.class,ApiAnnotationUtil.getApiTableName(ApiInfoHistory.class));
     }
 
     @Override
     public void saveApiExample(ApiExample apiExample) {
-        mongoTemplate.save(apiExample,ApiJpaUtil.getApiTableName(ApiExample.class));
+        mongoTemplate.save(apiExample,ApiAnnotationUtil.getApiTableName(ApiExample.class));
     }
 
     @Override
@@ -95,28 +96,28 @@ public class MongoDataSource extends DataSourceDialect {
         Query query = Query.query(Criteria.where("apiInfoId").is(apiExample.getApiInfoId()));
         query.skip(apiPager.getIndexVarValue(page.getPageSize(),page.getPageNo())).limit(page.getPageSize());
         query.with(Sort.by(Sort.Direction.DESC,"_id"));
-        return mongoTemplate.find(query,ApiExample.class,ApiJpaUtil.getApiTableName(ApiExample.class));
+        return mongoTemplate.find(query,ApiExample.class,ApiAnnotationUtil.getApiTableName(ApiExample.class));
     }
 
     @Override
     public void deleteExample(ApiExample apiExample) {
-        mongoTemplate.remove(Query.query(Criteria.where("_id").is(new ObjectId(apiExample.getId()))),ApiJpaUtil.getApiTableName(ApiExample.class));
+        mongoTemplate.remove(Query.query(Criteria.where("_id").is(new ObjectId(apiExample.getId()))),ApiAnnotationUtil.getApiTableName(ApiExample.class));
     }
 
     @Override
     public void saveApiConfig(ApiConfig apiConfig) {
-        mongoTemplate.save(apiConfig,ApiJpaUtil.getApiTableName(ApiConfig.class));
+        mongoTemplate.save(apiConfig,ApiAnnotationUtil.getApiTableName(ApiConfig.class));
     }
 
     @Override
     public void updateApiConfig(ApiConfig apiConfig) {
-        mongoTemplate.save(apiConfig,ApiJpaUtil.getApiTableName(ApiConfig.class));
+        mongoTemplate.save(apiConfig,ApiAnnotationUtil.getApiTableName(ApiConfig.class));
     }
 
     @Override
     public List<ApiConfig> listApiConfigByEntity(ApiConfig apiConfig) {
         Query query = Query.query(Criteria.where("service").is(apiConfig.getService()));
-        return mongoTemplate.find(query,ApiConfig.class,ApiJpaUtil.getApiTableName(ApiConfig.class));
+        return mongoTemplate.find(query,ApiConfig.class,ApiAnnotationUtil.getApiTableName(ApiConfig.class));
     }
 
     @Override
