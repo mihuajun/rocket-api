@@ -126,7 +126,7 @@ public abstract class DataSourceManager {
         String dataSourceKey = StringUtils.isEmpty(specifyDataSource)?defaultDataSource:specifyDataSource;
         DataSourceDialect dataSourceDialect = dialectMap.get(dataSourceKey);
         if (dataSourceDialect == null){
-            throw new IllegalArgumentException("unknown data source "+dataSourceKey);
+            throw new IllegalArgumentException("unknown datasource `"+dataSourceKey+"`");
         }
         return dataSourceDialect;
     }
