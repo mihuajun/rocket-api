@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.PostConstruct;
+import javax.script.Bindings;
 import javax.script.Invocable;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
@@ -79,6 +80,11 @@ public class JavaScriptScriptParse implements IScriptParse{
                 throw e;
             }
         }
+    }
+
+    @Override
+    public Object engineEval(String script, Bindings bindings) throws Throwable {
+        return null;
     }
 
     private void buildScriptParams(ScriptEngine engine, ApiParams apiParams) {

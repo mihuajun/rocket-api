@@ -8,5 +8,6 @@ import javax.servlet.http.HttpServletResponse;
  */
 
 public interface IResultWrapper {
-    public Object wrapper(String code, String msg, Object data, HttpServletRequest request, HttpServletResponse response);
+    public Object wrapper(Object data, HttpServletRequest request, HttpServletResponse response);
+    public Object throwable(Throwable throwable,HttpServletRequest request, HttpServletResponse response);
 }

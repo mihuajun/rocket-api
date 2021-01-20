@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -24,6 +25,7 @@ public class ApiParams {
     private Map<String,Object> cookie;
     private Map<String,Object> session;
     private HttpServletRequest request;
+    private HttpServletResponse response;
 
     public ApiParams putParam(String key,Object value){
         if (param == null){
