@@ -4,8 +4,7 @@ import com.github.alenfive.rocketapi.controller.ApiController;
 import com.github.alenfive.rocketapi.controller.RemoteController;
 import com.github.alenfive.rocketapi.controller.ViewController;
 import com.github.alenfive.rocketapi.datasource.DataSourceManager;
-import com.github.alenfive.rocketapi.datasource.factory.MySQLFactory;
-import com.github.alenfive.rocketapi.datasource.factory.SQLFactory;
+import com.github.alenfive.rocketapi.datasource.factory.*;
 import com.github.alenfive.rocketapi.extend.*;
 import com.github.alenfive.rocketapi.function.*;
 import com.github.alenfive.rocketapi.script.GroovyScriptParse;
@@ -210,8 +209,26 @@ public class RocketApiAutoConfig {
 
     @Bean
     @ConditionalOnMissingBean
+    public PostgreSQLFactory getPostgreSQLFactory(){
+        return new PostgreSQLFactory();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public SQLServerFactory getSQLServerFactory(){
+        return new SQLServerFactory();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
     public MySQLFactory getMySQLFactory(){
         return new MySQLFactory();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public MongoFactory getMongoFactory(){
+        return new MongoFactory();
     }
 
     @Bean

@@ -1,7 +1,5 @@
 package com.github.alenfive.rocketapi.datasource.factory;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.alenfive.rocketapi.config.SpringContextUtils;
 import com.github.alenfive.rocketapi.datasource.DataSourceDialect;
 import com.github.alenfive.rocketapi.datasource.MySQLDataSource;
 import com.zaxxer.hikari.HikariConfig;
