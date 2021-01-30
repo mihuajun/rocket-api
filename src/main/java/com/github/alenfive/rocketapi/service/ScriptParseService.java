@@ -7,6 +7,8 @@ import com.github.alenfive.rocketapi.entity.ParamScope;
 import com.github.alenfive.rocketapi.entity.vo.ArrVar;
 import com.github.alenfive.rocketapi.entity.vo.IndexScope;
 import com.github.alenfive.rocketapi.extend.ApiInfoContent;
+import com.github.alenfive.rocketapi.script.GroovyScriptParse;
+import groovy.lang.MissingPropertyException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -35,11 +37,14 @@ public class ScriptParseService {
     private ObjectMapper objectMapper;
 
     @Autowired
+    private GroovyScriptParse scriptParse;
+
+    @Autowired
     private ApiInfoContent apiInfoContent;
 
     private Set<String> scopeSet = Stream.of(ParamScope.values()).map(ParamScope::name).collect(Collectors.toSet());
 
-    public void parse(StringBuilder script, ApiParams apiParams, DataSourceDialect sourceDialect,Map<String,Object> specifyParams){
+    public void parse(StringBuilder script, ApiParams apiParams, DataSourceDialect sourceDialect,Map<String,Object> specifyParams) {
         buildIf(script,apiParams,specifyParams);
         buildParams(script,apiParams,sourceDialect,specifyParams);
     }
@@ -104,7 +109,7 @@ public class ScriptParseService {
      * @param script
      * @param apiParams
      */
-    public void buildIf(StringBuilder script,ApiParams apiParams,Map<String,Object> specifyParams){
+    public void buildIf(StringBuilder script,ApiParams apiParams,Map<String,Object> specifyParams) {
         String flag = "?{";
         //匹配参数#{}
         do{
@@ -138,9 +143,20 @@ public class ScriptParseService {
             if (ifSplit == -1){
                 throw new IllegalArgumentException("missed if split ','");
             }
-            String varName = script.substring(startIf+flag.length(),ifSplit);
-            Object value = buildParamItem(apiParams,specifyParams,varName);
-            if (StringUtils.isEmpty(value)){
+            String condition = script.substring(startIf+flag.length(),ifSplit);
+
+            Object value = null;
+            if (Pattern.matches("^\\w+$", condition)){
+                value = buildParamItem(apiParams,specifyParams,condition);
+            }else {
+                try {
+                    value = scriptParse.engineEval(condition, apiInfoContent.getEngineBindings());
+                }catch (Throwable throwable) {
+                    throw new RuntimeException(throwable);
+                }
+            }
+
+            if (StringUtils.isEmpty(value) || (value instanceof Boolean && !(Boolean)value)){
                 script = script.replace(startIf,endIf+1,"");
             }else{
                 script = script.replace(startIf,endIf+1,script.substring(ifSplit+1,endIf));
