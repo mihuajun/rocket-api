@@ -120,32 +120,54 @@ public class ScriptParseService {
                 break;
             }
 
-            int endIf = -1;
-            int ifClose = 1;
-            int ifSplit = -1;
+
+            int ifSplitIndex = -1;
+            int ifCloseIndex = -1;
+
+            int bigBracket = 1;
+            int roundBracket = -1;
+            int squareBracket = -1;
 
             for(int i=startIf+flag.length();i<script.length();i++){
                 char c = script.charAt(i);
                 if (c == '{'){
-                    ifClose ++ ;
+                    bigBracket ++ ;
                 }
-                if (c == '}' && --ifClose == 0){
-                    endIf = i;
+                if (c == '('){
+                    roundBracket ++ ;
+                }
+                if (c == '['){
+                    squareBracket ++ ;
+                }
+                if (c == '}'){
+                    bigBracket -- ;
+                }
+                if (c == ')'){
+                    roundBracket -- ;
+                }
+                if (c == ']'){
+                    squareBracket -- ;
+                }
+
+                if (ifSplitIndex == -1 && c == ',' && bigBracket == 1 && roundBracket == -1 && squareBracket == -1){
+                    ifSplitIndex = i;
+                }
+
+                if (c == '}' && bigBracket == 0){
+                    ifCloseIndex = i;
                     break;
                 }
-                if (ifSplit == -1 && c == ','){
-                    ifSplit = i;
-                }
+
             }
 
-            if (endIf == -1){
+            if (ifCloseIndex == -1){
                 throw new IllegalArgumentException("missed if close '}'");
             }
 
-            if (ifSplit == -1){
+            if (ifSplitIndex == -1){
                 throw new IllegalArgumentException("missed if split ','");
             }
-            String condition = script.substring(startIf+flag.length(),ifSplit);
+            String condition = script.substring(startIf+flag.length(),ifSplitIndex);
 
             Object value = null;
             if (Pattern.matches("^\\w+$", condition)){
@@ -159,9 +181,9 @@ public class ScriptParseService {
             }
 
             if (StringUtils.isEmpty(value) || (value instanceof Boolean && !(Boolean)value)){
-                script = script.replace(startIf,endIf+1,"");
+                script = script.replace(startIf,ifCloseIndex+1,"");
             }else{
-                script = script.replace(startIf,endIf+1,script.substring(ifSplit+1,endIf));
+                script = script.replace(startIf,ifCloseIndex+1,script.substring(ifSplitIndex+1,ifCloseIndex));
             }
         }while (true);
 
