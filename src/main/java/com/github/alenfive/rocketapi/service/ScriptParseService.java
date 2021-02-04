@@ -124,12 +124,31 @@ public class ScriptParseService {
             int ifSplitIndex = -1;
             int ifCloseIndex = -1;
 
+            int quotationMark = 0;
             int bigBracket = 1;
-            int roundBracket = -1;
-            int squareBracket = -1;
+            int roundBracket = 0;
+            int squareBracket = 0;
 
             for(int i=startIf+flag.length();i<script.length();i++){
                 char c = script.charAt(i);
+
+                if (quotationMark > 0){
+                    if (c == '\\') {
+                        i++;
+                        continue;
+                    }
+                    if (c == '"'){
+                        quotationMark --;
+                    }
+                    continue;
+                }
+
+                if (c == '"'){
+                    quotationMark ++;
+                    continue;
+                }
+
+
                 if (c == '{'){
                     bigBracket ++ ;
                 }
@@ -149,7 +168,7 @@ public class ScriptParseService {
                     squareBracket -- ;
                 }
 
-                if (ifSplitIndex == -1 && c == ',' && bigBracket == 1 && roundBracket == -1 && squareBracket == -1){
+                if (ifSplitIndex == -1 && c == ',' && bigBracket == 1 && roundBracket == 0 && squareBracket == 0){
                     ifSplitIndex = i;
                 }
 
