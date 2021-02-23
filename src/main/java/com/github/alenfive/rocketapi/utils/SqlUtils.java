@@ -29,7 +29,7 @@ public class SqlUtils {
                 start = true;
                 continue;
             }
-            if (nextLine.indexOf("PRIMARY KEY") != -1 || nextLine.indexOf("ENGINE=") != -1) {
+            if (nextLine.indexOf("KEY") != -1 || nextLine.indexOf("ENGINE=") != -1) {
                 start = false;
                 continue;
             }
