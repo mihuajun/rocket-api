@@ -12,9 +12,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * 动态数据源监听
@@ -74,8 +72,8 @@ public class DynamicDataSourceConfigListener{
         }
 
         for (DataSourceProperty item : multiDatasource){
-            IDataSourceDialectFactory factory = (IDataSourceDialectFactory) springContextUtils.getContext().getBean(Class.forName(item.getFactoryClassName()));
-            DataSourceDialect dialect = factory.factory(item.getConfig());
+            IDataSourceDialectFactory factory = (IDataSourceDialectFactory)(Class.forName(item.getFactoryClassName()).newInstance());
+            DataSourceDialect dialect = factory.factory(buildProperties(item.getConfig()));
             dialect.setDynamic(true);
 
             if(dialectMap.get(item.getName()) != null){
@@ -83,5 +81,14 @@ public class DynamicDataSourceConfigListener{
             }
             dialectMap.put(item.getName(),dialect);
         }
+    }
+
+    private Properties buildProperties(Map<String,Object> config){
+        Properties result = new Properties();
+        if (CollectionUtils.isEmpty(config)) {
+            return result;
+        }
+        result.putAll(config);
+        return result;
     }
 }

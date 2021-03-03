@@ -202,36 +202,6 @@ public class RocketApiAutoConfig {
     }
 
     @Bean
-    @ConditionalOnMissingBean
-    public SQLFactory getSQLFactory(){
-        return new SQLFactory();
-    }
-
-    @Bean
-    @ConditionalOnMissingBean
-    public PostgreSQLFactory getPostgreSQLFactory(){
-        return new PostgreSQLFactory();
-    }
-
-    @Bean
-    @ConditionalOnMissingBean
-    public SQLServerFactory getSQLServerFactory(){
-        return new SQLServerFactory();
-    }
-
-    @Bean
-    @ConditionalOnMissingBean
-    public MySQLFactory getMySQLFactory(){
-        return new MySQLFactory();
-    }
-
-    @Bean
-    @ConditionalOnMissingBean
-    public MongoFactory getMongoFactory(){
-        return new MongoFactory();
-    }
-
-    @Bean
     @ConditionalOnProperty(value = "spring.rocket-api.config-enabled",havingValue = "true")
     public RefreshApiConfig getRefreshApiConfig(){
         return new RefreshApiConfig();

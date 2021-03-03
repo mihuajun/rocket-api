@@ -7,7 +7,7 @@ import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import org.springframework.jdbc.core.JdbcTemplate;
 
-import java.util.Map;
+
 import java.util.Properties;
 
 /**
@@ -16,9 +16,7 @@ import java.util.Properties;
 public class SQLServerFactory implements IDataSourceDialectFactory{
 
     @Override
-    public DataSourceDialect factory(Map<String,Object> config) throws Exception {
-        Properties properties = new Properties();
-        properties.putAll(config);
+    public DataSourceDialect factory(Properties properties) throws Exception {
         HikariDataSource dataSource = new HikariDataSource(new HikariConfig(properties));
         JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
         return new SQLServerDataSource(jdbcTemplate);

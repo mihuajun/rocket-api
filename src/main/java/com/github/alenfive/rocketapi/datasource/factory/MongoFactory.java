@@ -8,6 +8,7 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.SimpleMongoDbFactory;
 
 import java.util.Map;
+import java.util.Properties;
 
 /**
  * mongodb  构造器
@@ -15,9 +16,9 @@ import java.util.Map;
 public class MongoFactory implements IDataSourceDialectFactory{
 
     @Override
-    public DataSourceDialect factory(Map<String,Object> config) {
+    public DataSourceDialect factory(Properties properties) {
 
-        String url = (String) config.get("url");
+        String url = properties.getProperty("url");
         MongoClientURI mongoclienturi = new MongoClientURI(url);
         MongoDbFactory mongoDbFactory = new SimpleMongoDbFactory(mongoclienturi);
         MongoTemplate mongoTemplate = new MongoTemplate(mongoDbFactory);
