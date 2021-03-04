@@ -493,7 +493,7 @@ public class ApiController {
      * @return
      */
     @PostMapping("/api-config")
-    public ApiResult saveApiConfig(@RequestBody String configContext,HttpServletRequest request){
+    public ApiResult saveApiConfig(@RequestBody(required = false) String configContext,HttpServletRequest request){
         String user = loginService.getUser(request);
         if(StringUtils.isEmpty(user)){
             return ApiResult.fail("Permission denied");
