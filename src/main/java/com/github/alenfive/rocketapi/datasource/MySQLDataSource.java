@@ -53,6 +53,11 @@ public class MySQLDataSource extends SqlDataSource {
                 Set<String> keys = table.keySet();
                 String tableName = table.get(keys.toArray(new String[]{})[0]).toString();
                 Map<String,Object> fields = jdbcTemplate.queryForMap("show create table "+tableName);
+
+                //只处理逻辑表
+                if (fields.get("Create Table") == null){
+                    continue;
+                }
                 String tableInfo = fields.get("Create Table").toString();
                 String tableComment = SqlUtils.getByPattern(tableInfo, "\\) .* COMMENT='(.*)'", 1);
                 List<FieldInfo> fieldInfos = new ArrayList<>();
