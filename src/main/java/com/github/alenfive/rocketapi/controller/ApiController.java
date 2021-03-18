@@ -459,7 +459,9 @@ public class ApiController {
         }
         ApiExample apiExample = result.get(0);
         try {
-            apiExample.setResponseBody(URLDecoder.decode(apiExample.getResponseBody(),"utf-8"));
+            if (!StringUtils.isEmpty(apiExample.getResponseBody())){
+                apiExample.setResponseBody(URLDecoder.decode(apiExample.getResponseBody(),"utf-8"));
+            }
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
