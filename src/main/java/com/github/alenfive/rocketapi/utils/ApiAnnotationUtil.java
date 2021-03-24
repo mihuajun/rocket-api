@@ -28,10 +28,9 @@ public class ApiAnnotationUtil {
     }
 
     public static String getApiIdFieldName(Class clazz) {
-        Field idField = Arrays.asList(clazz.getDeclaredFields()).stream().filter(item->item.getAnnotation(ApiId.class) != null).findFirst().orElse(null);
-        if (idField == null) {
-            throw new IllegalArgumentException("not found @ApiId Annotation");
-        }
-        return idField.getName();
+        String fieldName = Arrays.asList(clazz.getSuperclass().getDeclaredFields()).stream()
+                .filter(item->item.getAnnotation(ApiId.class) != null).findFirst()
+                .orElseThrow(()-> new IllegalArgumentException("not found @ApiId Annotation")).getName();
+        return fieldName;
     }
 }

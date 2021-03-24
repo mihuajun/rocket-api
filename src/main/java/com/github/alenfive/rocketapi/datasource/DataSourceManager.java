@@ -77,10 +77,8 @@ public abstract class DataSourceManager {
 
     public void setDialectMap(Map<String, DataSourceDialect> dialectMap) {
         this.dialectMap = dialectMap;
-        String storeApiKey = dialectMap.keySet().stream().filter(key->dialectMap.get(key).isStoreApi()).findFirst().orElse(null);
-        if (storeApiKey == null){
-            throw new IllegalArgumentException("storeApi is not found");
-        }
+        String storeApiKey = dialectMap.keySet().stream().filter(key->dialectMap.get(key).isStoreApi()).findFirst()
+                .orElseThrow(()->new IllegalArgumentException("storeApi is not found"));
         this.storeApiDataSource = dialectMap.get(storeApiKey);
     }
 

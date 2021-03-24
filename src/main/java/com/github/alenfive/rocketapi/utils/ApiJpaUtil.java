@@ -54,7 +54,7 @@ public class ApiJpaUtil {
     public static<T> List<T> listByEntity(NamedParameterJdbcTemplate jdbcTemplate, T apiObject){
         String tableName = ApiAnnotationUtil.getApiTableName(apiObject.getClass());
 
-        String where = Arrays.asList(apiObject.getClass().getDeclaredFields()).stream().filter(item->{
+        String where = FieldUtils.allFields(apiObject.getClass()).stream().filter(item->{
             item.setAccessible(true);
             try {
                 Object value = item.get(apiObject);
@@ -147,7 +147,7 @@ public class ApiJpaUtil {
     public static<T> List<T> pageByEntity(NamedParameterJdbcTemplate jdbcTemplate, T apiObject, DataSourceDialect sqlDataSource, IApiPager apiPager, Page page) {
         String tableName = ApiAnnotationUtil.getApiTableName(apiObject.getClass());
 
-        String where = Arrays.asList(apiObject.getClass().getDeclaredFields()).stream().filter(item->{
+        String where = FieldUtils.allFields(apiObject.getClass()).stream().filter(item->{
             item.setAccessible(true);
             try {
                 Object value = item.get(apiObject);

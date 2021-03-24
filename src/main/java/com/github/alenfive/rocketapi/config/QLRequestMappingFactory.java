@@ -625,8 +625,6 @@ public class QLRequestMappingFactory {
             }
         }
 
-        //刷新缓存
-        this.getPathList(true);
         return apiInfos.size();
     }
 

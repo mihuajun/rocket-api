@@ -73,7 +73,7 @@ public class MongoDataSource extends DataSourceDialect {
 
     private <T extends ApiEntity> Criteria buildCriteria(T entity){
         Criteria criteria = new Criteria();
-        Arrays.asList(entity.getClass().getDeclaredFields()).stream().filter(item->{
+        FieldUtils.allFields(entity.getClass()).stream().filter(item->{
             item.setAccessible(true);
             try {
                 Object value = item.get(entity);

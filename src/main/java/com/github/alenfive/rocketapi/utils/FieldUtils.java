@@ -1,8 +1,8 @@
 package com.github.alenfive.rocketapi.utils;
 
 
-import com.github.alenfive.rocketapi.annotation.ApiUpdateField;
-
+import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -14,17 +14,18 @@ public class FieldUtils {
     private static Pattern humpPattern = Pattern.compile("[A-Z]");
 
     public static List<String> allTableFields(Class clazz){
-        return Arrays.stream(clazz.getDeclaredFields()).map(item->humpToLine2(item.getName())).collect(Collectors.toList());
+        return FieldUtils.allFields(clazz).stream().map(item->humpToLine2(item.getName())).collect(Collectors.toList());
     }
 
     public static List<String> allNameParamsFields(Class clazz){
-        return Arrays.stream(clazz.getDeclaredFields()).map(item->":"+item.getName()).collect(Collectors.toList());
+        return FieldUtils.allFields(clazz).stream().map(item->":"+item.getName()).collect(Collectors.toList());
     }
 
-    public static List<String> updateFields(Class clazz){
-        return Arrays.stream(clazz.getDeclaredFields())
-                .filter(item->item.getAnnotation(ApiUpdateField.class) != null)
-                .map(item-> humpToLine2(item.getName())).collect(Collectors.toList());
+    public static List<Field> allFields(Class clazz){
+        ArrayList<Field> fields = new ArrayList<>();
+        fields.addAll(Arrays.asList(clazz.getSuperclass().getDeclaredFields()));
+        fields.addAll(Arrays.asList(clazz.getDeclaredFields()));
+        return fields;
     }
 
     /**

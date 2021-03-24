@@ -63,6 +63,8 @@ public class RemoteController {
         }
         try {
             Object result = mappingFactory.apiInfoSync(syncReq.getApiInfos(),syncReq.getIncrement() == 1);
+            //刷新缓存
+            mappingFactory.getPathList(true);
             return ApiResult.success(result);
         }catch (Exception e){
             e.printStackTrace();
