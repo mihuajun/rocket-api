@@ -4,7 +4,6 @@ import com.github.alenfive.rocketapi.controller.ApiController;
 import com.github.alenfive.rocketapi.controller.RemoteController;
 import com.github.alenfive.rocketapi.controller.ViewController;
 import com.github.alenfive.rocketapi.datasource.DataSourceManager;
-import com.github.alenfive.rocketapi.datasource.factory.*;
 import com.github.alenfive.rocketapi.extend.*;
 import com.github.alenfive.rocketapi.function.*;
 import com.github.alenfive.rocketapi.script.GroovyScriptParse;
@@ -155,8 +154,8 @@ public class RocketApiAutoConfig {
 
     @Bean
     @ConditionalOnMissingBean
-    public DbFunction getDbFunction(){
-        return new DbFunction();
+    public DbFunction getDbFunction(DataSourceManager dataSourceManager,ApiInfoContent apiInfoContent,IApiPager apiPager,UtilsFunction utilsFunction,ISQLInterceptor sqlInterceptor){
+        return new DbFunction(dataSourceManager,apiInfoContent,apiPager,utilsFunction,sqlInterceptor);
     }
 
     @Bean

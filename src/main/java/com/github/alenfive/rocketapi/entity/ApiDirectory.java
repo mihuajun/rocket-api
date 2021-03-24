@@ -7,26 +7,22 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-/**
- * API 配置对象
- */
-
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-@ApiTable("api_config")
-public class ApiConfig extends ApiEntity{
+@ApiTable("api_directory")
+public class ApiDirectory extends ApiEntity{
 
-    /**
-     * 配置可视化标识符
-     */
+    @ApiUpdateField
     private String service;
 
-    /**
-     * 配置明细
-     */
     @ApiUpdateField
-    private String configContext;
+    private String name;
 
+    @ApiUpdateField
+    private String path;
+
+    @ApiUpdateField
+    private String parentId;
 }

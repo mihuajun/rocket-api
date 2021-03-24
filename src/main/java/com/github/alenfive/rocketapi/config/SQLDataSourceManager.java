@@ -1,17 +1,11 @@
 package com.github.alenfive.rocketapi.config;
 
-import com.github.alenfive.rocketapi.datasource.DataSourceDialect;
 import com.github.alenfive.rocketapi.datasource.DataSourceManager;
-import com.github.alenfive.rocketapi.datasource.MongoDataSource;
-import com.github.alenfive.rocketapi.datasource.SqlDataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
-import org.springframework.context.annotation.DependsOn;
-import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import javax.annotation.PostConstruct;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**

@@ -1,7 +1,5 @@
 package com.github.alenfive.rocketapi.utils;
 
-import com.github.alenfive.rocketapi.annotation.ApiId;
-import com.github.alenfive.rocketapi.annotation.ApiTable;
 import com.github.alenfive.rocketapi.datasource.DataSourceDialect;
 import com.github.alenfive.rocketapi.entity.vo.Page;
 import com.github.alenfive.rocketapi.extend.IApiPager;
@@ -11,9 +9,7 @@ import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
 
-import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;

@@ -60,12 +60,6 @@ import java.util.stream.Collectors;
 public class QLRequestMappingFactory {
 
     @Autowired
-    private HttpServletRequest request;
-
-    @Autowired
-    private HttpServletResponse response;
-
-    @Autowired
     private ScriptParseService parseService;
 
     @Autowired
@@ -129,7 +123,7 @@ public class QLRequestMappingFactory {
         reloadApiConfig();
 
         //加载数据库API
-        List<ApiInfo> apiInfos = dataSourceManager.listApiInfoByEntity(ApiInfo.builder().service(service).build());
+        List<ApiInfo> apiInfos = dataSourceManager.getStoreApiDataSource().listByEntity(ApiInfo.builder().service(service).build());
         for (ApiInfo apiInfo : apiInfos){
             apiInfoCache.put(apiInfo);
         }
@@ -145,7 +139,7 @@ public class QLRequestMappingFactory {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             codeInfo.setCreateTime(sdf.format(new Date()));
             codeInfo.setUpdateTime(sdf.format(new Date()));
-            dataSourceManager.saveApiInfo(codeInfo);
+            dataSourceManager.getStoreApiDataSource().saveEntity(codeInfo);
             apiInfoCache.put(codeInfo);
         }
 
@@ -239,7 +233,7 @@ public class QLRequestMappingFactory {
      * @return
      */
     public ApiConfig getApiConfig() {
-        List<ApiConfig> apiConfigList = dataSourceManager.listApiConfigByEntity(ApiConfig.builder().service(service).build());
+        List<ApiConfig> apiConfigList = dataSourceManager.getStoreApiDataSource().listByEntity(ApiConfig.builder().service(service).build());
         return CollectionUtils.isEmpty(apiConfigList)?null:apiConfigList.get(0);
     }
 
@@ -252,14 +246,14 @@ public class QLRequestMappingFactory {
         ApiConfig apiConfig = this.getApiConfig();
         if (apiConfig == null){
             apiConfig = ApiConfig.builder()
-                    .id(GenerateId.get().toHexString())
                     .configContext(configContext)
                     .service(service)
                     .build();
-            dataSourceManager.saveApiConfig(apiConfig);
+            apiConfig.setId(GenerateId.get().toHexString());
+            dataSourceManager.getStoreApiDataSource().saveEntity(apiConfig);
         }else{
             apiConfig.setConfigContext(configContext);
-            dataSourceManager.updateApiConfig(apiConfig);
+            dataSourceManager.getStoreApiDataSource().updateEntityById(apiConfig);
         }
 
         reloadApiConfig();
@@ -416,13 +410,13 @@ public class QLRequestMappingFactory {
             apiInfo.setCreateTime(sdf.format(new Date()));
             apiInfo.setService(service);
             apiInfo.setId(GenerateId.get().toHexString());
-            dataSourceManager.saveApiInfo(apiInfo);
+            dataSourceManager.getStoreApiDataSource().saveEntity(apiInfo);
         }else{
             apiInfo.setType(dbInfo.getType());
             apiInfo.setCreateTime(dbInfo.getCreateTime());
             apiInfo.setService(dbInfo.getService());
 
-            dataSourceManager.updateApiInfo(apiInfo);
+            dataSourceManager.getStoreApiDataSource().updateEntityById(apiInfo);
 
             //取消mapping注册
             unregisterMappingForApiInfo(dbInfo);
@@ -431,7 +425,7 @@ public class QLRequestMappingFactory {
             apiInfoCache.remove(dbInfo);
         }
 
-        dbInfo = dataSourceManager.findApiInfoById(apiInfo);
+        dbInfo = dataSourceManager.getStoreApiDataSource().findEntityById(apiInfo);
 
         //入缓存
         apiInfoCache.put(dbInfo);
@@ -452,7 +446,7 @@ public class QLRequestMappingFactory {
         history.setId(GenerateId.get().toString());
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         history.setCreateTime(sdf.format(new Date()));
-        dataSourceManager.saveApiInfoHistory(history);
+        dataSourceManager.getStoreApiDataSource().saveEntity(history);
     }
 
     private boolean existsPattern(ApiInfo apiInfo) {
@@ -472,7 +466,7 @@ public class QLRequestMappingFactory {
         }
 
         //清数据库
-        dataSourceManager.deleteApiInfo(apiInfo);
+        dataSourceManager.getStoreApiDataSource().deleteEntityById(apiInfo);
 
         //清缓存
         apiInfoCache.remove(dbInfo);
@@ -546,7 +540,7 @@ public class QLRequestMappingFactory {
         List<ApiInfo> apiInfos = apiInfoCache.getAll().stream().filter(item->renameGroupReq.getOldGroupName().equals(item.getGroupName())).collect(Collectors.toList());
         for (ApiInfo apiInfo : apiInfos){
             apiInfo.setGroupName(renameGroupReq.getNewGroupName());
-            dataSourceManager.updateApiInfo(apiInfo);
+            dataSourceManager.getStoreApiDataSource().updateEntityById(apiInfo);
 
             //更新缓存
             apiInfoCache.put(apiInfo);
@@ -556,19 +550,19 @@ public class QLRequestMappingFactory {
 
     @Transactional
     public Object saveExample(ApiExample apiExample) {
-        dataSourceManager.saveApiExample(apiExample);
+        dataSourceManager.getStoreApiDataSource().saveEntity(apiExample);
         return apiExample.getId();
     }
 
     public List<ApiExample> listApiExampleScript(String apiInfoId, Integer pageSize,Integer pageNo) {
         Page page = Page.builder().pageNo(pageNo).pageSize(pageSize).build();
-        return dataSourceManager.listApiExampleByEntity(ApiExample.builder().apiInfoId(apiInfoId).build(),apiPager, page);
+        return dataSourceManager.getStoreApiDataSource().pageByEntity(ApiExample.builder().apiInfoId(apiInfoId).build(),apiPager, page);
     }
 
     @Transactional
     public void deleteExampleList(ArrayList<ApiExample> apiExampleList) {
         apiExampleList.stream().forEach(item->{
-            dataSourceManager.deleteExample(item);
+            dataSourceManager.getStoreApiDataSource().deleteEntityById(item);
         });
     }
 
@@ -581,7 +575,7 @@ public class QLRequestMappingFactory {
 
     public List<ApiInfoHistory> lastApiInfo(String apiInfoId,Integer pageSize, Integer pageNo) {
         Page page = Page.builder().pageNo(pageNo).pageSize(pageSize).build();
-        return dataSourceManager.listApiInfoHistoryByEntity(ApiInfoHistory.builder().apiInfoId(apiInfoId).service(service).build(),apiPager,page);
+        return dataSourceManager.getStoreApiDataSource().pageByEntity(ApiInfoHistory.builder().apiInfoId(apiInfoId).service(service).build(),apiPager,page);
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -599,13 +593,13 @@ public class QLRequestMappingFactory {
 
             //删除历史信息
             for (ApiInfo dbInfo : currApiInfos){
-                dataSourceManager.deleteApiInfo(dbInfo);
+                dataSourceManager.getStoreApiDataSource().deleteEntityById(dbInfo);
             }
             //添加新信息
             for (ApiInfo apiInfo : apiInfos){
                 apiInfo.setCreateTime(sdf.format(new Date()));
                 apiInfo.setUpdateTime(sdf.format(new Date()));
-                dataSourceManager.saveApiInfo(apiInfo);
+                dataSourceManager.getStoreApiDataSource().saveEntity(apiInfo);
 
                 //保存历史版本
                 saveApiHistory(apiInfo);
@@ -620,10 +614,10 @@ public class QLRequestMappingFactory {
                     }
                     apiInfo.setCreateTime(sdf.format(new Date()));
                     apiInfo.setUpdateTime(sdf.format(new Date()));
-                    dataSourceManager.saveApiInfo(apiInfo);
+                    dataSourceManager.getStoreApiDataSource().saveEntity(apiInfo);
                 }else{
                     apiInfo.setUpdateTime(sdf.format(new Date()));
-                    dataSourceManager.updateApiInfo(apiInfo);
+                    dataSourceManager.getStoreApiDataSource().updateEntityById(apiInfo);
                 }
 
                 //保存历史版本

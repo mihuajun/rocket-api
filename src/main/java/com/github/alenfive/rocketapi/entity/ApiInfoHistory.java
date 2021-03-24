@@ -1,14 +1,10 @@
 package com.github.alenfive.rocketapi.entity;
 
-import com.github.alenfive.rocketapi.annotation.ApiId;
 import com.github.alenfive.rocketapi.annotation.ApiTable;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * API history 实体
@@ -18,10 +14,7 @@ import java.util.Map;
 @NoArgsConstructor
 @AllArgsConstructor
 @ApiTable("api_info_history")
-public class ApiInfoHistory {
-
-    @ApiId
-    private String id;
+public class ApiInfoHistory extends ApiEntity{
 
     /**
      * api info id
@@ -74,21 +67,4 @@ public class ApiInfoHistory {
      */
     private String createTime;
 
-    public Map<String,Object> toMap(){
-        Map<String,Object> result = new HashMap<>();
-        result.put("id",id);
-        result.put("apiInfoId",apiInfoId);
-        result.put("method",method);
-        result.put("path",path);
-        result.put("options", options);
-        result.put("type",type);
-        result.put("name", name);
-        result.put("datasource",datasource);
-        result.put("script",script);
-        result.put("service",service);
-        result.put("groupName", groupName);
-        result.put("editor",editor);
-        result.put("createTime",createTime);
-        return result;
-    }
 }

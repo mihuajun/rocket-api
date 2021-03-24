@@ -3,7 +3,6 @@ package com.github.alenfive.rocketapi.service;
 import com.github.alenfive.rocketapi.config.QLRequestMappingFactory;
 import com.github.alenfive.rocketapi.datasource.DataSourceManager;
 import com.github.alenfive.rocketapi.entity.ApiInfo;
-import com.github.alenfive.rocketapi.entity.ApiParams;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -24,7 +23,7 @@ public class EncryptChangeService {
     public void convert(UnaryOperator<String> predicate) throws Exception {
         for (ApiInfo apiInfo : mappingFactory.getPathList(false) ){
             apiInfo.setScript(predicate.apply(apiInfo.getScript()));
-            dataSourceManager.updateApiInfo(apiInfo);
+            dataSourceManager.getStoreApiDataSource().updateEntityById(apiInfo);
         }
     }
 }

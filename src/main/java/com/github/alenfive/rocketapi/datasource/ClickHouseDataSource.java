@@ -1,6 +1,8 @@
 package com.github.alenfive.rocketapi.datasource;
 
-import com.github.alenfive.rocketapi.entity.*;
+import com.github.alenfive.rocketapi.entity.ApiEntity;
+import com.github.alenfive.rocketapi.entity.ApiInfo;
+import com.github.alenfive.rocketapi.entity.ApiParams;
 import com.github.alenfive.rocketapi.entity.vo.Page;
 import com.github.alenfive.rocketapi.entity.vo.TableInfo;
 import com.github.alenfive.rocketapi.extend.IApiPager;
@@ -12,7 +14,8 @@ import org.springframework.jdbc.support.KeyHolder;
 
 import java.sql.PreparedStatement;
 import java.sql.Statement;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -33,67 +36,32 @@ public class ClickHouseDataSource extends DataSourceDialect {
     }
 
     @Override
-    void saveApiInfo(ApiInfo apiInfo) {
+    public <T extends ApiEntity> void saveEntity(T entity) {
 
     }
 
     @Override
-    public ApiInfo findApiInfoById(ApiInfo apiInfo) {
+    public <T extends ApiEntity> T findEntityById(T entity) {
         return null;
     }
 
     @Override
-    public void deleteApiInfo(ApiInfo apiInfo) {
+    public <T extends ApiEntity> void deleteEntityById(T entity) {
 
     }
 
     @Override
-    public void updateApiInfo(ApiInfo apiInfo) {
+    public <T extends ApiEntity> void updateEntityById(T entity) {
 
     }
 
     @Override
-    public List<ApiInfo> listApiInfoByEntity(ApiInfo apiInfo) {
+    public <T extends ApiEntity> List<T> listByEntity(T entity) {
         return null;
     }
 
     @Override
-    public void saveApiInfoHistory(ApiInfoHistory apiInfoHistory) {
-
-    }
-
-    @Override
-    public List<ApiInfoHistory> listApiInfoHistoryByEntity(ApiInfoHistory apiInfoHistory, IApiPager apiPager, Page page) {
-        return null;
-    }
-
-    @Override
-    public void saveApiExample(ApiExample apiExample) {
-
-    }
-
-    @Override
-    public List<ApiExample> listApiExampleByEntity(ApiExample apiExample, IApiPager apiPager, Page page) {
-        return null;
-    }
-
-    @Override
-    public void deleteExample(ApiExample apiExample) {
-
-    }
-
-    @Override
-    public void saveApiConfig(ApiConfig apiConfig) {
-
-    }
-
-    @Override
-    public void updateApiConfig(ApiConfig apiConfig) {
-
-    }
-
-    @Override
-    public List<ApiConfig> listApiConfigByEntity(ApiConfig apiConfig) {
+    public <T extends ApiEntity> List<T> pageByEntity(T entity, IApiPager apiPager, Page page) {
         return null;
     }
 

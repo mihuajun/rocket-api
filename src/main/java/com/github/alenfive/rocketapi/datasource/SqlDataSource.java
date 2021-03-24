@@ -1,6 +1,8 @@
 package com.github.alenfive.rocketapi.datasource;
 
-import com.github.alenfive.rocketapi.entity.*;
+import com.github.alenfive.rocketapi.entity.ApiEntity;
+import com.github.alenfive.rocketapi.entity.ApiInfo;
+import com.github.alenfive.rocketapi.entity.ApiParams;
 import com.github.alenfive.rocketapi.entity.vo.Page;
 import com.github.alenfive.rocketapi.entity.vo.TableInfo;
 import com.github.alenfive.rocketapi.extend.IApiPager;
@@ -41,70 +43,34 @@ public class SqlDataSource extends DataSourceDialect {
 
 
     @Override
-    public void saveApiInfo(ApiInfo apiInfo) {
-        ApiJpaUtil.insert(parameterJdbcTemplate,apiInfo);
+    public <T extends ApiEntity> void saveEntity(T entity) {
+        ApiJpaUtil.insert(parameterJdbcTemplate,entity);
     }
 
     @Override
-    public ApiInfo findApiInfoById(ApiInfo apiInfo) {
-        return ApiJpaUtil.findById(parameterJdbcTemplate,apiInfo);
+    public <T extends ApiEntity> T findEntityById(T entity) {
+        return ApiJpaUtil.findById(parameterJdbcTemplate,entity);
     }
 
     @Override
-    public void deleteApiInfo(ApiInfo apiInfo) {
-        ApiJpaUtil.deleteById(parameterJdbcTemplate,apiInfo);
+    public <T extends ApiEntity> void deleteEntityById(T entity) {
+        ApiJpaUtil.deleteById(parameterJdbcTemplate,entity);
     }
 
     @Override
-    public void updateApiInfo(ApiInfo apiInfo) {
-        ApiJpaUtil.updateById(parameterJdbcTemplate,apiInfo);
+    public <T extends ApiEntity> void updateEntityById(T entity) {
+        ApiJpaUtil.updateById(parameterJdbcTemplate,entity);
     }
 
     @Override
-    public List<ApiInfo> listApiInfoByEntity(ApiInfo apiInfo) {
-        return ApiJpaUtil.listByEntity(parameterJdbcTemplate,apiInfo);
+    public <T extends ApiEntity> List<T> listByEntity(T entity) {
+        return ApiJpaUtil.listByEntity(parameterJdbcTemplate,entity);
     }
 
     @Override
-    public void saveApiInfoHistory(ApiInfoHistory apiInfoHistory) {
-        ApiJpaUtil.insert(parameterJdbcTemplate,apiInfoHistory);
+    public <T extends ApiEntity> List<T> pageByEntity(T entity, IApiPager apiPager, Page page) {
+        return ApiJpaUtil.pageByEntity(parameterJdbcTemplate,entity,this,apiPager,page);
     }
-
-    @Override
-    public List<ApiInfoHistory> listApiInfoHistoryByEntity(ApiInfoHistory apiInfoHistory, IApiPager apiPager, Page page) {
-        return ApiJpaUtil.pageByEntity(parameterJdbcTemplate,apiInfoHistory,this,apiPager,page);
-    }
-
-    @Override
-    public void saveApiExample(ApiExample apiExample) {
-        ApiJpaUtil.insert(parameterJdbcTemplate,apiExample);
-    }
-
-    @Override
-    public List<ApiExample> listApiExampleByEntity(ApiExample apiExample, IApiPager apiPager, Page page) {
-        return ApiJpaUtil.pageByEntity(parameterJdbcTemplate,apiExample,this,apiPager,page);
-    }
-
-    @Override
-    public void deleteExample(ApiExample apiExample) {
-        ApiJpaUtil.deleteById(parameterJdbcTemplate,apiExample);
-    }
-
-    @Override
-    public void saveApiConfig(ApiConfig apiConfig) {
-        ApiJpaUtil.insert(parameterJdbcTemplate,apiConfig);
-    }
-
-    @Override
-    public void updateApiConfig(ApiConfig apiConfig) {
-        ApiJpaUtil.updateById(parameterJdbcTemplate,apiConfig);
-    }
-
-    @Override
-    public List<ApiConfig> listApiConfigByEntity(ApiConfig apiConfig) {
-        return ApiJpaUtil.listByEntity(parameterJdbcTemplate,apiConfig);
-    }
-
 
     @Override
     public List<Map<String,Object>> find(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams) {

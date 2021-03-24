@@ -1,6 +1,7 @@
 package com.github.alenfive.rocketapi.datasource;
 
-import com.github.alenfive.rocketapi.entity.*;
+import com.github.alenfive.rocketapi.entity.ApiInfo;
+import com.github.alenfive.rocketapi.entity.ApiParams;
 import com.github.alenfive.rocketapi.entity.vo.Page;
 import com.github.alenfive.rocketapi.extend.IApiPager;
 import com.github.alenfive.rocketapi.service.ScriptParseService;
@@ -18,60 +19,19 @@ public abstract class DataSourceManager {
 
     private ScriptParseService parseService;
 
+    private DataSourceDialect storeApiDataSource;
+
     public void setParseService(ScriptParseService parseService) {
         this.parseService = parseService;
     }
 
     /**
-     * 查询API存储的数据源
+     * 获取api存储的数据源
+     * @return
      */
-    public String getStoreApiKey(){
-        return dialectMap.keySet().stream().filter(key->dialectMap.get(key).isStoreApi()).findFirst().orElse(null);
+    public DataSourceDialect getStoreApiDataSource(){
+        return storeApiDataSource;
     }
-    public List<ApiInfo> listApiInfoByEntity(ApiInfo apiInfo){
-        return dialectMap.get(getStoreApiKey()).listApiInfoByEntity(apiInfo);
-    }
-
-    public List<ApiInfoHistory> listApiInfoHistoryByEntity(ApiInfoHistory apiInfoHistory, IApiPager apiPager, Page page) {
-        return dialectMap.get(getStoreApiKey()).listApiInfoHistoryByEntity(apiInfoHistory,apiPager,page);
-    }
-
-    public void saveApiInfoHistory(ApiInfoHistory apiInfoHistory) {
-        dialectMap.get(getStoreApiKey()).saveApiInfoHistory(apiInfoHistory);
-    }
-
-    public void saveApiInfo(ApiInfo apiInfo){
-        dialectMap.get(getStoreApiKey()).saveApiInfo(apiInfo);
-    }
-    public ApiInfo findApiInfoById(ApiInfo apiInfo){
-       return dialectMap.get(getStoreApiKey()).findApiInfoById(apiInfo);
-    }
-    public void updateApiInfo(ApiInfo apiInfo){
-        dialectMap.get(getStoreApiKey()).updateApiInfo(apiInfo);
-    }
-    public void deleteApiInfo(ApiInfo apiInfo){
-        dialectMap.get(getStoreApiKey()).deleteApiInfo(apiInfo);
-    }
-    public void saveApiExample(ApiExample apiExample) {
-        dialectMap.get(getStoreApiKey()).saveApiExample(apiExample);
-    }
-    public List<ApiExample> listApiExampleByEntity(ApiExample apiExample, IApiPager apiPager, Page page) {
-        return dialectMap.get(getStoreApiKey()).listApiExampleByEntity(apiExample,apiPager,page);
-    }
-    public void deleteExample(ApiExample apiExample) {
-        dialectMap.get(getStoreApiKey()).deleteExample(apiExample);
-    }
-
-    public void saveApiConfig(ApiConfig apiConfig){
-        dialectMap.get(getStoreApiKey()).saveApiConfig(apiConfig);
-    }
-    public void updateApiConfig(ApiConfig apiConfig){
-        dialectMap.get(getStoreApiKey()).updateApiConfig(apiConfig);
-    }
-    public List<ApiConfig> listApiConfigByEntity(ApiConfig apiConfig){
-        return dialectMap.get(getStoreApiKey()).listApiConfigByEntity(apiConfig);
-    }
-
 
     public String buildCountScript(String script, ApiInfo apiInfo, ApiParams apiParams, String specifyDataSource,Map<String,Object> specifyParams,IApiPager apiPager, Page page) throws Exception {
         DataSourceDialect dataSourceDialect = buildDataSourceDialect(apiInfo.getDatasource(),specifyDataSource);
@@ -117,9 +77,11 @@ public abstract class DataSourceManager {
 
     public void setDialectMap(Map<String, DataSourceDialect> dialectMap) {
         this.dialectMap = dialectMap;
-        if (this.getStoreApiKey() == null){
+        String storeApiKey = dialectMap.keySet().stream().filter(key->dialectMap.get(key).isStoreApi()).findFirst().orElse(null);
+        if (storeApiKey == null){
             throw new IllegalArgumentException("storeApi is not found");
         }
+        this.storeApiDataSource = dialectMap.get(storeApiKey);
     }
 
     public DataSourceDialect buildDataSourceDialect(String defaultDataSource,String specifyDataSource){

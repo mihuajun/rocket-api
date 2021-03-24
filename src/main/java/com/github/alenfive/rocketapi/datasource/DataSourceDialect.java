@@ -2,7 +2,9 @@ package com.github.alenfive.rocketapi.datasource;
 
 import com.github.alenfive.rocketapi.config.RocketApiProperties;
 import com.github.alenfive.rocketapi.config.SpringContextUtils;
-import com.github.alenfive.rocketapi.entity.*;
+import com.github.alenfive.rocketapi.entity.ApiEntity;
+import com.github.alenfive.rocketapi.entity.ApiInfo;
+import com.github.alenfive.rocketapi.entity.ApiParams;
 import com.github.alenfive.rocketapi.entity.vo.Page;
 import com.github.alenfive.rocketapi.entity.vo.TableInfo;
 import com.github.alenfive.rocketapi.extend.IApiPager;
@@ -33,22 +35,12 @@ public abstract class DataSourceDialect {
         isDynamic = dynamic;
     }
 
-    abstract void saveApiInfo(ApiInfo apiInfo);
-    abstract ApiInfo findApiInfoById(ApiInfo apiInfo);
-    abstract void deleteApiInfo(ApiInfo apiInfo);
-    abstract void updateApiInfo(ApiInfo apiInfo);
-    abstract List<ApiInfo> listApiInfoByEntity(ApiInfo apiInfo);
-
-    abstract void saveApiInfoHistory(ApiInfoHistory apiInfoHistory);
-    abstract List<ApiInfoHistory> listApiInfoHistoryByEntity(ApiInfoHistory apiInfoHistory, IApiPager apiPager, Page page);
-
-    abstract void saveApiExample(ApiExample apiExample);
-    abstract List<ApiExample> listApiExampleByEntity(ApiExample apiExample, IApiPager apiPager, Page page);
-    abstract void deleteExample(ApiExample apiExample);
-
-    abstract void saveApiConfig(ApiConfig apiConfig);
-    abstract void updateApiConfig(ApiConfig apiConfig);
-    abstract List<ApiConfig> listApiConfigByEntity(ApiConfig apiConfig);
+    public abstract <T extends ApiEntity> void saveEntity( T entity);
+    public abstract <T extends ApiEntity> T findEntityById( T entity);
+    public abstract <T extends ApiEntity> void deleteEntityById(T entity);
+    public abstract <T extends ApiEntity> void updateEntityById(T entity);
+    public abstract <T extends ApiEntity> List<T> listByEntity(T entity);
+    public abstract <T extends ApiEntity> List<T> pageByEntity(T entity, IApiPager apiPager, Page page);
 
     //查询对象
     abstract List<Map<String,Object>> find(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams) throws Exception;
