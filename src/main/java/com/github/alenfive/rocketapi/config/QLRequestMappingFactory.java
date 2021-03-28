@@ -685,12 +685,17 @@ public class QLRequestMappingFactory {
         if (StringUtils.isEmpty(directory.getId())){
             directory.setId(GenerateId.get().toHexString());
             dataSourceManager.getStoreApiDataSource().saveEntity(directory);
+            //缓存刷新
+            this.loadDirectoryList(true);
             return;
         }
 
-        //数据库更新
         ApiDirectory dbDirectory = dataSourceManager.getStoreApiDataSource().findEntityById(directory);
+
+        //数据库更新
         dataSourceManager.getStoreApiDataSource().updateEntityById(directory);
+        //缓存刷新
+        this.loadDirectoryList(true);
 
         //如果path未发生修改
         if(Objects.equals(dbDirectory.getPath(),directory.getPath())){
@@ -706,15 +711,12 @@ public class QLRequestMappingFactory {
         //
         modifyApiInfos.forEach(item->{
 
-            //构建完整路径
-            StringBuilder path = new StringBuilder(item.getPath());
-            this.recursiveFullPath(directoryList,item.getDirectoryId(),path);
-            String fullPath = formatPath(path);
-
             //数据库更新
             ApiInfo newApiInfo = new ApiInfo();
             BeanUtils.copyProperties(item,newApiInfo);
-            newApiInfo.setFullPath(fullPath);
+
+            //构建完整路径
+            this.buildFullPath(newApiInfo);
 
             //验证是否路径是否冲突
             assertExistsPattern(newApiInfo);

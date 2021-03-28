@@ -1051,13 +1051,14 @@ function buildApiTree(directoryList,apiList) {
 function loadApiList(isDb,callback) {
 
     //拉取目录信息
-    $.getJSON(directoryListUrl,function (data) {
+    $.getJSON(loadApiListUrl+"?isDb="+(isDb?true:false),function (data) {
         data = unpackResult(data);
-        gdata.directoryList = data.data;
+        gdata.apiList = data.data;
 
-        $.getJSON(loadApiListUrl+"?isDb="+(isDb?true:false),function (data) {
+        $.getJSON(directoryListUrl,function (data) {
             data = unpackResult(data);
-            gdata.apiList = data.data;
+            gdata.directoryList = data.data;
+
             buildApiTree(gdata.directoryList,gdata.apiList);
             loadCurrApi();
             if (callback){
@@ -1066,6 +1067,8 @@ function loadApiList(isDb,callback) {
         })
 
     })
+
+
 
 
 }

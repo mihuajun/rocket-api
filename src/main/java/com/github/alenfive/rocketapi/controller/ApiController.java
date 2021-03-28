@@ -507,7 +507,6 @@ public class ApiController {
 
         try {
             mappingFactory.saveDirectory(directory);
-            mappingFactory.loadDirectoryList(true);
         } catch (Exception e) {
             return ApiResult.fail(e.getMessage());
         }
