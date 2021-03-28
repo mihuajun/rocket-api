@@ -6,7 +6,9 @@ import com.github.alenfive.rocketapi.extend.ApiInfoContent;
 import com.github.alenfive.rocketapi.extend.IApiPager;
 import com.github.alenfive.rocketapi.extend.IDBCache;
 import com.github.alenfive.rocketapi.extend.ISQLInterceptor;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +24,8 @@ import java.util.Map;
  */
 @SuppressWarnings("DuplicatedCode")
 @Slf4j
-@Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class DbFunction implements IFunction {
 
     @Autowired
@@ -47,11 +50,7 @@ public class DbFunction implements IFunction {
     private Long cacheTime;
 
     public DbFunction cache(String cacheKey,Long cacheTime){
-        DbFunction dbFunction = new DbFunction();
-        BeanUtils.copyProperties(this,dbFunction);
-        dbFunction.setCacheKey(cacheKey);
-        dbFunction.setCacheTime(cacheTime);
-        return dbFunction;
+        return new DbFunction(dataSourceManager,apiInfoContent,apiPager,utilsFunction,sqlInterceptor,dbCache,cacheKey,cacheTime);
     }
 
     public void cacheClear(String cacheKey){
@@ -104,8 +103,8 @@ public class DbFunction implements IFunction {
     public List<Map<String,Object>> find(String script,String dataSource,Map<String,Object> params) throws Exception {
 
         //获取缓存对象
-        if (this.getCacheKey() != null){
-            Object value = dbCache.get(this.getCacheKey());
+        if (this.cacheKey != null){
+            Object value = dbCache.get(this.cacheKey);
             if (value != null){
                 return (List<Map<String, Object>>) value;
             }
@@ -125,7 +124,7 @@ public class DbFunction implements IFunction {
         }
 
         //设置缓存对象
-        if (this.getCacheKey() != null){
+        if (this.cacheKey != null){
             dbCache.set(this.cacheKey,result,cacheTime);
         }
         return result;
