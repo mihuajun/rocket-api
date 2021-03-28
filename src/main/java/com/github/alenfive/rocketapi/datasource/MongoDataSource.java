@@ -55,7 +55,7 @@ public class MongoDataSource extends DataSourceDialect {
     }
 
     @Override
-    public <T extends ApiEntity> void deleteEntityById(T entity) {
+    public <T extends ApiEntity> void removeEntityById(T entity) {
         mongoTemplate.remove(Query.query(Criteria.where("_id").is(new ObjectId(entity.getId()))),ApiAnnotationUtil.getApiTableName(entity.getClass()));
     }
 

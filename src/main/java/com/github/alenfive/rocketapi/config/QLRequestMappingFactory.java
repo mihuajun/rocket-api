@@ -108,6 +108,8 @@ public class QLRequestMappingFactory {
 
     private List<String> bodyMethods = Arrays.asList("POST","PUT","PATCH");
 
+    private List<ApiDirectory> directoryListCache;
+
     /**
      * 初始化db mapping
      */
@@ -128,13 +130,26 @@ public class QLRequestMappingFactory {
             apiInfoCache.put(apiInfo);
         }
 
+        //加载目录
+        directoryListCache = dataSourceManager.getStoreApiDataSource().listByEntity(ApiDirectory.builder().service(service).build());
+
         //加载代码方式的API
-        List<ApiInfo> codeApiList = getPathListForCode();
+        List<ApiInfo> codeApiList = this.getPathListForCode();
         for (ApiInfo codeInfo : codeApiList){
             ApiInfo dbInfo = apiInfoCache.get(codeInfo);
             if (dbInfo != null){
                 continue;
             }
+
+            ApiDirectory directory = directoryListCache.stream().filter(item->StringUtils.isEmpty(item.getParentId()) && codeInfo.getDirectoryId().equals(item.getName())).findFirst().orElse(null);
+
+            if (directory == null){
+                directory = ApiDirectory.builder().service(service).name(codeInfo.getDirectoryId()).build();
+                directory.setId(GenerateId.get().toHexString());
+                dataSourceManager.getStoreApiDataSource().saveEntity(directory);
+                directoryListCache.add(directory);
+            }
+            codeInfo.setDirectoryId(directory.getId());
             codeInfo.setId(GenerateId.get().toHexString());
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             codeInfo.setCreateTime(sdf.format(new Date()));
@@ -315,7 +330,7 @@ public class QLRequestMappingFactory {
                 .build();
 
 
-        ApiInfo apiInfo = apiInfoCache.get(ApiInfo.builder().method(method).path(path).build());
+        ApiInfo apiInfo = apiInfoCache.get(ApiInfo.builder().method(method).fullPath(path).build());
 
         StringBuilder script = new StringBuilder(scriptEncrypt.decrypt(apiInfo.getScript()));
         try {
@@ -356,10 +371,12 @@ public class QLRequestMappingFactory {
         if (ApiType.Code.name().equals(apiInfo.getType())){
             return;
         }
-        if (StringUtils.isEmpty(apiInfo.getPath()) || apiInfo.getPath().startsWith("TEMP-")){
+
+        String pattern = apiInfo.getFullPath();
+
+        if (StringUtils.isEmpty(pattern) || pattern.startsWith("TEMP-")){
             return;
         }
-        String pattern = apiInfo.getPath().replaceAll("/+","/");
         log.debug("Mapped [{}]{}",apiInfo.getMethod(),pattern);
         PatternsRequestCondition patternsRequestCondition = new PatternsRequestCondition(pattern);
         RequestMethodsRequestCondition methodsRequestCondition = new RequestMethodsRequestCondition(RequestMethod.valueOf(apiInfo.getMethod()));
@@ -376,11 +393,14 @@ public class QLRequestMappingFactory {
         if (ApiType.Code.name().equals(apiInfo.getType())){
             return;
         }
-        if (StringUtils.isEmpty(apiInfo.getPath()) || apiInfo.getPath().startsWith("TEMP-")){
+
+        String pattern = apiInfo.getFullPath();
+
+        if (StringUtils.isEmpty(pattern) || pattern.startsWith("TEMP-")){
             return;
         }
-        log.debug("Cancel Mapping [{}]{}",apiInfo.getMethod(),apiInfo.getPath());
-        PatternsRequestCondition patternsRequestCondition = new PatternsRequestCondition(apiInfo.getPath());
+        log.debug("Cancel Mapping [{}]{}",apiInfo.getMethod(),pattern);
+        PatternsRequestCondition patternsRequestCondition = new PatternsRequestCondition(pattern);
         RequestMethodsRequestCondition methodsRequestCondition = new RequestMethodsRequestCondition(RequestMethod.valueOf(apiInfo.getMethod()));
         RequestMappingInfo mappingInfo = new RequestMappingInfo(patternsRequestCondition,methodsRequestCondition,null,null,null,null,null);
         requestMappingHandlerMapping.unregisterMapping(mappingInfo);
@@ -391,15 +411,17 @@ public class QLRequestMappingFactory {
             clear();
             init();
         }
-        return apiInfoCache.getAll().stream().sorted(Comparator.comparing(ApiInfo::getName).thenComparing(ApiInfo::getPath)).collect(Collectors.toList());
+        return apiInfoCache.getAll();
     }
 
     @Transactional
-    public String saveOrUpdateApiInfo(ApiInfo apiInfo) throws Exception {
+    public String saveApiInfo(ApiInfo apiInfo) throws Exception {
 
-        if (existsPattern(apiInfo)){
-            throw new IllegalArgumentException("method: "+apiInfo.getMethod()+" path:"+apiInfo.getPath()+" already exist");
-        }
+
+
+        buildFullPath(apiInfo);
+
+        this.assertExistsPattern(apiInfo);
 
         ApiInfo dbInfo = apiInfoCache.getAll().stream().filter(item->item.getId().equals(apiInfo.getId())).findFirst().orElse(null);
 
@@ -449,12 +471,12 @@ public class QLRequestMappingFactory {
         dataSourceManager.getStoreApiDataSource().saveEntity(history);
     }
 
-    private boolean existsPattern(ApiInfo apiInfo) {
-        ApiInfo dbInfo = apiInfoCache.getAll().stream().filter(item->item.getPath().equals(apiInfo.getPath()) && (item.getMethod().equals("All") || item.getMethod().equals(apiInfo.getMethod()))).findFirst().orElse(null);
+    private void assertExistsPattern(ApiInfo apiInfo) {
+        ApiInfo dbInfo = apiInfoCache.getAll().stream().filter(item->item.getFullPath().equals(apiInfo.getFullPath()) && (item.getMethod().equals("All") || item.getMethod().equals(apiInfo.getMethod()))).findFirst().orElse(null);
         if (dbInfo == null || (apiInfo.getId() != null && apiInfo.getId().equals(dbInfo.getId()))){
-            return false;
+            return;
         }
-        return true;
+        throw new IllegalArgumentException("method: "+apiInfo.getMethod()+" path:"+apiInfo.getFullPath()+" already exist");
     }
 
     @Transactional
@@ -466,7 +488,7 @@ public class QLRequestMappingFactory {
         }
 
         //清数据库
-        dataSourceManager.getStoreApiDataSource().deleteEntityById(apiInfo);
+        dataSourceManager.getStoreApiDataSource().removeEntityById(apiInfo);
 
         //清缓存
         apiInfoCache.remove(dbInfo);
@@ -494,10 +516,11 @@ public class QLRequestMappingFactory {
                 if (methods.isEmpty()){
                     result.add(ApiInfo.builder()
                             .path(path)
+                            .fullPath(path)
                             .method("All")
                             .type(ApiType.Code.name())
                             .service(service)
-                            .groupName(groupName)
+                            .directoryId(groupName)
                             .editor("admin")
                             .name("")
                             .datasource("")
@@ -508,10 +531,11 @@ public class QLRequestMappingFactory {
                     for (RequestMethod method : methods){
                         result.add(ApiInfo.builder()
                                 .path(path)
+                                .fullPath(path)
                                 .method(method.name())
                                 .type(ApiType.Code.name())
                                 .service(service)
-                                .groupName(groupName)
+                                .directoryId(groupName)
                                 .editor("admin")
                                 .name("")
                                 .datasource("")
@@ -524,28 +548,6 @@ public class QLRequestMappingFactory {
             }
         }
         return result;
-    }
-
-    public Set<String> getGroupNameList() {
-        return apiInfoCache.getAll().stream().map(ApiInfo::getGroupName).collect(Collectors.toSet());
-    }
-
-    public Set<String> getApiNameList(String group) {
-        return apiInfoCache.getAll().stream().filter(item->group.equals(item.getGroupName()))
-                .map(item->StringUtils.isEmpty(item.getName())?item.getPath():item.getName()).collect(Collectors.toSet());
-    }
-
-    @Transactional
-    public Long renameGroup(RenameGroupReq renameGroupReq) throws Exception {
-        List<ApiInfo> apiInfos = apiInfoCache.getAll().stream().filter(item->renameGroupReq.getOldGroupName().equals(item.getGroupName())).collect(Collectors.toList());
-        for (ApiInfo apiInfo : apiInfos){
-            apiInfo.setGroupName(renameGroupReq.getNewGroupName());
-            dataSourceManager.getStoreApiDataSource().updateEntityById(apiInfo);
-
-            //更新缓存
-            apiInfoCache.put(apiInfo);
-        }
-        return Long.valueOf(apiInfos.size());
     }
 
     @Transactional
@@ -562,7 +564,7 @@ public class QLRequestMappingFactory {
     @Transactional
     public void deleteExampleList(ArrayList<ApiExample> apiExampleList) {
         apiExampleList.stream().forEach(item->{
-            dataSourceManager.getStoreApiDataSource().deleteEntityById(item);
+            dataSourceManager.getStoreApiDataSource().removeEntityById(item);
         });
     }
 
@@ -593,7 +595,7 @@ public class QLRequestMappingFactory {
 
             //删除历史信息
             for (ApiInfo dbInfo : currApiInfos){
-                dataSourceManager.getStoreApiDataSource().deleteEntityById(dbInfo);
+                dataSourceManager.getStoreApiDataSource().removeEntityById(dbInfo);
             }
             //添加新信息
             for (ApiInfo apiInfo : apiInfos){
@@ -609,9 +611,9 @@ public class QLRequestMappingFactory {
             for (ApiInfo apiInfo : apiInfos){
                 ApiInfo dbInfo =  currApiInfos.stream().filter(item->item.getId().equals(apiInfo.getId())).findFirst().orElse(null);
                 if (dbInfo == null){
-                    if (existsPattern(apiInfo)){
-                        throw new IllegalArgumentException("method: "+apiInfo.getMethod()+" path:"+apiInfo.getPath()+" already exist");
-                    }
+
+                    assertExistsPattern(apiInfo);
+
                     apiInfo.setCreateTime(sdf.format(new Date()));
                     apiInfo.setUpdateTime(sdf.format(new Date()));
                     dataSourceManager.getStoreApiDataSource().saveEntity(apiInfo);
@@ -629,4 +631,150 @@ public class QLRequestMappingFactory {
     }
 
 
+    public List<ApiDirectory> loadDirectoryList(boolean isDb) {
+        if (isDb){
+            this.directoryListCache = dataSourceManager.getStoreApiDataSource().listByEntity(ApiDirectory.builder().service(service).build());
+        }
+        return this.directoryListCache;
+    }
+
+    /**
+     * 目录删除
+     * @param directory
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public void removeDirectory(ApiDirectory directory){
+        List<ApiDirectory> directoryList = this.loadDirectoryList(false);
+        //查询该节点以下级所有目录
+        Set<String> directoryIds = findChildrenIds(directoryList,directory.getId());
+        directoryIds.add(directory.getId());
+
+        for (String directoryId: directoryIds){
+
+            //目录清理
+            ApiDirectory dir = new ApiDirectory();
+            dir.setId(directoryId);
+            dataSourceManager.getStoreApiDataSource().removeEntityById(dir);
+
+            //目录下的api列表
+            List<ApiInfo> apiInfoList = apiInfoCache.getAll().stream().filter(item->directoryId.equals(item.getDirectoryId())).collect(Collectors.toList());
+
+            for (ApiInfo apiInfo : apiInfoList ){
+                dataSourceManager.getStoreApiDataSource().removeEntityById(apiInfo);
+
+                //取消mapping注册
+                unregisterMappingForApiInfo(apiInfo);
+
+                //缓存清理
+                apiInfoCache.remove(apiInfo);
+            }
+        }
+
+    }
+
+    /**
+     * 目录修改
+     * @param directory
+     * @throws Exception
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public void saveDirectory(ApiDirectory directory) throws Exception {
+
+        directory.setService(service);
+        //新增
+        if (StringUtils.isEmpty(directory.getId())){
+            directory.setId(GenerateId.get().toHexString());
+            dataSourceManager.getStoreApiDataSource().saveEntity(directory);
+            return;
+        }
+
+        //数据库更新
+        ApiDirectory dbDirectory = dataSourceManager.getStoreApiDataSource().findEntityById(directory);
+        dataSourceManager.getStoreApiDataSource().updateEntityById(directory);
+
+        //如果path未发生修改
+        if(Objects.equals(dbDirectory.getPath(),directory.getPath())){
+           return;
+        }
+
+        //更新该目录下的所有api path
+        List<ApiDirectory> directoryList = this.loadDirectoryList(false);
+        Set<String> directoryIds = findChildrenIds(directoryList,directory.getId());
+        directoryIds.add(directory.getId());
+        List<ApiInfo> modifyApiInfos = apiInfoCache.getAll().stream().filter(item->directoryIds.contains(item.getDirectoryId()) && ApiType.Ql.name().equals(item.getType())).collect(Collectors.toList());
+
+        //
+        modifyApiInfos.forEach(item->{
+
+            //构建完整路径
+            StringBuilder path = new StringBuilder(item.getPath());
+            this.recursiveFullPath(directoryList,item.getDirectoryId(),path);
+            String fullPath = formatPath(path);
+
+            //数据库更新
+            ApiInfo newApiInfo = new ApiInfo();
+            BeanUtils.copyProperties(item,newApiInfo);
+            newApiInfo.setFullPath(fullPath);
+
+            //验证是否路径是否冲突
+            assertExistsPattern(newApiInfo);
+
+            dataSourceManager.getStoreApiDataSource().updateEntityById(newApiInfo);
+        });
+
+        //缓存刷新
+        for (ApiInfo item : modifyApiInfos){
+            //取消mapping注册
+            unregisterMappingForApiInfo(item);
+
+            //删除缓存
+            apiInfoCache.remove(item);
+
+            //刷新更新
+            ApiInfo dbInfo = dataSourceManager.getStoreApiDataSource().findEntityById(item);
+            apiInfoCache.put(dbInfo);
+
+            //添加mapping注册
+            registerMappingForApiInfo(dbInfo);
+
+            //存储历史
+            saveApiHistory(dbInfo);
+        }
+    }
+
+    private String formatPath(StringBuilder path){
+        path.insert(0,"/");
+        String result = path.toString().replaceAll("/+","/");
+        if (result.length()>1 && result.endsWith("/")){
+            result = result.substring(0,result.length()-1);
+        }
+        return result;
+    }
+
+    private void buildFullPath(ApiInfo apiInfo){
+        StringBuilder path = new StringBuilder(apiInfo.getPath());
+        this.recursiveFullPath(this.loadDirectoryList(false),apiInfo.getDirectoryId(),path);
+        apiInfo.setFullPath(this.formatPath(path));
+    }
+    private void recursiveFullPath(List<ApiDirectory> directoryList, String directoryId, StringBuilder path){
+        ApiDirectory directory = directoryList.stream().filter(item->item.getId().equals(directoryId)).findFirst().orElse(null);
+
+        if (!StringUtils.isEmpty(directory.getPath())){
+            path.insert(0,"/");
+            path.insert(0,directory.getPath());
+        }
+
+        if (StringUtils.isEmpty(directory.getParentId())){
+            return;
+        }
+        this.recursiveFullPath(directoryList,directory.getParentId(),path);
+    }
+
+    private Set<String> findChildrenIds(List<ApiDirectory> directoryList,String directoryId){
+        Set<String> result = directoryList.stream().filter(item->directoryId.equals(item.getParentId())).map(ApiDirectory::getId).collect(Collectors.toSet());
+        for (String item : result){
+            result.addAll(this.findChildrenIds(directoryList,item));
+        }
+        return result;
+    }
 }

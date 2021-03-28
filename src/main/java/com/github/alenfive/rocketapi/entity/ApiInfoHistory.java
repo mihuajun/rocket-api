@@ -25,6 +25,14 @@ public class ApiInfoHistory extends ApiEntity{
      */
     private String path;
     /**
+     * 完整路径
+     */
+    private String fullPath;
+    /**
+     * 所在目录
+     */
+    private String directoryId;
+    /**
      * 方法支持列表
      */
     private String method;
@@ -52,10 +60,6 @@ public class ApiInfoHistory extends ApiEntity{
      * 服务
      */
     private String service;
-    /**
-     * 分组
-     */
-    private String groupName;
 
     /**
      * 最后一次编辑者

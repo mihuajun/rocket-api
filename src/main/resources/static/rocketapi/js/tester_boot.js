@@ -32,13 +32,27 @@ let saveExampleUrl = baseUrl + "/api-example";
 let lastExampleUrl = baseUrl + "/api-example/last";
 let deleteExampleUrl = baseUrl + "/api-example";
 let apiDocPushUrl = baseUrl + "/api-doc-push";
+
+//代码提示
 let completionItemsUrl = baseUrl + "/completion-items";
 let completionClazzUrl = baseUrl + "/completion-clazz";
+
+//远程同步
 let remoteSyncUrl = baseUrl + "/remote-sync";
+
+//登录操作
 let loginUrl = baseUrl + "/login";
 let logoutUrl = baseUrl + "/logout";
+
+//配置操作
 let getApiConfigUrl = baseUrl + "/api-config";
 let saveApiConfigUrl = baseUrl + "/api-config";
+
+//目录操作
+let directoryListUrl = baseUrl + "/directory/list";
+let saveDirectoryUrl = baseUrl + "/directory";
+let deleteDirectoryUrl = baseUrl + "/directory";
+
 
 let editor = "admin";
 
@@ -71,6 +85,7 @@ let apiSettingTextarea;
 
 let hasResponse;
 let gdata = {
+    directoryList:null,
     apiList:null,
     exampleHistoryList:null,
     apiHistoryList:null,
@@ -433,7 +448,7 @@ function addARequest(e) {
         "method": "GET",
         "datasource":$("#editor-section").find(".api-info-datasource").attr("default-value"),
         "path": "TEMP-"+uuid(),
-        "groupName": $(e).parents(".service").children(".name").attr("title"),
+        "directoryId": $(e).parents(".service").attr("data-directoryId"),
         "editor": editor,
         "name": "Request",
         "script": "",
@@ -441,39 +456,7 @@ function addARequest(e) {
     });
 }
 
-//重命名组
-function renameApi(e) {
-    $(".authenticated>.service").removeClass("renameing");
-    $(e).parents(".service").addClass("renameing");
-    let group = $(".authenticated .renameing").children(".name").attr("title");
-    $("#rename-dialog").show();
-    $("#rename-dialog").find(".newname").val(group);
-    $("#rename-dialog").find(".oldname").val(group);
-}
-//确认重命名组
-function confirmRenameDialog(e) {
-    let newGroupName = $("#rename-dialog").find(".newname").val();
-    let oldGroupName = $("#rename-dialog").find(".oldname").val();
-    showSendNotify("Renameing group")
-    $.ajax({
-        type: "put",
-        url: renameGroupUrl,
-        contentType : "application/json",
-        data: JSON.stringify({"newGroupName":newGroupName,"oldGroupName":oldGroupName}),
-        success: function (data) {
-            data = unpackResult(data);
-            if (data.code !=200){
-                openMsgModal(data.msg);
-                return;
-            }
-            $(".authenticated .renameing").children(".name").attr("title",newGroupName);
-            $(".authenticated .renameing").children(".name").children(".gwt-InlineHTML").text(newGroupName);
-            cancelDialog('#rename-dialog');
-        },complete:function () {
-            hideSendNotify();
-        }
-    });
-}
+
 
 function removeApi(e,id) {
 
@@ -678,7 +661,7 @@ function loadDetail(apiInfo,form,callback) {
     $(".request"+currApiInfo.id).addClass("selected");
     $(".request"+currApiInfo.id).parents(".service").addClass("parent-selected");
     $(".request"+currApiInfo.id).parents(".service").removeClass("collapsed");
-    $(".request"+currApiInfo.id).parents(".service").find(".fa-caret-right").addClass("fa-caret-down").removeClass("fa-caret-right");
+    collapsedDirectory(apiInfo.directoryId)
     $('#editor-section .draft-ribbon-text').text("Edit");
 
     let url = baseUrl+"?id="+currApiInfo.id+"&page="+(currPage?currPage:'example');
@@ -689,7 +672,8 @@ function loadDetail(apiInfo,form,callback) {
     $(form).find(".api-info-method").val(currApiInfo.method);
     $(form).find(".api-info-datasource").val(currApiInfo.datasource),
     $(form).find(".api-info-path").val(currApiInfo.path.startsWith("TEMP-")?"":currApiInfo.path).blur();
-    $(form).find(".api-info-group").val(currApiInfo.groupName);
+    $(form).find(".api-info-fullpath").val(currApiInfo.fullPath).blur();
+    $(form).find(".api-info-directory").val(currApiInfo.directoryId);
     $(form).find(".api-info-editor").val(currApiInfo.editor);
     $(form).find(".api-info-comment").val(currApiInfo.name);
 
@@ -752,13 +736,13 @@ function openMsgModal(msg) {
 }
 
 function confirmDialog(form) {
-    let group = $("#save-dialog .path-buttons .active").attr("title");
+    let directoryId = $("#save-dialog .path-buttons .active").attr("data-directoryId");
     let params={
         "id": $("#save-dialog").attr("data-id"),
         "method": $(form).find(".api-info-method").val(),
         "datasource":$(form).find(".api-info-datasource").val(),
         "path": $(form).find(".api-info-path").val(),
-        "groupName": group?group:"公共API",
+        "directoryId": directoryId,
         "editor": $(form).find(".api-info-editor").val(),
         "name": $("#save-dialog .input-xlarge").val(),
         "script": editorTextarea.getValue(),
@@ -825,34 +809,83 @@ function showDialogGroup(id) {
     $("#save-dialog").show();
     $("#save-dialog .input-xlarge").val($("#editor-section .api-info-comment").val());
     $("#save-dialog .path-buttons .r-btn").addClass("active");
-    $("#save-dialog .button-path-selector").remove();
+
 
     $("#save-dialog .local-drive").html("");
 
-    $.getJSON(getApiGroupNameUrl,function (data) {
-        data = unpackResult(data).data;
-        $.each(data,function (index,item) {
-            $("#save-dialog .local-drive").append("<li><a onclick='listRequest(this)'><i class=\"api-tester-icon api-tester-project\"></i><span>"+item+"</span></a></li>")
+    let directoryId = null;
+    if (id){
+        $.each(gdata.apiList,function (index,item){
+            if (item.id == id){
+                directoryId = item.directoryId;
+                return false;
+            }
         })
-    })
+    }
+
+    buildDirectoryPath(directoryId);
 }
 
-function listRequest(e) {
-    let value = $(e).text();
-    $("#save-dialog .r-btn").removeClass("active");
-    $("#save-dialog .path-buttons").append("<a class=\"r-btn button-path-selector active\" title=\""+value+"\"><i class=\"api-tester-icon api-tester-project\"></i><span>"+value+"</span></a>");
+function buildDirectoryPath(directoryId){
+    $("#save-dialog .button-path-selector").remove();
+
+    let currDirectoryId = directoryId;
+    while (true){
+        let directory = null;
+        $.each(gdata.directoryList,function (index,item){
+            if (item.id == directoryId){
+                directory = item;
+                return false;
+            }
+        })
+
+        if (directory != null){
+            let tPath = $("<a class=\"r-btn button-path-selector\" data-directoryId='"+directoryId+"' onclick='buildDirectoryPath(\""+directoryId+"\")' ><i class=\"api-tester-icon api-tester-project\"></i><span>"+directory.name+"</span></a>");
+            if (currDirectoryId == directoryId){
+                $("#save-dialog .r-btn").removeClass("active");
+                tPath.addClass("active");
+            }
+
+            $("#save-dialog .path-buttons .root-path").after(tPath);
+            directoryId = directory.parentId;
+        }
+
+        if (directory == null || !directory.parentId){
+            break;
+        }
+    }
+
+    listChildrens(currDirectoryId);
+}
+
+function listChildrens(directoryId) {
+
 
     $("#save-dialog .local-drive").html("");
-    $.getJSON(getApiNameUrl+"?group="+value,function (data) {
-        data = unpackResult(data).data;
-        if (data.length == 0){
-            $("#save-dialog .local-drive").append("<li><p class=\"navbar-text\">Empty</p></li>")
+
+    let isEmpty = true;
+    $.each(gdata.directoryList,function (index,item) {
+
+        if (!directoryId && !item.parentId){
+
+        }else if (directoryId != item.parentId){
             return;
         }
-        $.each(data,function (index,item) {
-            $("#save-dialog .local-drive").append("<li><a><i class=\"api-tester-icon api-tester-request\"></i><span>"+item+"</span></a></li>")
-        })
+        isEmpty = false;
+        $("#save-dialog .local-drive").append("<li><a onclick='buildDirectoryPath(\""+item.id+"\")'><i class=\"api-tester-icon api-tester-project\"></i><span>"+item.name+"</span></a></li>")
     })
+    $.each(gdata.apiList,function (index,item) {
+        if (directoryId != item.directoryId){
+            return;
+        }
+        isEmpty = false;
+        $("#save-dialog .local-drive").append("<li><a><i class=\"api-tester-icon api-tester-request\"></i><span>"+(item.name?item.name:item.path)+"</span></a></li>")
+    })
+
+    if (isEmpty){
+        $("#save-dialog .local-drive").append("<li><p class=\"navbar-text\">Empty</p></li>")
+    }
+
 }
 
 function saveEditor(form) {
@@ -869,7 +902,7 @@ function saveEditor(form) {
         "method": $(form).find(".api-info-method").val(),
         "datasource":$(form).find(".api-info-datasource").val(),
         "path": $(form).find(".api-info-path").val(),
-        "groupName": $(form).find(".api-info-group").val(),
+        "directoryId": $(form).find(".api-info-directory").val(),
         "editor": $(form).find(".api-info-editor").val(),
         "name": $(form).find(".api-info-comment").val(),
         "script": editorTextarea.getValue(),
@@ -906,7 +939,9 @@ function saveExecuter(params) {
             //参数保存
             saveExample(currApi);
 
-            loadApiList(false);
+            loadApiList(false,function () {
+                collapsedDirectory(params.directoryId)
+            });
 
             if (params.id){
                 MtaH5.clickStat("api_save_success")
@@ -945,77 +980,94 @@ function searchApi(e) {
     buildApiTree(searchResult,"");
 }
 
-function buildApiTree(list,collapsed) {
-    let group = {};
-    $.each(list,function(index,item){
-        let arrVal = group[item.groupName];
-        if (!arrVal){
-            arrVal = [];
-            group[item.groupName] = arrVal;
-        }
-        arrVal.push(item);
-    });
-    //if (true)return;
-    $(".authenticated").html("");
-    $("#repository .api-counter").text("["+list.length+"]");
-    //生成tree
-    $.each(group,function (key,value) {
-        let $lev1 = $('<li class="'+collapsed+' service level1"><div class="name" title="'+key+'"><i onclick="collapsedTree(this)" class="fa fa-caret-right"\n' +
-            '                                                                               e2e-tag="drive|'+key+'|expand"></i>\n' +
-            '                                            <div aria-hidden="true" e2e-tag="drive|'+key+'|play"\n' +
-            '                                                 style="display: none;"><i class="fa fa-play"></i></div>\n' +
-            '                                            <span class="gwt-InlineHTML node-text"\n' +
-            '                                                  e2e-tag="drive|'+key+'">'+key+'</span>\n' +
-            '                                            <div class="status" aria-hidden="true" style="display: none;"></div>\n' +
-            '                                            <div class="btn-group ctrls dropdown-primary"><a\n' +
-            '                                                    class="btn-mini dropdown-toggle" data-toggle="dropdown"\n' +
-            '                                                    e2e-tag="drive|'+key+'|more"><i\n' +
-            '                                                    class="sli-icon-options-vertical"></i></a>\n' +
-            '                                                <ul class="pull-right dropdown-menu">' +
-            '<li class="dropdown-item" onclick="addARequest(this)"><a><i class="fa fa-plus"></i><span class="gwt-InlineHTML">Add a request</span></a></li>' +
-            '<li class="dropdown-item" onclick="renameApi(this)"><a><i class="fa fa-edit"></i><span class="gwt-InlineHTML">Rename</span></a></li>' +
-            '</ul>\n' +
-            '                                            </div>\n' +
-            '                                        </div></li>');
+function buildApiDom(item) {
+    return $('<li class="request level2 request'+item.id+'" ><div class="name" onclick="loadDetailById(\''+item.id+'\',\'#editor-section\')" ><i\n' +
+        '                                                        class="fa fa-caret-right invisible" aria-hidden="true" style="display: none;"></i>\n' +
+        '                                                    <div class="play-icon" title="Launch request" ><i class="fa fa-play"></i></div>\n' +
+        '                                                    <span class="gwt-InlineHTML node-text '+(item.type=='Code'?'fa fa-file-o':'')+'" >'+(item.name?item.name:item.path)+'<span style=\'margin-left:10px;color:#8a8989;\'>'+('['+item.path+']')+'</span></span>\n' +
+        '                                                    <div class="status" aria-hidden="true" style="display: none;"></div>\n' +
+        '                                                    <div class="btn-group ctrls dropdown-primary"  data-id="'+item.id+'" >' +
+        '                                                       <a class="btn-mini dropdown-toggle" data-toggle="dropdown" ><i class="sli-icon-options-vertical"></i></a>\n' +
+        '                                                        <ul class="pull-right dropdown-menu">' +
+        '                                                           <li class="dropdown-item"  title="复制" onclick="copyApi(this,\''+item.id+'\')"><a><i class="fa fa-copy"></i><span class="gwt-InlineHTML">Copy</span></a></li>' +
+        '                                                           <li class="dropdown-item"  title="移动" onclick="moveApi(this,\''+item.id+'\')"><a><i class="fa fa-random"></i><span class="gwt-InlineHTML">Move</span></a></li>' +
+        '                                                           <li class="dropdown-item"  title="文档同步" onclick="apiPush(\''+item.id+'\')"><a><i class="fa fa-cloud-upload"></i><span class="gwt-InlineHTML">Doc</span></a></li>' +
+        '                                                           <li class="dropdown-item"  title="移除" onclick="removeApi(this,\''+item.id+'\')"><a><i class="fa fa-trash-o"></i><span class="gwt-InlineHTML">Trash</span></a></li>' +
+        '</ul>\n' +
+        '                                                    </div>\n' +
+        '                                                </div>' +
+        '</li>');
+}
 
-        let $lev2 = $('<ul></ul>');
-        $.each(value,function (index,item) {
-            $lev2.append('<li class="'+collapsed+' request level2 request'+item.id+'" ><div class="name" onclick="loadDetailById(\''+item.id+'\',\'#editor-section\')" title="'+(item.name?item.name:item.path)+'"><i\n' +
-                '                                                        class="fa fa-caret-right invisible" aria-hidden="true"\n' +
-                '                                                        e2e-tag="drive|'+(item.name?item.name:item.path)+'|expand"\n' +
-                '                                                        style="display: none;"></i>\n' +
-                '                                                    <div class="play-icon" title="Launch request"\n' +
-                '                                                         e2e-tag="drive|'+(item.name?item.name:item.path)+'|play"><i\n' +
-                '                                                            class="fa fa-play"></i></div>\n' +
-                '                                                    <span class="gwt-InlineHTML node-text '+(item.type=='Code'?'fa fa-file-o':'')+'"\n' +
-                '                                                          e2e-tag="drive|'+(item.name?item.name:item.path)+'">'+(item.name?item.name:item.path)+'<span style=\'margin-left:10px;color:#8a8989;\'>'+('['+item.path+']')+'</span></span>\n' +
-                '                                                    <div class="status" aria-hidden="true" style="display: none;"></div>\n' +
-                '                                                    <div class="btn-group ctrls dropdown-primary"  data-id="'+item.id+'" ><a\n' +
-                '                                                            class="btn-mini dropdown-toggle" data-toggle="dropdown"\n' +
-                '                                                            e2e-tag="drive|'+(item.name?item.name:item.path)+'|more"><i\n' +
-                '                                                            class="sli-icon-options-vertical"></i></a>\n' +
-                '                                                        <ul class="pull-right dropdown-menu">' +
-                '<li class="dropdown-item"  title="复制" onclick="copyApi(this,\''+item.id+'\')"><a><i class="fa fa-copy"></i><span class="gwt-InlineHTML">Copy</span></a></li>' +
-                '<li class="dropdown-item"  title="移动" onclick="moveApi(this,\''+item.id+'\')"><a><i class="fa fa-random"></i><span class="gwt-InlineHTML">Move</span></a></li>' +
-                '<li class="dropdown-item"  title="文档同步" onclick="apiPush(\''+item.id+'\')"><a><i class="fa fa-cloud-upload"></i><span class="gwt-InlineHTML">Doc</span></a></li>' +
-                '<li class="dropdown-item"  title="移除" onclick="removeApi(this,\''+item.id+'\')"><a><i class="fa fa-trash-o"></i><span class="gwt-InlineHTML">Trash</span></a></li>' +
-                '</ul>\n' +
-                '                                                    </div>\n' +
-                '                                                </div>' +
-                '</li>');
-        })
-        $lev1.append($lev2);
-        $(".authenticated").append($lev1);
+function buildApiDirectoryDom(item) {
+    return $('<li class="collapsed service level1" data-directoryId="'+item.id+'" >' +
+        '                                        <div class="name"  ><i class="fa fa-caret-right"  onclick="collapsedTree(this)" ></i>\n' +
+        '                                            <div aria-hidden="true" style="display: none;"><i class="fa fa-play" ></i></div>\n' +
+        '                                            <span class="gwt-InlineHTML node-text" >'+item.name+'<span style=\'margin-left:10px;color:#8a8989;\'>'+(item.path?('['+item.path+']'):'')+'</span></span>\n' +
+        '                                            <div class="status" aria-hidden="true" style="display: none;"></div>\n' +
+        '                                            <div class="btn-group ctrls dropdown-primary">' +
+        '                                               <a class="btn-mini dropdown-toggle" data-toggle="dropdown">' +
+        '                                                   <i class="sli-icon-options-vertical"></i>' +
+        '                                               </a>\n' +
+        '                                                <ul class="pull-right dropdown-menu">' +
+        '                                                   <li class="dropdown-item" onclick="addARequest(this)"><a><i class="fa fa-plus"></i><span class="gwt-InlineHTML">Add a request</span></a></li>' +
+        '                                                   <li class="dropdown-item" onclick="showCreateDirectory(\''+item.id+'\',\'Create a directory\')"><a><i class="fa fa-plus"></i><span class="gwt-InlineHTML">Add a directory</span></a></li>' +
+        '                                                   <li class="dropdown-item" onclick="renameDirectory(\''+item.id+'\',\'Rename a directory\')"><a><i class="fa fa-edit"></i><span class="gwt-InlineHTML">Rename</span></a></li>' +
+        '                                                   <li class="dropdown-item" onclick="removeDirectory(\''+item.id+'\')"><a><i class="fa fa-trash-o"></i><span class="gwt-InlineHTML">Trash</span></a></li>' +
+        '                                               </ul>\n' +
+        '                                            </div>\n' +
+        '                                        </div><ul id="directory-id-'+item.id+'" style="margin-left: 24px;"></ul></ul></li>');
+}
+
+function buildApiDirectory(directoryList,dirId){
+    $.each(directoryList,function (index,item) {
+
+        if (!dirId && !item.parentId){
+            $(".authenticated").append(buildApiDirectoryDom(item));
+            buildApiDirectory(directoryList,item.id);
+            return;
+        }
+
+        if (item.parentId != dirId){
+            return;
+        }
+        $("#directory-id-"+dirId).append(buildApiDirectoryDom(item));
+        buildApiDirectory(directoryList,item.id);
     })
 }
 
-function loadApiList(isDb) {
-    $.getJSON(loadApiListUrl+"?isDb="+(isDb?true:false),function (data) {
+function buildApiTree(directoryList,apiList) {
+    $(".authenticated").html("");
+    $("#repository .api-counter").text("["+apiList.length+"]");
+
+    buildApiDirectory(directoryList,null);
+
+    $.each(apiList,function(index,item){
+        $("#directory-id-"+item.directoryId).append(buildApiDom(item));
+    });
+
+}
+
+function loadApiList(isDb,callback) {
+
+    //拉取目录信息
+    $.getJSON(directoryListUrl,function (data) {
         data = unpackResult(data);
-        gdata.apiList = data.data;
-        buildApiTree(gdata.apiList,"collapsed");
-        loadCurrApi();
+        gdata.directoryList = data.data;
+
+        $.getJSON(loadApiListUrl+"?isDb="+(isDb?true:false),function (data) {
+            data = unpackResult(data);
+            gdata.apiList = data.data;
+            buildApiTree(gdata.directoryList,gdata.apiList);
+            loadCurrApi();
+            if (callback){
+                callback();
+            }
+        })
+
     })
+
+
 }
 
 function unpackResult(data){
@@ -1032,15 +1084,15 @@ function unpackResult(data){
     return data;
 }
 
-function collapsedTree(e) {
-    if($(e).hasClass("fa-caret-right")){
-        $(e).removeClass("fa-caret-right");
-        $(e).addClass("fa-caret-down");
-        $(e).parent().parent().removeClass("collapsed");
+function collapsedTree(fa) {
+    if($(fa).hasClass("fa-caret-right")){
+        $(fa).removeClass("fa-caret-right");
+        $(fa).addClass("fa-caret-down");
+        $(fa).parent().parent().removeClass("collapsed");
     }else {
-        $(e).removeClass("fa-caret-down");
-        $(e).addClass("fa-caret-right");
-        $(e).parent().parent().addClass("collapsed");
+        $(fa).removeClass("fa-caret-down");
+        $(fa).addClass("fa-caret-right");
+        $(fa).parent().parent().addClass("collapsed");
     }
 }
 
@@ -1065,7 +1117,7 @@ function newEditor() {
 
     $(form).find(".api-info-path").val("");
     $(form).find(".api-info-datasource").val($(form).find(".api-info-datasource").attr("default-value"));
-    $(form).find(".api-info-group").val("公共API");
+    $(form).find(".api-info-directory").val("");
     $(form).find(".api-info-editor").val("admin");
     $(form).find(".api-info-comment").val("Request");
     editorTextarea.setValue("");
@@ -1138,7 +1190,7 @@ function loadExample(apiInfo,example) {
         options:"{}"
     },example);
     $form.find(".example-method").val(currExample.method);
-    let url = buildDefaultUrl(apiInfo.path);
+    let url = buildDefaultUrl(apiInfo.fullPath);
     if(currExample.url.indexOf("?") !=-1){
         url += currExample.url.substring(currExample.url.indexOf("?"));
     }
@@ -2378,3 +2430,135 @@ function buildSelectApiTree(list,collapsed) {
     })
 }
 //-------------------------------- Remote Sync end ------------------------------
+
+
+//-------------------------------- Directory Edit start ------------------------------
+
+function showCreateDirectory(parentId,title) {
+    let dialog = $("#directory-editor");
+    dialog.show();
+    dialog.find(".modal-header h3").html(title+" <small></small>");
+    dialog.find("input[name='parentId']").val(parentId);
+    dialog.find("input[name='id']").val("");
+    dialog.find("input[name='path']").val("");
+    dialog.find("input[name='name']").val("").focus();
+}
+
+function removeDirectory(id) {
+    openConfirmModal("The directory and requests will be permanently deleted. Are you sure?",function () {
+        let parentId = $("#directory-id-"+id).parents(".service").parents(".service").attr("data-directoryid");
+
+        showSendNotify("Remove directory")
+        $.ajax({
+            type: "delete",
+            url: deleteDirectoryUrl,
+            contentType : "application/json",
+            data: JSON.stringify({"id":id}),
+            success: function (data) {
+                data = unpackResult(data);
+                if (data.code !=200){
+                    openMsgModal(data.msg);
+                    return;
+                }
+                closeConfirmModal();
+                loadApiList(false,function(){
+                    collapsedDirectory(parentId);
+                });
+            },complete:function () {
+                hideSendNotify();
+            }
+        });
+    });
+
+}
+
+function saveDirectory() {
+    let dialog = $("#directory-editor");
+    let id = dialog.find("input[name='id']").val();
+    let name = dialog.find("input[name='name']").val();
+    let path = dialog.find("input[name='path']").val();
+    let parentId = dialog.find("input[name='parentId']").val();
+    if (!name){
+        dialog.find(".error-message").html("name is empty")
+        return;
+    }
+
+    showSendNotify("Save directory")
+    $.ajax({
+        type: "post",
+        url: saveDirectoryUrl,
+        contentType : "application/json",
+        data: JSON.stringify({"id":id,"name":name,"path":path,"parentId":parentId}),
+        success: function (data) {
+            data = unpackResult(data);
+            if (data.code !=200){
+                openMsgModal(data.msg);
+                return;
+            }
+            loadApiList(false,function(){
+                collapsedDirectory(data.data);
+            });
+            cancelDialog('#directory-editor');
+        },complete:function () {
+            hideSendNotify();
+        }
+    });
+}
+
+//重命名组
+function renameDirectory(directoryId,title) {
+    let directory = null;
+    $.each(gdata.directoryList,function (index,item) {
+        if (item.id == directoryId){
+            directory = item;
+            return false;
+        }
+    })
+    let dialog = $("#directory-editor");
+    dialog.show();
+    dialog.find(".modal-header h3").html(title+" <small></small>");
+    dialog.find("input[name='parentId']").val(directory.parentId);
+    dialog.find("input[name='path']").val(directory.path);
+    dialog.find("input[name='id']").val(directory.id);
+    dialog.find("input[name='name']").val(directory.name).focus();
+
+}
+//确认重命名组
+function confirmRenameDialog(e) {
+    let newGroupName = $("#rename-dialog").find(".newname").val();
+    let oldGroupName = $("#rename-dialog").find(".oldname").val();
+    showSendNotify("Renameing group")
+    $.ajax({
+        type: "put",
+        url: renameGroupUrl,
+        contentType : "application/json",
+        data: JSON.stringify({"newGroupName":newGroupName,"oldGroupName":oldGroupName}),
+        success: function (data) {
+            data = unpackResult(data);
+            if (data.code !=200){
+                openMsgModal(data.msg);
+                return;
+            }
+            $(".authenticated .renameing").children(".name").attr("title",newGroupName);
+            $(".authenticated .renameing").children(".name").children(".gwt-InlineHTML").text(newGroupName);
+            cancelDialog('#rename-dialog');
+        },complete:function () {
+            hideSendNotify();
+        }
+    });
+}
+
+function collapsedDirectory(parentId) {
+    if (!parentId){
+        return;
+    }
+
+    let fa = $("#directory-id-"+parentId).parents(".service").children(".name").children(".fa")
+    $(fa).removeClass("fa-caret-right");
+    $(fa).addClass("fa-caret-down");
+
+    $("#directory-id-"+parentId).parents(".service").removeClass("collapsed");
+    parentId = $("#directory-id-"+parentId).parents(".service").parents(".service").attr("data-directoryid");
+    collapsedDirectory(parentId);
+}
+//-------------------------------- Directory Edit end ------------------------------

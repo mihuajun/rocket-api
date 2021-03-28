@@ -17,7 +17,7 @@
             <div class="row-uri-in-request-view">
                 <div class="row-uri">
                     <input type="hidden" class="api-info-id">
-                    <input type="hidden" class="api-info-group" value="公共API">
+                    <input type="hidden" class="api-info-directory" value="">
                     <input type="hidden" class="api-info-editor" value="admin">
                     <div class="uri-db" id="uri-db">
                         <div class="uri-help" >
@@ -71,7 +71,14 @@
                                                     <span class="expression-input input-append uri-path">
                                                         <input type="text" class="gwt-TextBox api-info-path" spellcheck="false" autocomplete="off" e2e-tag="uri-input"
                                                                placeholder="Type an Path" style="padding-left:10px;" onblur="fullPath(this)">
-                                                        <span class="add-on" data-original-title="" title=""> <i class="icon-magic"></i></span></span>
+                            <div class="uri-length" style="display: inline;">length: 0 char(s)</div>
+                        </div>
+                    </div>
+                    <div class="uri-editor">
+                        <div class="uri-help"><a> FullPath </a></div>
+                        <div class="uri-input">
+                                                    <span class="expression-input input-append uri-path">
+                                                        <input type="text" class="gwt-TextBox api-info-fullpath" readonly="readonly" spellcheck="false"  style="padding-left:10px;" >
                             <div class="uri-length" style="display: inline;">length: 0 char(s)</div>
                         </div>
                     </div>

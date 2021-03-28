@@ -55,6 +55,7 @@ import java.util.stream.Stream;
 /**
  * Api ui 数据接口
  */
+@SuppressWarnings("DuplicatedCode")
 @Slf4j
 @RestController
 @RequestMapping("${spring.rocket-api.base-register-path:/interface-ui}")
@@ -102,17 +103,18 @@ public class ApiController {
      */
     @GetMapping("/api-list")
     public ApiResult getPathList(boolean isDb) throws Exception {
-        return  ApiResult.success(mappingFactory.getPathList(isDb).stream().map(item->{
-            Map<String,Object> newItem = new HashMap<>();
-            newItem.put("id",item.getId());
-            newItem.put("groupName",item.getGroupName());
-            newItem.put("name",item.getName());
-            newItem.put("method",item.getMethod());
-            newItem.put("path",item.getPath());
-            newItem.put("options",item.getOptions());
-            newItem.put("datasource",item.getDatasource());
-            return newItem;
-        }).collect(Collectors.toList()));
+        List<ApiInfo> result = mappingFactory.getPathList(isDb).stream()
+                .sorted(Comparator.comparing(ApiInfo::getName).thenComparing(ApiInfo::getFullPath))
+                .collect(Collectors.toList());
+
+
+        result = result.stream().map(item->{
+            ApiInfo apiInfo = new ApiInfo();
+            BeanUtils.copyProperties(item,apiInfo);
+            return apiInfo;
+        }).collect(Collectors.toList());
+
+        return  ApiResult.success(result);
     }
 
     /**
@@ -164,7 +166,7 @@ public class ApiController {
             if (!StringUtils.isEmpty(apiInfo.getScript())){
                 apiInfo.setScript(scriptEncrypt.encrypt(apiInfo.getScript()));
             }
-            return ApiResult.success(mappingFactory.saveOrUpdateApiInfo(apiInfo));
+            return ApiResult.success(mappingFactory.saveApiInfo(apiInfo));
         }catch (Exception e){
             e.printStackTrace();
             return ApiResult.fail(e.getMessage());
@@ -223,19 +225,6 @@ public class ApiController {
         }
     }
 
-
-    /**
-     * change group name
-     */
-    @PutMapping("/api-info/group")
-    public ApiResult renameGroup(@RequestBody RenameGroupReq renameGroupReq,HttpServletRequest request) throws Exception {
-        String user = loginService.getUser(request);
-        if(StringUtils.isEmpty(user)){
-            return ApiResult.fail("Permission denied");
-        }
-        return ApiResult.success(mappingFactory.renameGroup(renameGroupReq));
-    }
-
     /**
      * REMOVE APIINFO
      * @param apiInfo
@@ -272,7 +261,7 @@ public class ApiController {
         try {
             apiInfoContent.setIsDebug(runApiReq.isDebug());
             ApiInfo apiInfo = ApiInfo.builder()
-                    .path(runApiReq.getPattern())
+                    .fullPath(runApiReq.getPattern())
                     .options(runApiReq.getOptions())
                     .datasource(runApiReq.getDatasource())
                     .script(runApiReq.getScript())
@@ -336,22 +325,6 @@ public class ApiController {
             result.put(key,firstValue);
         });
         return  result;
-    }
-
-    /**
-     * 组名获取
-     */
-    @GetMapping("/group-name-list")
-    public ApiResult getGroupNameList(){
-        return ApiResult.success(mappingFactory.getGroupNameList());
-    }
-
-    /**
-     * API名获取
-     */
-    @GetMapping("/api-name-list")
-    public ApiResult getApiNameList(String group){
-        return ApiResult.success(mappingFactory.getApiNameList(group));
     }
 
     /**
@@ -469,7 +442,7 @@ public class ApiController {
     }
 
     /**
-     * 动态配置数据源获取
+     * 动态配置获取
      * @param request
      * @return
      */
@@ -490,7 +463,7 @@ public class ApiController {
     }
 
     /**
-     * 动态数据库修改
+     * 动态配置修改
      * @param params
      * @return
      */
@@ -509,6 +482,58 @@ public class ApiController {
         return ApiResult.success(null);
     }
 
+    /**
+     * 目录查询
+     * @return
+     */
+    @GetMapping("/directory/list")
+    public ApiResult directoryList(){
+        return ApiResult.success(mappingFactory.loadDirectoryList(false).stream()
+                .sorted(Comparator.comparing(ApiDirectory::getName).thenComparing(ApiDirectory::getPath))
+                .collect(Collectors.toList()));
+    }
+
+    /**
+     * 目录保存
+     * @param directory
+     * @return
+     */
+    @PostMapping("/directory")
+    public ApiResult saveDirectory(@RequestBody ApiDirectory directory,HttpServletRequest request){
+        String user = loginService.getUser(request);
+        if(StringUtils.isEmpty(user)){
+            return ApiResult.fail("Permission denied");
+        }
+
+        try {
+            mappingFactory.saveDirectory(directory);
+            mappingFactory.loadDirectoryList(true);
+        } catch (Exception e) {
+            return ApiResult.fail(e.getMessage());
+        }
+        return ApiResult.success(directory.getId());
+    }
+
+    /**
+     * 目录删除
+     * @param directory
+     * @return
+     */
+    @DeleteMapping("/directory")
+    public ApiResult removeDirectory(@RequestBody ApiDirectory directory,HttpServletRequest request){
+        String user = loginService.getUser(request);
+        if(StringUtils.isEmpty(user)){
+            return ApiResult.fail("Permission denied");
+        }
+
+        try {
+            mappingFactory.removeDirectory(directory);
+            mappingFactory.loadDirectoryList(true);
+        } catch (Exception e) {
+            return ApiResult.fail(e.getMessage());
+        }
+        return ApiResult.success(null);
+    }
 
     /**
      * 自动完成，类型获取

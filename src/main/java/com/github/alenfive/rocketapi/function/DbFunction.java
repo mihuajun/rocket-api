@@ -4,8 +4,12 @@ import com.github.alenfive.rocketapi.datasource.DataSourceManager;
 import com.github.alenfive.rocketapi.entity.vo.Page;
 import com.github.alenfive.rocketapi.extend.ApiInfoContent;
 import com.github.alenfive.rocketapi.extend.IApiPager;
+import com.github.alenfive.rocketapi.extend.IDBCache;
 import com.github.alenfive.rocketapi.extend.ISQLInterceptor;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
 
 import java.util.Collections;
@@ -18,41 +22,50 @@ import java.util.Map;
  */
 @SuppressWarnings("DuplicatedCode")
 @Slf4j
+@Data
 public class DbFunction extends HashMap<String,DbFunction> implements IFunction {
 
+    @Autowired
     private DataSourceManager dataSourceManager;
 
+    @Autowired
     private ApiInfoContent apiInfoContent;
 
+    @Autowired
     private IApiPager apiPager;
 
+    @Autowired
     private UtilsFunction utilsFunction;
 
+    @Autowired
     private ISQLInterceptor sqlInterceptor;
+
+    @Autowired
+    private IDBCache dbCache;
 
     private String datasource;
 
-    @Override
-    public DbFunction get(Object key){
-        DbFunction dbFunction = new DbFunction(this.dataSourceManager,this.apiInfoContent,this.apiPager,this.utilsFunction,this.sqlInterceptor);
-        dbFunction.setDatasource(key.toString());
+    private String cacheKey;
+    private Long cacheTime;
+
+    public DbFunction cache(String cacheKey,Long cacheTime){
+        DbFunction dbFunction = new DbFunction();
+        BeanUtils.copyProperties(this,dbFunction);
+        dbFunction.setCacheKey(cacheKey);
+        dbFunction.setCacheTime(cacheTime);
         return dbFunction;
     }
 
-    public DbFunction(DataSourceManager dataSourceManager,ApiInfoContent apiInfoContent,IApiPager apiPager,UtilsFunction utilsFunction,ISQLInterceptor sqlInterceptor){
-        this.dataSourceManager = dataSourceManager;
-        this.apiInfoContent = apiInfoContent;
-        this.apiPager = apiPager;
-        this.utilsFunction = utilsFunction;
-        this.sqlInterceptor = sqlInterceptor;
+    public void cacheClear(String cacheKey){
+        dbCache.remove(cacheKey);
     }
 
-    public void setDatasource(String datasource){
-        this.datasource = datasource;
-    }
-
-    public String getDatasource(){
-        return this.datasource;
+    @Override
+    public DbFunction get(Object key){
+        DbFunction dbFunction = new DbFunction();
+        BeanUtils.copyProperties(this,dbFunction);
+        dbFunction.setDatasource(key.toString());
+        return dbFunction;
     }
 
     @Override
@@ -99,6 +112,15 @@ public class DbFunction extends HashMap<String,DbFunction> implements IFunction 
 
     @Deprecated
     public List<Map<String,Object>> find(String script,String dataSource,Map<String,Object> params) throws Exception {
+
+        //获取缓存对象
+        if (this.getCacheKey() != null){
+            Object value = dbCache.get(this.getCacheKey());
+            if (value != null){
+                return (List<Map<String, Object>>) value;
+            }
+        }
+
         script = parseSql(script);
         StringBuilder sbScript = new StringBuilder(sqlInterceptor.before(script));
         List<Map<String,Object>> result = null;
@@ -112,6 +134,10 @@ public class DbFunction extends HashMap<String,DbFunction> implements IFunction 
             sqlInterceptor.after(sbScript.toString());
         }
 
+        //设置缓存对象
+        if (this.getCacheKey() != null){
+            dbCache.set(this.cacheKey,result,cacheTime);
+        }
         return result;
     }
 

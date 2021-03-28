@@ -37,7 +37,7 @@ public abstract class DataSourceDialect {
 
     public abstract <T extends ApiEntity> void saveEntity( T entity);
     public abstract <T extends ApiEntity> T findEntityById( T entity);
-    public abstract <T extends ApiEntity> void deleteEntityById(T entity);
+    public abstract <T extends ApiEntity> void removeEntityById(T entity);
     public abstract <T extends ApiEntity> void updateEntityById(T entity);
     public abstract <T extends ApiEntity> List<T> listByEntity(T entity);
     public abstract <T extends ApiEntity> List<T> pageByEntity(T entity, IApiPager apiPager, Page page);

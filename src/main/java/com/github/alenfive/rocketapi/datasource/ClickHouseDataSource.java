@@ -46,7 +46,7 @@ public class ClickHouseDataSource extends DataSourceDialect {
     }
 
     @Override
-    public <T extends ApiEntity> void deleteEntityById(T entity) {
+    public <T extends ApiEntity> void removeEntityById(T entity) {
 
     }
 

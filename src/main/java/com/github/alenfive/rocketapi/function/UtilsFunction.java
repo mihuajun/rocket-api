@@ -211,8 +211,8 @@ public class UtilsFunction implements IFunction{
             throw new IllegalArgumentException("parameter `target` needs to \"GET:/test/pager\"");
         }
         String method = targetArr[0];
-        String path = targetArr[1];
-        ApiInfo apiInfo = apiInfoCache.get(ApiInfo.builder().method(method).path(path).build());
+        String fullPath = targetArr[1];
+        ApiInfo apiInfo = apiInfoCache.get(ApiInfo.builder().method(method).fullPath(fullPath).build());
 
         if (apiInfo == null || !ApiType.Ql.name().equals(apiInfo.getType())){
             throw new IllegalArgumentException("API not found "+target);

@@ -154,8 +154,14 @@ public class RocketApiAutoConfig {
 
     @Bean
     @ConditionalOnMissingBean
-    public DbFunction getDbFunction(DataSourceManager dataSourceManager,ApiInfoContent apiInfoContent,IApiPager apiPager,UtilsFunction utilsFunction,ISQLInterceptor sqlInterceptor){
-        return new DbFunction(dataSourceManager,apiInfoContent,apiPager,utilsFunction,sqlInterceptor);
+    public IDBCache getDBCache(){
+        return new DefaultDBCache();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public DbFunction getDbFunction(){
+        return new DbFunction();
     }
 
     @Bean

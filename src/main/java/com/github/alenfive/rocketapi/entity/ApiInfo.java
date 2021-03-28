@@ -23,6 +23,11 @@ public class ApiInfo extends ApiEntity{
     @ApiUpdateField
     private String path;
     /**
+     * 完整路径=directory_path+this_path
+     */
+    @ApiUpdateField
+    private String fullPath;
+    /**
      * 方法支持列表
      */
     @ApiUpdateField
@@ -56,11 +61,12 @@ public class ApiInfo extends ApiEntity{
      */
     @ApiUpdateField
     private String service;
+
     /**
-     * 分组
+     * 所属目录
      */
     @ApiUpdateField
-    private String groupName;
+    private String directoryId;
 
     /**
      * 最后一次编辑者

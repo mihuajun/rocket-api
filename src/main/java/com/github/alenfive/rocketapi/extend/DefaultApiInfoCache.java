@@ -48,6 +48,6 @@ public class DefaultApiInfoCache implements IApiInfoCache {
     }
 
     private String buildApiInfoKey(ApiInfo apiInfo) {
-        return apiInfo.getMethod() +" "+ apiInfo.getPath();
+        return apiInfo.getMethod() +" "+ apiInfo.getFullPath();
     }
 }

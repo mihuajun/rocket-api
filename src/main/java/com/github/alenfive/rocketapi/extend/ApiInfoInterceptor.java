@@ -22,7 +22,7 @@ public abstract class ApiInfoInterceptor implements HandlerInterceptor {
             return null;
         }
         String method = request.getMethod();
-        return mappingFactory.getPathList(false).stream().filter(item->pattern.equals(item.getPath()) && (method.equals(item.getMethod()) || "ALL".equals(item.getMethod()))).findFirst().orElse(null);
+        return mappingFactory.getPathList(false).stream().filter(item->pattern.equals(item.getFullPath()) && (method.equals(item.getMethod()) || "ALL".equals(item.getMethod()))).findFirst().orElse(null);
     }
 
     @Override

@@ -9936,11 +9936,10 @@ a.gwt-anchor-inactive:hover {
 }
 .left-pane .level2 > div.name,
 .selection-tree .level2 > div.name {
-    padding: 0 0 0 66px;
+    padding: 0 0 0 55px;
 }
 .left-pane .level2.request > div.name,
 .selection-tree .level2.request > div.name {
-    padding-left: 96px;
 }
 .left-pane .level2.request:after,
 .selection-tree .level2.request:after {
@@ -9952,7 +9951,7 @@ a.gwt-anchor-inactive:hover {
 }
 .left-pane .level1 > div.name,
 .selection-tree .level1 > div.name {
-    padding: 0 0 0 44px;
+    padding: 0 0 0 24px;
 }
 .left-pane .level1.request > div.name,
 .selection-tree .level1.request > div.name {
@@ -14642,7 +14641,6 @@ body.free-edition .encourage-positive-review-banner.fake-extension-detected-bann
     margin-left: 10px;
 }
 .row-uri .uri-editor .uri-help {
-    padding-left: 25px;
 }
 .row-uri .uri-help {
     color: #888;
