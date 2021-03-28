@@ -68,7 +68,7 @@ public class MongoDataSource extends DataSourceDialect {
     public <T extends ApiEntity> List<T> listByEntity(T entity) {
         Query query = Query.query(buildCriteria(entity));
         query.with(Sort.by(Sort.Direction.DESC,"_id"));
-        return mongoTemplate.find(query,(Class <T>) (entity.getClass().getGenericSuperclass()),ApiAnnotationUtil.getApiTableName(entity.getClass()));
+        return mongoTemplate.find(query,(Class <T>) (entity.getClass()),ApiAnnotationUtil.getApiTableName(entity.getClass()));
     }
 
     private <T extends ApiEntity> Criteria buildCriteria(T entity){
@@ -98,7 +98,7 @@ public class MongoDataSource extends DataSourceDialect {
         Query query = Query.query(buildCriteria(entity));
         query.skip(apiPager.getIndexVarValue(page.getPageSize(),page.getPageNo())).limit(page.getPageSize());
         query.with(Sort.by(Sort.Direction.DESC,"_id"));
-        return mongoTemplate.find(query,(Class <T>) (entity.getClass().getGenericSuperclass()),ApiAnnotationUtil.getApiTableName(entity.getClass()));
+        return mongoTemplate.find(query,(Class <T>) (entity.getClass()),ApiAnnotationUtil.getApiTableName(entity.getClass()));
     }
 
 
