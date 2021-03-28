@@ -23,7 +23,7 @@ import java.util.Map;
 @SuppressWarnings("DuplicatedCode")
 @Slf4j
 @Data
-public class DbFunction extends HashMap<String,DbFunction> implements IFunction {
+public class DbFunction implements IFunction {
 
     @Autowired
     private DataSourceManager dataSourceManager;
@@ -43,8 +43,6 @@ public class DbFunction extends HashMap<String,DbFunction> implements IFunction 
     @Autowired
     private IDBCache dbCache;
 
-    private String datasource;
-
     private String cacheKey;
     private Long cacheTime;
 
@@ -58,14 +56,6 @@ public class DbFunction extends HashMap<String,DbFunction> implements IFunction 
 
     public void cacheClear(String cacheKey){
         dbCache.remove(cacheKey);
-    }
-
-    @Override
-    public DbFunction get(Object key){
-        DbFunction dbFunction = new DbFunction();
-        BeanUtils.copyProperties(this,dbFunction);
-        dbFunction.setDatasource(key.toString());
-        return dbFunction;
     }
 
     @Override
@@ -214,37 +204,37 @@ public class DbFunction extends HashMap<String,DbFunction> implements IFunction 
     /*重载 script*/
     public Object pager(String script) throws Exception {
         script = parseSql(script);
-        return this.pager(script,datasource,null);
+        return this.pager(script,null,null);
     }
 
     public Long count(String script) throws Exception {
         script = parseSql(script);
-        return this.count(script,datasource,null);
+        return this.count(script,null,null);
     }
 
     public Map<String,Object> findOne(String script) throws Exception {
         script = parseSql(script);
-        return this.findOne(script,datasource,null);
+        return this.findOne(script,null,null);
     }
 
     public List<Map<String,Object>> find(String script) throws Exception {
         script = parseSql(script);
-        return this.find(script,datasource,null);
+        return this.find(script,null,null);
     }
 
     public Object insert(String script) throws Exception {
         script = parseSql(script);
-        return this.insert(script,datasource,null);
+        return this.insert(script,null,null);
     }
 
     public Object remove(String script) throws Exception {
         script = parseSql(script);
-        return this.remove(script,datasource,null);
+        return this.remove(script,null,null);
     }
 
     public Long update(String script) throws Exception {
         script = parseSql(script);
-        return this.update(script,datasource,null);
+        return this.update(script,null,null);
     }
 
 
@@ -294,36 +284,36 @@ public class DbFunction extends HashMap<String,DbFunction> implements IFunction 
     /*重载 params*/
     public Object pager(String script,Map<String,Object> params) throws Exception {
         script = parseSql(script);
-        return this.pager(script,datasource,params);
+        return this.pager(script,null,params);
     }
 
     public Long count(String script,Map<String,Object> params) throws Exception {
         script = parseSql(script);
-        return this.count(script,datasource,params);
+        return this.count(script,null,params);
     }
 
     public Map<String,Object> findOne(String script,Map<String,Object> params) throws Exception {
         script = parseSql(script);
-        return this.findOne(script,datasource,params);
+        return this.findOne(script,null,params);
     }
 
     public List<Map<String,Object>> find(String script,Map<String,Object> params) throws Exception {
         script = parseSql(script);
-        return this.find(script,datasource,params);
+        return this.find(script,null,params);
     }
 
     public Object insert(String script,Map<String,Object> params) throws Exception {
         script = parseSql(script);
-        return this.insert(script,datasource,params);
+        return this.insert(script,null,params);
     }
 
     public Object remove(String script,Map<String,Object> params) throws Exception {
         script = parseSql(script);
-        return this.remove(script,datasource,params);
+        return this.remove(script,null,params);
     }
 
     public Long update(String script,Map<String,Object> params) throws Exception {
         script = parseSql(script);
-        return this.update(script,datasource,params);
+        return this.update(script,null,params);
     }
 }
