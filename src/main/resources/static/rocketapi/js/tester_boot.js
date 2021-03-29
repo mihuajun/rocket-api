@@ -973,11 +973,11 @@ function searchApi(e) {
             if (options[kv[0]] == kv[1]){
                 searchResult.push(item);
             }
-        }else if (item.name.indexOf(keyword) >=0 || item.path.indexOf(keyword)>=0 || item.groupName.indexOf(keyword)>=0 || !keyword){
+        }else if (item.name.indexOf(keyword) >=0 || item.fullPath.indexOf(keyword)>=0 || !keyword){
             searchResult.push(item);
         }
     });
-    buildApiTree(searchResult,"");
+    buildApiTree(gdata.directoryList,searchResult,keyword?"":"collapsed");
 }
 
 function buildApiDom(item) {
@@ -999,9 +999,9 @@ function buildApiDom(item) {
         '</li>');
 }
 
-function buildApiDirectoryDom(item) {
-    return $('<li class="collapsed service level1" data-directoryId="'+item.id+'" >' +
-        '                                        <div class="name"  ><i class="fa fa-caret-right"  onclick="collapsedTree(this)" ></i>\n' +
+function buildApiDirectoryDom(item,collapsed) {
+    return $('<li class="'+collapsed+' service level1" data-directoryId="'+item.id+'" >' +
+        '                                        <div class="name"  ><i class="fa '+(collapsed?'fa-caret-right':'fa-caret-down')+'"  onclick="collapsedTree(this)" ></i>\n' +
         '                                            <div aria-hidden="true" style="display: none;"><i class="fa fa-play" ></i></div>\n' +
         '                                            <span class="gwt-InlineHTML node-text" >'+item.name+'<span style=\'margin-left:10px;color:#8a8989;\'>'+(item.path?('['+item.path+']'):'')+'</span></span>\n' +
         '                                            <div class="status" aria-hidden="true" style="display: none;"></div>\n' +
@@ -1019,28 +1019,28 @@ function buildApiDirectoryDom(item) {
         '                                        </div><ul id="directory-id-'+item.id+'" style="margin-left: 24px;"></ul></ul></li>');
 }
 
-function buildApiDirectory(directoryList,dirId){
+function buildApiDirectory(directoryList,dirId,collapsed){
     $.each(directoryList,function (index,item) {
 
         if (!dirId && !item.parentId){
-            $(".authenticated").append(buildApiDirectoryDom(item));
-            buildApiDirectory(directoryList,item.id);
+            $(".authenticated").append(buildApiDirectoryDom(item,collapsed));
+            buildApiDirectory(directoryList,item.id,collapsed);
             return;
         }
 
         if (item.parentId != dirId){
             return;
         }
-        $("#directory-id-"+dirId).append(buildApiDirectoryDom(item));
-        buildApiDirectory(directoryList,item.id);
+        $("#directory-id-"+dirId).append(buildApiDirectoryDom(item,collapsed));
+        buildApiDirectory(directoryList,item.id,collapsed);
     })
 }
 
-function buildApiTree(directoryList,apiList) {
+function buildApiTree(directoryList,apiList,collapsed) {
     $(".authenticated").html("");
     $("#repository .api-counter").text("["+apiList.length+"]");
 
-    buildApiDirectory(directoryList,null);
+    buildApiDirectory(directoryList,null,collapsed);
 
     $.each(apiList,function(index,item){
         $("#directory-id-"+item.directoryId).append(buildApiDom(item));
@@ -1059,7 +1059,7 @@ function loadApiList(isDb,callback) {
             data = unpackResult(data);
             gdata.directoryList = data.data;
 
-            buildApiTree(gdata.directoryList,gdata.apiList);
+            buildApiTree(gdata.directoryList,gdata.apiList,"collapsed");
             loadCurrApi();
             if (callback){
                 callback();
@@ -2379,12 +2379,12 @@ function searchSelectApi(e) {
             if (options[kv[0]] == kv[1]){
                 searchResult.push(item);
             }
-        }else if (item.name.indexOf(keyword) >=0 || item.path.indexOf(keyword)>=0 || item.groupName.indexOf(keyword)>=0 || !keyword){
+        }else if (item.name.indexOf(keyword) >=0 || item.fullPath.indexOf(keyword)>=0 || !keyword){
             searchResult.push(item);
         }
     });
     $("#remote-sync .items-count").text("0 item selected");
-    buildSelectApiTree(searchResult,"");
+    buildSelectApiTree(searchResult,keyword?"":"collapsed");
 }
 
 function buildApiSelectDirectoryDom(directory,collapsed) {
