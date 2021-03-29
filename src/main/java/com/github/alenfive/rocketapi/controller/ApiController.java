@@ -193,10 +193,19 @@ public class ApiController {
         }
 
         Collection<ApiInfo> apiInfos = null;
+        Collection<ApiDirectory> directories = null;
         if (syncReq.getIncrement() == 1){
             apiInfos = mappingFactory.getPathList(false).stream().filter(item->syncReq.getApiInfoIds().contains(item.getId())).collect(Collectors.toList());
+
+            Set<ApiDirectory> directorySet = new HashSet<>();
+            for (ApiInfo apiInfo : apiInfos){
+                ApiDirectory directory = mappingFactory.loadDirectoryList(false).stream().filter(item->item.getId().equals(apiInfo.getDirectoryId())).findFirst().orElse(null);
+                mappingFactory.relationParentDirectory(directorySet,mappingFactory.loadDirectoryList(false),directory);
+                directories = directorySet;
+            }
         }else{
             apiInfos = mappingFactory.getPathList(false);
+            directories = mappingFactory.loadDirectoryList(false);
         }
         try {
             //签名验证
@@ -204,8 +213,10 @@ public class ApiController {
             signMap.put("timestamp",System.currentTimeMillis());
             signMap.put("increment",syncReq.getIncrement());
             signMap.put("apiInfos",objectMapper.writeValueAsString(apiInfos));
+            signMap.put("directories",objectMapper.writeValueAsString(directories));
             String sign = SignUtils.build(syncReq.getSecretKey(),signMap);
             signMap.put("apiInfos",apiInfos);
+            signMap.put("directories",directories);
             signMap.put("sign",sign);
 
             String remoteUrl = syncReq.getRemoteUrl().endsWith("/")?syncReq.getRemoteUrl().substring(0,syncReq.getRemoteUrl().length()-1):syncReq.getRemoteUrl();

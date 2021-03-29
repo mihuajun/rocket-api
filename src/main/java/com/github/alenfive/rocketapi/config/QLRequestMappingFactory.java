@@ -14,6 +14,7 @@ import com.github.alenfive.rocketapi.utils.GenerateId;
 import com.github.alenfive.rocketapi.utils.PackageUtils;
 import com.github.alenfive.rocketapi.utils.RequestUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.tomcat.jni.Directory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -581,17 +582,28 @@ public class QLRequestMappingFactory {
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public Object apiInfoSync(List<ApiInfo> apiInfos,Boolean increment) throws Exception {
+    public Object apiInfoSync(List<ApiDirectory> directories,List<ApiInfo> apiInfos,Boolean increment) throws Exception {
 
         if (CollectionUtils.isEmpty(apiInfos)){
             return 0;
         }
 
         Collection<ApiInfo> currApiInfos = this.getPathList(false);
+        Collection<ApiDirectory> currDirectories = this.loadDirectoryList(false);
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
         //全量同步
         if(!increment){
+
+            //删除历史目录
+            for (ApiDirectory dbDirectory : currDirectories ){
+                dataSourceManager.getStoreApiDataSource().removeEntityById(dbDirectory);
+            }
+
+            //新增历史目录
+            for (ApiDirectory directory : directories){
+                dataSourceManager.getStoreApiDataSource().saveEntity(directory);
+            }
 
             //删除历史信息
             for (ApiInfo dbInfo : currApiInfos){
@@ -607,6 +619,17 @@ public class QLRequestMappingFactory {
                 saveApiHistory(apiInfo);
             }
         }else {
+
+            //目录增量同步
+            for (ApiDirectory directory : directories){
+                ApiDirectory dbDirectory = currDirectories.stream().filter(item->item.getId().equals(directory.getId())).findFirst().orElse(null);
+                if (dbDirectory == null){
+                    dataSourceManager.getStoreApiDataSource().saveEntity(directory);
+                }else{
+                    dataSourceManager.getStoreApiDataSource().updateEntityById(directory);
+                }
+            }
+
             //增量同步
             for (ApiInfo apiInfo : apiInfos){
                 ApiInfo dbInfo =  currApiInfos.stream().filter(item->item.getId().equals(apiInfo.getId())).findFirst().orElse(null);
@@ -770,6 +793,16 @@ public class QLRequestMappingFactory {
             return;
         }
         this.recursiveFullPath(directoryList,directory.getParentId(),path);
+    }
+
+    public void relationParentDirectory(Set<ApiDirectory> directorySet,List<ApiDirectory> directoryList,ApiDirectory directory){
+        directorySet.add(directory);
+        for (ApiDirectory item : directoryList){
+            if (item.getId().equals(directory.getParentId())){
+                directorySet.add(directory);
+                this.relationParentDirectory(directorySet,directoryList,item);
+            }
+        }
     }
 
     private Set<String> findChildrenIds(List<ApiDirectory> directoryList,String directoryId){

@@ -57,12 +57,13 @@ public class RemoteController {
         signMap.put("timestamp",syncReq.getTimestamp());
         signMap.put("increment",syncReq.getIncrement());
         signMap.put("apiInfos",objectMapper.writeValueAsString(syncReq.getApiInfos()));
+        signMap.put("directories",objectMapper.writeValueAsString(syncReq.getDirectories()));
         String sign = SignUtils.build(rocketApiProperties.getSecretKey(),signMap);
         if (!syncReq.getSign().equals(sign)){
             return ApiResult.fail("Signature abnormal");
         }
         try {
-            Object result = mappingFactory.apiInfoSync(syncReq.getApiInfos(),syncReq.getIncrement() == 1);
+            Object result = mappingFactory.apiInfoSync(syncReq.getDirectories(),syncReq.getApiInfos(),syncReq.getIncrement() == 1);
             //刷新缓存
             mappingFactory.getPathList(true);
             return ApiResult.success(result);

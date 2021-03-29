@@ -2387,49 +2387,59 @@ function searchSelectApi(e) {
     buildSelectApiTree(searchResult,"");
 }
 
+function buildApiSelectDirectoryDom(directory,collapsed) {
+    return $('    <li class="level1 api" style="display: block;">\n' +
+        '        <div class="tree-entry">\n' +
+        '            <label class="checkbox">\n' +
+        '            <input type="checkbox" value="on" tabindex="0">\n' +
+        '            </label>\n' +
+        '            <a href="javascript:;"  class="btn btn-link name">\n' +
+        '                <i class="'+(collapsed?'icon-caret-right':'icon-caret-down')+'"></i>\n' +
+        '                <i class="node-icon api-tester-icon api-tester-project"></i>\n' +
+        '                <span class="gwt-InlineHTML node-text" >'+directory.name+'</span>\n' +
+        '            </a>\n' +
+        '        </div>\n' +
+        '<ul style="'+(collapsed?'display: none;':'display: block;')+'" id="directory-select-id-'+directory.id+'"></ul>' +
+        '    </li>');
+}
+
+function buildSelectApiDirectory(directoryList,dirId,collapsed){
+    $.each(directoryList,function (index,item) {
+
+        if (!dirId && !item.parentId){
+            $("#remote-sync .api-list-body").append(buildApiSelectDirectoryDom(item,collapsed));
+            buildSelectApiDirectory(directoryList,item.id,collapsed);
+            return;
+        }
+
+        if (item.parentId != dirId){
+            return;
+        }
+        $("#directory-select-id-"+dirId).append(buildApiSelectDirectoryDom(item,collapsed));
+        buildSelectApiDirectory(directoryList,item.id,collapsed);
+    })
+}
+
 function buildSelectApiTree(list,collapsed) {
 
-    let group = {};
-    $.each(list,function(index,item){
-        let arrVal = group[item.groupName];
-        if (!arrVal){
-            arrVal = [];
-            group[item.groupName] = arrVal;
-        }
-        arrVal.push(item);
-    });
+
     $("#remote-sync .api-list-body").html("");
     //生成tree
-    $.each(group,function (key,value) {
-        let $lev1 = $('    <li class="level1 api" style="display: block;">\n' +
-            '        <div class="tree-entry">\n' +
-            '            <label class="checkbox">\n' +
-            '            <input type="checkbox" value="on" tabindex="0">\n' +
-            '            </label>\n' +
-            '            <a href="javascript:;"  class="btn btn-link name">\n' +
-            '                <i class="'+(collapsed?'icon-caret-right':'icon-caret-down')+'"></i>\n' +
-            '                <i class="node-icon api-tester-icon api-tester-project"></i>\n' +
-            '                <span class="gwt-InlineHTML node-text" >'+key+'</span>\n' +
-            '            </a>\n' +
-            '        </div>\n' +
-            '    </li>');
+    buildSelectApiDirectory(gdata.directoryList,null,collapsed);
 
-        let $lev2 = $('<ul style="'+(collapsed?'display: none;':'display: block;')+'"></ul>');
-        $.each(value,function (index,item) {
-            $lev2.append('  <li class="level2 request">\n' +
-                '                <div class="tree-entry">\n' +
-                '                    <label class="checkbox" >\n' +
-                '                        <input type="checkbox" value="'+item.id+'" tabindex="0">\n' +
-                '                    </label>\n' +
-                '                    <a href="javascript:;" class="btn btn-link name"><i></i>\n' +
-                '                        <i class="node-icon api-tester-icon api-tester-request"></i>\n' +
-                '                        <span class="gwt-InlineHTML node-text" >'+(item.name?item.name:item.path)+'<span style="margin-left:10px;color:#8a8989;">['+item.path+']</span></span>\n' +
-                '                    </a>\n' +
-                '                </div>\n' +
-                '            </li>');
-        })
-        $lev1.append($lev2);
-        $("#remote-sync .api-list-body").append($lev1);
+    $.each(list,function (index,item) {
+        let _children = $("#directory-select-id-"+item.directoryId);
+        _children.append('  <li class="level2 request">\n' +
+            '                <div class="tree-entry">\n' +
+            '                    <label class="checkbox" >\n' +
+            '                        <input type="checkbox" value="'+item.id+'" tabindex="0">\n' +
+            '                    </label>\n' +
+            '                    <a href="javascript:;" class="btn btn-link name"><i></i>\n' +
+            '                        <i class="node-icon api-tester-icon api-tester-request"></i>\n' +
+            '                        <span class="gwt-InlineHTML node-text" >'+(item.name?item.name:item.path)+'<span style="margin-left:10px;color:#8a8989;">['+item.path+']</span></span>\n' +
+            '                    </a>\n' +
+            '                </div>\n' +
+            '            </li>');
     })
 }
 //-------------------------------- Remote Sync end ------------------------------
