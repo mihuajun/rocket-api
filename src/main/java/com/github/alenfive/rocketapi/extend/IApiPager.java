@@ -39,7 +39,7 @@ public interface IApiPager {
      * @param pageSize
      * @param pageNo
      */
-    Integer getIndexVarValue(Integer pageSize,Integer pageNo);
+    Integer getIndexVarValue(Integer pageSize, Integer pageNo);
 
     /**
      * 默认每页大小
