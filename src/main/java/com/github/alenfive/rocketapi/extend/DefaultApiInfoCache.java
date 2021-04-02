@@ -18,7 +18,7 @@ public class DefaultApiInfoCache implements IApiInfoCache {
 
     private Map<String, ApiInfo> cacheApiInfo = new ConcurrentHashMap<>();
 
-    private String identity;
+    private String instanceId = GenerateId.get().toHexString();
 
     @Autowired
     private QLRequestMappingFactory mappingFactory;
@@ -66,18 +66,17 @@ public class DefaultApiInfoCache implements IApiInfoCache {
      */
     @Override
     public void refreshNotify() {
-        identity = GenerateId.get().toHexString();
-        this.receiveNotify(identity);
+        this.receiveNotify(instanceId);
     }
 
     /**
      * 监听 "@refreshNotify"行为，来重载本地request mapping等本地实体行为的重新初始化
-     * @param identity
+     * @param instanceId
      */
     @Override
-    public void receiveNotify(String identity) {
+    public void receiveNotify(String instanceId) {
         //避免本实例重复初始化
-        if (identity.equals(this.identity)){
+        if (instanceId.equals(this.instanceId)){
             return;
         }
         try {
