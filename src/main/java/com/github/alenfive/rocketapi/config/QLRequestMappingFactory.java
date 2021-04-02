@@ -6,7 +6,6 @@ import com.github.alenfive.rocketapi.datasource.DataSourceManager;
 import com.github.alenfive.rocketapi.entity.*;
 import com.github.alenfive.rocketapi.entity.vo.IgnoreWrapper;
 import com.github.alenfive.rocketapi.entity.vo.Page;
-import com.github.alenfive.rocketapi.entity.vo.RenameGroupReq;
 import com.github.alenfive.rocketapi.extend.*;
 import com.github.alenfive.rocketapi.script.IScriptParse;
 import com.github.alenfive.rocketapi.service.ScriptParseService;
@@ -14,7 +13,6 @@ import com.github.alenfive.rocketapi.utils.GenerateId;
 import com.github.alenfive.rocketapi.utils.PackageUtils;
 import com.github.alenfive.rocketapi.utils.RequestUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.tomcat.jni.Directory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -115,7 +113,7 @@ public class QLRequestMappingFactory {
      * 初始化db mapping
      */
     @PostConstruct
-    public void init() throws Exception {
+    public void buildInit() throws Exception {
         //register setParseService
         dataSourceManager.setParseService(parseService);
 
@@ -124,6 +122,14 @@ public class QLRequestMappingFactory {
 
         //加载配置
         reloadApiConfig();
+
+        //历史缓存清理
+        if (apiInfoCache != null){
+            apiInfoCache.getAll().stream().filter(item->ApiType.Ql.name().equals(item.getType())).forEach(item->{
+                this.unregisterMappingForApiInfo(item);
+            });
+            apiInfoCache.removeAll();
+        }
 
         //加载数据库API
         List<ApiInfo> apiInfos = dataSourceManager.getStoreApiDataSource().listByEntity(ApiInfo.builder().service(service).build());
@@ -181,14 +187,6 @@ public class QLRequestMappingFactory {
         Integer port = serverProperties.getPort() == null?8080:serverProperties.getPort();
         return "http://localhost:"+ port + ("/"+content+ properties.getBaseRegisterPath()).replace("//","/");
     }
-
-    private void clear(){
-        apiInfoCache.getAll().stream().filter(item->ApiType.Ql.name().equals(item.getType())).forEach(item->{
-            this.unregisterMappingForApiInfo(item);
-        });
-        apiInfoCache.removeAll();
-    }
-
 
     /**
      * 加载配置
@@ -409,16 +407,14 @@ public class QLRequestMappingFactory {
 
     public Collection<ApiInfo> getPathList(boolean isDb) throws Exception {
         if (isDb){
-            clear();
-            init();
+            buildInit();
+            apiInfoCache.refreshNotify();
         }
         return apiInfoCache.getAll();
     }
 
     @Transactional
     public String saveApiInfo(ApiInfo apiInfo) throws Exception {
-
-
 
         buildFullPath(apiInfo);
 
