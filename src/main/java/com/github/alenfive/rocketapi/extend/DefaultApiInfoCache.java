@@ -60,8 +60,9 @@ public class DefaultApiInfoCache implements IApiInfoCache {
     }
 
     /**
-     * 在页面触发"Rebuild API List"操作时，会触发此方法，可使用Redis消息通过功能重写该方法，
-     * 以达到分布式环境下多实例部署更新问题
+     * 发送系统缓存刷新的通知
+     * 在页面触发"Rebuild API List"操作时，会触发此方法，可使用Redis消息通知功能重写该方法，
+     * 以达到分布式环境下多实例部署系统更新问题
      */
     @Override
     public void refreshNotify() {
