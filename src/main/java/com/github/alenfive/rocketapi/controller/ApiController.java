@@ -161,6 +161,10 @@ public class ApiController {
             return ApiResult.fail("Permission denied");
         }
 
+        if(StringUtils.isEmpty(apiInfo.getDirectoryId())){
+            return ApiResult.fail("A directory is a must");
+        }
+
         apiInfo.setEditor(user);
         try {
             if (!StringUtils.isEmpty(apiInfo.getScript())){
