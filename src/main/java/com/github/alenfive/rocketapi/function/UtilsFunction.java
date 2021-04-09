@@ -133,7 +133,13 @@ public class UtilsFunction implements IFunction{
         return this.download(fileName+".xls",inputStream);
     }
 
-
+    public ResponseEntity<InputStreamResource> exportXls(String fileName, List<Map<String,Object>> list) throws IOException {
+        Map<String,String> title = new LinkedHashMap<>();
+        if (list.size() > 0){
+            list.get(0).keySet().stream().forEach(item->title.put(item,item));
+        }
+        return exportXls(fileName,title,list);
+    }
 
     /**
      * 解析XLS文件
@@ -172,9 +178,17 @@ public class UtilsFunction implements IFunction{
      * @param title
      * @param list
      */
-    public ResponseEntity<InputStreamResource> exportXlsx(String fileName, LinkedHashMap title, List<Map<String,Object>> list) throws IOException {
+    public ResponseEntity<InputStreamResource> exportXlsx(String fileName, Map<String,String> title, List<Map<String,Object>> list) throws IOException {
         ByteArrayInputStream inputStream = ExcelUtils.writeXlsx(title,list);
         return this.download(fileName+".xlsx",inputStream);
+    }
+
+    public ResponseEntity<InputStreamResource> exportXlsx(String fileName, List<Map<String,Object>> list) throws IOException {
+        Map<String,String> title = new LinkedHashMap<>();
+        if (list.size() > 0){
+            list.get(0).keySet().stream().forEach(item->title.put(item,item));
+        }
+        return exportXlsx(fileName,title,list);
     }
 
     /**

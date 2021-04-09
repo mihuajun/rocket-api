@@ -25,6 +25,7 @@ public class CsvUtils {
                 }else {
                     valStr = valObj == null?"":valObj.toString();
                 }
+                valStr = valStr.replaceAll("\"","\\\\\"").replaceAll(",","\\\\,");
                 sb.append(valStr+"\t").append(",");
             }
             sb.append("\r\n");
