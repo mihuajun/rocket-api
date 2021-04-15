@@ -41,6 +41,13 @@ public class SqlDataSource extends DataSourceDialect {
         this.parameterJdbcTemplate = new NamedParameterJdbcTemplate(jdbcTemplate);
     }
 
+    public JdbcTemplate getJdbcTemplate(){
+        return this.jdbcTemplate;
+    }
+
+    public NamedParameterJdbcTemplate getNamedParameterJdbcTemplate(){
+        return this.parameterJdbcTemplate;
+    }
 
     @Override
     public <T extends ApiEntity> void saveEntity(T entity) {
