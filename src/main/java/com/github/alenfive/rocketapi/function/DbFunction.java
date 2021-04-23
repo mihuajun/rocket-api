@@ -113,13 +113,15 @@ public class DbFunction implements IFunction {
         script = parseSql(script);
         StringBuilder sbScript = new StringBuilder(sqlInterceptor.before(script));
         List<Map<String,Object>> result = null;
+        long startTime = System.currentTimeMillis();
         try {
             result = dataSourceManager.find(sbScript,apiInfoContent.getApiInfo(),apiInfoContent.getApiParams(),dataSource,params);
         }finally {
+            long diff = System.currentTimeMillis() - startTime;
             if (apiInfoContent.getIsDebug()){
-                apiInfoContent.putLog("generate script:  " + sbScript);
+                apiInfoContent.putLog(String.format("Elapsed Time:%sms , execute script: %s",diff,sbScript));
             }
-            log.info("generate script:{}",sbScript);
+            log.debug("Elapsed Time:{}ms , execute script: {}",diff,sbScript);
             sqlInterceptor.after(sbScript.toString());
         }
 
@@ -135,13 +137,15 @@ public class DbFunction implements IFunction {
         script = parseSql(script);
         StringBuilder sbScript = new StringBuilder(sqlInterceptor.before(script));
         Object result = null;
+        long startTime = System.currentTimeMillis();
         try {
             result = dataSourceManager.insert(sbScript,apiInfoContent.getApiInfo(),apiInfoContent.getApiParams(),dataSource,params);
         }finally {
+            long diff = System.currentTimeMillis() - startTime;
             if (apiInfoContent.getIsDebug()){
-                apiInfoContent.putLog("generate script:  " + sbScript);
+                apiInfoContent.putLog(String.format("Elapsed Time:%sms , execute script: %s",diff,sbScript));
             }
-            log.info("generate script:{}",sbScript);
+            log.debug("Elapsed Time:{}ms , execute script: {}",diff,sbScript);
             sqlInterceptor.after(sbScript.toString());
         }
         return result;
@@ -152,13 +156,15 @@ public class DbFunction implements IFunction {
         script = parseSql(script);
         StringBuilder sbScript = new StringBuilder(sqlInterceptor.before(script));
         Object result =  null;
+        long startTime = System.currentTimeMillis();
         try {
             result = dataSourceManager.remove(sbScript,apiInfoContent.getApiInfo(),apiInfoContent.getApiParams(),dataSource,params);
         }finally {
+            long diff = System.currentTimeMillis() - startTime;
             if (apiInfoContent.getIsDebug()){
-                apiInfoContent.putLog("generate script:  " + sbScript);
+                apiInfoContent.putLog(String.format("Elapsed Time:%sms , execute script: %s",diff,sbScript));
             }
-            log.info("generate script:{}",sbScript);
+            log.debug("Elapsed Time:{}ms , execute script: {}",diff,sbScript);
             sqlInterceptor.after(sbScript.toString());
         }
         return result;
@@ -169,13 +175,15 @@ public class DbFunction implements IFunction {
         script = parseSql(script);
         StringBuilder sbScript = new StringBuilder(sqlInterceptor.before(script));
         Long result =  null;
+        long startTime = System.currentTimeMillis();
         try {
             result = dataSourceManager.update(sbScript,apiInfoContent.getApiInfo(),apiInfoContent.getApiParams(),dataSource,params);
         }finally {
+            long diff = System.currentTimeMillis() - startTime;
             if (apiInfoContent.getIsDebug()){
-                apiInfoContent.putLog("generate script:  " + sbScript);
+                apiInfoContent.putLog(String.format("Elapsed Time:%sms , execute script: %s",diff,sbScript));
             }
-            log.info("generate script:{}",sbScript);
+            log.debug("Elapsed Time:{}ms , execute script: {}",diff,sbScript);
             sqlInterceptor.after(sbScript.toString());
         }
         return result;

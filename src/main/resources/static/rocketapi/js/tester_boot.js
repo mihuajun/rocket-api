@@ -1351,6 +1351,7 @@ function requestExample(url,ableRedirect){
             let responseHeader = buildHeaderJson(req.getAllResponseHeaders().split("\r\n"));
             let status = req.status;
             let currTime = new Date().getTime();
+            let diff = currTime-startTime;
             currExample = {
                 apiInfoId:$("#editor-section .api-info-id").val(),
                 url:url,
@@ -1360,7 +1361,7 @@ function requestExample(url,ableRedirect){
                 responseHeader:JSON.stringify(responseHeader),
                 responseBody:req.responseText,
                 status:status,
-                elapsedTime:(currTime-startTime),
+                elapsedTime:diff,
                 options:"{}"
             }
 
@@ -1374,6 +1375,7 @@ function requestExample(url,ableRedirect){
 
             setResponseHeader(responseHeader)
             $("#response #responseBody").text(formatJson(req.responseText));
+            $("#response .el-time").html("<span title=\""+diff+"ms\">Elapsed time: "+diff+"ms</span>")
         }});
 }
 
