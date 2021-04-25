@@ -170,10 +170,20 @@ public class ApiController {
             if (!StringUtils.isEmpty(apiInfo.getScript())){
                 apiInfo.setScript(scriptEncrypt.encrypt(apiInfo.getScript()));
             }
+
+            RefreshMapping refreshMapping = new RefreshMapping();
+
+            //更新时，历史记录为缓存记录
+            if (!StringUtils.isEmpty(apiInfo.getId())){
+                ApiInfo oldApiInfo = apiInfoCache.getAll().stream().filter(item->item.getId().equals(apiInfo.getId())).findFirst().orElse(null);
+                refreshMapping.setOldMapping(MappingVo.builder().method(oldApiInfo.getMethod()).fullPath(oldApiInfo.getFullPath()).build());
+            }
+
             String apiInfoId = mappingFactory.saveApiInfo(apiInfo);
 
+            refreshMapping.setNewMapping(MappingVo.builder().method(apiInfo.getMethod()).fullPath(apiInfo.getFullPath()).build());
             //触发刷新
-            apiInfoCache.refreshNotify(apiInfoId);
+            apiInfoCache.refreshNotify(refreshMapping);
 
             return ApiResult.success(apiInfoId);
         }catch (Exception e){
@@ -257,10 +267,16 @@ public class ApiController {
         }
 
         try {
+
+            ApiInfo oldApiInfo = apiInfoCache.getAll().stream().filter(item->item.getId().equals(apiInfo.getId())).findFirst().orElse(null);
+
+            RefreshMapping refreshMapping = new RefreshMapping();
+            refreshMapping.setOldMapping(MappingVo.builder().method(oldApiInfo.getMethod()).fullPath(oldApiInfo.getFullPath()).build());
+
             mappingFactory.deleteApiInfo(apiInfo);
 
             //刷新通知
-            apiInfoCache.refreshNotify(apiInfo.getId());
+            apiInfoCache.refreshNotify(refreshMapping);
 
             return ApiResult.success(null);
         }catch (Exception e){

@@ -2,6 +2,7 @@ package com.github.alenfive.rocketapi.extend;
 
 import com.github.alenfive.rocketapi.config.QLRequestMappingFactory;
 import com.github.alenfive.rocketapi.entity.ApiInfo;
+import com.github.alenfive.rocketapi.entity.vo.RefreshMapping;
 import com.github.alenfive.rocketapi.utils.GenerateId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -49,13 +50,6 @@ public class DefaultApiInfoCache implements IApiInfoCache {
         cacheApiInfo.put(buildApiInfoKey(apiInfo),apiInfo);
     }
 
-    @Override
-    public void putAll(Collection<ApiInfo> apiInfos) {
-        for (ApiInfo apiInfo : apiInfos){
-            this.put(apiInfo);
-        }
-    }
-
     private String buildApiInfoKey(ApiInfo apiInfo) {
         return apiInfo.getMethod() +" "+ apiInfo.getFullPath();
     }
@@ -67,8 +61,8 @@ public class DefaultApiInfoCache implements IApiInfoCache {
      * 以达到分布式环境下多实例部署系统更新问题
      */
     @Override
-    public void refreshNotify(String apiInfoId) {
-        this.receiveNotify(instanceId,apiInfoId);
+    public void refreshNotify(RefreshMapping refreshMapping) {
+        this.receiveNotify(instanceId,refreshMapping);
     }
 
     /**
@@ -76,16 +70,16 @@ public class DefaultApiInfoCache implements IApiInfoCache {
      * @param instanceId
      */
     @Override
-    public void receiveNotify(String instanceId,String apiInfoId) {
+    public void receiveNotify(String instanceId, RefreshMapping refreshMapping) {
         //避免本实例重复初始化
-        if (instanceId.equals(this.instanceId)){
+        if (this.instanceId.equals(instanceId)){
             return;
         }
 
         //刷新单个接口
-        if (!StringUtils.isEmpty(apiInfoId)){
+        if (refreshMapping != null){
             try {
-                mappingFactory.buildApiInfo(apiInfoId);
+                mappingFactory.refreshMapping(refreshMapping);
             }catch (Exception e){
                 e.printStackTrace();
             }

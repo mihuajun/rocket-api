@@ -1,6 +1,7 @@
 package com.github.alenfive.rocketapi.extend;
 
 import com.github.alenfive.rocketapi.entity.ApiInfo;
+import com.github.alenfive.rocketapi.entity.vo.RefreshMapping;
 
 import java.util.Collection;
 
@@ -12,8 +13,7 @@ public interface IApiInfoCache {
     public void put(ApiInfo apiInfo);
     public void remove(ApiInfo apiInfo);
     public void removeAll();
-    public void putAll(Collection<ApiInfo> apiInfos);
     public Collection<ApiInfo> getAll();
-    public void refreshNotify(String apiInfoId);
-    public void receiveNotify(String identity,String apiInfoId);
+    public void refreshNotify(RefreshMapping refreshMapping);
+    public void receiveNotify(String instanceId,RefreshMapping refreshMapping);
 }

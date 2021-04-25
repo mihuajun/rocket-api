@@ -6,6 +6,7 @@ import com.github.alenfive.rocketapi.datasource.DataSourceManager;
 import com.github.alenfive.rocketapi.entity.*;
 import com.github.alenfive.rocketapi.entity.vo.IgnoreWrapper;
 import com.github.alenfive.rocketapi.entity.vo.Page;
+import com.github.alenfive.rocketapi.entity.vo.RefreshMapping;
 import com.github.alenfive.rocketapi.extend.*;
 import com.github.alenfive.rocketapi.script.IScriptParse;
 import com.github.alenfive.rocketapi.service.ScriptParseService;
@@ -190,39 +191,31 @@ public class QLRequestMappingFactory {
 
     /**
      * 重建单一请求的注册与缓存
-     * @param apiInfoId
+     * @param refreshMapping
      */
-    public void buildApiInfo(String apiInfoId) throws NoSuchMethodException {
+    public void refreshMapping(RefreshMapping refreshMapping) throws NoSuchMethodException {
 
         //目录刷新
         loadDirectoryList(true);
 
-        ApiInfo cacheApiInfo = apiInfoCache.getAll().stream().filter(item->item.getId().equals(apiInfoId)).findFirst().orElse(null);
-
+        ApiInfo apiInfo = null;
         //取消历史注册
-        if (cacheApiInfo != null){
-
-            //mapping清理
-            unregisterMappingForApiInfo(cacheApiInfo);
-
-            //缓存清理
-            apiInfoCache.remove(cacheApiInfo);
-        }
-
-        //加载持久化的最新信息(修改，删除)
-        ApiInfo query = new ApiInfo();
-        query.setId(apiInfoId);
-        query.setService(service);
-        ApiInfo dbInfo = dataSourceManager.getStoreApiDataSource().findEntityById(query);
-        if (dbInfo == null){
-            return;
+        if (refreshMapping.getOldMapping() != null){
+            apiInfo = ApiInfo.builder()
+                    .fullPath(refreshMapping.getOldMapping().getFullPath())
+                    .method(refreshMapping.getOldMapping().getMethod())
+                    .build();
+            unregisterMappingForApiInfo(apiInfo);
         }
 
         //重新注册mapping
-        registerMappingForApiInfo(dbInfo);
-
-        //入缓存
-        apiInfoCache.put(dbInfo);
+        if (refreshMapping.getNewMapping() != null){
+            apiInfo = ApiInfo.builder()
+                    .fullPath(refreshMapping.getNewMapping().getFullPath())
+                    .method(refreshMapping.getNewMapping().getMethod())
+                    .build();
+            registerMappingForApiInfo(apiInfo);
+        }
     }
 
     /**
