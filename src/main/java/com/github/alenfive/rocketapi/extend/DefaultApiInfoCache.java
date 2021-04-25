@@ -6,7 +6,6 @@ import com.github.alenfive.rocketapi.entity.vo.RefreshMapping;
 import com.github.alenfive.rocketapi.utils.GenerateId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
 
 import java.util.Collection;
 import java.util.Map;
@@ -56,8 +55,8 @@ public class DefaultApiInfoCache implements IApiInfoCache {
 
     /**
      * 发送系统缓存刷新的通知
-     * 1. 在页面触发"Rebuild API List"操作时，会触发此方法,apiInfoId为空，可使用Redis消息通知功能重写该方法，
-     * 2. 在页面触发接口编辑"Save"操作时，会触发此方法,apiInfoId为当前接口ID，可使用Redis消息通知功能重写该方法，
+     * 1. 在页面触发"Rebuild API List"操作时，会触发此方法,refreshMapping为空，可使用Redis消息通知功能重写该方法，
+     * 2. 在页面触发接口编辑"Save"操作时，会触发此方法,refreshMapping为变更记录，可使用Redis消息通知功能重写该方法，
      * 以达到分布式环境下多实例部署系统更新问题
      */
     @Override
