@@ -8,10 +8,7 @@ import com.github.alenfive.rocketapi.datasource.DataSourceDialect;
 import com.github.alenfive.rocketapi.datasource.DataSourceManager;
 import com.github.alenfive.rocketapi.entity.*;
 import com.github.alenfive.rocketapi.entity.vo.*;
-import com.github.alenfive.rocketapi.extend.ApiInfoContent;
-import com.github.alenfive.rocketapi.extend.IApiDocSync;
-import com.github.alenfive.rocketapi.extend.IScriptEncrypt;
-import com.github.alenfive.rocketapi.extend.IUserAuthorization;
+import com.github.alenfive.rocketapi.extend.*;
 import com.github.alenfive.rocketapi.function.IFunction;
 import com.github.alenfive.rocketapi.script.IScriptParse;
 import com.github.alenfive.rocketapi.service.LoginService;
@@ -96,6 +93,9 @@ public class ApiController {
     private DataSourceManager dataSourceManager;
 
     @Autowired
+    private IApiInfoCache apiInfoCache;
+
+    @Autowired
     private Map<String,Object> cache = new ConcurrentHashMap<>();
 
     /**
@@ -170,7 +170,12 @@ public class ApiController {
             if (!StringUtils.isEmpty(apiInfo.getScript())){
                 apiInfo.setScript(scriptEncrypt.encrypt(apiInfo.getScript()));
             }
-            return ApiResult.success(mappingFactory.saveApiInfo(apiInfo));
+            String apiInfoId = mappingFactory.saveApiInfo(apiInfo);
+
+            //触发刷新
+            apiInfoCache.refreshNotify(apiInfoId);
+
+            return ApiResult.success(apiInfoId);
         }catch (Exception e){
             e.printStackTrace();
             return ApiResult.fail(e.getMessage());
@@ -253,6 +258,10 @@ public class ApiController {
 
         try {
             mappingFactory.deleteApiInfo(apiInfo);
+
+            //刷新通知
+            apiInfoCache.refreshNotify(apiInfo.getId());
+
             return ApiResult.success(null);
         }catch (Exception e){
             e.printStackTrace();

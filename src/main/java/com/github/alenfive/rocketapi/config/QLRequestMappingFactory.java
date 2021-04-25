@@ -138,7 +138,7 @@ public class QLRequestMappingFactory {
         }
 
         //加载目录
-        directoryListCache = dataSourceManager.getStoreApiDataSource().listByEntity(ApiDirectory.builder().service(service).build());
+        this.loadDirectoryList(true);
 
         //加载代码方式的API
         List<ApiInfo> codeApiList = this.getPathListForCode();
@@ -186,6 +186,43 @@ public class QLRequestMappingFactory {
         String content = serverProperties.getServlet().getContextPath() == null?"":serverProperties.getServlet().getContextPath();
         Integer port = serverProperties.getPort() == null?8080:serverProperties.getPort();
         return "http://localhost:"+ port + ("/"+content+ properties.getBaseRegisterPath()).replace("//","/");
+    }
+
+    /**
+     * 重建单一请求的注册与缓存
+     * @param apiInfoId
+     */
+    public void buildApiInfo(String apiInfoId) throws NoSuchMethodException {
+
+        //目录刷新
+        loadDirectoryList(true);
+
+        ApiInfo cacheApiInfo = apiInfoCache.getAll().stream().filter(item->item.getId().equals(apiInfoId)).findFirst().orElse(null);
+
+        //取消历史注册
+        if (cacheApiInfo != null){
+
+            //mapping清理
+            unregisterMappingForApiInfo(cacheApiInfo);
+
+            //缓存清理
+            apiInfoCache.remove(cacheApiInfo);
+        }
+
+        //加载持久化的最新信息(修改，删除)
+        ApiInfo query = new ApiInfo();
+        query.setId(apiInfoId);
+        query.setService(service);
+        ApiInfo dbInfo = dataSourceManager.getStoreApiDataSource().findEntityById(query);
+        if (dbInfo == null){
+            return;
+        }
+
+        //重新注册mapping
+        registerMappingForApiInfo(dbInfo);
+
+        //入缓存
+        apiInfoCache.put(dbInfo);
     }
 
     /**
@@ -408,7 +445,7 @@ public class QLRequestMappingFactory {
     public Collection<ApiInfo> getPathList(boolean isDb) throws Exception {
         if (isDb){
             buildInit();
-            apiInfoCache.refreshNotify();
+            apiInfoCache.refreshNotify(null);
         }
         return apiInfoCache.getAll();
     }

@@ -14,6 +14,6 @@ public interface IApiInfoCache {
     public void removeAll();
     public void putAll(Collection<ApiInfo> apiInfos);
     public Collection<ApiInfo> getAll();
-    public void refreshNotify();
-    public void receiveNotify(String identity);
+    public void refreshNotify(String apiInfoId);
+    public void receiveNotify(String identity,String apiInfoId);
 }
