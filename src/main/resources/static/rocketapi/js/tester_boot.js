@@ -1317,7 +1317,7 @@ function buildHeaderJson(headerArrs) {
         if (split == -1)return;
         let key = item.substring(0,split);
         let value = item.substring(split + 1);
-        headers[key] = encodeURI(value);
+        headers[key] = value;
     })
     return headers;
 }
