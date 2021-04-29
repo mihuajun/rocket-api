@@ -27,7 +27,6 @@ public class RequestUtils {
         while (headerKeys.hasMoreElements()){
             String key = headerKeys.nextElement();
             String value = request.getHeader(key);
-            //result.put(key, URLDecoder.decode(value,"utf-8"));
             result.put(key, value);
         }
         return result;
