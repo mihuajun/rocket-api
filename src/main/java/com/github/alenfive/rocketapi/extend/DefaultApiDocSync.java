@@ -1,7 +1,6 @@
 package com.github.alenfive.rocketapi.extend;
 
-import com.github.alenfive.rocketapi.entity.ApiExample;
-import com.github.alenfive.rocketapi.entity.ApiInfo;
+import com.github.alenfive.rocketapi.entity.vo.DocsInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -13,7 +12,7 @@ import org.springframework.stereotype.Component;
 public class DefaultApiDocSync implements IApiDocSync {
 
     @Override
-    public String sync(ApiInfo apiInfo, ApiExample apiExample) {
+    public String sync(DocsInfo docsInfo) {
         return "Successful push";
     }
 }

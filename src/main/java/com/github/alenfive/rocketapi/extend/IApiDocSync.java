@@ -1,11 +1,10 @@
 package com.github.alenfive.rocketapi.extend;
 
-import com.github.alenfive.rocketapi.entity.ApiExample;
-import com.github.alenfive.rocketapi.entity.ApiInfo;
+import com.github.alenfive.rocketapi.entity.vo.DocsInfo;
 
 /**
  * API信息接口同步，
  */
 public interface IApiDocSync {
-    public String sync(ApiInfo apiInfo, ApiExample apiExample);
+    public String sync(DocsInfo docsInfo);
 }

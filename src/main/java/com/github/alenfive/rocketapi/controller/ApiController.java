@@ -454,14 +454,17 @@ public class ApiController {
     public ApiResult apiDocPush(String apiInfoId) throws Exception {
         Collection<ApiInfo> apiInfos = mappingFactory.getPathList(false);
         String result = null;
+        List<ApiDirectory> directoryList = mappingFactory.loadDirectoryList(false);
+        List<DocApi> docsInfoList = null;
         if (!StringUtils.isEmpty(apiInfoId)){
+
             ApiInfo apiInfo = apiInfos.stream().filter(item->item.getId().equals(apiInfoId)).findFirst().orElse(null);
-            result = apiDocSync.sync(apiInfo,buildLastApiExample(apiInfo.getId()));
+            ApiExample apiExample = buildLastApiExample(apiInfo.getId());
+            docsInfoList = Arrays.asList(new DocApi(apiInfo,apiExample));
         }else{
-            for(ApiInfo apiInfo : apiInfos){
-                result = apiDocSync.sync(apiInfo,buildLastApiExample(apiInfo.getId()));
-            }
+            docsInfoList = apiInfos.stream().map(item->new DocApi(item,buildLastApiExample(item.getId()))).collect(Collectors.toList());
         }
+        result = apiDocSync.sync(new DocsInfo(directoryList,docsInfoList));
         return ApiResult.success(result);
     }
 
