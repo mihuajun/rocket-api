@@ -286,11 +286,7 @@ public class ScriptParseService {
 
     private Object buildValueOfScriptContent(Bindings bindings, String[] paramArr, int index) {
         if (bindings == null)return null;
-        Object value = bindings.get(paramArr[index]);
-        if (paramArr.length-1 > index) {
-            return buildObjectValue(value, paramArr, index + 1, paramArr[index + 1]);
-        }
-        return value;
+        return buildObjectValue(bindings,paramArr,index,paramArr[index]);
     }
 
     public Object buildValueOfSession(Map<String,Object> session,String[] paramArr,int index) {
@@ -370,6 +366,9 @@ public class ScriptParseService {
         ArrVar arrVar = isArrVar(varName);
         if (arrVar != null){
             Object collection = params.get(arrVar.getVarName());
+            if (collection == null){
+                throw new IllegalArgumentException("The "+arrVar.getVarName()+" parameter is null");
+            }
             if (!(collection instanceof Collection)){
                 throw new IllegalArgumentException("The "+arrVar.getVarName()+" parameter is not an array");
             }
