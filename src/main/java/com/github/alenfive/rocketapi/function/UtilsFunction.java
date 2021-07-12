@@ -13,6 +13,7 @@ import com.github.alenfive.rocketapi.service.ScriptParseService;
 import com.github.alenfive.rocketapi.utils.CsvUtils;
 import com.github.alenfive.rocketapi.utils.ExcelUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.*;
 import org.springframework.stereotype.Component;
@@ -48,6 +49,7 @@ public class UtilsFunction implements IFunction{
     private IScriptEncrypt scriptEncrypt;
 
     @Autowired
+    @Lazy
     private IScriptParse scriptParse;
 
     @Override

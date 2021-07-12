@@ -21,6 +21,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -66,6 +67,7 @@ public class ApiController {
     private ApiInfoContent apiInfoContent;
 
     @Autowired
+    @Lazy
     private IScriptParse scriptParse;
 
     @Autowired

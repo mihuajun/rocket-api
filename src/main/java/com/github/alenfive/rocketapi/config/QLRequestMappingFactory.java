@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.YamlPropertiesFactoryBean;
 import org.springframework.boot.autoconfigure.web.ServerProperties;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.MutablePropertySources;
 import org.springframework.core.env.PropertiesPropertySource;
@@ -73,6 +74,7 @@ public class QLRequestMappingFactory {
     private RequestMappingHandlerMapping requestMappingHandlerMapping;
 
     @Autowired
+    @Lazy
     private IScriptParse scriptParse;
 
     @Autowired

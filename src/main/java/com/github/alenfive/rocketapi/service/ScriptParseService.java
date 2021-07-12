@@ -8,6 +8,7 @@ import com.github.alenfive.rocketapi.entity.vo.ArrVar;
 import com.github.alenfive.rocketapi.entity.vo.IndexScope;
 import com.github.alenfive.rocketapi.extend.ApiInfoContent;
 import com.github.alenfive.rocketapi.script.GroovyScriptParse;
+import com.github.alenfive.rocketapi.script.IScriptParse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -38,7 +39,7 @@ public class ScriptParseService {
 
     @Autowired
     @Lazy
-    private GroovyScriptParse scriptParse;
+    private IScriptParse scriptParse;
 
     @Autowired
     private ApiInfoContent apiInfoContent;
