@@ -33,12 +33,6 @@ public class GroovyScriptParse implements IScriptParse{
     @Autowired
     private ApplicationContext context;
 
-    @Autowired
-    private ScriptParseService parseService;
-
-    @Autowired
-    private IApiPager apiPager;
-
     private Collection<IFunction> functionList;
 
     private ScriptEngineManager factory = new ScriptEngineManager();
