@@ -4,7 +4,6 @@ import com.github.alenfive.rocketapi.annotation.ApiId;
 import com.github.alenfive.rocketapi.annotation.ApiTable;
 import org.springframework.util.StringUtils;
 
-import java.lang.reflect.Field;
 import java.util.Arrays;
 
 /**

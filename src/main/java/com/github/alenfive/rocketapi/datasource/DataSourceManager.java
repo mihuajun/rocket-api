@@ -36,38 +36,38 @@ public abstract class DataSourceManager {
     public String buildCountScript(String script, ApiInfo apiInfo, ApiParams apiParams, String specifyDataSource,Map<String,Object> specifyParams,IApiPager apiPager, Page page) throws Exception {
         DataSourceDialect dataSourceDialect = buildDataSourceDialect(apiInfo.getDatasource(),specifyDataSource);
         StringBuilder sb = new StringBuilder(script);
-        parseService.parse(sb,apiParams,dataSourceDialect,specifyParams);
+        parseService.parse(sb,dataSourceDialect,specifyParams);
         return dataSourceDialect.buildCountScript(sb.toString(),apiInfo,apiParams,apiPager,page);
     }
 
     public String buildPageScript(String script, ApiInfo apiInfo, ApiParams apiParams,String specifyDataSource,Map<String,Object> specifyParams,IApiPager apiPager,Page page) throws Exception {
         DataSourceDialect dataSourceDialect = buildDataSourceDialect(apiInfo.getDatasource(),specifyDataSource);
         StringBuilder sb = new StringBuilder(script);
-        parseService.parse(sb,apiParams,dataSourceDialect,specifyParams);
+        parseService.parse(sb,dataSourceDialect,specifyParams);
         return dataSourceDialect.buildPageScript(sb.toString(),apiInfo,apiParams,apiPager,page);
     }
 
     public List<Map<String, Object>> find(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams, String specifyDataSource,Map<String,Object> specifyParams) throws Exception {
         DataSourceDialect dataSourceDialect = buildDataSourceDialect(apiInfo.getDatasource(),specifyDataSource);
-        parseService.parse(script,apiParams,dataSourceDialect,specifyParams);
+        parseService.parse(script,dataSourceDialect,specifyParams);
         return dataSourceDialect.find(script,apiInfo,apiParams);
     }
 
     public Long remove(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams,String specifyDataSource,Map<String,Object> specifyParams) throws Exception {
         DataSourceDialect dataSourceDialect = buildDataSourceDialect(apiInfo.getDatasource(),specifyDataSource);
-        parseService.parse(script,apiParams,dataSourceDialect,specifyParams);
+        parseService.parse(script,dataSourceDialect,specifyParams);
         return dataSourceDialect.remove(script,apiInfo,apiParams);
     }
 
     public Object insert(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams,String specifyDataSource,Map<String,Object> specifyParams) throws Exception {
         DataSourceDialect dataSourceDialect = buildDataSourceDialect(apiInfo.getDatasource(),specifyDataSource);
-        parseService.parse(script,apiParams,dataSourceDialect,specifyParams);
+        parseService.parse(script,dataSourceDialect,specifyParams);
         return dataSourceDialect.insert(script,apiInfo,apiParams);
     }
 
     public Long update(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams,String specifyDataSource,Map<String,Object> specifyParams) throws Exception {
         DataSourceDialect dataSourceDialect = buildDataSourceDialect(apiInfo.getDatasource(),specifyDataSource);
-        parseService.parse(script,apiParams,dataSourceDialect,specifyParams);
+        parseService.parse(script,dataSourceDialect,specifyParams);
         return dataSourceDialect.update(script,apiInfo,apiParams);
     }
 

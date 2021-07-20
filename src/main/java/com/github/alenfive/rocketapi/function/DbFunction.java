@@ -6,16 +6,15 @@ import com.github.alenfive.rocketapi.extend.ApiInfoContent;
 import com.github.alenfive.rocketapi.extend.IApiPager;
 import com.github.alenfive.rocketapi.extend.IDBCache;
 import com.github.alenfive.rocketapi.extend.ISQLInterceptor;
+import com.github.alenfive.rocketapi.service.ScriptParseService;
 import lombok.AllArgsConstructor;
-import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -35,6 +34,9 @@ public class DbFunction implements IFunction {
     private ApiInfoContent apiInfoContent;
 
     @Autowired
+    private ScriptParseService parseService;
+
+    @Autowired
     private IApiPager apiPager;
 
     @Autowired
@@ -50,7 +52,7 @@ public class DbFunction implements IFunction {
     private Long cacheTime;
 
     public DbFunction cache(String cacheKey,Long cacheTime){
-        return new DbFunction(dataSourceManager,apiInfoContent,apiPager,utilsFunction,sqlInterceptor,dbCache,cacheKey,cacheTime);
+        return new DbFunction(dataSourceManager,apiInfoContent,parseService,apiPager,utilsFunction,sqlInterceptor,dbCache,cacheKey,cacheTime);
     }
 
     public void cacheClear(String cacheKey){
@@ -191,10 +193,17 @@ public class DbFunction implements IFunction {
 
     @Deprecated
     public Object pager(String script,String dataSource,Map<String,Object> params) throws Exception {
+
+        Integer pageNo = buildPagerNo();
+        Integer pageSize = buildPagerSize();
+        apiInfoContent.getEngineBindings().put(apiPager.getPageNoVarName(),pageNo);
+        apiInfoContent.getEngineBindings().put(apiPager.getPageSizeVarName(),pageSize);
+        apiInfoContent.getEngineBindings().put(apiPager.getIndexVarName(),apiPager.getIndexVarValue(pageSize,pageNo));
+
         script = parseSql(script);
         Page page = Page.builder()
-                .pageNo(Integer.valueOf(utilsFunction.val(apiPager.getPageNoVarName()).toString()))
-                .pageSize(Integer.valueOf(utilsFunction.val(apiPager.getPageSizeVarName()).toString()))
+                .pageNo(pageNo)
+                .pageSize(pageSize)
                 .build();
         String totalSql = dataSourceManager.buildCountScript(script,apiInfoContent.getApiInfo(),apiInfoContent.getApiParams(),dataSource,params,apiPager,page);
         Long total = this.count(totalSql,dataSource,params);
@@ -206,6 +215,22 @@ public class DbFunction implements IFunction {
             data = Collections.emptyList();
         }
         return apiPager.buildPager(total,data,apiInfoContent.getApiInfo(),apiInfoContent.getApiParams());
+    }
+
+    private Integer buildPagerNo() {
+        Object value = parseService.buildContentScopeParamItem(null,apiPager.getPageNoVarName());
+        if (StringUtils.isEmpty(value)){
+            return apiPager.getPageNoDefaultValue();
+        }
+        return Integer.valueOf(value.toString());
+    }
+
+    private Integer buildPagerSize() {
+        Object value = parseService.buildContentScopeParamItem(null,apiPager.getPageSizeVarName());
+        if (StringUtils.isEmpty(value)){
+            return apiPager.getPageSizeDefaultValue();
+        }
+        return Integer.valueOf(value.toString());
     }
 
     /*重载 script*/

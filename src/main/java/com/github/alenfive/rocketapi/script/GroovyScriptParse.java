@@ -58,12 +58,6 @@ public class GroovyScriptParse implements IScriptParse{
     @Transactional(rollbackFor=Exception.class)
     public Object runScript(String script, ApiInfo apiInfo, ApiParams apiParams) throws Throwable {
 
-        Integer pageNo = buildPagerNo(apiParams);
-        Integer pageSize = buildPagerSize(apiParams);
-        apiParams.putParam(apiPager.getPageNoVarName(),pageNo);
-        apiParams.putParam(apiPager.getPageSizeVarName(),pageSize);
-        apiParams.putParam(apiPager.getIndexVarName(),apiPager.getIndexVarValue(pageSize,pageNo));
-
         try {
 
             //注入变量
@@ -104,23 +98,7 @@ public class GroovyScriptParse implements IScriptParse{
         }
     }
 
-    private Integer buildPagerNo(ApiParams apiParams) {
-        Object value = parseService.buildParamItem(apiParams,null,apiPager.getPageNoVarName());
-        if (StringUtils.isEmpty(value)){
-            apiParams.putParam(apiPager.getPageNoVarName(),apiPager.getPageNoDefaultValue());
-            return apiPager.getPageNoDefaultValue();
-        }
-        return Integer.valueOf(value.toString());
-    }
 
-    private Integer buildPagerSize(ApiParams apiParams) {
-        Object value = parseService.buildParamItem(apiParams,null,apiPager.getPageSizeVarName());
-        if (StringUtils.isEmpty(value)){
-            apiParams.putParam(apiPager.getPageSizeVarName(),apiPager.getPageSizeDefaultValue());
-            return apiPager.getPageSizeDefaultValue();
-        }
-        return Integer.valueOf(value.toString());
-    }
 
     private void buildScriptParams(Bindings bindings, ApiParams apiParams) {
         bindings.put("pathVar",apiParams.getPathVar());

@@ -58,11 +58,11 @@ public class UtilsFunction implements IFunction{
     }
 
     /**
-     * 获取上下文中的指定变量
+     * 获取请求域中的指定参数
      * @param varName
      */
     public Object val(String varName){
-        return scriptParseService.buildParamItem(apiInfoContent.getApiParams(),null,varName);
+        return scriptParseService.buildRequestScopeParamItem(apiInfoContent.getApiParams(),null,varName);
     }
 
     /**
