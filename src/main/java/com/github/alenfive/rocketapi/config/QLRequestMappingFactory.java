@@ -143,6 +143,15 @@ public class QLRequestMappingFactory {
         //加载目录
         this.loadDirectoryList(true);
 
+        //添加默认组
+        if (this.directoryListCache.isEmpty()){
+            this.saveDirectory(ApiDirectory.builder()
+                    .name("默认组")
+                    .service(service)
+                    .build());
+            this.loadDirectoryList(true);
+        }
+
         //加载代码方式的API
         List<ApiInfo> codeApiList = this.getPathListForCode();
         for (ApiInfo codeInfo : codeApiList) {
