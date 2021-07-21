@@ -256,6 +256,7 @@
     </div>
 </div>
 
+
 <!-- Remote Sync -->
 <div class="modal in export-dialog " id="remote-sync" aria-hidden="false" style="display:none;width:50%;left:25%;margin-left:0px;">
     <div class="modal-header"><a class="close" onclick="hideRemoteSync()" data-dismiss="modal">×</a>
@@ -264,7 +265,7 @@
         <fieldset>
             <div class="control-group" style="margin-top: 20px">
                 <label class="control-label file-label"><span> Filter </span></label>
-                <div class="controls file-input"><input type="text" style="width: 50%" onkeyup="searchSelectApi(this)" class="gwt-TextBox"></div>
+                <div class="controls file-input"><input type="text" style="width: 50%" onkeyup="searchSelectApi('#remote-sync',this)" class="gwt-TextBox"></div>
             </div>
             <div class="control-group browser-repository">
                 <div class="controls browser-and-error">
@@ -314,6 +315,90 @@
         </button>
     </div>
 </div>
+
+<!-- export -->
+<div class="modal in export-dialog " id="export-dialog" aria-hidden="false" style="display:none;width:50%;left:25%;margin-left:0px;">
+    <div class="modal-header"><a class="close" onclick="hideExport()" data-dismiss="modal">×</a>
+        <h3>Export <small></small></h3></div>
+    <div class="form-horizontal">
+        <fieldset>
+            <div class="control-group" style="margin-top: 20px">
+                <label class="control-label file-label"><span> Filter </span></label>
+                <div class="controls file-input"><input type="text" style="width: 50%" onkeyup="searchSelectApi('#export-dialog',this)" class="gwt-TextBox"></div>
+            </div>
+            <div class="control-group browser-repository">
+                <div class="controls browser-and-error">
+                    <div>
+                        <div>
+                            <ul class="tree">
+                                <li class="level0 drive">
+                                    <div class="tree-entry">
+                                        <label class="checkbox">
+                                            <input type="checkbox" value="on" tabindex="0"><span></span>
+                                        </label>
+                                        <a href="javascript:;" class="btn btn-link name">
+                                            <i class="icon-caret-down"></i>
+                                            <i class="node-icon node-icon-hidden"></i>
+                                            <span class="gwt-InlineHTML node-text" data-content="(will be created)">My drive</span>
+                                        </a>
+                                    </div>
+                                    <ul style="display: block;" class="api-list-body">
+                                    </ul>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="items-count">0 item selected</div>
+                </div>
+            </div>
+
+            <form class="subform" action="" method="post">
+                <div class="control-group">
+                    <input name="apiInfoIds" type="hidden"/>
+                    <input name="token" type="hidden"/>
+                    <label class="control-label file-label"><span> Filename </span></label>
+                    <div class="controls file-input"><input style="width: 20%" name="fileName" type="text" class="filename gwt-TextBox">.json</div>
+                </div>
+            </form>
+
+        </fieldset>
+    </div>
+    <div class="modal-footer">
+        <div class="error-message login-error-message" style="float: left;"></div>
+        <button class="r-btn" e2e-tag="modal-cancel" onclick="hideExport()">
+            <i class="fa fa-remove"></i><span>Close</span><span class="r-btn-indicator" aria-hidden="true" style="display: none;"></span>
+        </button>
+        <button class="r-btn r-btn-primary" e2e-tag="modal-cancel" title="导出" onclick="exportApiInfo()">
+            <i class="fa fa-upload"></i><span>Export</span><span class="r-btn-indicator" aria-hidden="true" style="display: none;"></span>
+        </button>
+    </div>
+</div>
+
+<!--import-->
+<div class="modal in import-dialog" id="import-dialog" aria-hidden="false" style="display:none">
+    <div class="modal-header">
+        <a class="close" data-dismiss="modal" onclick="hideImport()">×</a>
+        <h3>Import API <small></small></h3>
+    </div>
+    <div class="modal-body">
+        <form id="import-form" style="padding: 0px">
+            <div class="file-selector" style="height: 36px;">
+                <input type="file" class="" name="file" id="g1366" style="display: block;width: auto;height: auto;opacity: inherit;z-index: auto" tabindex="-1">
+            </div>
+            <div>
+                <label class="radio inline"><input type="radio" name="override" value="0" checked>增量导入</label>
+                <label class="radio inline"><input type="radio" name="override" value="1">覆盖导入</label>
+            </div>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <div class="error-message login-error-message" style="float: left;"></div>
+        <button class="r-btn" e2e-tag="modal-cancel" onclick="hideImport()">
+            <i class="fa fa-remove"></i><span>Close</span><span class="r-btn-indicator" aria-hidden="true" style="display: none;"></span>
+        </button>
+        <button class="r-btn r-btn-primary" e2e-tag="modal-ok" onclick="importApi()" data-feature="import_postman2">
+            <i class="fa fa-check"></i><span>Import</span><span class="r-btn-indicator" aria-hidden="true" style="display: none;"></span>
+        </button></div></div>
 
 <div class="intercom-lightweight-app" aria-live="polite">
     <style id="intercom-lightweight-app-style">
@@ -816,6 +901,7 @@
 </script>
 
 <script type="text/javascript" src="rocketapi/js/jquery-1.12.2.min.js"></script>
+<script type="text/javascript" src="rocketapi/js/jquery.form.js"></script>
 <script type="text/javascript" src="rocketapi/js/bootstrap-2.3.2.min.js"></script>
 
 <script>var require = {paths: {'vs': 'rocketapi/monaco-editor/min/vs'}};</script>
@@ -824,6 +910,7 @@
 <script src="rocketapi/monaco-editor/min/vs/editor/editor.main.js"></script>
 <script src="rocketapi/monaco-editor/min/vs/rocket-language.js"></script>
 <script src="rocketapi/monaco-editor/min/vs/basic-languages/yaml/yaml.js"></script>
+
 <script>
     var _mtac = {"senseQuery":1};
     (function() {

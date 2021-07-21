@@ -352,7 +352,7 @@ public class ScriptParseService {
                 return scriptParse.engineEval(scriptLanguage,bindings);
             }
         }catch (Throwable e){
-            throw new RuntimeException(e.getMessage());
+            throw new IllegalArgumentException(e.getMessage());
         }
     }
 

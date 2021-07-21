@@ -32,6 +32,9 @@ public class LoginService {
      */
     public String getUser(HttpServletRequest request){
         String token = request.getHeader(rocketUserToken);
+        return getUser(token);
+    }
+    public String getUser(String token){
         if (StringUtils.isEmpty(token)){
             return null;
         }

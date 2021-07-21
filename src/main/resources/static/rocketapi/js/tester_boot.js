@@ -40,6 +40,10 @@ let completionClazzUrl = baseUrl + "/completion-clazz";
 //远程同步
 let remoteSyncUrl = baseUrl + "/remote-sync";
 
+//导出,导入
+let exportUrl = baseUrl + "/export";
+let importUrl = baseUrl + "/import";
+
 //登录操作
 let loginUrl = baseUrl + "/login";
 let logoutUrl = baseUrl + "/logout";
@@ -312,23 +316,23 @@ function loadKeyCodeEvent() {
     });
 }
 
-function loadRemoteSyncChecboxEvent() {
+function loadRemoteSyncChecboxEvent(target) {
 
     //隐藏
-    $("#remote-sync").on("click",".level1 .icon-caret-down",function () {
+    $(target).on("click",".level1 .icon-caret-down",function () {
         $(this).parents(".level1").find(">ul").hide();
         $(this).removeClass("icon-caret-down").addClass("icon-caret-right");
         return false;
     })
 
-    $("#remote-sync").on("click",".level1 .icon-caret-right",function () {
+    $(target).on("click",".level1 .icon-caret-right",function () {
         $(this).parents(".level1").find(">ul").show();
         $(this).removeClass("icon-caret-right").addClass("icon-caret-down");
         return false;
     })
 
     //根节点
-    $("#remote-sync").on("click",".level0>.tree-entry input:checkbox",function (e) {
+    $(target).on("click",".level0>.tree-entry input:checkbox",function (e) {
         let isChecked = $(this).prop('checked');
         if (isChecked){
             $(this).parents(".level0").find(".level1 .tree-entry input:checkbox").prop("checked","checked");
@@ -336,32 +340,32 @@ function loadRemoteSyncChecboxEvent() {
             $(this).parents(".level0").find(".level1 .tree-entry input:checkbox").prop("checked","");
         }
 
-        $("#remote-sync .items-count").text($("#remote-sync .level2>.tree-entry input:checkbox:checked").length+" item selected");
+        $(target + " .items-count").text($(target + " .level2>.tree-entry input:checkbox:checked").length+" item selected");
     });
 
     //二级节点
-    $("#remote-sync ").on("click",".level1>.tree-entry input:checkbox",function (e) {
+    $(target).on("click",".level1>.tree-entry input:checkbox",function (e) {
         let isChecked = $(this).prop('checked');
         if (isChecked){
             $(this).parents(".level1").find(".level2 .tree-entry input:checkbox").prop("checked","checked");
         }else{
             $(this).parents(".level1").find(".level2 .tree-entry input:checkbox").prop("checked","");
         }
-        let checkedNum = $("#remote-sync .level1>.tree-entry input:checkbox:checked").length;
+        let checkedNum = $(target + " .level1>.tree-entry input:checkbox:checked").length;
         if (checkedNum == 0){
-            $("#remote-sync .level0>.tree-entry input:checkbox").prop("checked","");
+            $(target + " .level0>.tree-entry input:checkbox").prop("checked","");
         }else {
-            $("#remote-sync .level0>.tree-entry input:checkbox").prop("checked","checked");
+            $(target + " .level0>.tree-entry input:checkbox").prop("checked","checked");
         }
-        $("#remote-sync .items-count").text($("#remote-sync .level2>.tree-entry input:checkbox:checked").length+" item selected");
+        $(target + " .items-count").text($(target + " .level2>.tree-entry input:checkbox:checked").length+" item selected");
     });
 
-    $("#remote-sync").on("click",".btn-link",function (e) {
+    $(target).on("click",".btn-link",function (e) {
         $(this).parent().find("input:checkbox").click();
     })
 
     //三级节点
-    $("#remote-sync ").on("click",".level2>.tree-entry input:checkbox",function (e) {
+    $(target).on("click",".level2>.tree-entry input:checkbox",function (e) {
         let checked2Num = $(this).parents(".level1").find(".level2>.tree-entry input:checkbox:checked").length;
         if (checked2Num == 0){
             $(this).parents(".level1").find(">.tree-entry input:checkbox").prop("checked","");
@@ -369,13 +373,13 @@ function loadRemoteSyncChecboxEvent() {
             $(this).parents(".level1").find(">.tree-entry input:checkbox").prop("checked","checked");
         }
 
-        let checkedNum = $("#remote-sync .level1>.tree-entry input:checkbox:checked").length;
+        let checkedNum = $(target + " .level1>.tree-entry input:checkbox:checked").length;
         if (checkedNum == 0){
-            $("#remote-sync .level0>.tree-entry input:checkbox").prop("checked","");
+            $(target + " .level0>.tree-entry input:checkbox").prop("checked","");
         }else{
-            $("#remote-sync .level0>.tree-entry input:checkbox").prop("checked","checked");
+            $(target + " .level0>.tree-entry input:checkbox").prop("checked","checked");
         }
-        $("#remote-sync .items-count").text($("#remote-sync .level2>.tree-entry input:checkbox:checked").length+" item selected");
+        $(target + " .items-count").text($(target + " .level2>.tree-entry input:checkbox:checked").length+" item selected");
     });
 }
 
@@ -387,7 +391,8 @@ function loadEvent() {
     loadHistoryScrollEvent();
     loadLeftSideEvent();
     loadBottomSideEvent();
-    loadRemoteSyncChecboxEvent()
+    loadRemoteSyncChecboxEvent("#remote-sync")
+    loadRemoteSyncChecboxEvent("#export-dialog")
     loadKeyCodeEvent()
 }
 
@@ -2325,10 +2330,82 @@ function buildMethodsForClazz(clazz) {
 //-------------------------------- api push end -------------------------------
 
 
+
+//-------------------------------- export start ------------------------------
+function showExport() {
+    $("#export-dialog").show();
+    buildSelectApiTree("#export-dialog",gdata.apiList,"collapsed")
+    $("#export-dialog .filename").focus();
+}
+function hideExport(){
+    $("#export-dialog").hide();
+}
+function exportApiInfo(){
+
+    let fileName = $("#export-dialog .filename").val();
+
+    if (!fileName){
+        $("#export-dialog .error-message").text("filename is empty")
+        return;
+    }
+
+    let apiInfoIds = $("#export-dialog .level2 input:checkbox:checked");
+
+    if (apiInfoIds.length == 0){
+        $("#export-dialog .error-message").text("export is empty");
+        return;
+    }
+
+    let idsParams = [];
+    $.each(apiInfoIds,function () {
+        idsParams.push($(this).val());
+    })
+
+    $("#export-dialog .subform").attr("action",exportUrl);
+    $("#export-dialog input[name='apiInfoIds']").val(idsParams.join(","));
+    $("#export-dialog input[name='token']").val(rocketUser.user.token);
+    $("#export-dialog .subform").submit();
+    hideExport();
+}
+//-------------------------------- export end ------------------------------
+
+//-------------------------------- import start ------------------------------
+function showImport(){
+    $("#import-dialog").show();
+}
+function hideImport() {
+    $("#import-dialog").hide();
+}
+function importApi() {
+
+    $("#import-dialog .error-message").text("In process of import ... ")
+    $("#import-form").ajaxSubmit({
+        url: importUrl,
+        type:"POST",
+        dataType:"json",
+        success:function (data) {
+            data = unpackResult(data);
+
+            if (data.code !=200){
+                $("#import-dialog .error-message").text("import error:"+data.msg)
+                return;
+            }
+
+            $("#import-dialog .error-message").text("import successful size:"+data.data)
+
+            loadApiList(false,function(){
+
+            });
+        }
+    });
+
+}
+//-------------------------------- import end ------------------------------
+
 //-------------------------------- Remote Sync start ------------------------------
 function showRemoteSync() {
     $("#remote-sync").show();
-    buildSelectApiTree(gdata.apiList,"collapsed")
+    buildSelectApiTree("#remote-sync",gdata.apiList,"collapsed")
 }
 
 function hideRemoteSync() {
@@ -2368,7 +2445,7 @@ function remoteSync(increment) {
     });
 }
 
-function searchSelectApi(e) {
+function searchSelectApi(target,e) {
     let keyword = $(e).val().trim();
     let searchResult = [];
     $.each(gdata.apiList,function (index,item) {
@@ -2385,8 +2462,8 @@ function searchSelectApi(e) {
             searchResult.push(item);
         }
     });
-    $("#remote-sync .items-count").text("0 item selected");
-    buildSelectApiTree(searchResult,keyword?"":"collapsed");
+    $(target + " .items-count").text("0 item selected");
+    buildSelectApiTree(target,searchResult,keyword?"":"collapsed");
 }
 
 function buildApiSelectDirectoryDom(directory,collapsed) {
@@ -2401,36 +2478,35 @@ function buildApiSelectDirectoryDom(directory,collapsed) {
         '                <span class="gwt-InlineHTML node-text" >'+directory.name+'</span>\n' +
         '            </a>\n' +
         '        </div>\n' +
-        '<ul style="'+(collapsed?'display: none;':'display: block;')+'" id="directory-select-id-'+directory.id+'"></ul>' +
+        '<ul style="'+(collapsed?'display: none;':'display: block;')+'" class="directory-select-id-'+directory.id+'"></ul>' +
         '    </li>');
 }
 
-function buildSelectApiDirectory(directoryList,dirId,collapsed){
+function buildSelectApiDirectory(target,directoryList,dirId,collapsed){
     $.each(directoryList,function (index,item) {
 
         if (!dirId && !item.parentId){
-            $("#remote-sync .api-list-body").append(buildApiSelectDirectoryDom(item,collapsed));
-            buildSelectApiDirectory(directoryList,item.id,collapsed);
+            $(target + " .api-list-body").append(buildApiSelectDirectoryDom(item,collapsed));
+            buildSelectApiDirectory(target,directoryList,item.id,collapsed);
             return;
         }
 
         if (item.parentId != dirId){
             return;
         }
-        $("#directory-select-id-"+dirId).append(buildApiSelectDirectoryDom(item,collapsed));
-        buildSelectApiDirectory(directoryList,item.id,collapsed);
+        $(target + " .directory-select-id-"+dirId).append(buildApiSelectDirectoryDom(item,collapsed));
+        buildSelectApiDirectory(target,directoryList,item.id,collapsed);
     })
 }
 
-function buildSelectApiTree(list,collapsed) {
+function buildSelectApiTree(target,list,collapsed) {
 
-
-    $("#remote-sync .api-list-body").html("");
+    $(target +" .api-list-body").html("");
     //生成tree
-    buildSelectApiDirectory(gdata.directoryList,null,collapsed);
+    buildSelectApiDirectory(target,gdata.directoryList,null,collapsed);
 
     $.each(list,function (index,item) {
-        let _children = $("#directory-select-id-"+item.directoryId);
+        let _children = $(target + " .directory-select-id-"+item.directoryId);
         _children.append('  <li class="level2 request">\n' +
             '                <div class="tree-entry">\n' +
             '                    <label class="checkbox" >\n' +

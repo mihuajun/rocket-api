@@ -108,7 +108,7 @@ public class QLRequestMappingFactory {
 
     private IApiPager apiPager = new SysApiPager();
 
-    private List<String> bodyMethods = Arrays.asList("POST","PUT","PATCH");
+    private List<String> bodyMethods = Arrays.asList("POST", "PUT", "PATCH");
 
     private List<ApiDirectory> directoryListCache;
 
@@ -127,8 +127,8 @@ public class QLRequestMappingFactory {
         reloadApiConfig();
 
         //历史缓存清理
-        if (apiInfoCache != null){
-            apiInfoCache.getAll().stream().filter(item->ApiType.Ql.name().equals(item.getType())).forEach(item->{
+        if (apiInfoCache != null) {
+            apiInfoCache.getAll().stream().filter(item -> ApiType.Ql.name().equals(item.getType())).forEach(item -> {
                 this.unregisterMappingForApiInfo(item);
             });
             apiInfoCache.removeAll();
@@ -136,7 +136,7 @@ public class QLRequestMappingFactory {
 
         //加载数据库API
         List<ApiInfo> apiInfos = dataSourceManager.getStoreApiDataSource().listByEntity(ApiInfo.builder().service(service).build());
-        for (ApiInfo apiInfo : apiInfos){
+        for (ApiInfo apiInfo : apiInfos) {
             apiInfoCache.put(apiInfo);
         }
 
@@ -145,15 +145,15 @@ public class QLRequestMappingFactory {
 
         //加载代码方式的API
         List<ApiInfo> codeApiList = this.getPathListForCode();
-        for (ApiInfo codeInfo : codeApiList){
+        for (ApiInfo codeInfo : codeApiList) {
             ApiInfo dbInfo = apiInfoCache.get(codeInfo);
-            if (dbInfo != null){
+            if (dbInfo != null) {
                 continue;
             }
 
-            ApiDirectory directory = directoryListCache.stream().filter(item->StringUtils.isEmpty(item.getParentId()) && codeInfo.getDirectoryId().equals(item.getName())).findFirst().orElse(null);
+            ApiDirectory directory = directoryListCache.stream().filter(item -> StringUtils.isEmpty(item.getParentId()) && codeInfo.getDirectoryId().equals(item.getName())).findFirst().orElse(null);
 
-            if (directory == null){
+            if (directory == null) {
                 directory = ApiDirectory.builder().service(service).name(codeInfo.getDirectoryId()).build();
                 directory.setId(GenerateId.get().toHexString());
                 dataSourceManager.getStoreApiDataSource().saveEntity(directory);
@@ -169,7 +169,7 @@ public class QLRequestMappingFactory {
         }
 
         //注册mapping
-        for (ApiInfo apiInfo : apiInfoCache.getAll()){
+        for (ApiInfo apiInfo : apiInfoCache.getAll()) {
             this.registerMappingForApiInfo(apiInfo);
         }
     }
@@ -181,18 +181,19 @@ public class QLRequestMappingFactory {
                 " |    |   (  <_> )  \\___|    <\\  ___/|  |   /    |    \\    |   |   |\n" +
                 " |____|_  /\\____/ \\___  >__|_ \\\\___  >__|   \\____|__  /____|   |___|\n" +
                 "        \\/            \\/     \\/    \\/               \\/              \n" +
-                "\033[32;2m"+":: Rocket API ::"+"\033[m"+"        ("+ PackageUtils.getVersion()+")   " +buildLocalLink());
+                "\033[32;2m" + ":: Rocket API ::" + "\033[m" + "        (" + PackageUtils.getVersion() + ")   " + buildLocalLink());
 
     }
 
-    private String buildLocalLink(){
-        String content = serverProperties.getServlet().getContextPath() == null?"":serverProperties.getServlet().getContextPath();
-        Integer port = serverProperties.getPort() == null?8080:serverProperties.getPort();
-        return "http://localhost:"+ port + ("/"+content+ properties.getBaseRegisterPath()).replace("//","/");
+    private String buildLocalLink() {
+        String content = serverProperties.getServlet().getContextPath() == null ? "" : serverProperties.getServlet().getContextPath();
+        Integer port = serverProperties.getPort() == null ? 8080 : serverProperties.getPort();
+        return "http://localhost:" + port + ("/" + content + properties.getBaseRegisterPath()).replace("//", "/");
     }
 
     /**
      * 重建单一请求的注册与缓存
+     *
      * @param refreshMapping
      */
     public void refreshMapping(RefreshMapping refreshMapping) throws NoSuchMethodException {
@@ -202,7 +203,7 @@ public class QLRequestMappingFactory {
 
         ApiInfo apiInfo = null;
         //取消历史注册
-        if (refreshMapping.getOldMapping() != null){
+        if (refreshMapping.getOldMapping() != null) {
             apiInfo = ApiInfo.builder()
                     .fullPath(refreshMapping.getOldMapping().getFullPath())
                     .method(refreshMapping.getOldMapping().getMethod())
@@ -211,7 +212,7 @@ public class QLRequestMappingFactory {
         }
 
         //重新注册mapping
-        if (refreshMapping.getNewMapping() != null){
+        if (refreshMapping.getNewMapping() != null) {
             apiInfo = ApiInfo.builder()
                     .fullPath(refreshMapping.getNewMapping().getFullPath())
                     .method(refreshMapping.getNewMapping().getMethod())
@@ -222,12 +223,13 @@ public class QLRequestMappingFactory {
 
     /**
      * 加载配置
+     *
      * @throws Exception
      */
     public void reloadApiConfig() throws Exception {
         MutablePropertySources propertySources = environment.getPropertySources();
         String apiConfigName = "applicationConfig:[db:/rocket-api.yml]";
-        if (!properties.isConfigEnabled()){
+        if (!properties.isConfigEnabled()) {
             propertySources.remove(apiConfigName);
             return;
         }
@@ -235,7 +237,7 @@ public class QLRequestMappingFactory {
         ApiConfig apiConfig = this.getApiConfig();
 
         YamlPropertiesFactoryBean factoryBean = new YamlPropertiesFactoryBean();
-        if (apiConfig != null && !StringUtils.isEmpty(apiConfig.getConfigContext())){
+        if (apiConfig != null && !StringUtils.isEmpty(apiConfig.getConfigContext())) {
             factoryBean.setResources(new ByteArrayResource(apiConfig.getConfigContext().getBytes()));
         }
 
@@ -247,9 +249,9 @@ public class QLRequestMappingFactory {
         String name = null;
         boolean exists = propertySources.contains(apiConfigName);
 
-        if (exists){
+        if (exists) {
             name = apiConfigName;
-        }else{
+        } else {
             for (PropertySource<?> source : propertySources) {
                 if (p.matcher(source.getName()).matches()) {
                     name = source.getName();
@@ -258,46 +260,47 @@ public class QLRequestMappingFactory {
             }
         }
 
-        if (exists){
-            propertySources.replace(name,constants);
-        }else if (name != null) {
+        if (exists) {
+            propertySources.replace(name, constants);
+        } else if (name != null) {
             propertySources.addBefore(name, constants);
         } else {
             propertySources.addFirst(constants);
         }
 
         //配置刷新
-        if (refreshApiConfig != null){
+        if (refreshApiConfig != null) {
             refreshApiConfig.refresh();
         }
     }
 
 
-
     /**
      * 配置获取
+     *
      * @return
      */
     public ApiConfig getApiConfig() {
         List<ApiConfig> apiConfigList = dataSourceManager.getStoreApiDataSource().listByEntity(ApiConfig.builder().service(service).build());
-        return CollectionUtils.isEmpty(apiConfigList)?null:apiConfigList.get(0);
+        return CollectionUtils.isEmpty(apiConfigList) ? null : apiConfigList.get(0);
     }
 
     /**
      * 配置更新
+     *
      * @param configContext
      * @return
      */
     public void saveApiConfig(String configContext) throws Exception {
         ApiConfig apiConfig = this.getApiConfig();
-        if (apiConfig == null){
+        if (apiConfig == null) {
             apiConfig = ApiConfig.builder()
                     .configContext(configContext)
                     .service(service)
                     .build();
             apiConfig.setId(GenerateId.get().toHexString());
             dataSourceManager.getStoreApiDataSource().saveEntity(apiConfig);
-        }else{
+        } else {
             apiConfig.setConfigContext(configContext);
             dataSourceManager.getStoreApiDataSource().updateEntityById(apiConfig);
         }
@@ -305,8 +308,8 @@ public class QLRequestMappingFactory {
         reloadApiConfig();
     }
 
-    private Object buildToBean(PropertySource<?> propertySource,String prefix, Class<?> clazz) {
-        if (clazz.isAssignableFrom(Collection.class)){
+    private Object buildToBean(PropertySource<?> propertySource, String prefix, Class<?> clazz) {
+        if (clazz.isAssignableFrom(Collection.class)) {
 
         }
         return null;
@@ -317,36 +320,36 @@ public class QLRequestMappingFactory {
      */
     @RequestMapping
     @ResponseBody
-    public ResponseEntity execute(@PathVariable(required = false) Map<String,String> pathVar,
-                          @RequestParam(required = false) Map<String,Object> param,
-                          HttpServletRequest request,HttpServletResponse response) throws Throwable {
+    public ResponseEntity execute(@PathVariable(required = false) Map<String, String> pathVar,
+                                  @RequestParam(required = false) Map<String, Object> param,
+                                  HttpServletRequest request, HttpServletResponse response) throws Throwable {
 
         String path = buildPattern(request);
         String method = request.getMethod();
-        Map<String,Object> body = new HashMap<>();
+        Map<String, Object> body = new HashMap<>();
 
-        if (bodyMethods.contains(method)){
-            if (request.getContentType() != null && request.getContentType().indexOf("application/json") > -1){
+        if (bodyMethods.contains(method)) {
+            if (request.getContentType() != null && request.getContentType().indexOf("application/json") > -1) {
                 try {
-                    Object bodyObject = objectMapper.readValue(request.getInputStream(),Object.class);
-                    if (bodyObject instanceof Map){
+                    Object bodyObject = objectMapper.readValue(request.getInputStream(), Object.class);
+                    if (bodyObject instanceof Map) {
                         body.putAll((Map<? extends String, ?>) bodyObject);
                     }
-                    body.put(properties.getBodyRootKey(),bodyObject);
-                }catch (MismatchedInputException exception){
-                    throw new HttpMessageNotReadableException("Required request body is missing",exception,new ServletServerHttpRequest(request));
+                    body.put(properties.getBodyRootKey(), bodyObject);
+                } catch (MismatchedInputException exception) {
+                    throw new HttpMessageNotReadableException("Required request body is missing", exception, new ServletServerHttpRequest(request));
                 }
-            }else if(request.getContentType() != null && request.getContentType().indexOf("multipart/form-data") > -1){
+            } else if (request.getContentType() != null && request.getContentType().indexOf("multipart/form-data") > -1) {
                 MultipartHttpServletRequest multipartHttpServletRequest = (MultipartHttpServletRequest) request;
                 body.putAll(multipartHttpServletRequest.getMultiFileMap());
-                body.put(properties.getBodyRootKey(),multipartHttpServletRequest.getMultiFileMap());
-            }else if(request.getContentType() != null && request.getContentType().indexOf("application/x-www-form-urlencoded") > -1){
-                Map<String,List<Object>> parameterMap = new HashMap<>(request.getParameterMap().size());
-                request.getParameterMap().forEach((key,values)->{
-                    parameterMap.put(key,Arrays.asList(values));
+                body.put(properties.getBodyRootKey(), multipartHttpServletRequest.getMultiFileMap());
+            } else if (request.getContentType() != null && request.getContentType().indexOf("application/x-www-form-urlencoded") > -1) {
+                Map<String, List<Object>> parameterMap = new HashMap<>(request.getParameterMap().size());
+                request.getParameterMap().forEach((key, values) -> {
+                    parameterMap.put(key, Arrays.asList(values));
                 });
                 body.putAll(parameterMap);
-                body.put(properties.getBodyRootKey(),parameterMap);
+                body.put(properties.getBodyRootKey(), parameterMap);
             }
         }
 
@@ -365,29 +368,28 @@ public class QLRequestMappingFactory {
 
         StringBuilder script = new StringBuilder(scriptEncrypt.decrypt(apiInfo.getScript()));
         try {
-            Object data = scriptParse.runScript(script.toString(),apiInfo,apiParams);
-            if (data instanceof ResponseEntity){
+            Object data = scriptParse.runScript(script.toString(), apiInfo, apiParams);
+            if (data instanceof ResponseEntity) {
                 return (ResponseEntity) data;
             }
 
-            if (data instanceof IgnoreWrapper){
+            if (data instanceof IgnoreWrapper) {
                 return ResponseEntity.ok()
                         .contentType(MediaType.APPLICATION_JSON_UTF8)
-                        .body(((IgnoreWrapper)data).getData());
+                        .body(((IgnoreWrapper) data).getData());
             }
             return ResponseEntity.ok()
                     .contentType(MediaType.APPLICATION_JSON_UTF8)
-                    .body(resultWrapper.wrapper(data,request,response));
-        }catch (Exception e){
+                    .body(resultWrapper.wrapper(data, request, response));
+        } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.ok()
                     .contentType(MediaType.APPLICATION_JSON_UTF8)
-                    .body(resultWrapper.throwable(e,request,response));
-        }finally {
+                    .body(resultWrapper.throwable(e, request, response));
+        } finally {
             apiInfoContent.removeAll();
         }
     }
-
 
 
     public String buildPattern(HttpServletRequest request) {
@@ -396,49 +398,51 @@ public class QLRequestMappingFactory {
 
     /**
      * 注册mapping
+     *
      * @param apiInfo
      */
     private void registerMappingForApiInfo(ApiInfo apiInfo) throws NoSuchMethodException {
-        if (ApiType.Code.name().equals(apiInfo.getType())){
+        if (ApiType.Code.name().equals(apiInfo.getType())) {
             return;
         }
 
         String pattern = apiInfo.getFullPath();
 
-        if (StringUtils.isEmpty(pattern) || pattern.startsWith("TEMP-")){
+        if (StringUtils.isEmpty(pattern) || pattern.startsWith("TEMP-")) {
             return;
         }
-        log.debug("Mapped [{}]{}",apiInfo.getMethod(),pattern);
+        log.debug("Mapped [{}]{}", apiInfo.getMethod(), pattern);
         PatternsRequestCondition patternsRequestCondition = new PatternsRequestCondition(pattern);
         RequestMethodsRequestCondition methodsRequestCondition = new RequestMethodsRequestCondition(RequestMethod.valueOf(apiInfo.getMethod()));
-        RequestMappingInfo mappingInfo = new RequestMappingInfo(patternsRequestCondition,methodsRequestCondition,null,null,null,null,null);
-        Method targetMethod = QLRequestMappingFactory.class.getDeclaredMethod("execute", Map.class, Map.class,HttpServletRequest.class,HttpServletResponse.class);
-        requestMappingHandlerMapping.registerMapping(mappingInfo,this, targetMethod);
+        RequestMappingInfo mappingInfo = new RequestMappingInfo(patternsRequestCondition, methodsRequestCondition, null, null, null, null, null);
+        Method targetMethod = QLRequestMappingFactory.class.getDeclaredMethod("execute", Map.class, Map.class, HttpServletRequest.class, HttpServletResponse.class);
+        requestMappingHandlerMapping.registerMapping(mappingInfo, this, targetMethod);
     }
 
     /**
      * 取消注册mapping
+     *
      * @param apiInfo
      */
-    private void unregisterMappingForApiInfo(ApiInfo apiInfo){
-        if (ApiType.Code.name().equals(apiInfo.getType())){
+    private void unregisterMappingForApiInfo(ApiInfo apiInfo) {
+        if (ApiType.Code.name().equals(apiInfo.getType())) {
             return;
         }
 
         String pattern = apiInfo.getFullPath();
 
-        if (StringUtils.isEmpty(pattern) || pattern.startsWith("TEMP-")){
+        if (StringUtils.isEmpty(pattern) || pattern.startsWith("TEMP-")) {
             return;
         }
-        log.debug("Cancel Mapping [{}]{}",apiInfo.getMethod(),pattern);
+        log.debug("Cancel Mapping [{}]{}", apiInfo.getMethod(), pattern);
         PatternsRequestCondition patternsRequestCondition = new PatternsRequestCondition(pattern);
         RequestMethodsRequestCondition methodsRequestCondition = new RequestMethodsRequestCondition(RequestMethod.valueOf(apiInfo.getMethod()));
-        RequestMappingInfo mappingInfo = new RequestMappingInfo(patternsRequestCondition,methodsRequestCondition,null,null,null,null,null);
+        RequestMappingInfo mappingInfo = new RequestMappingInfo(patternsRequestCondition, methodsRequestCondition, null, null, null, null, null);
         requestMappingHandlerMapping.unregisterMapping(mappingInfo);
     }
 
     public Collection<ApiInfo> getPathList(boolean isDb) throws Exception {
-        if (isDb){
+        if (isDb) {
             buildInit();
             apiInfoCache.refreshNotify(null);
         }
@@ -452,17 +456,17 @@ public class QLRequestMappingFactory {
 
         this.assertExistsPattern(apiInfo);
 
-        ApiInfo dbInfo = apiInfoCache.getAll().stream().filter(item->item.getId().equals(apiInfo.getId())).findFirst().orElse(null);
+        ApiInfo dbInfo = apiInfoCache.getAll().stream().filter(item -> item.getId().equals(apiInfo.getId())).findFirst().orElse(null);
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         apiInfo.setUpdateTime(sdf.format(new Date()));
-        if (dbInfo == null){
+        if (dbInfo == null) {
             apiInfo.setType(ApiType.Ql.name());
             apiInfo.setCreateTime(sdf.format(new Date()));
             apiInfo.setService(service);
             apiInfo.setId(GenerateId.get().toHexString());
             dataSourceManager.getStoreApiDataSource().saveEntity(apiInfo);
-        }else{
+        } else {
             apiInfo.setType(dbInfo.getType());
             apiInfo.setCreateTime(dbInfo.getCreateTime());
             apiInfo.setService(dbInfo.getService());
@@ -492,7 +496,7 @@ public class QLRequestMappingFactory {
 
     private void saveApiHistory(ApiInfo dbInfo) {
         ApiInfoHistory history = new ApiInfoHistory();
-        BeanUtils.copyProperties(dbInfo,history);
+        BeanUtils.copyProperties(dbInfo, history);
         history.setApiInfoId(dbInfo.getId());
         history.setId(GenerateId.get().toString());
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -500,19 +504,26 @@ public class QLRequestMappingFactory {
         dataSourceManager.getStoreApiDataSource().saveEntity(history);
     }
 
+    private ApiInfo getConflictApiInfo(ApiInfo apiInfo) {
+        ApiInfo dbInfo = apiInfoCache.getAll().stream().filter(item -> item.getFullPath().equals(apiInfo.getFullPath()) && (item.getMethod().equals("All") || item.getMethod().equals(apiInfo.getMethod()))).findFirst().orElse(null);
+        if (dbInfo == null || (apiInfo.getId() != null && apiInfo.getId().equals(dbInfo.getId()))) {
+            return null;
+        }
+        return dbInfo;
+    }
+
     private void assertExistsPattern(ApiInfo apiInfo) {
-        ApiInfo dbInfo = apiInfoCache.getAll().stream().filter(item->item.getFullPath().equals(apiInfo.getFullPath()) && (item.getMethod().equals("All") || item.getMethod().equals(apiInfo.getMethod()))).findFirst().orElse(null);
-        if (dbInfo == null || (apiInfo.getId() != null && apiInfo.getId().equals(dbInfo.getId()))){
+        if (getConflictApiInfo(apiInfo) == null){
             return;
         }
-        throw new IllegalArgumentException("method: "+apiInfo.getMethod()+" path:"+apiInfo.getFullPath()+" already exist");
+        throw new IllegalArgumentException("method: " + apiInfo.getMethod() + " path:" + apiInfo.getFullPath() + " already exist");
     }
 
     @Transactional
     public void deleteApiInfo(ApiInfo apiInfo) {
 
-        ApiInfo dbInfo = apiInfoCache.getAll().stream().filter(item->item.getId().equals(apiInfo.getId())).findFirst().orElse(null);
-        if (dbInfo == null){
+        ApiInfo dbInfo = apiInfoCache.getAll().stream().filter(item -> item.getId().equals(apiInfo.getId())).findFirst().orElse(null);
+        if (dbInfo == null) {
             return;
         }
 
@@ -529,20 +540,20 @@ public class QLRequestMappingFactory {
     /**
      * 获取已注册的API地址
      */
-    public List<ApiInfo> getPathListForCode(){
+    public List<ApiInfo> getPathListForCode() {
         Map<RequestMappingInfo, HandlerMethod> map = requestMappingHandlerMapping.getHandlerMethods();
         List<ApiInfo> result = new ArrayList<>(map.size());
         for (RequestMappingInfo info : map.keySet()) {
             String groupName = map.get(info).getBeanType().getSimpleName();
-            for(String path : info.getPatternsCondition().getPatterns()){
+            for (String path : info.getPatternsCondition().getPatterns()) {
 
                 //过滤本身的类
-                if (path.indexOf(properties.getBaseRegisterPath()) == 0 || path.equals("/error")){
+                if (path.indexOf(properties.getBaseRegisterPath()) == 0 || path.equals("/error")) {
                     continue;
                 }
 
                 Set<RequestMethod> methods = info.getMethodsCondition().getMethods();
-                if (methods.isEmpty()){
+                if (methods.isEmpty()) {
                     result.add(ApiInfo.builder()
                             .path(path)
                             .fullPath(path)
@@ -556,8 +567,8 @@ public class QLRequestMappingFactory {
                             .script("")
                             .options("")
                             .build());
-                }else{
-                    for (RequestMethod method : methods){
+                } else {
+                    for (RequestMethod method : methods) {
                         result.add(ApiInfo.builder()
                                 .path(path)
                                 .fullPath(path)
@@ -585,32 +596,85 @@ public class QLRequestMappingFactory {
         return apiExample.getId();
     }
 
-    public List<ApiExample> listApiExampleScript(String apiInfoId, Integer pageSize,Integer pageNo) {
+    public List<ApiExample> listApiExampleScript(String apiInfoId, Integer pageSize, Integer pageNo) {
         Page page = Page.builder().pageNo(pageNo).pageSize(pageSize).build();
-        return dataSourceManager.getStoreApiDataSource().pageByEntity(ApiExample.builder().apiInfoId(apiInfoId).build(),apiPager, page);
+        return dataSourceManager.getStoreApiDataSource().pageByEntity(ApiExample.builder().apiInfoId(apiInfoId).build(), apiPager, page);
     }
 
     @Transactional
     public void deleteExampleList(ArrayList<ApiExample> apiExampleList) {
-        apiExampleList.stream().forEach(item->{
+        apiExampleList.stream().forEach(item -> {
             dataSourceManager.getStoreApiDataSource().removeEntityById(item);
         });
     }
 
-    public void addInterceptor(ApiInfoInterceptor interceptor){
-        if (this.interceptors == null){
+    public void addInterceptor(ApiInfoInterceptor interceptor) {
+        if (this.interceptors == null) {
             this.interceptors = new ArrayList<>();
         }
         this.interceptors.add(interceptor);
     }
 
-    public List<ApiInfoHistory> lastApiInfo(String apiInfoId,Integer pageSize, Integer pageNo) {
+    public List<ApiInfoHistory> lastApiInfo(String apiInfoId, Integer pageSize, Integer pageNo) {
         Page page = Page.builder().pageNo(pageNo).pageSize(pageSize).build();
-        return dataSourceManager.getStoreApiDataSource().pageByEntity(ApiInfoHistory.builder().apiInfoId(apiInfoId).service(service).build(),apiPager,page);
+        return dataSourceManager.getStoreApiDataSource().pageByEntity(ApiInfoHistory.builder().apiInfoId(apiInfoId).service(service).build(), apiPager, page);
     }
 
+    /**
+     * 数据导入
+     *
+     * @param directories
+     * @param apiInfos
+     * @param override
+     * @return
+     * @throws Exception
+     */
     @Transactional(rollbackFor = Exception.class)
-    public Object apiInfoSync(List<ApiDirectory> directories,List<ApiInfo> apiInfos,Boolean increment) throws Exception {
+    public Object importAPI(Collection<ApiDirectory> directories, Collection<ApiInfo> apiInfos, Boolean override) throws Exception {
+
+        Collection<ApiInfo> currApiInfos = this.getPathList(false);
+        Collection<ApiDirectory> currDirectories = this.loadDirectoryList(false);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+        //目录增量同步
+        for (ApiDirectory directory : directories) {
+            ApiDirectory dbDirectory = currDirectories.stream().filter(item -> item.getId().equals(directory.getId())).findFirst().orElse(null);
+            if (dbDirectory == null) {
+                dataSourceManager.getStoreApiDataSource().saveEntity(directory);
+            } else {
+                dataSourceManager.getStoreApiDataSource().updateEntityById(directory);
+            }
+        }
+
+        //增量同步
+        for (ApiInfo apiInfo : apiInfos) {
+            ApiInfo dbInfo = currApiInfos.stream().filter(item -> item.getId().equals(apiInfo.getId())).findFirst().orElse(null);
+            if (dbInfo == null) {
+
+                if (override){
+                    this.deleteApiInfo(this.getConflictApiInfo(apiInfo));
+                }else{
+                    assertExistsPattern(apiInfo);
+                }
+
+                apiInfo.setCreateTime(sdf.format(new Date()));
+                apiInfo.setUpdateTime(sdf.format(new Date()));
+                dataSourceManager.getStoreApiDataSource().saveEntity(apiInfo);
+            } else {
+                apiInfo.setUpdateTime(sdf.format(new Date()));
+                dataSourceManager.getStoreApiDataSource().updateEntityById(apiInfo);
+            }
+
+            //保存历史版本
+            saveApiHistory(apiInfo);
+        }
+
+        return apiInfos.size();
+    }
+
+
+    @Transactional(rollbackFor = Exception.class)
+    public Object apiInfoSync(Collection<ApiDirectory> directories,Collection<ApiInfo> apiInfos,Boolean increment) throws Exception {
 
         if (CollectionUtils.isEmpty(apiInfos)){
             return 0;
@@ -635,7 +699,7 @@ public class QLRequestMappingFactory {
 
             //删除历史信息
             for (ApiInfo dbInfo : currApiInfos){
-                dataSourceManager.getStoreApiDataSource().removeEntityById(dbInfo);
+                this.deleteApiInfo(dbInfo);
             }
             //添加新信息
             for (ApiInfo apiInfo : apiInfos){

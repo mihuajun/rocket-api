@@ -33,6 +33,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.servlet.http.HttpServletRequest;
@@ -222,8 +223,8 @@ public class ApiController {
             for (ApiInfo apiInfo : apiInfos){
                 ApiDirectory directory = mappingFactory.loadDirectoryList(false).stream().filter(item->item.getId().equals(apiInfo.getDirectoryId())).findFirst().orElse(null);
                 mappingFactory.relationParentDirectory(directorySet,mappingFactory.loadDirectoryList(false),directory);
-                directories = directorySet;
             }
+            directories = directorySet;
         }else{
             apiInfos = mappingFactory.getPathList(false);
             directories = mappingFactory.loadDirectoryList(false);
@@ -577,6 +578,76 @@ public class ApiController {
             return ApiResult.fail(e.getMessage());
         }
         return ApiResult.success(null);
+    }
+
+    /**
+     * 接口导出
+     * @param exportReq
+     * @return
+     */
+    @PostMapping("/export")
+    public void exportApi(ExportReq exportReq,HttpServletRequest request,HttpServletResponse response) throws Exception {
+
+        String user = loginService.getUser(exportReq.getToken());
+
+
+        String resStr = null;
+        if(StringUtils.isEmpty(user)){
+            resStr = objectMapper.writeValueAsString(ApiResult.fail("Permission denied"));
+            response.getOutputStream().write(resStr.getBytes());
+            return;
+        }
+
+        List<String> apiInfoIds = Arrays.asList(exportReq.getApiInfoIds().split(","));
+        Collection<ApiInfo> apiInfos = null;
+        Collection<ApiDirectory> directories = null;
+
+        apiInfos = mappingFactory.getPathList(false).stream().filter(item->apiInfoIds.contains(item.getId())).collect(Collectors.toList());
+
+        Set<ApiDirectory> directorySet = new HashSet<>();
+        for (ApiInfo apiInfo : apiInfos){
+            ApiDirectory directory = mappingFactory.loadDirectoryList(false).stream().filter(item->item.getId().equals(apiInfo.getDirectoryId())).findFirst().orElse(null);
+            mappingFactory.relationParentDirectory(directorySet,mappingFactory.loadDirectoryList(false),directory);
+        }
+        directories = directorySet;
+
+        ExportRes exportRes = ExportRes.builder()
+                .apiInfos(apiInfos)
+                .directories(directories)
+                .build();
+
+        response.setCharacterEncoding("UTF-8");
+        response.addHeader("Content-Disposition", "attachment;filename=" + URLEncoder.encode(exportReq.getFileName(), "UTF-8")+".json");
+        response.addHeader("Content-Type","application/octet-stream");
+        resStr = objectMapper.writeValueAsString(exportRes);
+        response.getOutputStream().write(resStr.getBytes());
+    }
+
+    /**
+     * 接口导入
+     * @param file
+     * @param request
+     * @param override 0：增量，1：覆盖
+     * @return
+     */
+    @PostMapping("/import")
+    public ApiResult importApiInfo(MultipartFile file,Integer override,HttpServletRequest request){
+        String user = loginService.getUser(request);
+
+        if(StringUtils.isEmpty(user)){
+            return ApiResult.fail("Permission denied");
+        }
+
+        try {
+            ExportRes exportRes = objectMapper.readValue(file.getBytes(),ExportRes.class);
+            Object result = mappingFactory.importAPI(exportRes.getDirectories(),exportRes.getApiInfos(),override == 1);
+            //刷新缓存
+            mappingFactory.getPathList(true);
+            return ApiResult.success(result);
+        }catch (Exception e){
+            e.printStackTrace();
+            return ApiResult.fail(e.getMessage());
+        }
     }
 
     /**
