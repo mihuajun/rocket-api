@@ -31,9 +31,6 @@ public class DynamicDataSourceConfigListener{
     @Autowired
     private ObjectMapper objectMapper;
 
-    @Autowired
-    private SpringContextUtils springContextUtils;
-
     private String lastMd5 = null;
 
     private List<DataSourceProperty> multiDatasource;

@@ -15,6 +15,16 @@ import java.util.Properties;
 public class SQLServerFactory implements IDataSourceDialectFactory{
 
     @Override
+    public String getName() {
+        return "Microsoft SQL Server";
+    }
+
+    @Override
+    public String getIcon() {
+        return "rocket-api/img/sqlserver.icon";
+    }
+
+    @Override
     public DataSourceDialect factory(Properties properties) throws Exception {
         HikariDataSource dataSource = new HikariDataSource(new HikariConfig(properties));
         JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);

@@ -3,12 +3,14 @@ package com.github.alenfive.rocketapi.config;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.github.alenfive.rocketapi.datasource.DataSourceManager;
+import com.github.alenfive.rocketapi.datasource.factory.IDataSourceDialectFactory;
 import com.github.alenfive.rocketapi.entity.*;
 import com.github.alenfive.rocketapi.entity.vo.IgnoreWrapper;
 import com.github.alenfive.rocketapi.entity.vo.Page;
 import com.github.alenfive.rocketapi.entity.vo.RefreshMapping;
 import com.github.alenfive.rocketapi.extend.*;
 import com.github.alenfive.rocketapi.script.IScriptParse;
+import com.github.alenfive.rocketapi.service.RequestMappingService;
 import com.github.alenfive.rocketapi.service.ScriptParseService;
 import com.github.alenfive.rocketapi.utils.GenerateId;
 import com.github.alenfive.rocketapi.utils.PackageUtils;
@@ -34,18 +36,12 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.servlet.HandlerMapping;
-import org.springframework.web.servlet.mvc.condition.PatternsRequestCondition;
-import org.springframework.web.servlet.mvc.condition.RequestMethodsRequestCondition;
-import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
-import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.regex.Pattern;
@@ -69,10 +65,6 @@ public class QLRequestMappingFactory {
     @Value("${spring.application.name}")
     private String service;
 
-
-    @Autowired
-    private RequestMappingHandlerMapping requestMappingHandlerMapping;
-
     @Autowired
     @Lazy
     private IScriptParse scriptParse;
@@ -85,8 +77,6 @@ public class QLRequestMappingFactory {
 
     @Autowired
     private RocketApiProperties properties;
-
-    public List<ApiInfoInterceptor> interceptors = null;
 
     @Autowired
     private IApiInfoCache apiInfoCache;
@@ -102,6 +92,9 @@ public class QLRequestMappingFactory {
 
     @Autowired
     private ConfigurableEnvironment environment;
+
+    @Autowired
+    private RequestMappingService requestMappingService;
 
     @Autowired(required = false)
     private RefreshApiConfig refreshApiConfig;
@@ -129,7 +122,7 @@ public class QLRequestMappingFactory {
         //历史缓存清理
         if (apiInfoCache != null) {
             apiInfoCache.getAll().stream().filter(item -> ApiType.Ql.name().equals(item.getType())).forEach(item -> {
-                this.unregisterMappingForApiInfo(item);
+                requestMappingService.unregisterMappingForApiInfo(item);
             });
             apiInfoCache.removeAll();
         }
@@ -152,35 +145,11 @@ public class QLRequestMappingFactory {
             this.loadDirectoryList(true);
         }
 
-        //加载代码方式的API
-        List<ApiInfo> codeApiList = this.getPathListForCode();
-        for (ApiInfo codeInfo : codeApiList) {
-            ApiInfo dbInfo = apiInfoCache.get(codeInfo);
-            if (dbInfo != null) {
-                continue;
-            }
-
-            ApiDirectory directory = directoryListCache.stream().filter(item -> StringUtils.isEmpty(item.getParentId()) && codeInfo.getDirectoryId().equals(item.getName())).findFirst().orElse(null);
-
-            if (directory == null) {
-                directory = ApiDirectory.builder().service(service).name(codeInfo.getDirectoryId()).build();
-                directory.setId(GenerateId.get().toHexString());
-                dataSourceManager.getStoreApiDataSource().saveEntity(directory);
-                directoryListCache.add(directory);
-            }
-            codeInfo.setDirectoryId(directory.getId());
-            codeInfo.setId(GenerateId.get().toHexString());
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            codeInfo.setCreateTime(sdf.format(new Date()));
-            codeInfo.setUpdateTime(sdf.format(new Date()));
-            dataSourceManager.getStoreApiDataSource().saveEntity(codeInfo);
-            apiInfoCache.put(codeInfo);
-        }
-
         //注册mapping
         for (ApiInfo apiInfo : apiInfoCache.getAll()) {
-            this.registerMappingForApiInfo(apiInfo);
+            requestMappingService.registerMappingForApiInfo(apiInfo);
         }
+
     }
 
     private void loadBanner() {
@@ -217,7 +186,7 @@ public class QLRequestMappingFactory {
                     .fullPath(refreshMapping.getOldMapping().getFullPath())
                     .method(refreshMapping.getOldMapping().getMethod())
                     .build();
-            unregisterMappingForApiInfo(apiInfo);
+            requestMappingService.unregisterMappingForApiInfo(apiInfo);
         }
 
         //重新注册mapping
@@ -226,7 +195,7 @@ public class QLRequestMappingFactory {
                     .fullPath(refreshMapping.getNewMapping().getFullPath())
                     .method(refreshMapping.getNewMapping().getMethod())
                     .build();
-            registerMappingForApiInfo(apiInfo);
+            requestMappingService.registerMappingForApiInfo(apiInfo);
         }
     }
 
@@ -243,7 +212,7 @@ public class QLRequestMappingFactory {
             return;
         }
 
-        ApiConfig apiConfig = this.getApiConfig();
+        ApiConfig apiConfig = this.getConfig().stream().filter(item->ConfigType.Yml.equals(item.getType())).findFirst().orElse(null);
 
         YamlPropertiesFactoryBean factoryBean = new YamlPropertiesFactoryBean();
         if (apiConfig != null && !StringUtils.isEmpty(apiConfig.getConfigContext())) {
@@ -284,14 +253,9 @@ public class QLRequestMappingFactory {
     }
 
 
-    /**
-     * 配置获取
-     *
-     * @return
-     */
-    public ApiConfig getApiConfig() {
-        List<ApiConfig> apiConfigList = dataSourceManager.getStoreApiDataSource().listByEntity(ApiConfig.builder().service(service).build());
-        return CollectionUtils.isEmpty(apiConfigList) ? null : apiConfigList.get(0);
+
+    public List<ApiConfig> getConfig(){
+        return dataSourceManager.getStoreApiDataSource().listByEntity(ApiConfig.builder().service(service).build());
     }
 
     /**
@@ -300,11 +264,12 @@ public class QLRequestMappingFactory {
      * @param configContext
      * @return
      */
-    public void saveApiConfig(String configContext) throws Exception {
-        ApiConfig apiConfig = this.getApiConfig();
+    public void saveYmlConfig(String configContext) throws Exception {
+        ApiConfig apiConfig = this.getConfig().stream().filter(item->ConfigType.Yml.equals(item.getType())).findFirst().orElse(null);
         if (apiConfig == null) {
             apiConfig = ApiConfig.builder()
                     .configContext(configContext)
+                    .type(ConfigType.Yml)
                     .service(service)
                     .build();
             apiConfig.setId(GenerateId.get().toHexString());
@@ -317,11 +282,32 @@ public class QLRequestMappingFactory {
         reloadApiConfig();
     }
 
-    private Object buildToBean(PropertySource<?> propertySource, String prefix, Class<?> clazz) {
-        if (clazz.isAssignableFrom(Collection.class)) {
+    /**
+     *
+     * @param config
+     */
+    public void saveDBConfig(ApiConfig config) throws Exception {
+        config.setService(service);
+        config.setType(ConfigType.DB);
 
+        if (StringUtils.isEmpty(config.getId())) {
+            config.setId(GenerateId.get().toHexString());
+            dataSourceManager.getStoreApiDataSource().saveEntity(config);
+        } else {
+            dataSourceManager.getStoreApiDataSource().updateEntityById(config);
         }
-        return null;
+
+        reloadDBConfig(config);
+    }
+
+    /**
+     * 动态数据源加载
+     * @param config
+     */
+    public void reloadDBConfig(ApiConfig config) throws Exception {
+        DBConfig dbConfig = objectMapper.readValue(config.getConfigContext(),DBConfig.class);
+        IDataSourceDialectFactory factory = (IDataSourceDialectFactory)(Class.forName(dbConfig.getFactory()).newInstance());
+
     }
 
     /**
@@ -405,50 +391,6 @@ public class QLRequestMappingFactory {
         return (String) request.getAttribute(HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE);
     }
 
-    /**
-     * 注册mapping
-     *
-     * @param apiInfo
-     */
-    private void registerMappingForApiInfo(ApiInfo apiInfo) throws NoSuchMethodException {
-        if (ApiType.Code.name().equals(apiInfo.getType())) {
-            return;
-        }
-
-        String pattern = apiInfo.getFullPath();
-
-        if (StringUtils.isEmpty(pattern) || pattern.startsWith("TEMP-")) {
-            return;
-        }
-        log.debug("Mapped [{}]{}", apiInfo.getMethod(), pattern);
-        PatternsRequestCondition patternsRequestCondition = new PatternsRequestCondition(pattern);
-        RequestMethodsRequestCondition methodsRequestCondition = new RequestMethodsRequestCondition(RequestMethod.valueOf(apiInfo.getMethod()));
-        RequestMappingInfo mappingInfo = new RequestMappingInfo(patternsRequestCondition, methodsRequestCondition, null, null, null, null, null);
-        Method targetMethod = QLRequestMappingFactory.class.getDeclaredMethod("execute", Map.class, Map.class, HttpServletRequest.class, HttpServletResponse.class);
-        requestMappingHandlerMapping.registerMapping(mappingInfo, this, targetMethod);
-    }
-
-    /**
-     * 取消注册mapping
-     *
-     * @param apiInfo
-     */
-    private void unregisterMappingForApiInfo(ApiInfo apiInfo) {
-        if (ApiType.Code.name().equals(apiInfo.getType())) {
-            return;
-        }
-
-        String pattern = apiInfo.getFullPath();
-
-        if (StringUtils.isEmpty(pattern) || pattern.startsWith("TEMP-")) {
-            return;
-        }
-        log.debug("Cancel Mapping [{}]{}", apiInfo.getMethod(), pattern);
-        PatternsRequestCondition patternsRequestCondition = new PatternsRequestCondition(pattern);
-        RequestMethodsRequestCondition methodsRequestCondition = new RequestMethodsRequestCondition(RequestMethod.valueOf(apiInfo.getMethod()));
-        RequestMappingInfo mappingInfo = new RequestMappingInfo(patternsRequestCondition, methodsRequestCondition, null, null, null, null, null);
-        requestMappingHandlerMapping.unregisterMapping(mappingInfo);
-    }
 
     public Collection<ApiInfo> getPathList(boolean isDb) throws Exception {
         if (isDb) {
@@ -483,7 +425,7 @@ public class QLRequestMappingFactory {
             dataSourceManager.getStoreApiDataSource().updateEntityById(apiInfo);
 
             //取消mapping注册
-            unregisterMappingForApiInfo(dbInfo);
+            requestMappingService.unregisterMappingForApiInfo(dbInfo);
 
             //清理缓存
             apiInfoCache.remove(dbInfo);
@@ -495,7 +437,7 @@ public class QLRequestMappingFactory {
         apiInfoCache.put(dbInfo);
 
         //注册mapping
-        this.registerMappingForApiInfo(dbInfo);
+        requestMappingService.registerMappingForApiInfo(dbInfo);
 
         //存储历史
         saveApiHistory(dbInfo);
@@ -513,16 +455,31 @@ public class QLRequestMappingFactory {
         dataSourceManager.getStoreApiDataSource().saveEntity(history);
     }
 
-    private ApiInfo getConflictApiInfo(ApiInfo apiInfo) {
-        ApiInfo dbInfo = apiInfoCache.getAll().stream().filter(item -> item.getFullPath().equals(apiInfo.getFullPath()) && (item.getMethod().equals("All") || item.getMethod().equals(apiInfo.getMethod()))).findFirst().orElse(null);
-        if (dbInfo == null || (apiInfo.getId() != null && apiInfo.getId().equals(dbInfo.getId()))) {
-            return null;
-        }
-        return dbInfo;
+    /**
+     * 获取冲突的ApiInfo信息
+     * @param apiInfo
+     * @return
+     */
+    private List<ApiInfo> getConflictApiInfo(ApiInfo apiInfo) {
+        return apiInfoCache.getAll().stream().filter(item->
+                item.getFullPath().equals(apiInfo.getFullPath())
+                && (item.getMethod().equals("All") || item.getMethod().equals(apiInfo.getMethod()))
+                && !item.getId().equals(apiInfo.getId())).collect(Collectors.toList());
+    }
+
+    private ApiInfo getApiInfoByMapping(String fullPath,String method){
+        return apiInfoCache.getAll().stream().filter(item ->
+                item.getFullPath().equals(fullPath)
+                        && (item.getMethod().equals("All") || item.getMethod().equals(method))).findAny().orElse(null);
+    }
+
+    private ApiInfo getApiInfoById(String id){
+        return apiInfoCache.getAll().stream().filter(item -> item.getId().equals(id)).findFirst().orElse(null);
     }
 
     private void assertExistsPattern(ApiInfo apiInfo) {
-        if (getConflictApiInfo(apiInfo) == null){
+
+        if (getConflictApiInfo(apiInfo).isEmpty() && !requestMappingService.isCodeMapping(apiInfo.getFullPath(),apiInfo.getMethod())){
             return;
         }
         throw new IllegalArgumentException("method: " + apiInfo.getMethod() + " path:" + apiInfo.getFullPath() + " already exist");
@@ -531,7 +488,7 @@ public class QLRequestMappingFactory {
     @Transactional
     public void deleteApiInfo(ApiInfo apiInfo) {
 
-        ApiInfo dbInfo = apiInfoCache.getAll().stream().filter(item -> item.getId().equals(apiInfo.getId())).findFirst().orElse(null);
+        ApiInfo dbInfo = this.getApiInfoById(apiInfo.getId());
         if (dbInfo == null) {
             return;
         }
@@ -543,61 +500,10 @@ public class QLRequestMappingFactory {
         apiInfoCache.remove(dbInfo);
 
         //取消mapping注册
-        unregisterMappingForApiInfo(dbInfo);
+        requestMappingService.unregisterMappingForApiInfo(dbInfo);
     }
 
-    /**
-     * 获取已注册的API地址
-     */
-    public List<ApiInfo> getPathListForCode() {
-        Map<RequestMappingInfo, HandlerMethod> map = requestMappingHandlerMapping.getHandlerMethods();
-        List<ApiInfo> result = new ArrayList<>(map.size());
-        for (RequestMappingInfo info : map.keySet()) {
-            String groupName = map.get(info).getBeanType().getSimpleName();
-            for (String path : info.getPatternsCondition().getPatterns()) {
 
-                //过滤本身的类
-                if (path.indexOf(properties.getBaseRegisterPath()) == 0 || path.equals("/error")) {
-                    continue;
-                }
-
-                Set<RequestMethod> methods = info.getMethodsCondition().getMethods();
-                if (methods.isEmpty()) {
-                    result.add(ApiInfo.builder()
-                            .path(path)
-                            .fullPath(path)
-                            .method("All")
-                            .type(ApiType.Code.name())
-                            .service(service)
-                            .directoryId(groupName)
-                            .editor("admin")
-                            .name("")
-                            .datasource("")
-                            .script("")
-                            .options("")
-                            .build());
-                } else {
-                    for (RequestMethod method : methods) {
-                        result.add(ApiInfo.builder()
-                                .path(path)
-                                .fullPath(path)
-                                .method(method.name())
-                                .type(ApiType.Code.name())
-                                .service(service)
-                                .directoryId(groupName)
-                                .editor("admin")
-                                .name("")
-                                .datasource("")
-                                .script("")
-                                .options("")
-                                .build());
-                    }
-                }
-
-            }
-        }
-        return result;
-    }
 
     @Transactional
     public Object saveExample(ApiExample apiExample) {
@@ -615,13 +521,6 @@ public class QLRequestMappingFactory {
         apiExampleList.stream().forEach(item -> {
             dataSourceManager.getStoreApiDataSource().removeEntityById(item);
         });
-    }
-
-    public void addInterceptor(ApiInfoInterceptor interceptor) {
-        if (this.interceptors == null) {
-            this.interceptors = new ArrayList<>();
-        }
-        this.interceptors.add(interceptor);
     }
 
     public List<ApiInfoHistory> lastApiInfo(String apiInfoId, Integer pageSize, Integer pageNo) {
@@ -655,13 +554,13 @@ public class QLRequestMappingFactory {
             }
         }
 
-        //增量同步
         for (ApiInfo apiInfo : apiInfos) {
             ApiInfo dbInfo = currApiInfos.stream().filter(item -> item.getId().equals(apiInfo.getId())).findFirst().orElse(null);
             if (dbInfo == null) {
 
+                //是否为覆盖导入
                 if (override){
-                    this.deleteApiInfo(this.getConflictApiInfo(apiInfo));
+                    this.getConflictApiInfo(apiInfo).forEach(this::deleteApiInfo);
                 }else{
                     assertExistsPattern(apiInfo);
                 }
@@ -787,7 +686,7 @@ public class QLRequestMappingFactory {
                 dataSourceManager.getStoreApiDataSource().removeEntityById(apiInfo);
 
                 //取消mapping注册
-                unregisterMappingForApiInfo(apiInfo);
+                requestMappingService.unregisterMappingForApiInfo(apiInfo);
 
                 //缓存清理
                 apiInfoCache.remove(apiInfo);
@@ -851,7 +750,7 @@ public class QLRequestMappingFactory {
         //缓存刷新
         for (ApiInfo item : modifyApiInfos){
             //取消mapping注册
-            unregisterMappingForApiInfo(item);
+            requestMappingService.unregisterMappingForApiInfo(item);
 
             //删除缓存
             apiInfoCache.remove(item);
@@ -861,7 +760,7 @@ public class QLRequestMappingFactory {
             apiInfoCache.put(dbInfo);
 
             //添加mapping注册
-            registerMappingForApiInfo(dbInfo);
+            requestMappingService.registerMappingForApiInfo(dbInfo);
 
             //存储历史
             saveApiHistory(dbInfo);

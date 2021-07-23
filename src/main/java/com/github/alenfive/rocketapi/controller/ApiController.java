@@ -90,7 +90,7 @@ public class ApiController {
     private ApplicationContext context;
 
     @Autowired
-    private RocketApiProperties rocketApiProperties;
+    private RocketApiProperties properties;
 
     @Autowired
     private DataSourceManager dataSourceManager;
@@ -111,11 +111,12 @@ public class ApiController {
                 .collect(Collectors.toList());
 
 
-        result = result.stream().map(item->{
-            ApiInfo apiInfo = new ApiInfo();
-            BeanUtils.copyProperties(item,apiInfo);
-            return apiInfo;
-        }).collect(Collectors.toList());
+        result = result.stream()
+                .map(item->{
+                    ApiInfo apiInfo = new ApiInfo();
+                    BeanUtils.copyProperties(item,apiInfo);
+                    return apiInfo;
+                }).collect(Collectors.toList());
 
         return  ApiResult.success(result);
     }
@@ -242,7 +243,7 @@ public class ApiController {
             signMap.put("sign",sign);
 
             String remoteUrl = syncReq.getRemoteUrl().endsWith("/")?syncReq.getRemoteUrl().substring(0,syncReq.getRemoteUrl().length()-1):syncReq.getRemoteUrl();
-            String url = remoteUrl+(rocketApiProperties.getBaseRegisterPath()+"/accept-sync").replace("//","/");
+            String url = remoteUrl+(properties.getBaseRegisterPath()+"/accept-sync").replace("//","/");
             SimpleClientHttpRequestFactory factory=new SimpleClientHttpRequestFactory();
             factory.setConnectTimeout(60000);
             factory.setReadTimeout(60000);
@@ -333,7 +334,7 @@ public class ApiController {
         if (body instanceof Map){
             params.putAll((Map<? extends String, ?>) body);
         }
-        params.put(rocketApiProperties.getBodyRootKey(),body);
+        params.put(properties.getBodyRootKey(),body);
         return params;
     }
 
@@ -501,7 +502,7 @@ public class ApiController {
 
         Object result = null;
         try {
-            result = mappingFactory.getApiConfig();
+            result = mappingFactory.getConfig().stream().filter(item->ConfigType.Yml.equals(item.getType())).findFirst().orElse(null);
         } catch (Exception e) {
             return ApiResult.fail(e.getMessage());
         }
@@ -521,7 +522,7 @@ public class ApiController {
         }
 
         try {
-            mappingFactory.saveApiConfig(configContext);
+            mappingFactory.saveYmlConfig(configContext);
         } catch (Exception e) {
             return ApiResult.fail(e.getMessage());
         }

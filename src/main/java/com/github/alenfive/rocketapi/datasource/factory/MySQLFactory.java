@@ -14,6 +14,16 @@ import java.util.Properties;
 public class MySQLFactory implements IDataSourceDialectFactory{
 
     @Override
+    public String getName() {
+        return "MySQL";
+    }
+
+    @Override
+    public String getIcon() {
+        return "rocket-api/img/mysql.icon";
+    }
+
+    @Override
     public DataSourceDialect factory(Properties properties) throws Exception {
         HikariDataSource dataSource = new HikariDataSource(new HikariConfig(properties));
         JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);

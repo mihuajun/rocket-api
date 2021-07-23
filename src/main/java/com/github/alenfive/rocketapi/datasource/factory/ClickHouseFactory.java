@@ -14,6 +14,16 @@ import java.util.Properties;
 public class ClickHouseFactory implements IDataSourceDialectFactory{
 
     @Override
+    public String getName() {
+        return "ClickHouse";
+    }
+
+    @Override
+    public String getIcon() {
+        return "rocket-api/img/clickhouse.icon";
+    }
+
+    @Override
     public DataSourceDialect factory(Properties properties) throws Exception {
         HikariDataSource dataSource = new HikariDataSource(new HikariConfig(properties));
         JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);

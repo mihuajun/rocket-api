@@ -9,5 +9,7 @@ import java.util.Properties;
  */
 
 public interface IDataSourceDialectFactory {
+    abstract String getName();
+    abstract String getIcon();
     abstract DataSourceDialect factory(Properties config) throws Exception;
 }
