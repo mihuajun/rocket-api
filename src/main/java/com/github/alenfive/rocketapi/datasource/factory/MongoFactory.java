@@ -2,17 +2,18 @@ package com.github.alenfive.rocketapi.datasource.factory;
 
 import com.github.alenfive.rocketapi.datasource.DataSourceDialect;
 import com.github.alenfive.rocketapi.datasource.MongoDataSource;
+import com.github.alenfive.rocketapi.entity.DBConfig;
 import com.mongodb.MongoClientURI;
 import org.springframework.data.mongodb.MongoDbFactory;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.SimpleMongoDbFactory;
-
-import java.util.Properties;
+import org.springframework.stereotype.Component;
 
 /**
  * mongodb  构造器
  */
-public class MongoFactory implements IDataSourceDialectFactory{
+@Component
+public class MongoFactory extends IDataSourceDialectFactory{
 
     @Override
     public String getName() {
@@ -21,15 +22,18 @@ public class MongoFactory implements IDataSourceDialectFactory{
 
     @Override
     public String getIcon() {
-        return "rocket-api/img/mongodb.icon";
+        return "rocket-api/image/mongodb.png";
     }
 
     @Override
-    public DataSourceDialect factory(Properties properties) {
+    String getFormat() {
+        return "mongodb://localhost:27017/test";
+    }
 
-        String url = properties.getProperty("url");
-        MongoClientURI mongoclienturi = new MongoClientURI(url);
-        MongoDbFactory mongoDbFactory = new SimpleMongoDbFactory(mongoclienturi);
+    @Override
+    public DataSourceDialect factory(DBConfig config) {
+        MongoClientURI mongoClientURI = new MongoClientURI(config.getUrl());
+        MongoDbFactory mongoDbFactory = new SimpleMongoDbFactory(mongoClientURI);
         MongoTemplate mongoTemplate = new MongoTemplate(mongoDbFactory);
         return new MongoDataSource(mongoTemplate);
     }

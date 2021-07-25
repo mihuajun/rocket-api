@@ -2,7 +2,9 @@ package com.github.alenfive.rocketapi.extend;
 
 import com.github.alenfive.rocketapi.config.QLRequestMappingFactory;
 import com.github.alenfive.rocketapi.entity.ApiInfo;
-import com.github.alenfive.rocketapi.entity.vo.RefreshMapping;
+import com.github.alenfive.rocketapi.entity.vo.NotifyEntity;
+import com.github.alenfive.rocketapi.entity.vo.NotifyEventType;
+import com.github.alenfive.rocketapi.service.RequestMappingService;
 import com.github.alenfive.rocketapi.utils.GenerateId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -20,6 +22,9 @@ public class DefaultApiInfoCache implements IApiInfoCache {
     private Map<String, ApiInfo> cacheApiInfo = new ConcurrentHashMap<>();
 
     private String instanceId = GenerateId.get().toHexString();
+
+    @Autowired
+    private RequestMappingService requestMappingService;
 
     @Autowired
     private QLRequestMappingFactory mappingFactory;
@@ -60,8 +65,8 @@ public class DefaultApiInfoCache implements IApiInfoCache {
      * 以达到分布式环境下多实例部署系统更新问题
      */
     @Override
-    public void refreshNotify(RefreshMapping refreshMapping) {
-        this.receiveNotify(instanceId,refreshMapping);
+    public void refreshNotify(NotifyEntity notifyEntity) {
+        this.receiveNotify(instanceId,notifyEntity);
     }
 
     /**
@@ -69,27 +74,31 @@ public class DefaultApiInfoCache implements IApiInfoCache {
      * @param instanceId
      */
     @Override
-    public void receiveNotify(String instanceId, RefreshMapping refreshMapping) {
+    public void receiveNotify(String instanceId, NotifyEntity notifyEntity) {
         //避免本实例重复初始化
         if (this.instanceId.equals(instanceId)){
             return;
         }
 
-        //刷新单个接口
-        if (refreshMapping != null){
+        //重新初始化
+        if (NotifyEventType.ReInit.equals(notifyEntity.getEventType())){
             try {
-                mappingFactory.refreshMapping(refreshMapping);
+                mappingFactory.buildInit();
             }catch (Exception e){
                 e.printStackTrace();
             }
             return;
         }
 
-        //全局刷新
-        try {
-            mappingFactory.buildInit();
-        }catch (Exception e){
-            e.printStackTrace();
+        //刷新单个接口
+        if (NotifyEventType.RefreshMapping.equals(notifyEntity.getEventType())){
+            try {
+                requestMappingService.refreshMapping(notifyEntity.getRefreshMapping());
+            } catch (NoSuchMethodException e) {
+                e.printStackTrace();
+            }
+            return;
         }
+
     }
 }

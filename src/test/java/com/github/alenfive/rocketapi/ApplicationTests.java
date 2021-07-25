@@ -1,6 +1,5 @@
 package com.github.alenfive.rocketapi;
 
-import com.github.alenfive.rocketapi.entity.ApiParams;
 import com.github.alenfive.rocketapi.extend.IApiPager;
 import com.github.alenfive.rocketapi.service.ScriptParseService;
 import lombok.extern.slf4j.Slf4j;

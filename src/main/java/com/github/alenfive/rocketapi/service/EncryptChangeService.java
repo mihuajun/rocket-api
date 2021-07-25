@@ -20,8 +20,11 @@ public class EncryptChangeService {
     @Autowired
     private DataSourceManager dataSourceManager;
 
+    @Autowired
+    private ApiInfoService apiInfoService;
+
     public void convert(UnaryOperator<String> predicate) throws Exception {
-        for (ApiInfo apiInfo : mappingFactory.getPathList(false) ){
+        for (ApiInfo apiInfo : apiInfoService.getPathList(false) ){
             apiInfo.setScript(predicate.apply(apiInfo.getScript()));
             dataSourceManager.getStoreApiDataSource().updateEntityById(apiInfo);
         }

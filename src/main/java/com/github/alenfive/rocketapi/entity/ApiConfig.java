@@ -25,9 +25,9 @@ public class ApiConfig extends ApiEntity{
 
     /**
      * 配置分类
-     * 1.yml: 项目配置 2.datasource 数据库配置
+     * @ConfigType
      */
-    private ConfigType type;
+    private String type;
 
     /**
      * 配置明细

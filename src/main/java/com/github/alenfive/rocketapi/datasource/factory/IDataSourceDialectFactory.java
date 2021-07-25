@@ -1,15 +1,18 @@
 package com.github.alenfive.rocketapi.datasource.factory;
 
 import com.github.alenfive.rocketapi.datasource.DataSourceDialect;
-
-import java.util.Properties;
+import com.github.alenfive.rocketapi.entity.DBConfig;
 
 /**
  *
  */
 
-public interface IDataSourceDialectFactory {
+public abstract class IDataSourceDialectFactory {
     abstract String getName();
     abstract String getIcon();
-    abstract DataSourceDialect factory(Properties config) throws Exception;
+    abstract String getFormat();
+    public String getDriver(){
+        return this.getClass().getName();
+    }
+    public abstract DataSourceDialect factory(DBConfig config) throws Exception;
 }

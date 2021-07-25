@@ -27,7 +27,7 @@ public class ViewController {
     @Autowired
     private RocketApiProperties properties;
 
-    @Value("${spring.application.name}")
+    @Value("${spring.application.name:rocket-api}")
     private String service;
 
     @GetMapping

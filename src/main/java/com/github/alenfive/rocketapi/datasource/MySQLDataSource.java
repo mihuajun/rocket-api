@@ -14,7 +14,7 @@ import java.util.*;
 /**
  * mysql 数据源
  */
-public class MySQLDataSource extends SqlDataSource {
+public class MySQLDataSource extends JdbcDataSource {
 
 
     public MySQLDataSource(JdbcTemplate jdbcTemplate) {

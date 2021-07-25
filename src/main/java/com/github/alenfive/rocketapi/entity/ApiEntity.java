@@ -10,5 +10,4 @@ public abstract class ApiEntity {
      */
     @ApiId
     private String id;
-
 }

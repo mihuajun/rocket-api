@@ -12,7 +12,7 @@ import java.util.List;
 /**
  * oracle 数据源
  */
-public class OracleDataSource extends SqlDataSource {
+public class OracleDataSource extends JdbcDataSource {
 
 
     public OracleDataSource(JdbcTemplate jdbcTemplate) {

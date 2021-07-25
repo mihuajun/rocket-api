@@ -31,7 +31,7 @@ spring:
     suffix: .html
   resources:
     cache:
-      period: 1h
+      period: 0h
 
 logging:
   level:

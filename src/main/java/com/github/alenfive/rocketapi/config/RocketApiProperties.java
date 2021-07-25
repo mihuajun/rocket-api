@@ -15,6 +15,12 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public class RocketApiProperties {
 
     /**
+     * 服务名称
+     * 所有数据以此作隔离
+     */
+    private String serviceName = "rocket-api";
+
+    /**
      * 基础注册路径
      */
     private String baseRegisterPath = "/interface-ui";

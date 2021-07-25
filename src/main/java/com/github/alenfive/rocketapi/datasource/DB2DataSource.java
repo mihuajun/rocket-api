@@ -12,7 +12,7 @@ import java.util.List;
 /**
  * db2 数据源
  */
-public class DB2DataSource extends SqlDataSource {
+public class DB2DataSource extends JdbcDataSource {
 
     public DB2DataSource(JdbcTemplate jdbcTemplate) {
         super(jdbcTemplate);

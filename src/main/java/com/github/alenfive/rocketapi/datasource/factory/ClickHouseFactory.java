@@ -2,16 +2,14 @@ package com.github.alenfive.rocketapi.datasource.factory;
 
 import com.github.alenfive.rocketapi.datasource.ClickHouseDataSource;
 import com.github.alenfive.rocketapi.datasource.DataSourceDialect;
-import com.zaxxer.hikari.HikariConfig;
-import com.zaxxer.hikari.HikariDataSource;
-import org.springframework.jdbc.core.JdbcTemplate;
-
-import java.util.Properties;
+import com.github.alenfive.rocketapi.entity.DBConfig;
+import org.springframework.stereotype.Component;
 
 /**
  * SQL  构造器
  */
-public class ClickHouseFactory implements IDataSourceDialectFactory{
+@Component
+public class ClickHouseFactory extends JdbcFactory{
 
     @Override
     public String getName() {
@@ -20,13 +18,16 @@ public class ClickHouseFactory implements IDataSourceDialectFactory{
 
     @Override
     public String getIcon() {
-        return "rocket-api/img/clickhouse.icon";
+        return "rocket-api/image/clickhouse.png";
     }
 
     @Override
-    public DataSourceDialect factory(Properties properties) throws Exception {
-        HikariDataSource dataSource = new HikariDataSource(new HikariConfig(properties));
-        JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-        return new ClickHouseDataSource(jdbcTemplate);
+    public String getFormat() {
+        return "jdbc:clickhouse://localhost:8123";
+    }
+
+    @Override
+    public DataSourceDialect factory(DBConfig config) throws Exception {
+        return new ClickHouseDataSource(super.getJdbcTemplate(config));
     }
 }

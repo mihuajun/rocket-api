@@ -312,6 +312,11 @@ public class MongoDataSource extends DataSourceDialect {
     }
 
     @Override
+    public void close() {
+
+    }
+
+    @Override
     public List<TableInfo> buildTableInfo() {
         return null;
     }

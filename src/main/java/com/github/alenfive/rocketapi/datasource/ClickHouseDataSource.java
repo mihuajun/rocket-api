@@ -8,7 +8,6 @@ import com.github.alenfive.rocketapi.entity.vo.TableInfo;
 import com.github.alenfive.rocketapi.extend.IApiPager;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCreator;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 
@@ -21,18 +20,11 @@ import java.util.stream.Collectors;
 /**
  * mongodb 数据源操作
  */
-public class ClickHouseDataSource extends DataSourceDialect {
-
-    protected JdbcTemplate jdbcTemplate;
-
-    protected NamedParameterJdbcTemplate parameterJdbcTemplate;
-
-    private ClickHouseDataSource(){}
+public class ClickHouseDataSource extends JdbcDataSource {
 
     public ClickHouseDataSource(JdbcTemplate jdbcTemplate) {
+        super(jdbcTemplate);
         this.storeApi = false;
-        this.jdbcTemplate = jdbcTemplate;
-        this.parameterJdbcTemplate = new NamedParameterJdbcTemplate(jdbcTemplate);
     }
 
     @Override

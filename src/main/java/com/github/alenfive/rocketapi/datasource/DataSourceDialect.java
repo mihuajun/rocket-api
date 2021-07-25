@@ -75,6 +75,6 @@ public abstract class DataSourceDialect {
 
     //入参转码
     public abstract String transcoding(String param);
-
     public abstract List<TableInfo> buildTableInfo();
+    public abstract void close();
 }

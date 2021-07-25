@@ -14,7 +14,7 @@ import java.util.regex.Pattern;
 /**
  * sql server 数据源
  */
-public class SQLServerDataSource extends SqlDataSource {
+public class SQLServerDataSource extends JdbcDataSource {
 
     Pattern pattern = Pattern.compile("(order +by .*)",Pattern.CASE_INSENSITIVE);
 

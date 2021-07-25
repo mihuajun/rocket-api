@@ -2,16 +2,14 @@ package com.github.alenfive.rocketapi.datasource.factory;
 
 import com.github.alenfive.rocketapi.datasource.DataSourceDialect;
 import com.github.alenfive.rocketapi.datasource.MySQLDataSource;
-import com.zaxxer.hikari.HikariConfig;
-import com.zaxxer.hikari.HikariDataSource;
-import org.springframework.jdbc.core.JdbcTemplate;
-
-import java.util.Properties;
+import com.github.alenfive.rocketapi.entity.DBConfig;
+import org.springframework.stereotype.Component;
 
 /**
  * SQL  构造器
  */
-public class MySQLFactory implements IDataSourceDialectFactory{
+@Component
+public class MySQLFactory extends JdbcFactory{
 
     @Override
     public String getName() {
@@ -20,13 +18,16 @@ public class MySQLFactory implements IDataSourceDialectFactory{
 
     @Override
     public String getIcon() {
-        return "rocket-api/img/mysql.icon";
+        return "rocket-api/image/mysql.png";
     }
 
     @Override
-    public DataSourceDialect factory(Properties properties) throws Exception {
-        HikariDataSource dataSource = new HikariDataSource(new HikariConfig(properties));
-        JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-        return new MySQLDataSource(jdbcTemplate);
+    public String getFormat() {
+        return "jdbc:mysql://localhost:3306/test";
+    }
+
+    @Override
+    public DataSourceDialect factory(DBConfig config) throws Exception {
+        return new MySQLDataSource(super.getJdbcTemplate(config));
     }
 }

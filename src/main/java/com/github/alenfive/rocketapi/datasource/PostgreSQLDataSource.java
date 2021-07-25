@@ -12,7 +12,7 @@ import java.util.List;
 /**
  * PostgreSQL 数据源
  */
-public class PostgreSQLDataSource extends SqlDataSource {
+public class PostgreSQLDataSource extends JdbcDataSource {
 
     public PostgreSQLDataSource(JdbcTemplate jdbcTemplate) {
         super(jdbcTemplate);

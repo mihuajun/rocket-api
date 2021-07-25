@@ -2226,7 +2226,15 @@ function saveGlobalConfig() {
 
 //-------------------------------- datasource setting start -----------------------
 function showDataSourceConfig(){
+    $("#datasource-setting").show();
+}
 
+function hideDataSourceConfig(){
+    $("#datasource-setting").hide();
+}
+
+function saveDataSourceConfig() {
+    
 }
 //-------------------------------- datasource setting end -------------------------
 
@@ -2251,9 +2259,9 @@ function showYmlConfig() {
 }
 
 function showYmlConfigView(data) {
-    $("#datasource-setting").show();
-    $("#datasource-setting .modal-body").html("");
-    apiSettingTextarea = monaco.editor.create($("#datasource-setting .modal-body")[0], {
+    $("#yml-setting").show();
+    $("#yml-setting .modal-body").html("");
+    apiSettingTextarea = monaco.editor.create($("#yml-setting .modal-body")[0], {
         language: 'yaml',
         value:data&&data.configContext?data.configContext:"#1.等价于springboot application.yml,yaml格式 优先级最高\n#2.可以在脚本中使用env.get(\"config.hello\")获取配置项\n#3.当前配置文件中的描述内容只在首次未配置时显示，注意删除他们\n\nconfig.hello: word",
         /*verticalHasArrows: true,
@@ -2268,11 +2276,11 @@ function showYmlConfigView(data) {
     });
 }
 
-function hideDataSourceConfig() {
-    $("#datasource-setting").hide();
+function hideYmlConfig() {
+    $("#yml-setting").hide();
 }
 
-function saveDataSourceGlobalConfig() {
+function saveYmlGlobalConfig() {
     showSendNotify("Saving Setting")
     $.ajax({
         type: "post",
@@ -2285,7 +2293,7 @@ function saveDataSourceGlobalConfig() {
                 openMsgModal(data.msg);
                 return;
             }
-            hideDataSourceConfig();
+            hideYmlConfig();
         },complete:function () {
             hideSendNotify();
         }

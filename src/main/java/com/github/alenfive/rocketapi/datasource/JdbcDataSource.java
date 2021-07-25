@@ -7,6 +7,7 @@ import com.github.alenfive.rocketapi.entity.vo.Page;
 import com.github.alenfive.rocketapi.entity.vo.TableInfo;
 import com.github.alenfive.rocketapi.extend.IApiPager;
 import com.github.alenfive.rocketapi.utils.ApiJpaUtil;
+import com.github.alenfive.rocketapi.utils.IOUtils;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -22,20 +23,20 @@ import java.util.stream.Collectors;
 /**
  * 关系型数据源，JdbcTemplate所操作的数据源
  */
-public class SqlDataSource extends DataSourceDialect {
+public class JdbcDataSource extends DataSourceDialect {
 
     protected JdbcTemplate jdbcTemplate;
 
     protected NamedParameterJdbcTemplate parameterJdbcTemplate;
 
-    private SqlDataSource(){}
+    private JdbcDataSource(){}
 
-    public SqlDataSource(JdbcTemplate jdbcTemplate) {
+    public JdbcDataSource(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
         this.parameterJdbcTemplate = new NamedParameterJdbcTemplate(jdbcTemplate);
     }
 
-    public SqlDataSource(JdbcTemplate jdbcTemplate, boolean storeApi) {
+    public JdbcDataSource(JdbcTemplate jdbcTemplate, boolean storeApi) {
         this.storeApi = storeApi;
         this.jdbcTemplate = jdbcTemplate;
         this.parameterJdbcTemplate = new NamedParameterJdbcTemplate(jdbcTemplate);
@@ -125,5 +126,10 @@ public class SqlDataSource extends DataSourceDialect {
     @Override
     public List<TableInfo> buildTableInfo() {
         return null;
+    }
+
+    @Override
+    public void close() {
+        IOUtils.closeDataSource(jdbcTemplate.getDataSource());
     }
 }

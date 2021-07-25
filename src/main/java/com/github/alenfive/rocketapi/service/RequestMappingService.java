@@ -4,9 +4,9 @@ import com.github.alenfive.rocketapi.config.QLRequestMappingFactory;
 import com.github.alenfive.rocketapi.config.RocketApiProperties;
 import com.github.alenfive.rocketapi.entity.ApiInfo;
 import com.github.alenfive.rocketapi.entity.ApiType;
+import com.github.alenfive.rocketapi.entity.vo.RefreshMapping;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -19,14 +19,14 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandl
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 @Service
 @Slf4j
 public class RequestMappingService {
-
-    @Value("${spring.application.name}")
-    private String service;
 
     @Autowired
     private RequestMappingHandlerMapping requestMappingHandlerMapping;
@@ -61,7 +61,7 @@ public class RequestMappingService {
                             .fullPath(path)
                             .method("All")
                             .type(ApiType.Code.name())
-                            .service(service)
+                            .service(rocketApiProperties.getServiceName())
                             .directoryId(groupName)
                             .editor("admin")
                             .name("")
@@ -76,7 +76,7 @@ public class RequestMappingService {
                                 .fullPath(path)
                                 .method(method.name())
                                 .type(ApiType.Code.name())
-                                .service(service)
+                                .service(rocketApiProperties.getServiceName())
                                 .directoryId(groupName)
                                 .editor("admin")
                                 .name("")
@@ -159,5 +159,32 @@ public class RequestMappingService {
         }
 
         return false;
+    }
+
+    /**
+     * 重建单一请求的注册与缓存
+     *
+     * @param refreshMapping
+     */
+    public void refreshMapping(RefreshMapping refreshMapping) throws NoSuchMethodException {
+
+        ApiInfo apiInfo = null;
+        //取消历史注册
+        if (refreshMapping.getOldMapping() != null) {
+            apiInfo = ApiInfo.builder()
+                    .fullPath(refreshMapping.getOldMapping().getFullPath())
+                    .method(refreshMapping.getOldMapping().getMethod())
+                    .build();
+            this.unregisterMappingForApiInfo(apiInfo);
+        }
+
+        //重新注册mapping
+        if (refreshMapping.getNewMapping() != null) {
+            apiInfo = ApiInfo.builder()
+                    .fullPath(refreshMapping.getNewMapping().getFullPath())
+                    .method(refreshMapping.getNewMapping().getMethod())
+                    .build();
+            this.registerMappingForApiInfo(apiInfo);
+        }
     }
 }

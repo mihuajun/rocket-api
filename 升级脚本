@@ -1,2 +1,6 @@
 ALTER TABLE `stock_trading`.`api_config`
 ADD COLUMN `type` VARCHAR(45) NULL AFTER `config_context`;
+
+ALTER TABLE `dataway2`.`api_config`
+DROP INDEX `service_UNIQUE` ;
+;

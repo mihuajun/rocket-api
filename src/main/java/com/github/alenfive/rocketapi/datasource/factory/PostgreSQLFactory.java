@@ -2,16 +2,14 @@ package com.github.alenfive.rocketapi.datasource.factory;
 
 import com.github.alenfive.rocketapi.datasource.DataSourceDialect;
 import com.github.alenfive.rocketapi.datasource.PostgreSQLDataSource;
-import com.zaxxer.hikari.HikariConfig;
-import com.zaxxer.hikari.HikariDataSource;
-import org.springframework.jdbc.core.JdbcTemplate;
-
-import java.util.Properties;
+import com.github.alenfive.rocketapi.entity.DBConfig;
+import org.springframework.stereotype.Component;
 
 /**
  * postgre SQL  构造器
  */
-public class PostgreSQLFactory implements IDataSourceDialectFactory{
+@Component
+public class PostgreSQLFactory extends JdbcFactory{
 
     @Override
     public String getName() {
@@ -20,13 +18,16 @@ public class PostgreSQLFactory implements IDataSourceDialectFactory{
 
     @Override
     public String getIcon() {
-        return "rocket-api/img/postgresql.icon";
+        return "rocket-api/image/postgresql.png";
     }
 
     @Override
-    public DataSourceDialect factory(Properties properties) throws Exception {
-        HikariDataSource dataSource = new HikariDataSource(new HikariConfig(properties));
-        JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-        return new PostgreSQLDataSource(jdbcTemplate);
+    public String getFormat() {
+        return "jdbc:postgresql://localhost:5432/postgres";
+    }
+
+    @Override
+    public DataSourceDialect factory(DBConfig config) throws Exception {
+        return new PostgreSQLDataSource(super.getJdbcTemplate(config));
     }
 }
