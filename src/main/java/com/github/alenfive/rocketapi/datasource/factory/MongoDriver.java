@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
  * mongodb  构造器
  */
 @Component
-public class MongoFactory extends IDataSourceDialectFactory{
+public class MongoDriver extends IDataSourceDialectDriver {
 
     @Override
     public String getName() {
@@ -22,7 +22,7 @@ public class MongoFactory extends IDataSourceDialectFactory{
 
     @Override
     public String getIcon() {
-        return "rocket-api/image/mongodb.png";
+        return "rocketapi/images/mongodb.png";
     }
 
     @Override

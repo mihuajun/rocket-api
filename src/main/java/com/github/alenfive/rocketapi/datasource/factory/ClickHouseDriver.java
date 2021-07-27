@@ -1,33 +1,33 @@
 package com.github.alenfive.rocketapi.datasource.factory;
 
+import com.github.alenfive.rocketapi.datasource.ClickHouseDataSource;
 import com.github.alenfive.rocketapi.datasource.DataSourceDialect;
-import com.github.alenfive.rocketapi.datasource.PostgreSQLDataSource;
 import com.github.alenfive.rocketapi.entity.DBConfig;
 import org.springframework.stereotype.Component;
 
 /**
- * postgre SQL  构造器
+ * SQL  构造器
  */
 @Component
-public class PostgreSQLFactory extends JdbcFactory{
+public class ClickHouseDriver extends JdbcDriver {
 
     @Override
     public String getName() {
-        return "PostgreSQL";
+        return "ClickHouse";
     }
 
     @Override
     public String getIcon() {
-        return "rocket-api/image/postgresql.png";
+        return "rocketapi/images/clickhouse.png";
     }
 
     @Override
     public String getFormat() {
-        return "jdbc:postgresql://localhost:5432/postgres";
+        return "jdbc:clickhouse://localhost:8123";
     }
 
     @Override
     public DataSourceDialect factory(DBConfig config) throws Exception {
-        return new PostgreSQLDataSource(super.getJdbcTemplate(config));
+        return new ClickHouseDataSource(super.getJdbcTemplate(config));
     }
 }

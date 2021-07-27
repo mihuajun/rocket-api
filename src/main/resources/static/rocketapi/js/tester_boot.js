@@ -52,6 +52,13 @@ let logoutUrl = baseUrl + "/logout";
 let getApiConfigUrl = baseUrl + "/api-config";
 let saveApiConfigUrl = baseUrl + "/api-config";
 
+//数据源操作
+let getDBConfigListUrl = baseUrl + "/db-config/list"
+let saveDBConfigUrl = baseUrl + "/db-config";
+let removeDBConfigUrl = baseUrl + "/db-config";
+let getDBDriverListUrl = baseUrl + "/db-driver/list"
+let testConnectUrl = baseUrl + "/db-test";
+
 //目录操作
 let directoryListUrl = baseUrl + "/directory/list";
 let saveDirectoryUrl = baseUrl + "/directory";
@@ -2227,15 +2234,357 @@ function saveGlobalConfig() {
 //-------------------------------- datasource setting start -----------------------
 function showDataSourceConfig(){
     $("#datasource-setting").show();
+    showSendNotify("load Setting")
+    $.ajax({
+        type: "GET",
+        url: getDBDriverListUrl,
+        success: function (data) {
+            data = unpackResult(data);
+            if (data.code !=200){
+                openMsgModal(data.msg);
+                return;
+            }
+            gdata.driverList = data.data;
+            fillDriverSelect(data.data);
+            loadDbConfigList()
+        },complete:function () {
+            hideSendNotify();
+        }
+    });
 }
+
 
 function hideDataSourceConfig(){
     $("#datasource-setting").hide();
 }
 
-function saveDataSourceConfig() {
-    
+
+
+function loadDbConfigList(selectDBId) {
+    $.ajax({
+        type: "GET",
+        url: getDBConfigListUrl,
+        success: function (data) {
+            data = unpackResult(data);
+            if (data.code !=200){
+                openMsgModal(data.msg);
+                return;
+            }
+            gdata.dbList = data.data;
+            fillDBList(data.data,selectDBId);
+        },complete:function () {
+            hideSendNotify();
+        }
+    });
 }
+
+function fillDBList(dbList,selectDBId) {
+    $(".db-list").html('');
+
+
+    $.each(dbList,function(index,item){
+        let driverObj = getDriver(item.driver);
+        $(".db-list").append('<div data="'+item.id+'" onclick="selectDB(this)"><img src="'+driverObj.icon+'" >'+item.name+'</div>')
+    })
+
+    if (dbList.length == 0){
+        $(".db-list").html('<div><span style="color:gray;cursor: auto;">Empty</span></div>');
+    }else{
+        let selectedTarget = null;
+        if (!selectDBId){
+            selectedTarget = $(".db-list>div:first");
+        }else{
+            selectedTarget = $(".db-list>div[data='"+selectDBId+"']");
+        }
+        selectDB(selectedTarget)
+    }
+
+}
+
+function selectDB(target) {
+    $(".db-list>div").removeClass("db-selected")
+    $(target).addClass("db-selected");
+    let dbId = $(target).attr("data");
+    //show db details
+    $(".db-right>div").show();
+
+    let dbObj = getDB(dbId);
+    let driver = getDriver(dbObj.driver);
+    $(".db-right input[name='id']").val(dbObj.id);
+    $(".db-right input[name='name']").val(dbObj.name);
+    $(".db-right input[name='comment']").val(dbObj.comment);
+    $(".db-right input[name='user']").val(dbObj.user);
+    $(".db-right input[name='password']").val(dbObj.password);
+    $(".db-right input[name='url']").val(dbObj.url);
+    $(".db-right input[name='driver']").val(dbObj.driver);
+    $(".db-right .db-driver-info").attr("title",dbObj.driver);
+
+    $(".db-right .db-driver-icon>img").attr("src",driver.icon);
+    $(".db-right .db-driver-info").text(driver.name);
+
+    testConnectStatus();
+
+    //填充options
+    $(".db-right .db-properties").html("")
+    if (dbObj.properties){
+        $.each(dbObj.properties,function (key,value){
+            generateDBLine(key,value)
+        })
+    }
+    generateDBLine('','')
+}
+
+function generateDBLine(key,value) {
+    let domStr = '<div class="db-properties-line">\n' +
+        '                    <div class="controls" >\n' +
+        '                        <input type="text" class="gwt-TextBox input-xlarge" onblur="checkLine(this)" name="key" value="'+key+'" >\n' +
+        '                    </div>\n' +
+        '                    <div class="controls">\n' +
+        '                        <input type="text" class="gwt-TextBox input-xlarge" onblur="checkLine(this)" name="value" value="'+value+'" >\n' +
+        '                    </div>\n' +
+        '                </div>';
+    $(".db-right .db-properties").append(domStr);
+}
+
+function checkLine(target) {
+    let lineDom = $(target).parents(".db-properties-line");
+    let key = lineDom.find("input[name='key']").val().trim();
+    let value = lineDom.find("input[name='value']").val().trim();
+    if (key != '' || value != ''){
+        lineDom.addClass("has-value");
+    }else{
+        lineDom.removeClass("has-value");
+
+        //移除非最后一个元素
+        if (lineDom.next().length > 0){
+            lineDom.remove();
+        }
+
+    }
+    if ($(".db-properties .db-properties-line:last").hasClass("has-value")){
+        generateDBLine('','')
+    }
+}
+
+function testConnectStatus(status){
+    let loadClass = "fa-spinner fa-spin";
+    let okClass = "fa-check";
+    let errClass = "fa-times";
+    $(".db-connection-status").removeClass(loadClass);
+    $(".db-connection-status").removeClass(okClass);
+    $(".db-connection-status").removeClass(errClass);
+    if (!status){
+        return;
+    }
+    switch (status){
+        case "none":break;
+        case "load":$(".db-connection-status").addClass(loadClass);break;
+        case "ok":$(".db-connection-status").addClass(okClass);break;
+        case "err":$(".db-connection-status").addClass(errClass);break;
+    }
+
+}
+
+function testConnect() {
+
+    testConnectStatus("load");
+
+    let params = buildDBConfigParams();
+    $.ajax({
+        type: "POST",
+        url: testConnectUrl,
+        contentType : "application/json",
+        data: JSON.stringify(params),
+        success: function (data) {
+            data = unpackResult(data);
+            if (data.code !=200){
+                testConnectStatus("err");
+                openMsgModal(data.msg);
+                return;
+            }
+            testConnectStatus("ok");
+        },complete:function () {
+            hideSendNotify();
+        }
+    });
+}
+
+function buildDBConfigParams(){
+    let dbRight = $(".db-right");
+    let params = {
+        "id": dbRight.find("input[name='id']").val(),
+        "name": dbRight.find("input[name='name']").val(),
+        "comment":dbRight.find("input[name='comment']").val(),
+        "user":dbRight.find("input[name='user']").val(),
+        "password":dbRight.find("input[name='password']").val(),
+        "url":dbRight.find("input[name='url']").val(),
+        "driver":dbRight.find("input[name='driver']").val()
+    }
+    let properties = {};
+    params["properties"] = properties;
+
+    let lines = dbRight.find(".db-properties-line");
+    $.each(lines,function (index,item){
+        let key = $(item).find("input[name='key']").val().trim();
+        let value = $(item).find("input[name='value']").val().trim();
+        if (key == ''){
+            return;
+        }
+        properties[key] = value;
+    })
+
+    return params;
+}
+
+function getDB(dbId) {
+    let dbObj = null;
+    $.each(gdata.dbList,function (index,item) {
+        if (item.id == dbId){
+            dbObj = item;
+            return false;
+        }
+    })
+    return dbObj;
+}
+
+function getDriver(driver){
+    let driverObj = {};
+    $.each(gdata.driverList,function (index,item) {
+        if (item.driver == driver){
+            driverObj = item;
+            return false;
+        }
+    })
+    return driverObj;
+}
+
+function fillDriverSelect(data) {
+    $(".db-driver").html("")
+    $.each(data,function(index,item){
+        $(".db-driver").append('<li class="dropdown-item" onclick="addNewDB(this)" data="'+item.driver+'"><a><img src="'+item.icon+'" ><span class="gwt-InlineHTML">'+item.name+'</span></a></li>')
+    })
+}
+
+function addNewDB(target) {
+    let driver = $(target).attr("data");
+    let driverObj = getDriver(driver);
+
+
+    let params = {
+        "driver":driver,
+        "name":generateDBName("@localhost"),
+        "url": driverObj.format,
+        "enabled":false
+    };
+
+    saveDB(params)
+
+}
+
+function saveDB(params,closeDialog) {
+    $.ajax({
+        type: "POST",
+        url: saveDBConfigUrl,
+        contentType : "application/json",
+        data: JSON.stringify(params),
+        success: function (data) {
+            data = unpackResult(data);
+            if (data.code !=200){
+                openMsgModal(data.msg);
+                return;
+            }
+
+            if (closeDialog){
+                hideDataSourceConfig();
+            }else{
+                loadDbConfigList(data.data);
+            }
+        },complete:function () {
+            hideSendNotify();
+        }
+    });
+}
+
+function removeDB() {
+    let id = $(".db-selected").attr("data");
+    if (!id){
+        return;
+    }
+    let params = {
+        "id":id
+    }
+    $.ajax({
+        type: "DELETE",
+        url: removeDBConfigUrl,
+        contentType : "application/json",
+        data: JSON.stringify(params),
+        success: function (data) {
+            data = unpackResult(data);
+            if (data.code !=200){
+                openMsgModal(data.msg);
+                return;
+            }
+            loadDbConfigList();
+        },complete:function () {
+            hideSendNotify();
+        }
+    });
+}
+
+function generateDBName(name){
+
+    let reg = new RegExp("( \[[0-9]+\])$","g")
+    name = name.replace(reg,"");
+
+    let startStr = name +" [";
+    let endStr = "]";
+    let nameNum = null;
+    $.each(gdata.dbList,function (index,item){
+
+        if(!item.name.startsWith(startStr) || !item.name.endsWith(endStr)){
+            return;
+        }
+        let num = item.name.substring(startStr.length,item.name.length-1);
+
+        try {
+            num = parseInt(num);
+        }catch (e) {
+            return;
+        }
+        if (nameNum < num){
+            nameNum = num;
+        }
+    })
+
+    name = nameNum?(name+" ["+(nameNum+1)+"]"):(name+" [1]")
+    return name;
+}
+
+function copyDB(){
+    let id = $(".db-selected").attr("data");
+    if (!id){
+        return;
+    }
+    let targetDB = null;
+    $.each(gdata.dbList,function (index,item){
+        if (item.id == id){
+            targetDB = item;
+            return false;
+        }
+    })
+    let newDB = jQuery.extend({}, targetDB);
+    newDB.id = null;
+    newDB.name = generateDBName(targetDB.name);
+    saveDB(newDB)
+}
+
+function saveDataSourceConfig(closeDialog) {
+    let params = buildDBConfigParams();
+    params.enabled = true;
+    saveDB(params,closeDialog);
+
+}
+
 //-------------------------------- datasource setting end -------------------------
 
 //-------------------------------- yml setting start -------------------------------

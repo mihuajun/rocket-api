@@ -14,12 +14,15 @@ import java.util.Properties;
 @NoArgsConstructor
 public class DBConfig extends ApiEntity{
 
-    private String factory;
+    private String driver;
     private String name;
     private String comment;
 
     private String url;
     private String user;
     private String password;
+
+    private boolean enabled;
+
     private Properties properties;
 }

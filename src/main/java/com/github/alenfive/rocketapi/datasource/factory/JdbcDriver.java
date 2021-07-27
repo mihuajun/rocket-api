@@ -5,7 +5,7 @@ import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import org.springframework.jdbc.core.JdbcTemplate;
 
-public abstract class JdbcFactory extends IDataSourceDialectFactory {
+public abstract class JdbcDriver extends IDataSourceDialectDriver {
 
     protected JdbcTemplate getJdbcTemplate(DBConfig config){
         HikariConfig hikariConfig = new HikariConfig(config.getProperties());

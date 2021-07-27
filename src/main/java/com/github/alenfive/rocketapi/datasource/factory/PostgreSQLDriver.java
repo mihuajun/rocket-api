@@ -1,33 +1,33 @@
 package com.github.alenfive.rocketapi.datasource.factory;
 
 import com.github.alenfive.rocketapi.datasource.DataSourceDialect;
-import com.github.alenfive.rocketapi.datasource.MySQLDataSource;
+import com.github.alenfive.rocketapi.datasource.PostgreSQLDataSource;
 import com.github.alenfive.rocketapi.entity.DBConfig;
 import org.springframework.stereotype.Component;
 
 /**
- * SQL  构造器
+ * postgre SQL  构造器
  */
 @Component
-public class MySQLFactory extends JdbcFactory{
+public class PostgreSQLDriver extends JdbcDriver {
 
     @Override
     public String getName() {
-        return "MySQL";
+        return "PostgreSQL";
     }
 
     @Override
     public String getIcon() {
-        return "rocket-api/image/mysql.png";
+        return "rocketapi/images/postgresql.png";
     }
 
     @Override
     public String getFormat() {
-        return "jdbc:mysql://localhost:3306/test";
+        return "jdbc:postgresql://localhost:5432/postgres";
     }
 
     @Override
     public DataSourceDialect factory(DBConfig config) throws Exception {
-        return new MySQLDataSource(super.getJdbcTemplate(config));
+        return new PostgreSQLDataSource(super.getJdbcTemplate(config));
     }
 }

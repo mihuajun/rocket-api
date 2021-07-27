@@ -1,8 +1,7 @@
 package com.github.alenfive.rocketapi.datasource.factory;
 
-
 import com.github.alenfive.rocketapi.datasource.DataSourceDialect;
-import com.github.alenfive.rocketapi.datasource.SQLServerDataSource;
+import com.github.alenfive.rocketapi.datasource.MySQLDataSource;
 import com.github.alenfive.rocketapi.entity.DBConfig;
 import org.springframework.stereotype.Component;
 
@@ -10,25 +9,25 @@ import org.springframework.stereotype.Component;
  * SQL  构造器
  */
 @Component
-public class SQLServerFactory extends JdbcFactory{
+public class MySQLDriver extends JdbcDriver {
 
     @Override
     public String getName() {
-        return "Microsoft SQL Server";
+        return "MySQL";
     }
 
     @Override
     public String getIcon() {
-        return "rocket-api/image/sqlserver.png";
+        return "rocketapi/images/mysql.png";
     }
 
     @Override
     public String getFormat() {
-        return "jdbc:sqlserver://localhost:1433;database=test";
+        return "jdbc:mysql://localhost:3306/test";
     }
 
     @Override
     public DataSourceDialect factory(DBConfig config) throws Exception {
-        return new SQLServerDataSource(super.getJdbcTemplate(config));
+        return new MySQLDataSource(super.getJdbcTemplate(config));
     }
 }

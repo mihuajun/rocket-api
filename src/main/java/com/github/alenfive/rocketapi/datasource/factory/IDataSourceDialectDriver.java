@@ -7,7 +7,7 @@ import com.github.alenfive.rocketapi.entity.DBConfig;
  *
  */
 
-public abstract class IDataSourceDialectFactory {
+public abstract class IDataSourceDialectDriver {
     abstract String getName();
     abstract String getIcon();
     abstract String getFormat();

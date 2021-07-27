@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.alenfive.rocketapi.config.RocketApiProperties;
 import com.github.alenfive.rocketapi.datasource.DataSourceDialect;
 import com.github.alenfive.rocketapi.datasource.DataSourceManager;
-import com.github.alenfive.rocketapi.datasource.factory.IDataSourceDialectFactory;
+import com.github.alenfive.rocketapi.datasource.factory.IDataSourceDialectDriver;
 import com.github.alenfive.rocketapi.entity.ApiConfig;
 import com.github.alenfive.rocketapi.entity.ConfigType;
 import com.github.alenfive.rocketapi.entity.DBConfig;
@@ -48,32 +48,55 @@ public class DataSourceService {
         this.closeDBConfig(dbConfig);
     }
 
+    private void assertDBConfigName(String dbName,String dbId) throws IOException {
+        List<ApiConfig> dbList = getDBConfig();
+        for (ApiConfig apiConfig : dbList){
+            DBConfig dbConfig = objectMapper.readValue(apiConfig.getConfigContext(),DBConfig.class);
+            if (dbConfig.getName().equals(dbName) && !dbConfig.getId().equals(dbId)){
+                throw new IllegalArgumentException("name:"+dbName+" already exist");
+            }
+        }
+    }
+
     /**
      * 保存数据源
      * @param dbConfig
      */
     @Transactional
-    public void saveDBConfig(DBConfig dbConfig) throws Exception {
+    public String saveDBConfig(DBConfig dbConfig) throws Exception {
         ApiConfig apiConfig = ApiConfig.builder()
                 .service(rocketApiProperties.getServiceName())
                 .type(ConfigType.DB.name())
                 .build();
 
-        if (StringUtils.isEmpty(apiConfig.getId())) {
+        assertDBConfigName(dbConfig.getName(),dbConfig.getId());
+
+        if (StringUtils.isEmpty(dbConfig.getId())) {
             dbConfig.setId(GenerateId.get().toHexString());
             apiConfig.setId(dbConfig.getId());
             apiConfig.setConfigContext(objectMapper.writeValueAsString(dbConfig));
             dataSourceManager.getStoreApiDataSource().saveEntity(apiConfig);
         } else {
+            apiConfig.setId(dbConfig.getId());
             apiConfig.setConfigContext(objectMapper.writeValueAsString(dbConfig));
             dataSourceManager.getStoreApiDataSource().updateEntityById(apiConfig);
         }
 
         reLoadDBConfig(dbConfig);
+        return dbConfig.getId();
+    }
+
+    public void testDBConfig(DBConfig config) throws Exception {
+        IDataSourceDialectDriver factory = (IDataSourceDialectDriver)(Class.forName(config.getDriver()).newInstance());
+        DataSourceDialect dialect = factory.factory(config);
+        dialect.close();
     }
 
     private void closeDBConfig(DBConfig config){
         DataSourceDialect dataSourceDialect = dataSourceManager.getDialectMap().remove(config.getName());
+        if (dataSourceDialect == null){
+            return;
+        }
         dataSourceDialect.close();
     }
 
@@ -87,7 +110,11 @@ public class DataSourceService {
             history.close();
         }
 
-        IDataSourceDialectFactory factory = (IDataSourceDialectFactory)(Class.forName(config.getFactory()).newInstance());
+        if (!config.isEnabled()){
+            return;
+        }
+
+        IDataSourceDialectDriver factory = (IDataSourceDialectDriver)(Class.forName(config.getDriver()).newInstance());
         DataSourceDialect dialect = factory.factory(config);
         dialect.setDynamic(true);
 

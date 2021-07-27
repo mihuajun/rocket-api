@@ -4,7 +4,7 @@ import com.github.alenfive.rocketapi.datasource.DataSourceDialect;
 import com.github.alenfive.rocketapi.datasource.OracleDataSource;
 import com.github.alenfive.rocketapi.entity.DBConfig;
 
-public class OracleFactory extends JdbcFactory{
+public class OracleDriver extends JdbcDriver {
     @Override
     String getName() {
         return "oracle";
@@ -12,7 +12,7 @@ public class OracleFactory extends JdbcFactory{
 
     @Override
     String getIcon() {
-        return "rocketapi/image/oracle.png";
+        return "rocketapi/images/oracle.png";
     }
 
     @Override

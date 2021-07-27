@@ -653,7 +653,6 @@ public class ApiController {
             List<DBConfig> dbConfigs = list.stream().map(item-> {
                 try {
                     DBConfig dbConfig = objectMapper.readValue(item.getConfigContext(),DBConfig.class);
-                    dbConfig.setPassword("*****");
                     return dbConfig;
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -681,8 +680,7 @@ public class ApiController {
         }*/
 
         try {
-            dataSourceService.saveDBConfig(config);
-            return ApiResult.success(null);
+            return ApiResult.success(dataSourceService.saveDBConfig(config));
         }catch (Exception e){
             e.printStackTrace();
             return ApiResult.fail(e.getMessage());
@@ -721,6 +719,28 @@ public class ApiController {
 
         try {
             return ApiResult.success(completionService.getDriver());
+        }catch (Exception e){
+            e.printStackTrace();
+            return ApiResult.fail(e.getMessage());
+        }
+    }
+
+    /**
+     * 测试数据源
+     * @param config
+     */
+    @PostMapping("/db-test")
+    public ApiResult testDBConfig(@RequestBody DBConfig config,HttpServletRequest request) {
+
+        String user = loginService.getUser(request);
+
+        /*if(StringUtils.isEmpty(user)){
+            return ApiResult.fail("Permission denied");
+        }*/
+
+        try {
+            dataSourceService.testDBConfig(config);
+            return ApiResult.success(null);
         }catch (Exception e){
             e.printStackTrace();
             return ApiResult.fail(e.getMessage());

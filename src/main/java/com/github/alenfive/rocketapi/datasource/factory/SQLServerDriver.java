@@ -1,7 +1,8 @@
 package com.github.alenfive.rocketapi.datasource.factory;
 
-import com.github.alenfive.rocketapi.datasource.ClickHouseDataSource;
+
 import com.github.alenfive.rocketapi.datasource.DataSourceDialect;
+import com.github.alenfive.rocketapi.datasource.SQLServerDataSource;
 import com.github.alenfive.rocketapi.entity.DBConfig;
 import org.springframework.stereotype.Component;
 
@@ -9,25 +10,25 @@ import org.springframework.stereotype.Component;
  * SQL  构造器
  */
 @Component
-public class ClickHouseFactory extends JdbcFactory{
+public class SQLServerDriver extends JdbcDriver {
 
     @Override
     public String getName() {
-        return "ClickHouse";
+        return "Microsoft SQL Server";
     }
 
     @Override
     public String getIcon() {
-        return "rocket-api/image/clickhouse.png";
+        return "rocketapi/images/sqlserver.png";
     }
 
     @Override
     public String getFormat() {
-        return "jdbc:clickhouse://localhost:8123";
+        return "jdbc:sqlserver://localhost:1433;database=test";
     }
 
     @Override
     public DataSourceDialect factory(DBConfig config) throws Exception {
-        return new ClickHouseDataSource(super.getJdbcTemplate(config));
+        return new SQLServerDataSource(super.getJdbcTemplate(config));
     }
 }

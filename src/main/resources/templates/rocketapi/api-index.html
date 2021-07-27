@@ -16,6 +16,9 @@
     <link rel="stylesheet" type="text/css" href="rocketapi/css/font-awesome.4.2.0.min.css">
     <link rel="stylesheet" type="text/css" href="rocketapi/css/font-awesome.3.2.1.enriched-for-client.css">
     <link rel="stylesheet" data-name="vs/editor/editor.main" href="rocketapi/monaco-editor/min/vs/editor/editor.main.css">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.4/css/bootstrap-select.min.css">
+
     <link rel="shortcut icon"
           href="data:image/svg+xml;base64, PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGlkPSJhcGktdGVzdGVyLWNvbG9yZWQiPjxzdmcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB2aWV3Qm94PSIwIDAgMTYgMTYiPgoJCTxwYXRoIGZpbGw9IiM2NjY0RDEiIGQ9Ik0xNiw3Ljk4OSBDMTYsMTIuNDAxIDEyLjQyMywxNS45NzggOC4wMTEsMTUuOTc4IEMzLjU5OSwxNS45NzggMC4wMjIsMTIuNDAxIDAuMDIyLDcuOTg5IEMwLjAyMiwzLjU3NyAzLjU5OSwwIDguMDExLDAgQzEyLjQyMywwIDE2LDMuNTc3IDE2LDcuOTg5Ij48L3BhdGg+CgkJPHBhdGggZmlsbD0iI0ZGRiIgZD0iTTE0LjA1MjcgNy4yNDE0QzEzLjYxOTcgNy4yNDE0IDEzLjI2OTcgNy41OTI0IDEzLjI2OTcgOC4wMjU0IDEzLjI2OTcgOC40NTc0IDEzLjYxOTcgOC44MDg0IDE0LjA1MjcgOC44MDg0IDE0LjQ4NTcgOC44MDg0IDE0LjgzNjcgOC40NTc0IDE0LjgzNjcgOC4wMjU0IDE0LjgzNjcgNy41OTI0IDE0LjQ4NTcgNy4yNDE0IDE0LjA1MjcgNy4yNDE0TTIuNzcyNCA3Ljk5NjNDMi43NzI0IDcuNTYzMyAyLjQyMTQgNy4yMTIzIDEuOTg5NCA3LjIxMjMgMS41NTY0IDcuMjEyMyAxLjIwNTQgNy41NjMzIDEuMjA1NCA3Ljk5NjMgMS4yMDU0IDguNDI5MyAxLjU1NjQgOC43ODAzIDEuOTg5NCA4Ljc4MDMgMi40MjE0IDguNzgwMyAyLjc3MjQgOC40MjkzIDIuNzcyNCA3Ljk5NjNNMi4xNDc5IDUuOTUyNEMyLjI1OTkgNS45NTI0IDIuMzU1OSA1Ljg4NTQgMi4zOTk5IDUuNzg5NCAyLjM5OTkgNS43ODg0IDIuNDAwOSA1Ljc4ODQgMi40MDA5IDUuNzg3NCAyLjQwMTkgNS43ODQ0IDIuNDAyOSA1Ljc4MjQgMi40MDQ5IDUuNzc5NCAzLjMwMDkgMy41NDM0IDUuNDk1OSAxLjk3MDQgOC4wMDk5IDEuOTY0NEw4LjAwOTkgMi43NTM0IDguODc2OSAyLjAyNzRDMTEuMDA2OSAyLjMyNzQgMTIuODE1OSAzLjczMTQgMTMuNjI0OSA1LjcyMDQgMTMuNjcxOSA1Ljg0NjQgMTMuNzY2OSA1Ljk0ODQgMTMuOTAzOSA1Ljk0ODQgMTQuMDU3OSA1Ljk0ODQgMTQuMTgxOSA1LjgyNDQgMTQuMTgxOSA1LjY3MTQgMTQuMTgxOSA1LjYxODQgMTQuMTQ0OSA1LjUyNjQgMTQuMTQ0OSA1LjUyNjQgMTMuMjYzOSAzLjM0NzQgMTEuMjg2OSAxLjgwNzQgOC45NTU5IDEuNDc5NEw4LjAwOTkuNjg4NCA4LjAwOTkgMS40MTA0QzUuMjY3OSAxLjQxNTQgMi44ODA5IDMuMTIxNCAxLjg5NzkgNS41NTI0TDEuODk5OSA1LjU1MzRDMS44ODE5IDUuNTkwNCAxLjg3MDkgNS42MzE0IDEuODcwOSA1LjY3NTQgMS44NzA5IDUuODI4NCAxLjk5NDkgNS45NTI0IDIuMTQ3OSA1Ljk1MjRNMTMuOTA5MiAxMC4wODI3QzEzLjc5NzIgMTAuMDgyNyAxMy43MDAyIDEwLjE0OTcgMTMuNjU3MiAxMC4yNDU3IDEzLjY1NjIgMTAuMjQ2NyAxMy42NTYyIDEwLjI0NzcgMTMuNjU2MiAxMC4yNDc3IDEzLjY1NTIgMTAuMjUwNyAxMy42NTMyIDEwLjI1MjcgMTMuNjUyMiAxMC4yNTU3IDEyLjc1NDIgMTIuNDk2NyAxMC41NTEyIDE0LjA3MzcgOC4wMzAyIDE0LjA3MTcgOC4wMjUyIDE0LjA3MTcgOC4wMjAyIDE0LjA3MDcgOC4wMTUyIDE0LjA3MDdMOC4wMTUyIDEzLjE3NzcgNy4wNDcyIDEzLjk4NzdDNC45NzQyIDEzLjY0NzcgMy4yMjQyIDEyLjI2MTcgMi40MzIyIDEwLjMxNDcgMi4zODQyIDEwLjE4ODcgMi4yOTAyIDEwLjA4NjcgMi4xNTMyIDEwLjA4NjcgMS45OTkyIDEwLjA4NjcgMS44NzUyIDEwLjIxMDcgMS44NzUyIDEwLjM2NDcgMS44NzUyIDEwLjQxNjcgMS45MTIyIDEwLjUwOTcgMS45MTIyIDEwLjUwOTcgMi44MDUyIDEyLjcxOTcgNC44MjkyIDE0LjI2NjcgNy4yMDQyIDE0LjU2MzdMOC4wMTUyIDE1LjI0MjcgOC4wMTUyIDE0LjYyNDdDOC4wMjAyIDE0LjYyNDcgOC4wMjQyIDE0LjYyNjcgOC4wMjkyIDE0LjYyNjcgMTAuNzc5MiAxNC42Mjc3IDEzLjE3NDIgMTIuOTE4NyAxNC4xNTgyIDEwLjQ4MjdMMTQuMTU3MiAxMC40ODE3QzE0LjE3NTIgMTAuNDQ0NyAxNC4xODYyIDEwLjQwMzcgMTQuMTg2MiAxMC4zNTk3IDE0LjE4NjIgMTAuMjA2NyAxNC4wNjIyIDEwLjA4MjcgMTMuOTA5MiAxMC4wODI3Ij48L3BhdGg+CgkJPHBhdGggZmlsbD0iI0ZGRiIgZD0iTTEwLjQ2MTQsNS40NTgyIEw3LjEwNjQsOC43ODQyIEw1LjUxMTQsNy4xOTAyIEM1LjQwODQsNy4wODgyIDUuMjQyNCw3LjA4ODIgNS4xMzg0LDcuMTkwMiBMNC41Nzk0LDcuNzQ1MiBMNC41Nzg0LDcuNzQ2MiBDNC40Nzc0LDcuODQ4MiA0LjQ3NzQsOC4wMTMyIDQuNTc5NCw4LjExNTIgTDYuMzU3NCw5Ljg5MTIgQzYuMzU5NCw5Ljg5MjIgNi4zNTc0LDkuODk0MiA2LjM1OTQsOS44OTUyIEw2Ljc0NzQsMTAuMjgwMiBMNi44MzY0LDEwLjM2ODIgTDYuOTE4NCwxMC40NTEyIEM3LjAyMjQsMTAuNTUzMiA3LjE4ODQsMTAuNTUzMiA3LjI5MTQsMTAuNDUxMiBMNy4yOTE0LDEwLjQ1MDIgTDExLjM5MzQsNi4zODIyIEMxMS4zOTQ0LDYuMzgxMiAxMS4zOTU0LDYuMzgxMiAxMS4zOTY0LDYuMzgwMiBDMTEuNDk2NCw2LjI3NzIgMTEuNDk1NCw2LjExMzIgMTEuMzkzNCw2LjAxMzIgTDEwLjgzNDQsNS40NTgyIEMxMC43MzE0LDUuMzU2MiAxMC41NjM0LDUuMzU2MiAxMC40NjE0LDUuNDU4MiI+PC9wYXRoPgo8L3N2Zz4KPC9zdmc+"
           type="image/x-icon"/>
@@ -192,8 +195,8 @@
     </div>
 </div>
 
-<!-- global setting -->
-<div class="modal in" id="global-setting" aria-hidden="false" style="width:50%;left:25%;margin-left:0px;display: none">
+<!-- local setting -->
+<div class="modal in" id="global-setting" aria-hidden="false" style="min-width: 700px;width:50%;margin: 0px auto; left: calc(50% - 350px);display: none">
     <div class="modal-header"><a class="close" onclick="hideGlobalConfig()" data-dismiss="modal">×</a>
         <h3>Local Setting <small></small></h3></div>
     <div class="modal-body" style="overflow: hidden;width: 100%;padding: 0px;height:450px;">
@@ -209,7 +212,7 @@
 </div>
 
 <!-- config setting -->
-<div class="modal in" id="yml-setting" aria-hidden="false" style="width:50%;left:25%;margin-left:0px;display: none">
+<div class="modal in" id="yml-setting" aria-hidden="false" style="min-width: 700px;width:50%;margin: 0px auto; left: calc(50% - 350px);display: none">
     <div class="modal-header"><a class="close" onclick="hideYmlConfig()" data-dismiss="modal">×</a>
         <h3>rocket-api.yml <small></small></h3></div>
     <div class="modal-body" style="overflow: hidden;width: 100%;padding: 0px;height:450px;">
@@ -225,27 +228,70 @@
 </div>
 
 <!-- datasource setting -->
-<div class="modal in" id="datasource-setting" aria-hidden="false" style="width:50%;left:25%;margin-left:0px;">
+<div class="modal in" id="datasource-setting" aria-hidden="false" style="min-width: 700px;width:50%;margin: 0px auto; left: calc(50% - 350px);">
     <div class="modal-header"><a class="close" onclick="hideDataSourceConfig()" data-dismiss="modal">×</a>
         <h3>Data Sources<small></small></h3></div>
     <div class="modal-body" style="overflow: hidden;width: 100%;padding: 0px;height:450px;">
-        <div class="panel-left">
+        <div class="db-left">
             <div class="db-tool">
-
+                <div class="btn-group ctrls dropdown-primary">
+                    <a class="btn-mini dropdown-toggle db-add" data-toggle="dropdown"><i class="fa fa-plus"></i></a>
+                    <ul class="pull-right dropdown-menu db-driver">
+                    </ul>
+                </div>
+                <div class="fa fa-trash-o" onclick="removeDB()"></div>
+                <div class="fa fa-files-o" onclick="copyDB()" aria-hidden="true"></div>
             </div>
+            <div class="db-split">Data Sources</div>
             <div class="db-list">
-
+                <div><span style="color:gray">Empty</span></div>
             </div>
         </div>
-        <div class="db-edit">
+        <div class="db-right">
+            <div class="properties control-group">
+                <div class="db-driver-icon"><img  src="rocketapi/images/MySQL.png" ></div>
+                <input type="hidden" name="id">
+                <label class="control-label"> <span class="gwt-InlineHTML"> Name: </span> </label>
+                <div class="controls">
+                    <input type="text" class="gwt-TextBox input-xlarge" name="name" >
+                </div>
+                <label class="control-label"> <span class="gwt-InlineHTML"> Comment: </span> </label>
+                <div class="controls">
+                    <input type="text" class="gwt-TextBox input-xlarge" name="comment">
+                </div>
 
+
+                <label class="control-label"> <span class="gwt-InlineHTML"> User: </span> </label>
+                <div class="controls" style="float:left">
+                    <input type="text" class="gwt-TextBox input-xlarge" name="user" style="width: 80%;">
+                </div>
+                <label class="control-label"> <span class="gwt-InlineHTML"> Password: </span> </label>
+                <div class="controls" style="float:left">
+                    <input type="password" class="gwt-TextBox input-xlarge" name="password" style="width: 80%;">
+                </div>
+                <label class="control-label" style="clear:both"> <span class="gwt-InlineHTML"> URL: </span> </label>
+                <div class="controls">
+                    <input type="text" class="gwt-TextBox input-xlarge" name="url" style="    width: calc(100% - 100px);">
+                </div>
+            </div>
+            <div class="db-properties-title">Properties:</div>
+            <div class="db-properties">
+
+            </div>
+
+            <div class="db-status">
+                <div><input type="hidden" name="driver"/>Driver: <a class="db-driver-info" style="cursor:default" title="com.wangxiaobao.com.MongoDriver">MongoDB</a></div>
+                <div><a onclick="testConnect()">Test Connect</a><i class="db-connection-status fa fa-check"></i></span></div>
+            </div>
         </div>
     </div>
     <div class="modal-footer">
         <div class="error-message login-error-message" style="float: left;"></div>
         <button class="r-btn" e2e-tag="modal-cancel" onclick="hideDataSourceConfig()"><i class="fa fa-remove"></i><span>Cancel</span><span class="r-btn-indicator" aria-hidden="true"
                                                                                                                                            style="display: none;"></span></button>
-        <button class="r-btn r-btn-primary" onclick="saveDataSourceConfig()" e2e-tag="modal-ok"><i class="fa fa-save"></i><span>Save</span><span class="r-btn-indicator" aria-hidden="true"
+        <button class="r-btn" e2e-tag="modal-cancel" onclick="saveDataSourceConfig(false)"><i class="fa fa-check"></i><span>Apply</span><span class="r-btn-indicator" aria-hidden="true"
+                                                                                                                                           style="display: none;"></span></button>
+        <button class="r-btn r-btn-primary" onclick="saveDataSourceConfig(true)" e2e-tag="modal-ok"><i class="fa fa-save"></i><span>Save</span><span class="r-btn-indicator" aria-hidden="true"
                                                                                                                                                        style="display: none;"></span></button>
     </div>
 </div>
@@ -284,7 +330,7 @@
 
 
 <!-- Remote Sync -->
-<div class="modal in export-dialog " id="remote-sync" aria-hidden="false" style="display:none;width:50%;left:25%;margin-left:0px;">
+<div class="modal in export-dialog " id="remote-sync" aria-hidden="false" style="display:none;min-width: 700px;width:50%;margin: 0px auto; left: calc(50% - 350px);">
     <div class="modal-header"><a class="close" onclick="hideRemoteSync()" data-dismiss="modal">×</a>
         <h3>Remote Release <small></small></h3></div>
     <div class="form-horizontal">
@@ -926,9 +972,11 @@
     let currPage = urlParam.page;
 </script>
 
+
 <script type="text/javascript" src="rocketapi/js/jquery-1.12.2.min.js"></script>
 <script type="text/javascript" src="rocketapi/js/jquery.form.js"></script>
 <script type="text/javascript" src="rocketapi/js/bootstrap-2.3.2.min.js"></script>
+<script type="text/javascript" src="rocketapi/js/bootstrap-select.min.js"></script>
 
 <script>var require = {paths: {'vs': 'rocketapi/monaco-editor/min/vs'}};</script>
 <script src="rocketapi/monaco-editor/min/vs/loader.js"></script>

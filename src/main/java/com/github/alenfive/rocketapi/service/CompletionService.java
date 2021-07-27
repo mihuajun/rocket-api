@@ -2,7 +2,7 @@ package com.github.alenfive.rocketapi.service;
 
 import com.github.alenfive.rocketapi.datasource.DataSourceDialect;
 import com.github.alenfive.rocketapi.datasource.DataSourceManager;
-import com.github.alenfive.rocketapi.datasource.factory.IDataSourceDialectFactory;
+import com.github.alenfive.rocketapi.datasource.factory.IDataSourceDialectDriver;
 import com.github.alenfive.rocketapi.entity.vo.CompletionResult;
 import com.github.alenfive.rocketapi.entity.vo.MethodVo;
 import com.github.alenfive.rocketapi.entity.vo.TableInfo;
@@ -137,7 +137,7 @@ public class CompletionService {
         return methodVos;
     }
 
-    public Collection<IDataSourceDialectFactory> getDriver() {
-        return context.getBeansOfType(IDataSourceDialectFactory.class).values();
+    public Collection<IDataSourceDialectDriver> getDriver() {
+        return context.getBeansOfType(IDataSourceDialectDriver.class).values();
     }
 }
