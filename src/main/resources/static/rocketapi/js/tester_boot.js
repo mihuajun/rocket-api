@@ -2463,6 +2463,9 @@ function fillDriverSelect(data) {
     $.each(data,function(index,item){
         $(".db-driver").append('<li class="dropdown-item" onclick="addNewDB(this)" data="'+item.driver+'"><a><img src="'+item.icon+'" ><span class="gwt-InlineHTML">'+item.name+'</span></a></li>')
     })
+    $(".db-driver").append('<li class="dropdown-item" style="border-top: 1px solid #e0dada;"><a target="_blank" href="https://alenfive.gitbook.io/rocket-api/zi-ding-yi-kuo-zhan/zi-ding-yi-dong-tai-shu-ju-yuan-qu-dong-kuo-zhan">自定义驱动</a></li>')
+
+
 }
 
 function addNewDB(target) {
