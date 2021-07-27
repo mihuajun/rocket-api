@@ -26,7 +26,7 @@ public class MongoDriver extends IDataSourceDialectDriver {
     }
 
     @Override
-    String getFormat() {
+    public String getFormat() {
         return "mongodb://localhost:27017/test";
     }
 

@@ -7,18 +7,19 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class OracleDriver extends JdbcDriver {
+
     @Override
-    String getName() {
-        return "oracle";
+    public String getName() {
+        return "Oracle";
     }
 
     @Override
-    String getIcon() {
+    public String getIcon() {
         return "rocketapi/images/oracle.png";
     }
 
     @Override
-    String getFormat() {
+    public String getFormat() {
         return "jdbc:oracle:thin:@localhost:1521/test";
     }
 
