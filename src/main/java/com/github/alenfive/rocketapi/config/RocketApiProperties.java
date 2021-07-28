@@ -32,6 +32,7 @@ public class RocketApiProperties {
 
     /**
      * post传参 操作整个body部分的key值
+     * 在脚本中执行return bodyRoot;将返回整个body对象
      */
     private String bodyRootKey = "bodyRoot";
 
@@ -59,6 +60,7 @@ public class RocketApiProperties {
 
     /**
      * 表名称自定义
+     * 用于自定义Rocket-API表名称时使用
      */
     private ApiTableName tableName = new ApiTableName();
 
