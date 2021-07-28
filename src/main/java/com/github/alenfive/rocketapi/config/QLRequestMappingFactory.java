@@ -81,19 +81,15 @@ public class QLRequestMappingFactory {
     private ServerProperties serverProperties;
 
     @Autowired
-    private RequestMappingService requestMappingService;
-
-    @Autowired
     private ConfigService configService;
 
     @Autowired
     private ApiInfoService apiInfoService;
 
-
+    @Autowired
+    private SpringContextUtils springContextUtils;
 
     private List<String> bodyMethods = Arrays.asList("POST", "PUT", "PATCH");
-
-
 
     /**
      * 初始化db mapping

@@ -8,17 +8,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import javax.annotation.PostConstruct;
 import java.util.Map;
 
-/**
- * @Description:
- * @Copyright: Copyright (c) 2019  ALL RIGHTS RESERVED.
- * @Company: 成都国盛天丰技术有限责任公司
- * @Author: 米华军
- * @CreateDate: 2020/12/18 10:27
- * @UpdateDate: 2020/12/18 10:27
- * @UpdateRemark: init
- * @Version: 1.0
- * @menu
- */
 @ConditionalOnBean(JdbcTemplate.class)
 public class SQLDataSourceManager extends DataSourceManager {
 

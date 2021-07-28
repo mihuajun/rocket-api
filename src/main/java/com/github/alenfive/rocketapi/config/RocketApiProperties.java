@@ -57,4 +57,18 @@ public class RocketApiProperties {
      */
     private boolean configEnabled = false;
 
+    /**
+     * 表名称自定义
+     */
+    private ApiTableName tableName = new ApiTableName();
+
+    @Data
+    public static class ApiTableName{
+        private String api_config = "api_config";
+        private String api_directory = "api_directory";
+        private String api_example = "api_example";
+        private String api_info = "api_info";
+        private String api_info_history = "api_info_history";
+
+    }
 }

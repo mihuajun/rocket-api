@@ -15,17 +15,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
-/**
- * @Description:
- * @Copyright: Copyright (c) 2019  ALL RIGHTS RESERVED.
- * @Company: 成都国盛天丰技术有限责任公司
- * @Author: 米华军
- * @CreateDate: 2021/1/4 22:29
- * @UpdateDate: 2021/1/4 22:29
- * @UpdateRemark: init
- * @Version: 1.0
- * @menu
- */
 @SuppressWarnings("DuplicatedCode")
 @Slf4j
 public class ApiJpaUtil {
