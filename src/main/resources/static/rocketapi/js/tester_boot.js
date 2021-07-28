@@ -158,7 +158,8 @@ function initPanel() {
 
 //版本检测
 function versionCheck() {
-    let url = "https://img.shields.io/maven-central/v/com.github.alenfive/rocket-api-boot-starter.json";
+    //let url = "https://img.shields.io/maven-central/v/com.github.alenfive/rocket-api-boot-starter.json";
+    let url = "https://img.shields.io/maven-metadata/v.json?label=maven-central&metadataUrl=https://repo1.maven.org/maven2/com/github/alenfive/rocket-api-boot-starter/maven-metadata.xml";
     $.getJSON(url,function (data) {
         $("#top-section .center-version").show();
         $("#top-section .center-version span").text(data.value);
@@ -563,9 +564,11 @@ function runApi(debug) {
     });
 
     if (debug){
-        MtaH5.clickStat("debug_count")
+        let tokenStr = "DEBUG次数";
+        _czc.push(["_trackEvent",tokenStr,tokenStr,tokenStr,"1",tokenStr])
     }else {
-        MtaH5.clickStat("run_count")
+        let tokenStr = "RUN次数";
+        _czc.push(["_trackEvent",tokenStr,tokenStr,tokenStr,"1",tokenStr])
     }
 }
 
@@ -956,9 +959,11 @@ function saveExecuter(params) {
             });
 
             if (params.id){
-                MtaH5.clickStat("api_save_success")
+                let tokenStr = "API保存次数";
+                _czc.push(["_trackEvent",tokenStr,tokenStr,tokenStr,"1",tokenStr])
             }else{
-                MtaH5.clickStat("api_new_success")
+                let tokenStr = "API新增次数";
+                _czc.push(["_trackEvent",tokenStr,tokenStr,tokenStr,"1",tokenStr])
             }
 
         },complete:function (req,data) {
@@ -1314,7 +1319,8 @@ function saveExample(id) {
         }
     });
 
-    MtaH5.clickStat("example_save")
+    let tokenStr = "POSTMAN保存次数";
+    _czc.push(["_trackEvent",tokenStr,tokenStr,tokenStr,"1",tokenStr])
 }
 function requextUrlExample(ableRedirect) {
     let $form = $("#example-section");
@@ -1793,6 +1799,10 @@ function logout() {
             localStorage.setItem("rocketUser",JSON.stringify(rocketUser));
             $("#top-section .login-btn").show();
             $("#top-section .login-info").hide();
+
+            let tokenStr = "登出次数";
+            _czc.push(["_trackEvent",tokenStr,tokenStr,tokenStr,"1",tokenStr])
+
         },complete:function (req,data) {
             hideSendNotify();
         }
@@ -1828,6 +1838,10 @@ function login() {
             $("#top-section .login-info").show();
             $("#top-section .login-info .name").text(rocketUser.user.username);
             hideLoginDialog();
+
+            let tokenStr = "登录次数";
+            _czc.push(["_trackEvent",tokenStr,tokenStr,tokenStr,"1",tokenStr])
+
         },complete:function (req,data) {
             hideSendNotify();
         }
@@ -2061,6 +2075,9 @@ function acceptLeft() {
 function confirmDiff() {
     cancelDiff();
     editorTextarea.setValue(modifiedModel.getValue());
+
+    let tokenStr = "版本比对确认次数";
+    _czc.push(["_trackEvent",tokenStr,tokenStr,tokenStr,"1",tokenStr])
 }
 function cancelDiff() {
     $("#editor-section .diff-body").hide();
@@ -2497,6 +2514,14 @@ function saveDB(params,closeDialog) {
                 return;
             }
 
+            if (params.id){
+                let tokenStr = "数据源保存次数";
+                _czc.push(["_trackEvent",tokenStr,params.driver,params.name,"1",tokenStr])
+            }else{
+                let tokenStr = "数据源新增次数";
+                _czc.push(["_trackEvent",tokenStr,params.driver,params.name,"1",tokenStr])
+            }
+
             if (closeDialog){
                 hideDataSourceConfig();
             }else{
@@ -2646,6 +2671,10 @@ function saveYmlGlobalConfig() {
                 return;
             }
             hideYmlConfig();
+
+            let tokenStr = "YML保存次数";
+            _czc.push(["_trackEvent",tokenStr,tokenStr,tokenStr,"1",tokenStr])
+
         },complete:function () {
             hideSendNotify();
         }
@@ -2732,6 +2761,9 @@ function exportApiInfo(){
     $("#export-dialog input[name='token']").val(rocketUser.user.token);
     $("#export-dialog .subform").submit();
     hideExport();
+
+    let tokenStr = "API导出次数";
+    _czc.push(["_trackEvent",tokenStr,fileName,tokenStr,apiInfoIds.length,tokenStr])
 }
 //-------------------------------- export end ------------------------------
 
@@ -2751,6 +2783,9 @@ function importApi() {
         dataType:"json",
         success:function (data) {
             data = unpackResult(data);
+
+            let tokenStr = "API导入次数";
+            _czc.push(["_trackEvent",tokenStr,tokenStr,tokenStr,"1",tokenStr])
 
             if (data.code !=200){
                 $("#import-dialog .error-message").text("import error:"+data.msg)
@@ -2804,6 +2839,10 @@ function remoteSync(increment) {
                 openMsgModal(data.msg);
                 return;
             }
+
+            let tokenStr = "远程发布次数";
+            _czc.push(["_trackEvent",tokenStr,tokenStr,tokenStr,"1",tokenStr])
+
             $("#remote-sync .error-message").text("Remote release successful size:"+data.data)
         },complete:function () {
             hideSendNotify();
@@ -2956,6 +2995,10 @@ function saveDirectory() {
                 collapsedDirectory(data.data);
             });
             cancelDialog('#directory-editor');
+
+            let tokenStr = "Directory创建次数";
+            _czc.push(["_trackEvent",tokenStr,name,tokenStr,"1",tokenStr])
+
         },complete:function () {
             hideSendNotify();
         }
@@ -3019,3 +3062,8 @@ function collapsedDirectory(parentId) {
     collapsedDirectory(parentId);
 }
 //-------------------------------- Directory Edit end ------------------------------
+
+function targetGo(tokenStr,url) {
+    _czc.push(["_trackEvent",tokenStr,tokenStr,tokenStr,"1",tokenStr])
+    window.open(url);
+}

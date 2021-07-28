@@ -606,6 +606,10 @@ public class ApiController {
             return ApiResult.fail("Permission denied");
         }
 
+        if (file == null){
+            return ApiResult.fail("file is null");
+        }
+
         try {
             ExportRes exportRes = objectMapper.readValue(file.getBytes(),ExportRes.class);
             Object result = apiInfoService.importAPI(exportRes.getDirectories(),exportRes.getApiInfos(),override == 1);
