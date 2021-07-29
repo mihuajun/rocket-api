@@ -7,6 +7,7 @@ import com.github.alenfive.rocketapi.entity.ApiType;
 import com.github.alenfive.rocketapi.entity.vo.RefreshMapping;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -33,6 +34,11 @@ public class RequestMappingService {
 
     @Autowired
     private RocketApiProperties rocketApiProperties;
+
+    @Autowired
+    @Lazy
+    private QLRequestMappingFactory mappingFactory;
+
     /**
      * 获取已注册的API地址
      */
@@ -112,7 +118,7 @@ public class RequestMappingService {
         RequestMethodsRequestCondition methodsRequestCondition = new RequestMethodsRequestCondition(RequestMethod.valueOf(apiInfo.getMethod()));
         RequestMappingInfo mappingInfo = new RequestMappingInfo(patternsRequestCondition, methodsRequestCondition, null, null, null, null, null);
         Method targetMethod = QLRequestMappingFactory.class.getDeclaredMethod("execute", Map.class, Map.class, HttpServletRequest.class, HttpServletResponse.class);
-        requestMappingHandlerMapping.registerMapping(mappingInfo, this, targetMethod);
+        requestMappingHandlerMapping.registerMapping(mappingInfo, mappingFactory, targetMethod);
     }
 
 
