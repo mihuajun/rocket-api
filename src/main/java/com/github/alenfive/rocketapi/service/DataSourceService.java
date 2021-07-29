@@ -16,6 +16,7 @@ import org.springframework.util.StringUtils;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class DataSourceService {
@@ -32,8 +33,17 @@ public class DataSourceService {
     @Autowired
     private ConfigService configService;
 
-    public List<ApiConfig> getDBConfig(){
-        return dataSourceManager.getStoreApiDataSource().listByEntity(ApiConfig.builder().service(rocketApiProperties.getServiceName()).type(ConfigType.DB.name()).build());
+    public List<DBConfig> getDBConfig(){
+        List<ApiConfig> configList = dataSourceManager.getStoreApiDataSource().listByEntity(ApiConfig.builder().service(rocketApiProperties.getServiceName()).type(ConfigType.DB.name()).build());
+        return configList.stream().map(item-> {
+            try {
+                DBConfig dbConfig = objectMapper.readValue(item.getConfigContext(),DBConfig.class);
+                return dbConfig;
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }).collect(Collectors.toList());
     }
 
     @Transactional
@@ -48,10 +58,9 @@ public class DataSourceService {
         this.closeDBConfig(dbConfig);
     }
 
-    private void assertDBConfigName(String dbName,String dbId) throws IOException {
-        List<ApiConfig> dbList = getDBConfig();
-        for (ApiConfig apiConfig : dbList){
-            DBConfig dbConfig = objectMapper.readValue(apiConfig.getConfigContext(),DBConfig.class);
+    private void assertDBConfigName(String dbName,String dbId) {
+        List<DBConfig> dbList = getDBConfig();
+        for (DBConfig dbConfig : dbList){
             if (dbConfig.getName().equals(dbName) && !dbConfig.getId().equals(dbId)){
                 throw new IllegalArgumentException("name:"+dbName+" already exist");
             }
@@ -119,6 +128,13 @@ public class DataSourceService {
         dialect.setDynamic(true);
 
         dataSourceManager.getDialectMap().put(config.getName(),dialect);
+    }
+
+    public void reLoadDBConfig() throws Exception {
+        List<DBConfig> dbConfigList = getDBConfig();
+        for (DBConfig dbConfig : dbConfigList){
+            reLoadDBConfig(dbConfig);
+        }
     }
 
 }

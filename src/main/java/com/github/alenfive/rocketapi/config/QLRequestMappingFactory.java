@@ -13,6 +13,7 @@ import com.github.alenfive.rocketapi.extend.IScriptEncrypt;
 import com.github.alenfive.rocketapi.script.IScriptParse;
 import com.github.alenfive.rocketapi.service.ApiInfoService;
 import com.github.alenfive.rocketapi.service.ConfigService;
+import com.github.alenfive.rocketapi.service.DataSourceService;
 import com.github.alenfive.rocketapi.service.ScriptParseService;
 import com.github.alenfive.rocketapi.utils.PackageUtils;
 import com.github.alenfive.rocketapi.utils.RequestUtils;
@@ -85,8 +86,14 @@ public class QLRequestMappingFactory {
     @Autowired
     private ApiInfoService apiInfoService;
 
+    /**
+     * 需要先初始化
+     */
     @Autowired
     private SpringContextUtils springContextUtils;
+
+    @Autowired
+    private DataSourceService dataSourceService;
 
     private List<String> bodyMethods = Arrays.asList("POST", "PUT", "PATCH");
 
@@ -107,6 +114,8 @@ public class QLRequestMappingFactory {
         //重新加载数据库API
         apiInfoService.reLoadApiInfo();
 
+        //重新加载数据源
+        dataSourceService.reLoadDBConfig();
     }
 
     private void loadBanner() {

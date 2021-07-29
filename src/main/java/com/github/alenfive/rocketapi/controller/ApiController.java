@@ -640,21 +640,12 @@ public class ApiController {
     public ApiResult listDbConfig(HttpServletRequest request){
         String user = loginService.getUser(request);
 
-        /*if(StringUtils.isEmpty(user)){
+        if(StringUtils.isEmpty(user)){
             return ApiResult.fail("Permission denied");
-        }*/
+        }
 
         try {
-            List<ApiConfig> list = dataSourceService.getDBConfig();
-            List<DBConfig> dbConfigs = list.stream().map(item-> {
-                try {
-                    DBConfig dbConfig = objectMapper.readValue(item.getConfigContext(),DBConfig.class);
-                    return dbConfig;
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                return null;
-            }).collect(Collectors.toList());
+            List<DBConfig> dbConfigs = dataSourceService.getDBConfig();
             return ApiResult.success(dbConfigs);
         }catch (Exception e){
             e.printStackTrace();
@@ -671,9 +662,9 @@ public class ApiController {
 
         String user = loginService.getUser(request);
 
-        /*if(StringUtils.isEmpty(user)){
+        if(StringUtils.isEmpty(user)){
             return ApiResult.fail("Permission denied");
-        }*/
+        }
 
         try {
             return ApiResult.success(dataSourceService.saveDBConfig(config));
@@ -692,9 +683,9 @@ public class ApiController {
 
         String user = loginService.getUser(request);
 
-        /*if(StringUtils.isEmpty(user)){
+        if(StringUtils.isEmpty(user)){
             return ApiResult.fail("Permission denied");
-        }*/
+        }
 
         try {
             dataSourceService.deleteDBConfig(config);
@@ -709,9 +700,9 @@ public class ApiController {
     public ApiResult listDbDriver(HttpServletRequest request){
         String user = loginService.getUser(request);
 
-        /*if(StringUtils.isEmpty(user)){
+        if(StringUtils.isEmpty(user)){
             return ApiResult.fail("Permission denied");
-        }*/
+        }
 
         try {
             return ApiResult.success(completionService.getDriver());
@@ -730,9 +721,9 @@ public class ApiController {
 
         String user = loginService.getUser(request);
 
-        /*if(StringUtils.isEmpty(user)){
+        if(StringUtils.isEmpty(user)){
             return ApiResult.fail("Permission denied");
-        }*/
+        }
 
         try {
             dataSourceService.testDBConfig(config);
