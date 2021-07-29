@@ -13,7 +13,6 @@ import com.github.alenfive.rocketapi.extend.IScriptEncrypt;
 import com.github.alenfive.rocketapi.script.IScriptParse;
 import com.github.alenfive.rocketapi.service.ApiInfoService;
 import com.github.alenfive.rocketapi.service.ConfigService;
-import com.github.alenfive.rocketapi.service.RequestMappingService;
 import com.github.alenfive.rocketapi.service.ScriptParseService;
 import com.github.alenfive.rocketapi.utils.PackageUtils;
 import com.github.alenfive.rocketapi.utils.RequestUtils;

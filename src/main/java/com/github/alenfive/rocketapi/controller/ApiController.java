@@ -2,9 +2,7 @@ package com.github.alenfive.rocketapi.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.alenfive.rocketapi.config.QLRequestMappingFactory;
 import com.github.alenfive.rocketapi.config.RocketApiProperties;
-import com.github.alenfive.rocketapi.datasource.DataSourceManager;
 import com.github.alenfive.rocketapi.entity.*;
 import com.github.alenfive.rocketapi.entity.vo.*;
 import com.github.alenfive.rocketapi.extend.ApiInfoContent;
@@ -21,10 +19,8 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.core.io.Resource;
+import org.springframework.http.*;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.CollectionUtils;
@@ -57,9 +53,6 @@ import java.util.stream.Collectors;
 public class ApiController {
 
     @Autowired
-    private QLRequestMappingFactory mappingFactory;
-
-    @Autowired
     private ApiInfoContent apiInfoContent;
 
     @Autowired
@@ -81,13 +74,8 @@ public class ApiController {
     @Autowired
     private ObjectMapper objectMapper;
 
-
-
     @Autowired
     private RocketApiProperties properties;
-
-    @Autowired
-    private DataSourceManager dataSourceManager;
 
     @Autowired
     private DataSourceService dataSourceService;
@@ -100,7 +88,6 @@ public class ApiController {
 
     @Autowired
     private CompletionService completionService;
-
 
     /**
      * LOAD API LIST
@@ -237,10 +224,8 @@ public class ApiController {
 
             String remoteUrl = syncReq.getRemoteUrl().endsWith("/")?syncReq.getRemoteUrl().substring(0,syncReq.getRemoteUrl().length()-1):syncReq.getRemoteUrl();
             String url = remoteUrl+(properties.getBaseRegisterPath()+"/accept-sync").replace("//","/");
-            SimpleClientHttpRequestFactory factory=new SimpleClientHttpRequestFactory();
-            factory.setConnectTimeout(60000);
-            factory.setReadTimeout(60000);
-            RestTemplate restTemplate = new RestTemplate(factory);
+
+            RestTemplate restTemplate = getRestTemplate();
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON_UTF8);
             HttpEntity<String> requestHttpEntity = new HttpEntity<>(objectMapper.writeValueAsString(signMap), headers);
@@ -250,6 +235,13 @@ public class ApiController {
             e.printStackTrace();
             return ApiResult.fail(e.toString());
         }
+    }
+
+    private RestTemplate getRestTemplate(){
+        SimpleClientHttpRequestFactory factory=new SimpleClientHttpRequestFactory();
+        factory.setConnectTimeout(60000);
+        factory.setReadTimeout(60000);
+        return new RestTemplate(factory);
     }
 
     /**
@@ -749,5 +741,29 @@ public class ApiController {
             e.printStackTrace();
             return ApiResult.fail(e.getMessage());
         }
+    }
+
+    @GetMapping("/check-version")
+    public ApiResult checkVersion(){
+        try {
+            String urlStr = "https://img.shields.io/maven-metadata/v.json?label=maven-central&metadataUrl=https://repo1.maven.org/maven2/com/github/alenfive/rocket-api-boot-starter/maven-metadata.xml";
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.99 Safari/537.36");
+
+            HttpEntity<Resource> httpEntity = new HttpEntity<>(headers);
+
+            SimpleClientHttpRequestFactory factory=new SimpleClientHttpRequestFactory();
+            factory.setConnectTimeout(60000);
+            factory.setReadTimeout(60000);
+            RestTemplate restTemplate = new RestTemplate();
+
+            ResponseEntity<Object> response = restTemplate.exchange(urlStr, HttpMethod.GET,
+                    httpEntity, Object.class);
+            return ApiResult.success(response.getBody());
+        }catch (Exception e){
+            return ApiResult.fail(e.getMessage());
+        }
+
     }
 }

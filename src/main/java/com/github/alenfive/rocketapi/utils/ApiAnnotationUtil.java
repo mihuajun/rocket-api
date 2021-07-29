@@ -1,7 +1,6 @@
 package com.github.alenfive.rocketapi.utils;
 
 import com.github.alenfive.rocketapi.annotation.ApiId;
-import com.github.alenfive.rocketapi.annotation.ApiTable;
 import com.github.alenfive.rocketapi.config.RocketApiProperties;
 import com.github.alenfive.rocketapi.config.SpringContextUtils;
 import com.github.alenfive.rocketapi.entity.*;

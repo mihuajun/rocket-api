@@ -64,6 +64,7 @@ let directoryListUrl = baseUrl + "/directory/list";
 let saveDirectoryUrl = baseUrl + "/directory";
 let deleteDirectoryUrl = baseUrl + "/directory";
 
+let checkVersionUrl = baseUrl + "/check-version";
 
 let editor = "admin";
 
@@ -158,11 +159,11 @@ function initPanel() {
 
 //版本检测
 function versionCheck() {
-    //let url = "https://img.shields.io/maven-central/v/com.github.alenfive/rocket-api-boot-starter.json";
-    let url = "https://img.shields.io/maven-metadata/v.json?label=maven-central&metadataUrl=https://repo1.maven.org/maven2/com/github/alenfive/rocket-api-boot-starter/maven-metadata.xml";
-    $.getJSON(url,function (data) {
-        $("#top-section .center-version").show();
-        $("#top-section .center-version span").text(data.value);
+    $.getJSON(checkVersionUrl,function (data) {
+        if (data && data.data && data.data.value){
+            $("#top-section .center-version").show();
+            $("#top-section .center-version span").text(data.data.value);
+        }
     });
 }
 
