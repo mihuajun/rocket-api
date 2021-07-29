@@ -1194,13 +1194,14 @@ function loadExampleById(exampleId) {
 
 function loadExample(apiInfo,example) {
 
+
     let $form = $("#example-section");
     $form.find(".save-example-btn .changes-indicator").remove();
 
     //------构建example
     currExample = $.extend({
         apiInfoId:apiInfo.id,
-        url:buildDefaultUrl(apiInfo.path),
+        url:buildDefaultUrl(apiInfo.fullPath),
         method:apiInfo.method,
         requestHeader:"{}",
         requestBody:"",
@@ -1210,6 +1211,8 @@ function loadExample(apiInfo,example) {
         elapsedTime:0,
         options:"{}"
     },example);
+
+    currExample.method = apiInfo.method;
     $form.find(".example-method").val(currExample.method);
     let url = buildDefaultUrl(apiInfo.fullPath);
     if(currExample.url.indexOf("?") !=-1){
@@ -1227,7 +1230,7 @@ function loadExample(apiInfo,example) {
     switchExampleMethod(currExample.method);
 
     //请求体
-    exampleTextarea.setValue(currExample.requestBody);
+    exampleTextarea.setValue(currExample.requestBody?currExample.requestBody:'{}');
     formatExample();
     //响应状态码
     buildResponseStatus(currExample.status);
