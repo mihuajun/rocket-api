@@ -115,8 +115,16 @@ public class ConfigService {
         reloadApiConfig();
     }
 
-    public ApiConfig getConfigById(ApiConfig apiConfig){
+    public ApiConfig getConfigById(String id){
+        ApiConfig apiConfig = new ApiConfig();
+        apiConfig.setId(id);
         return dataSourceManager.getStoreApiDataSource().findEntityById(apiConfig);
+    }
+
+    public void removeConfigById(String id){
+        ApiConfig apiConfig = new ApiConfig();
+        apiConfig.setId(id);
+        dataSourceManager.getStoreApiDataSource().removeEntityById(apiConfig);
     }
 
     public ApiConfig getYmlConfig(){

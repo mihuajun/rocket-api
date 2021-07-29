@@ -1,5 +1,7 @@
 package com.github.alenfive.rocketapi.entity.vo;
 
 public enum NotifyEventType {
-    ReInit,RefreshMapping
+    ReInit, //重新初始化所有信息
+    RefreshMapping, //更新mapping
+    RefreshDB       //刷新数据源
 }

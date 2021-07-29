@@ -103,7 +103,7 @@ public class RequestMappingService {
      *
      * @param apiInfo
      */
-    public void registerMappingForApiInfo(ApiInfo apiInfo) throws NoSuchMethodException {
+    public synchronized void registerMappingForApiInfo(ApiInfo apiInfo) throws NoSuchMethodException {
         if (ApiType.Code.name().equals(apiInfo.getType())) {
             return;
         }
@@ -113,10 +113,16 @@ public class RequestMappingService {
         if (StringUtils.isEmpty(pattern) || pattern.startsWith("TEMP-")) {
             return;
         }
+
+        RequestMappingInfo mappingInfo = getRequestMappingInfo(pattern,apiInfo.getMethod());
+        if (mappingInfo != null){
+            return;
+        }
+
         log.debug("Mapped [{}]{}", apiInfo.getMethod(), pattern);
         PatternsRequestCondition patternsRequestCondition = new PatternsRequestCondition(pattern);
         RequestMethodsRequestCondition methodsRequestCondition = new RequestMethodsRequestCondition(RequestMethod.valueOf(apiInfo.getMethod()));
-        RequestMappingInfo mappingInfo = new RequestMappingInfo(patternsRequestCondition, methodsRequestCondition, null, null, null, null, null);
+        mappingInfo = new RequestMappingInfo(patternsRequestCondition, methodsRequestCondition, null, null, null, null, null);
         Method targetMethod = QLRequestMappingFactory.class.getDeclaredMethod("execute", Map.class, Map.class, HttpServletRequest.class, HttpServletResponse.class);
         requestMappingHandlerMapping.registerMapping(mappingInfo, mappingFactory, targetMethod);
     }
@@ -128,7 +134,7 @@ public class RequestMappingService {
      *
      * @param apiInfo
      */
-    public void unregisterMappingForApiInfo(ApiInfo apiInfo) {
+    public synchronized void unregisterMappingForApiInfo(ApiInfo apiInfo) {
         if (ApiType.Code.name().equals(apiInfo.getType())) {
             return;
         }
@@ -138,11 +144,29 @@ public class RequestMappingService {
         if (StringUtils.isEmpty(pattern) || pattern.startsWith("TEMP-")) {
             return;
         }
+
+        RequestMappingInfo mappingInfo = getRequestMappingInfo(pattern,apiInfo.getMethod());
+        if (mappingInfo == null){
+            return;
+        }
+
         log.debug("Cancel Mapping [{}]{}", apiInfo.getMethod(), pattern);
         PatternsRequestCondition patternsRequestCondition = new PatternsRequestCondition(pattern);
         RequestMethodsRequestCondition methodsRequestCondition = new RequestMethodsRequestCondition(RequestMethod.valueOf(apiInfo.getMethod()));
-        RequestMappingInfo mappingInfo = new RequestMappingInfo(patternsRequestCondition, methodsRequestCondition, null, null, null, null, null);
+        mappingInfo = new RequestMappingInfo(patternsRequestCondition, methodsRequestCondition, null, null, null, null, null);
         requestMappingHandlerMapping.unregisterMapping(mappingInfo);
+    }
+
+    private RequestMappingInfo getRequestMappingInfo(String pattern,String method){
+        Map<RequestMappingInfo, HandlerMethod> map = requestMappingHandlerMapping.getHandlerMethods();
+        for (RequestMappingInfo info : map.keySet()) {
+            Set<String> patterns = info.getPatternsCondition().getPatterns();
+            Set<RequestMethod> methods = info.getMethodsCondition().getMethods();
+            if (patterns.contains(pattern) && (methods.isEmpty() || methods.contains(RequestMethod.valueOf(method)))){
+                return info;
+            }
+        }
+        return null;
     }
 
     /**

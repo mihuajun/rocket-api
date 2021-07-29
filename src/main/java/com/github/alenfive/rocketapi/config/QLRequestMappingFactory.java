@@ -102,6 +102,10 @@ public class QLRequestMappingFactory {
      */
     @PostConstruct
     public void buildInit() throws Exception {
+        reInit(true);
+    }
+
+    public void reInit(Boolean isStart) throws Exception {
         //register setParseService
         dataSourceManager.setParseService(parseService);
 
@@ -112,10 +116,10 @@ public class QLRequestMappingFactory {
         configService.reloadApiConfig();
 
         //重新加载数据库API
-        apiInfoService.reLoadApiInfo();
+        apiInfoService.reLoadApiInfo(isStart);
 
         //重新加载数据源
-        dataSourceService.reLoadDBConfig();
+        dataSourceService.reLoadDBConfig(isStart);
     }
 
     private void loadBanner() {

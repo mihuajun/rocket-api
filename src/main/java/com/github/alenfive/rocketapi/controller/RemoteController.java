@@ -70,7 +70,7 @@ public class RemoteController {
             Object result = apiInfoService.apiInfoSync(syncReq.getDirectories(),syncReq.getApiInfos(),syncReq.getIncrement() == 1);
 
             //刷新缓存
-            apiInfoService.reLoadApiInfo();
+            apiInfoService.reLoadApiInfo(false);
 
             return ApiResult.success(result);
         }catch (Exception e){

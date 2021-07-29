@@ -7,6 +7,7 @@ import com.github.alenfive.rocketapi.entity.*;
 import com.github.alenfive.rocketapi.entity.vo.*;
 import com.github.alenfive.rocketapi.extend.IApiInfoCache;
 import com.github.alenfive.rocketapi.extend.IApiPager;
+import com.github.alenfive.rocketapi.extend.IClusterNotify;
 import com.github.alenfive.rocketapi.utils.GenerateId;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +34,9 @@ public class ApiInfoService {
 
     @Autowired
     private RocketApiProperties rocketApiProperties;
+
+    @Autowired
+    private IClusterNotify clusterNotify;
 
     private IApiPager apiPager = new SysApiPager();
 
@@ -80,10 +84,9 @@ public class ApiInfoService {
         //入缓存
         apiInfoCache.put(dbInfo);
 
-        //通知变更
+        //触发集群刷新
         refreshMapping.setNewMapping(MappingVo.builder().method(apiInfo.getMethod()).fullPath(apiInfo.getFullPath()).build());
-        //触发刷新
-        apiInfoCache.refreshNotify(NotifyEntity.builder().eventType(NotifyEventType.RefreshMapping).refreshMapping(refreshMapping).build());
+        clusterNotify.sendNotify(NotifyEntity.builder().eventType(NotifyEventType.RefreshMapping).refreshMapping(refreshMapping).build());
 
         //注册mapping
         requestMappingService.registerMappingForApiInfo(dbInfo);
@@ -143,8 +146,8 @@ public class ApiInfoService {
         //清缓存
         apiInfoCache.remove(dbInfo);
 
-        //刷新通知
-        apiInfoCache.refreshNotify(NotifyEntity.builder().eventType(NotifyEventType.RefreshMapping).refreshMapping(refreshMapping).build());
+        //触发集群刷新
+        clusterNotify.sendNotify(NotifyEntity.builder().eventType(NotifyEventType.RefreshMapping).refreshMapping(refreshMapping).build());
 
         //取消mapping注册
         requestMappingService.unregisterMappingForApiInfo(dbInfo);
@@ -226,6 +229,8 @@ public class ApiInfoService {
             saveApiHistory(apiInfo);
         }
 
+        //重新加载api信息
+        reLoadApiInfo(false);
         return apiInfos.size();
     }
 
@@ -481,30 +486,68 @@ public class ApiInfoService {
         return apiInfoCache.getAll().stream().filter(item -> item.getId().equals(id)).findFirst().orElse(null);
     }
 
-    public void reLoadApiInfo() throws NoSuchMethodException {
-        //历史缓存清理
-        if (apiInfoCache != null) {
-            apiInfoCache.getAll().stream().filter(item -> ApiType.Ql.name().equals(item.getType())).forEach(item -> {
-                requestMappingService.unregisterMappingForApiInfo(item);
-            });
-            apiInfoCache.removeAll();
+    /**
+     *
+     * @param isStart 本实例启动时为true,不触发API刷新通知
+     * @throws NoSuchMethodException
+     */
+    public void reLoadApiInfo(Boolean isStart) throws NoSuchMethodException {
+
+        List<ApiInfo> dbApiInfoList = dataSourceManager.getStoreApiDataSource().listByEntity(ApiInfo.builder().service(rocketApiProperties.getServiceName()).build());
+        List<NewOldApiInfo> newOldApiInfoList = dbApiInfoList.stream().map(item->NewOldApiInfo.builder().apiInfoId(item.getId()).newApiInfo(item).build()).collect(Collectors.toList());
+
+        Collection<ApiInfo> cacheApiInfoList = apiInfoCache.getAll();
+
+        cacheApiInfoList.forEach(cacheItem->{
+            NewOldApiInfo newOldApiInfo = newOldApiInfoList.stream().filter(dbItem->dbItem.getApiInfoId().equals(cacheItem.getId())).findFirst().orElse(null);
+            if (newOldApiInfo != null){
+                newOldApiInfo.setOldApiInfo(cacheItem);
+            }else{
+                newOldApiInfo = NewOldApiInfo.builder().apiInfoId(cacheItem.getId()).oldApiInfo(cacheItem).build();
+                newOldApiInfoList.add(newOldApiInfo);
+            }
+        });
+
+        for (NewOldApiInfo item : newOldApiInfoList){
+            MappingVo oldMapping = null;
+            MappingVo newMapping = null;
+
+            if (item.getOldApiInfo() != null){
+                oldMapping = MappingVo.builder().fullPath(item.getOldApiInfo().getFullPath()).method(item.getOldApiInfo().getMethod()).build();
+                requestMappingService.unregisterMappingForApiInfo(item.getOldApiInfo());
+                apiInfoCache.remove(item.getOldApiInfo());
+            }
+
+            if (item.getNewApiInfo() != null){
+                newMapping = MappingVo.builder().fullPath(item.getNewApiInfo().getFullPath()).method(item.getNewApiInfo().getMethod()).build();
+                requestMappingService.registerMappingForApiInfo(item.getNewApiInfo());
+                apiInfoCache.put(item.getNewApiInfo());
+            }
+
+            //mapping发生修改时发送通知 - 新增，修改，删除
+            boolean isNotify = false;
+            if (isStart){
+                isNotify = false;
+            }else if (oldMapping == null || newMapping == null){
+                isNotify = true;
+            }else if(oldMapping != null){
+                isNotify = !oldMapping.getFullPath().equals(newMapping.getFullPath()) || !oldMapping.getMethod().equals(newMapping.getMethod());
+            }else if (newMapping != null){
+                isNotify = !newMapping.getFullPath().equals(oldMapping.getFullPath()) || !newMapping.getMethod().equals(oldMapping.getMethod());
+            }
+
+            if (isNotify){
+                RefreshMapping refreshMapping = RefreshMapping.builder().oldMapping(oldMapping).newMapping(newMapping).build();
+                clusterNotify.sendNotify(NotifyEntity.builder().eventType(NotifyEventType.RefreshMapping).refreshMapping(refreshMapping).build());
+            }
+
         }
 
-        //获取数据库信息
-        List<ApiInfo> apiInfos = dataSourceManager.getStoreApiDataSource().listByEntity(ApiInfo.builder().service(rocketApiProperties.getServiceName()).build());
-        for (ApiInfo apiInfo : apiInfos) {
-            apiInfoCache.put(apiInfo);
-        }
-
-        //注册mapping
-        for (ApiInfo apiInfo : apiInfoCache.getAll()) {
-            requestMappingService.registerMappingForApiInfo(apiInfo);
-        }
     }
 
     public Collection<ApiInfo> getPathList(boolean isDb) throws Exception {
         if (isDb) {
-            reLoadApiInfo();
+            reLoadApiInfo(false);
         }
         return apiInfoCache.getAll();
     }

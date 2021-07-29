@@ -282,4 +282,11 @@ public class RocketApiAutoConfig {
     public SQLServerDriver getSQLServerDriver(){
         return new SQLServerDriver();
     }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public IClusterNotify getClusterNotify(){
+        return new DefaultClusterNotify();
+    }
+
 }

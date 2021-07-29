@@ -8,6 +8,10 @@ import com.github.alenfive.rocketapi.datasource.factory.IDataSourceDialectDriver
 import com.github.alenfive.rocketapi.entity.ApiConfig;
 import com.github.alenfive.rocketapi.entity.ConfigType;
 import com.github.alenfive.rocketapi.entity.DBConfig;
+import com.github.alenfive.rocketapi.entity.vo.NotifyEntity;
+import com.github.alenfive.rocketapi.entity.vo.NotifyEventType;
+import com.github.alenfive.rocketapi.entity.vo.RefreshDB;
+import com.github.alenfive.rocketapi.extend.IClusterNotify;
 import com.github.alenfive.rocketapi.utils.GenerateId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,6 +20,7 @@ import org.springframework.util.StringUtils;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -33,6 +38,9 @@ public class DataSourceService {
     @Autowired
     private ConfigService configService;
 
+    @Autowired
+    private IClusterNotify clusterNotify;
+
     public List<DBConfig> getDBConfig(){
         List<ApiConfig> configList = dataSourceManager.getStoreApiDataSource().listByEntity(ApiConfig.builder().service(rocketApiProperties.getServiceName()).type(ConfigType.DB.name()).build());
         return configList.stream().map(item-> {
@@ -46,16 +54,25 @@ public class DataSourceService {
         }).collect(Collectors.toList());
     }
 
+    public DBConfig getDBConfigById(String id) throws IOException {
+        ApiConfig apiConfig = configService.getConfigById(id);
+        return objectMapper.readValue(apiConfig.getConfigContext(),DBConfig.class);
+    }
+
+    private DBConfig getDBConfigByName(String name) {
+        return getDBConfig().stream().filter(item->item.getName().equals(name)).findFirst().orElse(null);
+    }
+
     @Transactional
     public void deleteDBConfig(DBConfig dbConfig) throws IOException {
-        ApiConfig apiConfig = new ApiConfig();
-        apiConfig.setId(dbConfig.getId());
-        apiConfig = configService.getConfigById(apiConfig);
 
-        dataSourceManager.getStoreApiDataSource().removeEntityById(apiConfig);
+        dbConfig = getDBConfigById(dbConfig.getId());
 
-        dbConfig = objectMapper.readValue(apiConfig.getConfigContext(),DBConfig.class);
         this.closeDBConfig(dbConfig);
+
+        //集群刷新
+        RefreshDB refreshDB = RefreshDB.builder().oldDBName(dbConfig.getName()).build();
+        clusterNotify.sendNotify(NotifyEntity.builder().eventType(NotifyEventType.RefreshDB).refreshDB(refreshDB).build());
     }
 
     private void assertDBConfigName(String dbName,String dbId) {
@@ -80,18 +97,36 @@ public class DataSourceService {
 
         assertDBConfigName(dbConfig.getName(),dbConfig.getId());
 
+        DBConfig oldDBConfig = null;
         if (StringUtils.isEmpty(dbConfig.getId())) {
             dbConfig.setId(GenerateId.get().toHexString());
             apiConfig.setId(dbConfig.getId());
             apiConfig.setConfigContext(objectMapper.writeValueAsString(dbConfig));
             dataSourceManager.getStoreApiDataSource().saveEntity(apiConfig);
         } else {
+
+            oldDBConfig = getDBConfigById(dbConfig.getId());
+
             apiConfig.setId(dbConfig.getId());
             apiConfig.setConfigContext(objectMapper.writeValueAsString(dbConfig));
             dataSourceManager.getStoreApiDataSource().updateEntityById(apiConfig);
+
+            //关闭历史连接
+            closeDBConfig(oldDBConfig);
         }
 
-        reLoadDBConfig(dbConfig);
+        //加载新连接
+        loadDBConfig(dbConfig);
+
+        //集群刷新
+        RefreshDB refreshDB = RefreshDB.builder().newDBName(dbConfig.getName()).build();
+
+        if (oldDBConfig != null){
+            refreshDB.setOldDBName(oldDBConfig.getName());
+        }
+
+        clusterNotify.sendNotify(NotifyEntity.builder().eventType(NotifyEventType.RefreshDB).refreshDB(refreshDB).build());
+
         return dbConfig.getId();
     }
 
@@ -101,6 +136,10 @@ public class DataSourceService {
         dialect.close();
     }
 
+    /**
+     * 动态数据源关闭
+     * @param config
+     */
     private void closeDBConfig(DBConfig config){
         DataSourceDialect dataSourceDialect = dataSourceManager.getDialectMap().remove(config.getName());
         if (dataSourceDialect == null){
@@ -113,11 +152,7 @@ public class DataSourceService {
      * 动态数据源加载
      * @param config
      */
-    private void reLoadDBConfig(DBConfig config) throws Exception {
-        DataSourceDialect history = dataSourceManager.getDialectMap().remove(config.getName());
-        if (history != null){
-            history.close();
-        }
+    private void loadDBConfig(DBConfig config) throws Exception {
 
         if (!config.isEnabled()){
             return;
@@ -128,13 +163,48 @@ public class DataSourceService {
         dialect.setDynamic(true);
 
         dataSourceManager.getDialectMap().put(config.getName(),dialect);
+
     }
 
-    public void reLoadDBConfig() throws Exception {
-        List<DBConfig> dbConfigList = getDBConfig();
-        for (DBConfig dbConfig : dbConfigList){
-            reLoadDBConfig(dbConfig);
+    public void reLoadDBConfig(Boolean isStart) throws Exception {
+
+        Set<String> oldDBList = dataSourceManager.getDialectMap().keySet();
+        for (String oldDBName : oldDBList ){
+
+            if (!dataSourceManager.getDialectMap().get(oldDBName).isDynamic()){
+                continue;
+            }
+
+            closeDBConfig(DBConfig.builder().name(oldDBName).build());
+            if (!isStart){
+                RefreshDB refreshDB = RefreshDB.builder().oldDBName(oldDBName).build();
+                clusterNotify.sendNotify(NotifyEntity.builder().eventType(NotifyEventType.RefreshDB).refreshDB(refreshDB).build());
+            }
+        }
+
+        List<DBConfig> newDBList = getDBConfig();
+        for (DBConfig dbConfig : newDBList){
+            loadDBConfig(dbConfig);
+            if (!isStart){
+                RefreshDB refreshDB = RefreshDB.builder().newDBName(dbConfig.getName()).build();
+                clusterNotify.sendNotify(NotifyEntity.builder().eventType(NotifyEventType.RefreshDB).refreshDB(refreshDB).build());
+            }
         }
     }
+
+    public void refreshDB(RefreshDB refreshDB) throws Exception {
+
+        if (!StringUtils.isEmpty(refreshDB.getOldDBName())){
+            closeDBConfig(DBConfig.builder().name(refreshDB.getOldDBName()).build());
+        }
+
+        if (!StringUtils.isEmpty(refreshDB.getNewDBName())){
+            DBConfig newDBConfig = this.getDBConfigByName(refreshDB.getNewDBName());
+            if (newDBConfig != null){
+                loadDBConfig(newDBConfig);
+            }
+        }
+    }
+
 
 }

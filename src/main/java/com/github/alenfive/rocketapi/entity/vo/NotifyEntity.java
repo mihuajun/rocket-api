@@ -16,7 +16,12 @@ public class NotifyEntity {
     private NotifyEventType eventType;
 
     /**
-     * eventType=RefreshMapping时存在
+     * eventType=@link NotifyEventType.UpdateMapping时存在
      */
     private RefreshMapping refreshMapping;
+
+    /**
+     * eventType=@link NotifyEventType.UpdateDB时存在
+     */
+    private RefreshDB refreshDB;
 }
