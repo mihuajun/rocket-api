@@ -4,13 +4,12 @@ import com.github.alenfive.rocketapi.controller.ApiController;
 import com.github.alenfive.rocketapi.controller.RemoteController;
 import com.github.alenfive.rocketapi.controller.ViewController;
 import com.github.alenfive.rocketapi.datasource.DataSourceManager;
+import com.github.alenfive.rocketapi.datasource.factory.*;
 import com.github.alenfive.rocketapi.extend.*;
 import com.github.alenfive.rocketapi.function.*;
 import com.github.alenfive.rocketapi.script.GroovyScriptParse;
 import com.github.alenfive.rocketapi.script.IScriptParse;
-import com.github.alenfive.rocketapi.service.EncryptChangeService;
-import com.github.alenfive.rocketapi.service.LoginService;
-import com.github.alenfive.rocketapi.service.ScriptParseService;
+import com.github.alenfive.rocketapi.service.*;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -216,5 +215,71 @@ public class RocketApiAutoConfig {
     @ConditionalOnMissingBean
     public ISQLInterceptor getSQLInterceptor(){
         return new DefaultSQLInterceptor();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public RequestMappingService getRequestMappingService(){
+        return new RequestMappingService();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public CompletionService getCompletionService(){
+        return new CompletionService();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public ConfigService getConfigService(){
+        return new ConfigService();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public DataSourceService getDataSourceService(){
+        return new DataSourceService();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public ApiInfoService getApiInfoService(){
+        return new ApiInfoService();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public ClickHouseDriver getClickHouseDriver(){
+        return new ClickHouseDriver();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public MongoDriver getMongoDriver(){
+        return new MongoDriver();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public MySQLDriver getMySQLDriver(){
+        return new MySQLDriver();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public OracleDriver getOracleDriver(){
+        return new OracleDriver();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public PostgreSQLDriver getPostgreSQLDriver(){
+        return new PostgreSQLDriver();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public SQLServerDriver getSQLServerDriver(){
+        return new SQLServerDriver();
     }
 }

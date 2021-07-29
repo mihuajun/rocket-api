@@ -637,13 +637,7 @@ public class ApiController {
 
 
     @GetMapping("/db-config/list")
-    public ApiResult listDbConfig(HttpServletRequest request){
-        String user = loginService.getUser(request);
-
-        if(StringUtils.isEmpty(user)){
-            return ApiResult.fail("Permission denied");
-        }
-
+    public ApiResult listDbConfig(){
         try {
             List<DBConfig> dbConfigs = dataSourceService.getDBConfig();
             return ApiResult.success(dbConfigs);
@@ -697,13 +691,7 @@ public class ApiController {
     }
 
     @GetMapping("/db-driver/list")
-    public ApiResult listDbDriver(HttpServletRequest request){
-        String user = loginService.getUser(request);
-
-        if(StringUtils.isEmpty(user)){
-            return ApiResult.fail("Permission denied");
-        }
-
+    public ApiResult listDbDriver(){
         try {
             return ApiResult.success(completionService.getDriver());
         }catch (Exception e){
