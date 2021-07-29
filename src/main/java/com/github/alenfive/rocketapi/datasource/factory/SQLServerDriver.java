@@ -19,7 +19,7 @@ public class SQLServerDriver extends JdbcDriver {
 
     @Override
     public String getIcon() {
-        return "rocketapi/images/sqlserver.png";
+        return "rocketapi/images/SQLServer.png";
     }
 
     @Override

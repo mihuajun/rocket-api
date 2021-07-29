@@ -18,7 +18,7 @@ public class PostgreSQLDriver extends JdbcDriver {
 
     @Override
     public String getIcon() {
-        return "rocketapi/images/postgresql.png";
+        return "rocketapi/images/PostgreSQL.png";
     }
 
     @Override

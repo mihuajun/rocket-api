@@ -18,7 +18,7 @@ public class ClickHouseDriver extends JdbcDriver {
 
     @Override
     public String getIcon() {
-        return "rocketapi/images/clickhouse.png";
+        return "rocketapi/images/ClickHouse.png";
     }
 
     @Override

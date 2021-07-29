@@ -15,7 +15,7 @@ public class OracleDriver extends JdbcDriver {
 
     @Override
     public String getIcon() {
-        return "rocketapi/images/oracle.png";
+        return "rocketapi/images/Oracle.png";
     }
 
     @Override

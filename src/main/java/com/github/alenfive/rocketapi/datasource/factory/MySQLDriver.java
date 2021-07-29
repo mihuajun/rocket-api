@@ -18,7 +18,7 @@ public class MySQLDriver extends JdbcDriver {
 
     @Override
     public String getIcon() {
-        return "rocketapi/images/mysql.png";
+        return "rocketapi/images/MySQL.png";
     }
 
     @Override

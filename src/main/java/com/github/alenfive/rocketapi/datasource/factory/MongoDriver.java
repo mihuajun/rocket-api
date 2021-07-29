@@ -22,7 +22,7 @@ public class MongoDriver extends IDataSourceDialectDriver {
 
     @Override
     public String getIcon() {
-        return "rocketapi/images/mongodb.png";
+        return "rocketapi/images/MongoDB.png";
     }
 
     @Override
