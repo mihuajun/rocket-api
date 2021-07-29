@@ -304,6 +304,9 @@ public class ApiInfoService {
             }
         }
 
+        //重新加载api信息
+        reLoadApiInfo(false);
+
         return apiInfos.size();
     }
 
