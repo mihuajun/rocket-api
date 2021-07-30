@@ -529,12 +529,12 @@ public class ApiInfoService {
 
     public void sendNotify(ApiInfo oldMapping,ApiInfo newMapping){
 
-        boolean isNotify = oldMapping != null && newMapping != null && oldMapping.getFullPath().equals(newMapping.getFullPath()) && oldMapping.getMethod().equals(newMapping.getMethod());
+        /*boolean isNotify = oldMapping != null && newMapping != null && oldMapping.getFullPath().equals(newMapping.getFullPath()) && oldMapping.getMethod().equals(newMapping.getMethod());
 
         //有值，并且相同，识为未变更，无需集群通知
         if (isNotify){
             return;
-        }
+        }*/
 
         RefreshMapping refreshMapping = RefreshMapping.builder().oldMapping(oldMapping).newMapping(newMapping).build();
         clusterNotify.sendNotify(NotifyEntity.builder().eventType(NotifyEventType.RefreshMapping).refreshMapping(refreshMapping).build());

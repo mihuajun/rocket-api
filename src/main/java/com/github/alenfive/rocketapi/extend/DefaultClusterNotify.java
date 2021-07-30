@@ -4,6 +4,7 @@ import com.github.alenfive.rocketapi.config.QLRequestMappingFactory;
 import com.github.alenfive.rocketapi.entity.vo.NotifyEntity;
 import com.github.alenfive.rocketapi.entity.vo.NotifyEventType;
 import com.github.alenfive.rocketapi.service.ApiInfoService;
+import com.github.alenfive.rocketapi.service.ConfigService;
 import com.github.alenfive.rocketapi.service.DataSourceService;
 import com.github.alenfive.rocketapi.utils.GenerateId;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +27,9 @@ public class DefaultClusterNotify implements IClusterNotify {
 
     @Autowired
     private DataSourceService dataSourceService;
+
+    @Autowired
+    private ConfigService configService;
 
     /**
      * 发送系统缓存刷新的通知
@@ -77,6 +81,11 @@ public class DefaultClusterNotify implements IClusterNotify {
             } catch (Exception e) {
                 e.printStackTrace();
             }
+        }
+
+        //刷新全局配置
+        if (NotifyEventType.RefreshConfig.equals(notifyEntity.getEventType())){
+            configService.refreshConfig();
         }
     }
 }

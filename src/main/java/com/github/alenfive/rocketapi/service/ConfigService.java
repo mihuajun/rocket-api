@@ -5,10 +5,14 @@ import com.github.alenfive.rocketapi.config.RocketApiProperties;
 import com.github.alenfive.rocketapi.datasource.DataSourceManager;
 import com.github.alenfive.rocketapi.entity.ApiConfig;
 import com.github.alenfive.rocketapi.entity.ConfigType;
+import com.github.alenfive.rocketapi.entity.vo.NotifyEntity;
+import com.github.alenfive.rocketapi.entity.vo.NotifyEventType;
+import com.github.alenfive.rocketapi.extend.IClusterNotify;
 import com.github.alenfive.rocketapi.utils.GenerateId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.YamlPropertiesFactoryBean;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.MutablePropertySources;
 import org.springframework.core.env.PropertiesPropertySource;
@@ -36,11 +40,65 @@ public class ConfigService {
     @Autowired
     private RocketApiProperties rocketApiProperties;
 
+    @Autowired
+    @Lazy
+    private IClusterNotify clusterNotify;
+
     /**
      * 加载配置
      *
      */
-    public void reloadApiConfig() {
+    public void reloadApiConfig(Boolean isStart) {
+
+        refreshConfig();
+
+        if (!isStart){
+            clusterNotify.sendNotify(NotifyEntity.builder().eventType(NotifyEventType.RefreshConfig).build());
+        }
+    }
+
+    /**
+     * 配置更新
+     *
+     * @param configContext
+     * @return
+     */
+    public void saveYmlConfig(String configContext) throws Exception {
+        ApiConfig apiConfig = this.getYmlConfig();
+        if (apiConfig == null) {
+            apiConfig = ApiConfig.builder()
+                    .configContext(configContext)
+                    .type(ConfigType.Yml.name())
+                    .service(rocketApiProperties.getServiceName())
+                    .build();
+            apiConfig.setId(GenerateId.get().toHexString());
+            dataSourceManager.getStoreApiDataSource().saveEntity(apiConfig);
+        } else {
+            apiConfig.setConfigContext(configContext);
+            dataSourceManager.getStoreApiDataSource().updateEntityById(apiConfig);
+        }
+
+        reloadApiConfig(false);
+    }
+
+    public ApiConfig getConfigById(String id){
+        ApiConfig apiConfig = new ApiConfig();
+        apiConfig.setId(id);
+        return dataSourceManager.getStoreApiDataSource().findEntityById(apiConfig);
+    }
+
+    public void removeConfigById(String id){
+        ApiConfig apiConfig = new ApiConfig();
+        apiConfig.setId(id);
+        dataSourceManager.getStoreApiDataSource().removeEntityById(apiConfig);
+    }
+
+    public ApiConfig getYmlConfig(){
+        List<ApiConfig> list = dataSourceManager.getStoreApiDataSource().listByEntity(ApiConfig.builder().service(rocketApiProperties.getServiceName()).type(ConfigType.Yml.name()).build());
+        return list.stream().findFirst().orElse(null);
+    }
+
+    public void refreshConfig() {
         MutablePropertySources propertySources = environment.getPropertySources();
         String apiConfigName = "applicationConfig:[db:/rocket-api.yml]";
         if (!rocketApiProperties.isConfigEnabled()) {
@@ -86,46 +144,5 @@ public class ConfigService {
         if (refreshApiConfig != null) {
             refreshApiConfig.refresh();
         }
-    }
-
-    /**
-     * 配置更新
-     *
-     * @param configContext
-     * @return
-     */
-    public void saveYmlConfig(String configContext) throws Exception {
-        ApiConfig apiConfig = this.getYmlConfig();
-        if (apiConfig == null) {
-            apiConfig = ApiConfig.builder()
-                    .configContext(configContext)
-                    .type(ConfigType.Yml.name())
-                    .service(rocketApiProperties.getServiceName())
-                    .build();
-            apiConfig.setId(GenerateId.get().toHexString());
-            dataSourceManager.getStoreApiDataSource().saveEntity(apiConfig);
-        } else {
-            apiConfig.setConfigContext(configContext);
-            dataSourceManager.getStoreApiDataSource().updateEntityById(apiConfig);
-        }
-
-        reloadApiConfig();
-    }
-
-    public ApiConfig getConfigById(String id){
-        ApiConfig apiConfig = new ApiConfig();
-        apiConfig.setId(id);
-        return dataSourceManager.getStoreApiDataSource().findEntityById(apiConfig);
-    }
-
-    public void removeConfigById(String id){
-        ApiConfig apiConfig = new ApiConfig();
-        apiConfig.setId(id);
-        dataSourceManager.getStoreApiDataSource().removeEntityById(apiConfig);
-    }
-
-    public ApiConfig getYmlConfig(){
-        List<ApiConfig> list = dataSourceManager.getStoreApiDataSource().listByEntity(ApiConfig.builder().service(rocketApiProperties.getServiceName()).type(ConfigType.Yml.name()).build());
-        return list.stream().findFirst().orElse(null);
     }
 }

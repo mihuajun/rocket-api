@@ -113,7 +113,7 @@ public class QLRequestMappingFactory {
         loadBanner();
 
         //重新加载配置
-        configService.reloadApiConfig();
+        configService.reloadApiConfig(isStart);
 
         //重新加载数据库API
         apiInfoService.reLoadApiInfo(isStart);

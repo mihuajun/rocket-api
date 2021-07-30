@@ -3,10 +3,7 @@ package com.github.alenfive.rocketapi.datasource.factory;
 import com.github.alenfive.rocketapi.datasource.DataSourceDialect;
 import com.github.alenfive.rocketapi.datasource.MongoDataSource;
 import com.github.alenfive.rocketapi.entity.DBConfig;
-import com.mongodb.MongoClientURI;
-import org.springframework.data.mongodb.MongoDbFactory;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.SimpleMongoDbFactory;
+import com.github.alenfive.rocketapi.utils.MongoDBUtils;
 import org.springframework.stereotype.Component;
 
 /**
@@ -32,9 +29,6 @@ public class MongoDriver extends IDataSourceDialectDriver {
 
     @Override
     public DataSourceDialect factory(DBConfig config) {
-        MongoClientURI mongoClientURI = new MongoClientURI(config.getUrl());
-        MongoDbFactory mongoDbFactory = new SimpleMongoDbFactory(mongoClientURI);
-        MongoTemplate mongoTemplate = new MongoTemplate(mongoDbFactory);
-        return new MongoDataSource(mongoTemplate);
+        return new MongoDataSource(MongoDBUtils.getMongoTemplate(config));
     }
 }

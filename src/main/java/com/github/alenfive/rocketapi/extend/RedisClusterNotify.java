@@ -7,6 +7,7 @@ import com.github.alenfive.rocketapi.config.RocketApiProperties;
 import com.github.alenfive.rocketapi.entity.vo.NotifyEntity;
 import com.github.alenfive.rocketapi.entity.vo.NotifyEventType;
 import com.github.alenfive.rocketapi.service.ApiInfoService;
+import com.github.alenfive.rocketapi.service.ConfigService;
 import com.github.alenfive.rocketapi.service.DataSourceService;
 import com.github.alenfive.rocketapi.utils.GenerateId;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +40,9 @@ public class RedisClusterNotify implements IClusterNotify,MessageListener {
 
     @Autowired
     private RocketApiProperties rocketApiProperties;
+
+    @Autowired
+    private ConfigService configService;
 
     public String buildChannelName(){
         return "rocket-api:"+rocketApiProperties.getServiceName()+":channel";
@@ -104,6 +108,11 @@ public class RedisClusterNotify implements IClusterNotify,MessageListener {
                 e.printStackTrace();
             }
         }
+
+        //刷新全局配置
+        if (NotifyEventType.RefreshConfig.equals(notifyEntity.getEventType())){
+            configService.refreshConfig();
+        }
     }
 
     @Override
@@ -117,7 +126,6 @@ public class RedisClusterNotify implements IClusterNotify,MessageListener {
         }
         this.receiveNotify(notifyEntity);
     }
-
 
 
 }
