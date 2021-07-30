@@ -30,9 +30,6 @@ public class ConfigService {
     @Autowired
     private DataSourceManager dataSourceManager;
 
-    @Value("${spring.application.name:rocket-api}")
-    private String service;
-
     @Autowired
     private ConfigurableEnvironment environment;
 
@@ -103,7 +100,7 @@ public class ConfigService {
             apiConfig = ApiConfig.builder()
                     .configContext(configContext)
                     .type(ConfigType.Yml.name())
-                    .service(service)
+                    .service(rocketApiProperties.getServiceName())
                     .build();
             apiConfig.setId(GenerateId.get().toHexString());
             dataSourceManager.getStoreApiDataSource().saveEntity(apiConfig);
@@ -128,7 +125,7 @@ public class ConfigService {
     }
 
     public ApiConfig getYmlConfig(){
-        List<ApiConfig> list = dataSourceManager.getStoreApiDataSource().listByEntity(ApiConfig.builder().service(service).type(ConfigType.Yml.name()).build());
+        List<ApiConfig> list = dataSourceManager.getStoreApiDataSource().listByEntity(ApiConfig.builder().service(rocketApiProperties.getServiceName()).type(ConfigType.Yml.name()).build());
         return list.stream().findFirst().orElse(null);
     }
 }
