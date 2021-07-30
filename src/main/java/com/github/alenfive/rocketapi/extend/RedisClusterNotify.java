@@ -60,14 +60,6 @@ public class RedisClusterNotify implements IClusterNotify,MessageListener {
      */
     @Override
     public void sendNotify(NotifyEntity notifyEntity) {
-        try {
-            Thread.sleep(3000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        if(true)
-            throw new RuntimeException("error");
-
         notifyEntity.setInstanceId(instanceId);
 
         String messageStr = null;
