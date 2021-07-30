@@ -1,5 +1,6 @@
 package com.github.alenfive.rocketapi.config;
 
+import com.github.alenfive.rocketapi.entity.vo.ClusterType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -57,6 +58,13 @@ public class RocketApiProperties {
      * 启用YML配置，默认false
      */
     private boolean configEnabled = false;
+
+    /**
+     * 集群类型
+     * ClusterType.None 默认值，默认为单例
+     * ClusterType.Redis 以Redis模式实现集群共享，
+     */
+    private ClusterType clusterType = ClusterType.None;
 
     /**
      * 表名称自定义

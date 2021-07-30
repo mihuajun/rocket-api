@@ -1,19 +1,30 @@
 package com.github.alenfive.rocketapi.extend;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.alenfive.rocketapi.config.QLRequestMappingFactory;
+import com.github.alenfive.rocketapi.config.RocketApiProperties;
 import com.github.alenfive.rocketapi.entity.vo.NotifyEntity;
 import com.github.alenfive.rocketapi.entity.vo.NotifyEventType;
 import com.github.alenfive.rocketapi.service.DataSourceService;
 import com.github.alenfive.rocketapi.service.RequestMappingService;
 import com.github.alenfive.rocketapi.utils.GenerateId;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.data.redis.connection.Message;
+import org.springframework.data.redis.connection.MessageListener;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.listener.PatternTopic;
+import org.springframework.data.redis.listener.RedisMessageListenerContainer;
+import org.springframework.data.redis.listener.adapter.MessageListenerAdapter;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 /**
  * 集群通知
  */
-@Component
-public class DefaultClusterNotify implements IClusterNotify {
+public class RedisClusterNotify implements IClusterNotify,MessageListener {
 
 
     private String instanceId = GenerateId.get().toHexString();
@@ -27,6 +38,19 @@ public class DefaultClusterNotify implements IClusterNotify {
     @Autowired
     private DataSourceService dataSourceService;
 
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    @Autowired
+    private StringRedisTemplate redisTemplate;
+
+    @Autowired
+    private RocketApiProperties rocketApiProperties;
+
+    public String buildChannelName(){
+        return "rocket-api:"+rocketApiProperties.getServiceName()+":channel";
+    }
+
     /**
      * 发送系统缓存刷新的通知
      * 1. 在页面触发"Rebuild API List"操作时，会触发此方法
@@ -36,7 +60,24 @@ public class DefaultClusterNotify implements IClusterNotify {
      */
     @Override
     public void sendNotify(NotifyEntity notifyEntity) {
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        if(true)
+            throw new RuntimeException("error");
+
         notifyEntity.setInstanceId(instanceId);
+
+        String messageStr = null;
+        try {
+            messageStr = objectMapper.writeValueAsString(notifyEntity);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+
+        redisTemplate.convertAndSend(buildChannelName(), messageStr);
     }
 
     /**
@@ -79,4 +120,19 @@ public class DefaultClusterNotify implements IClusterNotify {
             }
         }
     }
+
+    @Override
+    public void onMessage(Message message, byte[] bytes) {
+        String messageStr = new String(message.getBody());
+        NotifyEntity notifyEntity = null;
+        try {
+            notifyEntity = objectMapper.readValue(messageStr, NotifyEntity.class);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        this.receiveNotify(notifyEntity);
+    }
+
+
+
 }

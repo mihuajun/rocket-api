@@ -10,6 +10,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class NotifyEntity {
+
+    /**
+     * 发送者实例ID
+     */
+    private String instanceId;
+
     /**
      * 事件类型
      */

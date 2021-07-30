@@ -11,6 +11,7 @@ import com.github.alenfive.rocketapi.extend.IClusterNotify;
 import com.github.alenfive.rocketapi.utils.GenerateId;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -36,6 +37,7 @@ public class ApiInfoService {
     private RocketApiProperties rocketApiProperties;
 
     @Autowired
+    @Lazy
     private IClusterNotify clusterNotify;
 
     private IApiPager apiPager = new SysApiPager();
@@ -43,12 +45,13 @@ public class ApiInfoService {
     @Transactional
     public String saveApiInfo(ApiInfo apiInfo) throws Exception {
 
-        RefreshMapping refreshMapping = new RefreshMapping();
+
+        MappingVo oldMapping = null;
 
         //更新时，历史记录为缓存记录
         if (!StringUtils.isEmpty(apiInfo.getId())){
             ApiInfo oldApiInfo = this.getApiInfoById(apiInfo.getId());
-            refreshMapping.setOldMapping(MappingVo.builder().method(oldApiInfo.getMethod()).fullPath(oldApiInfo.getFullPath()).build());
+            oldMapping = MappingVo.builder().method(oldApiInfo.getMethod()).fullPath(oldApiInfo.getFullPath()).build();
         }
 
         buildFullPath(apiInfo);
@@ -84,15 +87,15 @@ public class ApiInfoService {
         //入缓存
         apiInfoCache.put(dbInfo);
 
-        //触发集群刷新
-        refreshMapping.setNewMapping(MappingVo.builder().method(apiInfo.getMethod()).fullPath(apiInfo.getFullPath()).build());
-        clusterNotify.sendNotify(NotifyEntity.builder().eventType(NotifyEventType.RefreshMapping).refreshMapping(refreshMapping).build());
-
         //注册mapping
         requestMappingService.registerMappingForApiInfo(dbInfo);
 
         //存储历史
         saveApiHistory(dbInfo);
+
+        //触发集群刷新
+        MappingVo newMapping = MappingVo.builder().method(apiInfo.getMethod()).fullPath(apiInfo.getFullPath()).build();
+        this.sendNotify(oldMapping,newMapping);
 
         return dbInfo.getId();
     }
@@ -137,8 +140,7 @@ public class ApiInfoService {
             return;
         }
 
-        RefreshMapping refreshMapping = new RefreshMapping();
-        refreshMapping.setOldMapping(MappingVo.builder().method(dbInfo.getMethod()).fullPath(dbInfo.getFullPath()).build());
+        MappingVo oldMapping = MappingVo.builder().method(dbInfo.getMethod()).fullPath(dbInfo.getFullPath()).build();
 
         //清数据库
         dataSourceManager.getStoreApiDataSource().removeEntityById(apiInfo);
@@ -146,11 +148,11 @@ public class ApiInfoService {
         //清缓存
         apiInfoCache.remove(dbInfo);
 
-        //触发集群刷新
-        clusterNotify.sendNotify(NotifyEntity.builder().eventType(NotifyEventType.RefreshMapping).refreshMapping(refreshMapping).build());
-
         //取消mapping注册
         requestMappingService.unregisterMappingForApiInfo(dbInfo);
+
+        //触发集群刷新
+        this.sendNotify(oldMapping,null);
     }
 
 
@@ -353,13 +355,7 @@ public class ApiInfoService {
             List<ApiInfo> apiInfoList = apiInfoCache.getAll().stream().filter(item->directoryId.equals(item.getDirectoryId())).collect(Collectors.toList());
 
             for (ApiInfo apiInfo : apiInfoList ){
-                dataSourceManager.getStoreApiDataSource().removeEntityById(apiInfo);
-
-                //取消mapping注册
-                requestMappingService.unregisterMappingForApiInfo(apiInfo);
-
-                //缓存清理
-                apiInfoCache.remove(apiInfo);
+                deleteApiInfo(apiInfo);
             }
         }
 
@@ -430,6 +426,11 @@ public class ApiInfoService {
 
             //存储历史
             saveApiHistory(dbInfo);
+
+            //集群环境刷新
+            MappingVo oldMapping = MappingVo.builder().fullPath(item.getFullPath()).method(item.getMethod()).build();
+            MappingVo newMapping = MappingVo.builder().fullPath(dbInfo.getFullPath()).method(dbInfo.getMethod()).build();
+            this.sendNotify(oldMapping,newMapping);
         }
     }
 
@@ -528,24 +529,25 @@ public class ApiInfoService {
             }
 
             //mapping发生修改时发送通知 - 新增，修改，删除
-            boolean isNotify = false;
-            if (isStart){
-                isNotify = false;
-            }else if (oldMapping == null || newMapping == null){
-                isNotify = true;
-            }else if(oldMapping != null){
-                isNotify = !oldMapping.getFullPath().equals(newMapping.getFullPath()) || !oldMapping.getMethod().equals(newMapping.getMethod());
-            }else if (newMapping != null){
-                isNotify = !newMapping.getFullPath().equals(oldMapping.getFullPath()) || !newMapping.getMethod().equals(oldMapping.getMethod());
-            }
-
-            if (isNotify){
-                RefreshMapping refreshMapping = RefreshMapping.builder().oldMapping(oldMapping).newMapping(newMapping).build();
-                clusterNotify.sendNotify(NotifyEntity.builder().eventType(NotifyEventType.RefreshMapping).refreshMapping(refreshMapping).build());
+            if (!isStart){
+                this.sendNotify(oldMapping,newMapping);
             }
 
         }
 
+    }
+
+    public void sendNotify(MappingVo oldMapping,MappingVo newMapping){
+
+        boolean isNotify = oldMapping != null && newMapping != null && oldMapping.getFullPath().equals(newMapping.getFullPath()) && oldMapping.getMethod().equals(newMapping.getMethod());
+
+        //有值，并且相同，识为未变更，无需集群通知
+        if (isNotify){
+            return;
+        }
+
+        RefreshMapping refreshMapping = RefreshMapping.builder().oldMapping(oldMapping).newMapping(newMapping).build();
+        clusterNotify.sendNotify(NotifyEntity.builder().eventType(NotifyEventType.RefreshMapping).refreshMapping(refreshMapping).build());
     }
 
     public Collection<ApiInfo> getPathList(boolean isDb) throws Exception {
@@ -576,4 +578,7 @@ public class ApiInfoService {
                 .directories(directorySet)
                 .build();
     }
+
+
+
 }

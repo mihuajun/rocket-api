@@ -7,5 +7,5 @@ import com.github.alenfive.rocketapi.entity.vo.NotifyEntity;
  */
 public interface IClusterNotify {
     public void sendNotify(NotifyEntity notifyEntity);
-    public void receiveNotify(String instanceId, NotifyEntity notifyEntity);
+    public void receiveNotify(NotifyEntity notifyEntity);
 }
