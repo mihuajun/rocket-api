@@ -30,6 +30,7 @@ public class ViewController {
     public String index(Model model, HttpServletRequest request){
         model.addAttribute("dataSourceList",dataSourceManager.getDialectMap().keySet());
         model.addAttribute("service", rocketApiProperties.getServiceName());
+        model.addAttribute("title", rocketApiProperties.getServiceTitle());
         model.addAttribute("configEnabled", rocketApiProperties.isConfigEnabled());
         model.addAttribute("version", PackageUtils.getVersion());
         if (request.getRequestURI().endsWith("/")){

@@ -16,6 +16,10 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public class RocketApiProperties {
 
     /**
+     * 系统名称
+     */
+    private String serviceTitle = "Rocket API";
+    /**
      * 服务名称
      * 所有数据以此作隔离
      */
