@@ -1,5 +1,6 @@
 package com.github.alenfive.rocketapi.entity.vo;
 
+import com.github.alenfive.rocketapi.entity.ApiInfo;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -11,7 +12,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class RefreshMapping {
 
-    private MappingVo oldMapping;
+    private ApiInfo oldMapping;
 
-    private MappingVo newMapping;
+    private ApiInfo newMapping;
 }

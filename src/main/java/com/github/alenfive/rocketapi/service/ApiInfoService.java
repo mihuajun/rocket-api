@@ -46,12 +46,11 @@ public class ApiInfoService {
     public String saveApiInfo(ApiInfo apiInfo) throws Exception {
 
 
-        MappingVo oldMapping = null;
+        ApiInfo oldMapping = null;
 
         //更新时，历史记录为缓存记录
         if (!StringUtils.isEmpty(apiInfo.getId())){
-            ApiInfo oldApiInfo = this.getApiInfoById(apiInfo.getId());
-            oldMapping = MappingVo.builder().method(oldApiInfo.getMethod()).fullPath(oldApiInfo.getFullPath()).build();
+            oldMapping = this.getApiInfoById(apiInfo.getId());
         }
 
         buildFullPath(apiInfo);
@@ -94,8 +93,7 @@ public class ApiInfoService {
         saveApiHistory(dbInfo);
 
         //触发集群刷新
-        MappingVo newMapping = MappingVo.builder().method(apiInfo.getMethod()).fullPath(apiInfo.getFullPath()).build();
-        this.sendNotify(oldMapping,newMapping);
+        this.sendNotify(oldMapping,dbInfo);
 
         return dbInfo.getId();
     }
@@ -140,8 +138,6 @@ public class ApiInfoService {
             return;
         }
 
-        MappingVo oldMapping = MappingVo.builder().method(dbInfo.getMethod()).fullPath(dbInfo.getFullPath()).build();
-
         //清数据库
         dataSourceManager.getStoreApiDataSource().removeEntityById(apiInfo);
 
@@ -152,7 +148,7 @@ public class ApiInfoService {
         requestMappingService.unregisterMappingForApiInfo(dbInfo);
 
         //触发集群刷新
-        this.sendNotify(oldMapping,null);
+        this.sendNotify(dbInfo,null);
     }
 
 
@@ -428,9 +424,7 @@ public class ApiInfoService {
             saveApiHistory(dbInfo);
 
             //集群环境刷新
-            MappingVo oldMapping = MappingVo.builder().fullPath(item.getFullPath()).method(item.getMethod()).build();
-            MappingVo newMapping = MappingVo.builder().fullPath(dbInfo.getFullPath()).method(dbInfo.getMethod()).build();
-            this.sendNotify(oldMapping,newMapping);
+            this.sendNotify(item,dbInfo);
         }
     }
 
@@ -513,31 +507,27 @@ public class ApiInfoService {
         });
 
         for (NewOldApiInfo item : newOldApiInfoList){
-            MappingVo oldMapping = null;
-            MappingVo newMapping = null;
 
             if (item.getOldApiInfo() != null){
-                oldMapping = MappingVo.builder().fullPath(item.getOldApiInfo().getFullPath()).method(item.getOldApiInfo().getMethod()).build();
                 requestMappingService.unregisterMappingForApiInfo(item.getOldApiInfo());
                 apiInfoCache.remove(item.getOldApiInfo());
             }
 
             if (item.getNewApiInfo() != null){
-                newMapping = MappingVo.builder().fullPath(item.getNewApiInfo().getFullPath()).method(item.getNewApiInfo().getMethod()).build();
                 requestMappingService.registerMappingForApiInfo(item.getNewApiInfo());
                 apiInfoCache.put(item.getNewApiInfo());
             }
 
             //mapping发生修改时发送通知 - 新增，修改，删除
             if (!isStart){
-                this.sendNotify(oldMapping,newMapping);
+                this.sendNotify(item.getOldApiInfo(),item.getNewApiInfo());
             }
 
         }
 
     }
 
-    public void sendNotify(MappingVo oldMapping,MappingVo newMapping){
+    public void sendNotify(ApiInfo oldMapping,ApiInfo newMapping){
 
         boolean isNotify = oldMapping != null && newMapping != null && oldMapping.getFullPath().equals(newMapping.getFullPath()) && oldMapping.getMethod().equals(newMapping.getMethod());
 
@@ -580,5 +570,23 @@ public class ApiInfoService {
     }
 
 
+    /**
+     * 重建单一请求的注册与缓存
+     *
+     * @param refreshMapping
+     */
+    public void refreshMapping(RefreshMapping refreshMapping) throws NoSuchMethodException {
 
+        //取消历史注册
+        if (refreshMapping.getOldMapping() != null) {
+            requestMappingService.unregisterMappingForApiInfo(refreshMapping.getOldMapping());
+            apiInfoCache.remove(refreshMapping.getOldMapping());
+        }
+
+        //重新注册mapping
+        if (refreshMapping.getNewMapping() != null) {
+            requestMappingService.registerMappingForApiInfo(refreshMapping.getNewMapping());
+            apiInfoCache.put(refreshMapping.getNewMapping());
+        }
+    }
 }

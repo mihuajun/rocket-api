@@ -5,7 +5,6 @@ import com.github.alenfive.rocketapi.controller.RemoteController;
 import com.github.alenfive.rocketapi.controller.ViewController;
 import com.github.alenfive.rocketapi.datasource.DataSourceManager;
 import com.github.alenfive.rocketapi.datasource.factory.*;
-import com.github.alenfive.rocketapi.entity.vo.ClusterType;
 import com.github.alenfive.rocketapi.extend.*;
 import com.github.alenfive.rocketapi.function.*;
 import com.github.alenfive.rocketapi.script.GroovyScriptParse;

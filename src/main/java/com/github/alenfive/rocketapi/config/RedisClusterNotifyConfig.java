@@ -1,8 +1,6 @@
 package com.github.alenfive.rocketapi.config;
 
-import com.github.alenfive.rocketapi.extend.IApiInfoCache;
 import com.github.alenfive.rocketapi.extend.IClusterNotify;
-import com.github.alenfive.rocketapi.extend.RedisApiInfoCache;
 import com.github.alenfive.rocketapi.extend.RedisClusterNotify;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
@@ -19,11 +17,6 @@ public class RedisClusterNotifyConfig {
     @Bean
     public IClusterNotify getClusterNotify(){
         return new RedisClusterNotify();
-    }
-
-    @Bean
-    public IApiInfoCache getApiInfoCache(){
-        return new RedisApiInfoCache();
     }
 
     @Bean

@@ -3,8 +3,8 @@ package com.github.alenfive.rocketapi.extend;
 import com.github.alenfive.rocketapi.config.QLRequestMappingFactory;
 import com.github.alenfive.rocketapi.entity.vo.NotifyEntity;
 import com.github.alenfive.rocketapi.entity.vo.NotifyEventType;
+import com.github.alenfive.rocketapi.service.ApiInfoService;
 import com.github.alenfive.rocketapi.service.DataSourceService;
-import com.github.alenfive.rocketapi.service.RequestMappingService;
 import com.github.alenfive.rocketapi.utils.GenerateId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -19,7 +19,7 @@ public class DefaultClusterNotify implements IClusterNotify {
     private String instanceId = GenerateId.get().toHexString();
 
     @Autowired
-    private RequestMappingService requestMappingService;
+    private ApiInfoService apiInfoService;
 
     @Autowired
     private QLRequestMappingFactory mappingFactory;
@@ -63,7 +63,7 @@ public class DefaultClusterNotify implements IClusterNotify {
         //刷新单个接口
         if (NotifyEventType.RefreshMapping.equals(notifyEntity.getEventType())){
             try {
-                requestMappingService.refreshMapping(notifyEntity.getRefreshMapping());
+                apiInfoService.refreshMapping(notifyEntity.getRefreshMapping());
             } catch (NoSuchMethodException e) {
                 e.printStackTrace();
             }
