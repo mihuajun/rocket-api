@@ -160,7 +160,8 @@ function initPanel() {
 //版本检测
 function versionCheck() {
     $.getJSON(checkVersionUrl,function (data) {
-        if (data && data.data && data.data.value){
+        data = unpackResult(data);
+        if (data.data && data.data.value){
             $("#top-section .center-version").show();
             $("#top-section .center-version span").text(data.data.value);
         }
