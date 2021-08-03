@@ -152,7 +152,10 @@ monaco.languages.registerCompletionItemProvider(languageName, {
 
         //sql脚本提示
         //是否在SQL引号范围内
-        let sqlStr = getSqlStrContext(model,position);
+        let sqlStr = getSqlStrContext('"""',model,position);
+        if(!sqlStr){
+            sqlStr = getSqlStrContext("'''",model,position);
+        }
         if (sqlStr){
             return {
                 suggestions: provideCompletionSqlInfo(model,position,range,lineContent,sqlStr)
@@ -374,13 +377,13 @@ function getTablesForSql(sqlStr) {
     return tables;
 }
 
-function getSqlStrContext(model,position) {
-    let preMatchAll = model.findPreviousMatch("\"\"\"sql",position,true,false,null,true);
-    let preMatch = model.findPreviousMatch("\"\"\"",position,true,false,null,true);
+function getSqlStrContext(quotation,model,position) {
+    let preMatchAll = model.findPreviousMatch(quotation+"sql",position,true,false,null,true);
+    let preMatch = model.findPreviousMatch(quotation,position,true,false,null,true);
     if (!preMatchAll || !preMatch || preMatchAll.range.startLineNumber != preMatch.range.startLineNumber || preMatchAll.range.startColumn != preMatch.range.startColumn){
         return null;
     }
-    let nextMatch = model.findNextMatch("\"\"\"",position,false,false,null,true);
+    let nextMatch = model.findNextMatch(quotation,position,false,false,null,true);
     if (!nextMatch){
         return null;
     }

@@ -319,6 +319,7 @@ public class ApiInfoService {
                 this.saveDirectory(ApiDirectory.builder()
                         .name("默认组")
                         .service(rocketApiProperties.getServiceName())
+                        .path("")
                         .build());
             } catch (Exception e) {
                 e.printStackTrace();

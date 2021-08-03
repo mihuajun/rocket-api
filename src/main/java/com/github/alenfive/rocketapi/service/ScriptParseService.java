@@ -222,7 +222,7 @@ public class ScriptParseService {
         //匹配参数${}
         while ((matcher = buildParamCondition(script,"${",start)) != null){
             Object value = buildContentScopeParamItem(specifyParams, matcher.getCondition());
-            String replaceValue = buildValue(value,sourceDialect);
+            String replaceValue = buildSourceValue(value);
             if (replaceValue == null){
                 replaceValue = "null";
             }
