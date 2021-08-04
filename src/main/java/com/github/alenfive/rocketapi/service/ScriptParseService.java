@@ -51,65 +51,10 @@ public class ScriptParseService {
         buildParams(script,sourceDialect,specifyParams);
     }
 
-    /**多行文本替换
-     *  """
-     *  str
-     *  """
-     * @param script
-     */
-    private void buildMutilStr(StringBuilder script) {
-        IndexScope scope = null;
-        String tokenFlag = "\"\"\"";
-        while ((scope = buildIndexScope(script,tokenFlag,tokenFlag)) != null ){
-            String newToken = scope.getToken()
-                    .replace(tokenFlag,"")
-                    .replace("\"","\\\"")
-                    .replace("\r\n","\"+\r\n\"");
-            script.replace(scope.getBeginIndex(),scope.getEndIndex()+1,"\""+newToken+"\"");
-        }
-    }
-
-
-    /**
-     * 构建FOR语法
-     * @param script
-     * @param apiParams
-     */
-    public String buildFor(String script,ApiParams apiParams){
-        return null;
-    }
-
-    /**
-     * 查找开始截止位置，非递归或嵌套
-     * @param source
-     * @param beginToken
-     * @param endToken
-     */
-    public IndexScope buildIndexScope(StringBuilder source,String beginToken,String endToken){
-
-        Integer beginIndex = -1;
-        Integer endIndex = -1;
-        beginIndex = source.indexOf(beginToken);
-        if (beginIndex == -1){
-            return null;
-        }
-
-        endIndex = source.indexOf(endToken,beginIndex + beginToken.length());
-        if (endIndex == -1){
-            throw new IllegalArgumentException("missed "+beginToken+" close '"+endToken+"'");
-        }
-        IndexScope indexScope = new IndexScope();
-        indexScope.setBeginIndex(beginIndex);
-        indexScope.setEndIndex(endIndex+endToken.length()-1);
-        indexScope.setToken(source.substring(beginIndex,endIndex+endToken.length()));
-        return indexScope;
-    }
-
-
     /**
      * 构建IF语法
      * @param script
-     * @param apiParams
+     * @param specifyParams
      */
     public void buildIf(StringBuilder script,Map<String,Object> specifyParams) {
         String flag = "?{";
