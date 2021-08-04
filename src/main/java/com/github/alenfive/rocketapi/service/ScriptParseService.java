@@ -476,13 +476,7 @@ public class ScriptParseService {
 
     private String buildSourceValue(Object val) {
         if (val == null)return null;
-        StringBuilder valStr = new StringBuilder();
-        if (val instanceof Collection){
-            valStr.append(((Collection)val).stream().map(item->item.toString()).collect(Collectors.joining(",")));
-        }else {
-            valStr.append(val);
-        }
-        return valStr.toString();
+        return val.toString();
     }
 
     private String buildValue(Object val,DataSourceDialect sourceDialect) {
@@ -499,6 +493,9 @@ public class ScriptParseService {
     private String buildStrValue(Object val, DataSourceDialect sourceDialect){
         if (val == null)return null;
         if (val instanceof Number){
+            return val.toString();
+        }
+        if (val instanceof Boolean){
             return val.toString();
         }
         return "'"+transcoding(val.toString(),sourceDialect)+"'";
