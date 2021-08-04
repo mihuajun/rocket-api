@@ -94,6 +94,8 @@ public class GroovyScriptParse implements IScriptParse{
                 func = "pager";
             }else if(apiInfo.getFullPath().endsWith("/first")){
                 func = "findOne";
+            }else if(apiInfo.getFullPath().endsWith("/count")){
+                func = "count";
             }else {
                 func = "find";
             }
