@@ -156,6 +156,10 @@ monaco.languages.registerCompletionItemProvider(languageName, {
         if(!sqlStr){
             sqlStr = getSqlStrContext("'''",model,position);
         }
+        //纯sql模式sql提示
+        if (!sqlStr){
+            sqlStr = getSimpleSqlStrContext(model,position);
+        }
         if (sqlStr){
             return {
                 suggestions: provideCompletionSqlInfo(model,position,range,lineContent,sqlStr)
@@ -395,6 +399,19 @@ function getSqlStrContext(quotation,model,position) {
     });
     return sqlStr.trim();
 }
+
+function getSimpleSqlStrContext(model,position) {
+    let value = model.getValue();
+    let selectSqlPattern = /^(\s*select\s+)/gi;
+    let insertSqlPattern = /^(\s*(replace|insert)\s+into\s+)/gi;
+    let updateSqlPattern = /^(\s*update\s+[A-Za-z\-0-9_]+\s+set\s+)/gi;
+    let deleteSqlPattern = /^(\s*delete\s+from\s+[A-Za-z\-0-9_]+)/gi;
+    if (selectSqlPattern.test(value) || insertSqlPattern.test(value) || updateSqlPattern.test(value) || deleteSqlPattern.test(value)){
+        return value;
+    }
+    return null;
+}
+
 
 function provideCompletionImport(range) {
     let suggestions = [];

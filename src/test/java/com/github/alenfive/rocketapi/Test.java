@@ -1,16 +1,16 @@
 package com.github.alenfive.rocketapi;
 
+import java.util.regex.Pattern;
+
 public class Test {
     public static void main(String[] args) {
-        /*Map<String,String> map = new HashMap<>();
-        DataSource result = (DataSource) BeanUtils.instantiateClass("com.zaxxer.hikari.HikariDataSource");
+        String str = "  delete       from  -user ";
+        String selectReg = "^( *select )";
+        String insertReg = "^( *(replace|insert) +into )";
+        String updateReg = "^( *update [A-Za-z\\-0-9_]+ +set )";
+        String deleteReg = "^( *delete +from +[A-Za-z\\-0-9_]+)";
+        Pattern test_ = Pattern.compile(deleteReg, Pattern.CASE_INSENSITIVE);
 
-        ConfigurationPropertySource source = new MapConfigurationPropertySource(this.properties);
-        ConfigurationPropertyNameAliases aliases = new ConfigurationPropertyNameAliases();
-        aliases.addAliases("url", new String[]{"jdbc-url"});
-        aliases.addAliases("username", new String[]{"user"});
-        Binder binder = new Binder(new ConfigurationPropertySource[]{source.withAliases(aliases)});
-        binder.bind(ConfigurationPropertyName.EMPTY, Bindable.ofInstance(result));*/
-
+        System.out.println(test_.matcher(str).find());
     }
 }

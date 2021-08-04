@@ -6,7 +6,6 @@ import com.github.alenfive.rocketapi.entity.ApiParams;
 import com.github.alenfive.rocketapi.entity.ParamScope;
 import com.github.alenfive.rocketapi.entity.vo.ArrVar;
 import com.github.alenfive.rocketapi.entity.vo.ConditionMatcher;
-import com.github.alenfive.rocketapi.entity.vo.IndexScope;
 import com.github.alenfive.rocketapi.extend.ApiInfoContent;
 import com.github.alenfive.rocketapi.script.IScriptParse;
 import org.springframework.beans.factory.annotation.Autowired;

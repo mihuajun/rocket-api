@@ -8,7 +8,6 @@ import com.github.alenfive.rocketapi.service.ConfigService;
 import com.github.alenfive.rocketapi.service.DataSourceService;
 import com.github.alenfive.rocketapi.utils.GenerateId;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 /**
  * 集群通知
