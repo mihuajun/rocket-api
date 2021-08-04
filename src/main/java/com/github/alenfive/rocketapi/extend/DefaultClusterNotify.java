@@ -13,7 +13,6 @@ import org.springframework.stereotype.Component;
 /**
  * 集群通知
  */
-@Component
 public class DefaultClusterNotify implements IClusterNotify {
 
 

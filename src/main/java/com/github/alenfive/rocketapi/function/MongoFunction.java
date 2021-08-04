@@ -6,11 +6,13 @@ import com.github.alenfive.rocketapi.entity.vo.Page;
 import com.github.alenfive.rocketapi.extend.ApiInfoContent;
 import com.github.alenfive.rocketapi.extend.IApiPager;
 import com.github.alenfive.rocketapi.extend.ISQLInterceptor;
+import com.github.alenfive.rocketapi.service.ScriptParseService;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import java.util.Collections;
 import java.util.List;
@@ -41,6 +43,9 @@ public class MongoFunction implements IFunction{
 
     @Autowired
     private ObjectMapper objectMapper;
+
+    @Autowired
+    private ScriptParseService parseService;
 
     @Override
     public String getVarName() {
@@ -135,11 +140,17 @@ public class MongoFunction implements IFunction{
     }
 
     public Object pager(Map<String,Object> script,String dataSource,Map<String,Object> params) throws Exception {
+
+        Integer pageNo = buildPagerNo();
+        Integer pageSize = buildPagerSize();
+        apiInfoContent.getEngineBindings().put(apiPager.getPageNoVarName(),pageNo);
+        apiInfoContent.getEngineBindings().put(apiPager.getPageSizeVarName(),pageSize);
+        apiInfoContent.getEngineBindings().put(apiPager.getIndexVarName(),apiPager.getIndexVarValue(pageSize,pageNo));
+
         Document document = new Document(script);
-        StringBuilder sbScript = new StringBuilder(sqlInterceptor.before(document.toJson()));
         Page page = Page.builder()
-                .pageNo(Integer.valueOf(utilsFunction.val(apiPager.getPageNoVarName()).toString()))
-                .pageSize(Integer.valueOf(utilsFunction.val(apiPager.getPageSizeVarName()).toString()))
+                .pageNo(pageNo)
+                .pageSize(pageSize)
                 .build();
         String totalSql = dataSourceManager.buildCountScript(document.toJson(),apiInfoContent.getApiInfo(),apiInfoContent.getApiParams(),dataSource,params,apiPager,page);
         Long total = this.count(objectMapper.readValue(totalSql,Map.class),dataSource,params);
@@ -151,6 +162,22 @@ public class MongoFunction implements IFunction{
             data = Collections.emptyList();
         }
         return apiPager.buildPager(total,data,apiInfoContent.getApiInfo(),apiInfoContent.getApiParams());
+    }
+
+    private Integer buildPagerNo() {
+        Object value = parseService.buildContentScopeParamItem(null,apiPager.getPageNoVarName());
+        if (StringUtils.isEmpty(value)){
+            return apiPager.getPageNoDefaultValue();
+        }
+        return Integer.valueOf(value.toString());
+    }
+
+    private Integer buildPagerSize() {
+        Object value = parseService.buildContentScopeParamItem(null,apiPager.getPageSizeVarName());
+        if (StringUtils.isEmpty(value)){
+            return apiPager.getPageSizeDefaultValue();
+        }
+        return Integer.valueOf(value.toString());
     }
 
     /*重载 script*/
