@@ -4,6 +4,7 @@ package com.github.alenfive.rocketapi.script;
  * Groovy脚本执行器
  */
 
+import com.github.alenfive.rocketapi.config.RocketApiProperties;
 import com.github.alenfive.rocketapi.entity.ApiInfo;
 import com.github.alenfive.rocketapi.entity.ApiParams;
 import com.github.alenfive.rocketapi.extend.ApiInfoContent;
@@ -31,6 +32,9 @@ public class GroovyScriptParse implements IScriptParse{
 
     @Autowired
     private ApplicationContext context;
+
+    @Autowired
+    private RocketApiProperties rocketApiProperties;
 
     private Collection<IFunction> functionList;
 
@@ -90,11 +94,11 @@ public class GroovyScriptParse implements IScriptParse{
         String func = null;
         script = script.trim();
         if (selectSqlPattern.matcher(script).find()){
-            if (apiInfo.getFullPath().endsWith("/page")){
+            if (apiInfo.getFullPath().endsWith(rocketApiProperties.getSqlModel().getPagerSuffix())){
                 func = "pager";
-            }else if(apiInfo.getFullPath().endsWith("/first")){
+            }else if(apiInfo.getFullPath().endsWith(rocketApiProperties.getSqlModel().getFindOneSuffix())){
                 func = "findOne";
-            }else if(apiInfo.getFullPath().endsWith("/count")){
+            }else if(apiInfo.getFullPath().endsWith(rocketApiProperties.getSqlModel().getCountSuffix())){
                 func = "count";
             }else {
                 func = "find";

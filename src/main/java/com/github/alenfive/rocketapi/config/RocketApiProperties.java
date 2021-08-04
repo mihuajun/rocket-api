@@ -85,4 +85,31 @@ public class RocketApiProperties {
         private String api_info_history = "api_info_history";
 
     }
+
+    /**
+     * 纯SQL模式下，通过脚本能自动识别增删改查数据库行为，但查询又分为分页，计数，返回一条，和列表，四种不种的返回格式
+     * 这四种行为将通过url后缀形式来识别，配置如下：
+     * 未定义的将返回列表结构
+     */
+    private ApiSqlModel sqlModel = new ApiSqlModel();
+
+    @Data
+    public static class ApiSqlModel{
+        /**
+         * 分页查询，api将返回分页查询
+         */
+        private String pagerSuffix = "/page";
+        /**
+         * 计数查询，api将返回数量
+         */
+        private String countSuffix = "/count";
+        /**
+         * 返回首条，api将返回列表中的第一条记录
+         */
+        private String findOneSuffix = "/first";
+
+        /**
+         * 其他返回list,所有查询结果
+         */
+    }
 }
