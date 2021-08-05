@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 /**
  * 关系型数据源，JdbcTemplate所操作的数据源
  */
-public class JdbcDataSource extends DataSourceDialect {
+public class JdbcDataSource extends DataSourceDialect implements DialectTransactionManager {
 
     protected DataSource dataSource;
 
@@ -51,6 +51,7 @@ public class JdbcDataSource extends DataSourceDialect {
         this.storeApi = storeApi;
     }
 
+    @Override
     public PlatformTransactionManager getTransactionManager() {
         return transactionManager;
     }

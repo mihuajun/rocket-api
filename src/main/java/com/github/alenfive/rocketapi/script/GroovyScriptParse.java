@@ -7,6 +7,7 @@ package com.github.alenfive.rocketapi.script;
 import com.github.alenfive.rocketapi.config.RocketApiProperties;
 import com.github.alenfive.rocketapi.datasource.DataSourceDialect;
 import com.github.alenfive.rocketapi.datasource.DataSourceManager;
+import com.github.alenfive.rocketapi.datasource.DialectTransactionManager;
 import com.github.alenfive.rocketapi.datasource.JdbcDataSource;
 import com.github.alenfive.rocketapi.entity.ApiInfo;
 import com.github.alenfive.rocketapi.entity.ApiParams;
@@ -73,8 +74,8 @@ public class GroovyScriptParse implements IScriptParse{
         DataSourceDialect dialect = dataSourceManager.getDialectMap().get(apiInfo.getDatasource());
 
         PlatformTransactionManager transactionManager = null;
-        if (dialect instanceof JdbcDataSource){
-            transactionManager = ((JdbcDataSource)dialect).getTransactionManager();
+        if (dialect instanceof DialectTransactionManager){
+            transactionManager = ((DialectTransactionManager)dialect).getTransactionManager();
         }
 
         TransactionStatus transactionStatus = null;
