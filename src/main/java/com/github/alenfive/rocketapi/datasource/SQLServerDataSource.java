@@ -5,8 +5,8 @@ import com.github.alenfive.rocketapi.entity.ApiParams;
 import com.github.alenfive.rocketapi.entity.vo.Page;
 import com.github.alenfive.rocketapi.entity.vo.TableInfo;
 import com.github.alenfive.rocketapi.extend.IApiPager;
-import org.springframework.jdbc.core.JdbcTemplate;
 
+import javax.sql.DataSource;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -18,12 +18,12 @@ public class SQLServerDataSource extends JdbcDataSource {
 
     Pattern pattern = Pattern.compile("(order +by .*)",Pattern.CASE_INSENSITIVE);
 
-    public SQLServerDataSource(JdbcTemplate jdbcTemplate) {
-        super(jdbcTemplate);
+    public SQLServerDataSource(DataSource dataSource) {
+        super(dataSource);
     }
 
-    public SQLServerDataSource(JdbcTemplate jdbcTemplate, boolean storeApi) {
-        super(jdbcTemplate, storeApi);
+    public SQLServerDataSource(DataSource dataSource, boolean storeApi) {
+        super(dataSource, storeApi);
     }
 
     @Override

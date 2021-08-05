@@ -7,8 +7,8 @@ import com.github.alenfive.rocketapi.entity.vo.Page;
 import com.github.alenfive.rocketapi.entity.vo.TableInfo;
 import com.github.alenfive.rocketapi.extend.IApiPager;
 import com.github.alenfive.rocketapi.utils.SqlUtils;
-import org.springframework.jdbc.core.JdbcTemplate;
 
+import javax.sql.DataSource;
 import java.util.*;
 
 /**
@@ -17,12 +17,12 @@ import java.util.*;
 public class MySQLDataSource extends JdbcDataSource {
 
 
-    public MySQLDataSource(JdbcTemplate jdbcTemplate) {
-        super(jdbcTemplate);
+    public MySQLDataSource(DataSource dataSource) {
+        super(dataSource);
     }
 
-    public MySQLDataSource(JdbcTemplate jdbcTemplate, boolean storeApi) {
-        super(jdbcTemplate, storeApi);
+    public MySQLDataSource(DataSource dataSource, boolean storeApi) {
+        super(dataSource, storeApi);
     }
 
     @Override

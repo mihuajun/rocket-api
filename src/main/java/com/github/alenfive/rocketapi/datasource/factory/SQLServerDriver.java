@@ -29,6 +29,6 @@ public class SQLServerDriver extends JdbcDriver {
 
     @Override
     public DataSourceDialect factory(DBConfig config) throws Exception {
-        return new SQLServerDataSource(super.getJdbcTemplate(config));
+        return new SQLServerDataSource(super.getDataSource(config));
     }
 }

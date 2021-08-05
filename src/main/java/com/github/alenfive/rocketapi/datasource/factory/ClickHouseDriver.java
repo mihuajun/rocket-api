@@ -28,6 +28,6 @@ public class ClickHouseDriver extends JdbcDriver {
 
     @Override
     public DataSourceDialect factory(DBConfig config) throws Exception {
-        return new ClickHouseDataSource(super.getJdbcTemplate(config));
+        return new ClickHouseDataSource(super.getDataSource(config));
     }
 }

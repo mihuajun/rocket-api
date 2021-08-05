@@ -6,11 +6,11 @@ import com.github.alenfive.rocketapi.entity.ApiParams;
 import com.github.alenfive.rocketapi.entity.vo.Page;
 import com.github.alenfive.rocketapi.entity.vo.TableInfo;
 import com.github.alenfive.rocketapi.extend.IApiPager;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 
+import javax.sql.DataSource;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.util.List;
@@ -22,9 +22,8 @@ import java.util.stream.Collectors;
  */
 public class ClickHouseDataSource extends JdbcDataSource {
 
-    public ClickHouseDataSource(JdbcTemplate jdbcTemplate) {
-        super(jdbcTemplate);
-        this.storeApi = false;
+    public ClickHouseDataSource(DataSource dataSource) {
+        super(dataSource);
     }
 
     @Override

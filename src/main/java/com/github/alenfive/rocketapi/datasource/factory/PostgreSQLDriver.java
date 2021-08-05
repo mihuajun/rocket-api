@@ -28,6 +28,6 @@ public class PostgreSQLDriver extends JdbcDriver {
 
     @Override
     public DataSourceDialect factory(DBConfig config) throws Exception {
-        return new PostgreSQLDataSource(super.getJdbcTemplate(config));
+        return new PostgreSQLDataSource(super.getDataSource(config));
     }
 }

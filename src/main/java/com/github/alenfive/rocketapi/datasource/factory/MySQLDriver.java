@@ -28,6 +28,6 @@ public class MySQLDriver extends JdbcDriver {
 
     @Override
     public DataSourceDialect factory(DBConfig config) throws Exception {
-        return new MySQLDataSource(super.getJdbcTemplate(config));
+        return new MySQLDataSource(super.getDataSource(config));
     }
 }

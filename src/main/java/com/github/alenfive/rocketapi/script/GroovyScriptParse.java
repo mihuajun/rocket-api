@@ -5,6 +5,9 @@ package com.github.alenfive.rocketapi.script;
  */
 
 import com.github.alenfive.rocketapi.config.RocketApiProperties;
+import com.github.alenfive.rocketapi.datasource.DataSourceDialect;
+import com.github.alenfive.rocketapi.datasource.DataSourceManager;
+import com.github.alenfive.rocketapi.datasource.JdbcDataSource;
 import com.github.alenfive.rocketapi.entity.ApiInfo;
 import com.github.alenfive.rocketapi.entity.ApiParams;
 import com.github.alenfive.rocketapi.extend.ApiInfoContent;
@@ -12,7 +15,9 @@ import com.github.alenfive.rocketapi.function.IFunction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.TransactionStatus;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
@@ -36,6 +41,12 @@ public class GroovyScriptParse implements IScriptParse{
     @Autowired
     private RocketApiProperties rocketApiProperties;
 
+    @Autowired
+    private TransactionDefinition transactionDefinition;
+
+    @Autowired
+    private DataSourceManager dataSourceManager;
+
     private Collection<IFunction> functionList;
 
     private ScriptEngineManager factory = new ScriptEngineManager();
@@ -57,11 +68,18 @@ public class GroovyScriptParse implements IScriptParse{
     }
 
     @Override
-    @Transactional(rollbackFor=Exception.class)
     public Object runScript(String script, ApiInfo apiInfo, ApiParams apiParams) throws Throwable {
 
-        try {
+        DataSourceDialect dialect = dataSourceManager.getDialectMap().get(apiInfo.getDatasource());
 
+        PlatformTransactionManager transactionManager = null;
+        if (dialect instanceof JdbcDataSource){
+            transactionManager = ((JdbcDataSource)dialect).getTransactionManager();
+        }
+
+        TransactionStatus transactionStatus = null;
+
+        try {
             script = buildSQLScript(script,apiInfo);
 
             //注入变量
@@ -77,9 +95,25 @@ public class GroovyScriptParse implements IScriptParse{
 
             //注入属性变量
             buildScriptParams(bindings,apiParams);
+
+            //手动开启事务
+            if (transactionManager != null){
+                transactionStatus = transactionManager.getTransaction(transactionDefinition);
+            }
+
             Object result = this.engineEval(script,bindings);
+
+            //手动提交事务
+            if (transactionManager != null) {
+                transactionManager.commit(transactionStatus);
+            }
             return result;
         }catch (Exception e){
+
+            if (transactionStatus != null) {
+                //手动回滚
+                transactionManager.rollback(transactionStatus);
+            }
             if (e.getCause() != null && e.getCause().getCause() != null){
                 throw e.getCause().getCause();
             }else{

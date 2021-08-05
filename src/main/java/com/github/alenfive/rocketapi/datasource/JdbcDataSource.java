@@ -7,13 +7,16 @@ import com.github.alenfive.rocketapi.entity.vo.Page;
 import com.github.alenfive.rocketapi.entity.vo.TableInfo;
 import com.github.alenfive.rocketapi.extend.IApiPager;
 import com.github.alenfive.rocketapi.utils.ApiJpaUtil;
-import com.github.alenfive.rocketapi.utils.IOUtils;
+import com.github.alenfive.rocketapi.utils.DataSourceUtils;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
+import org.springframework.transaction.PlatformTransactionManager;
 
+import javax.sql.DataSource;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.util.List;
@@ -25,28 +28,38 @@ import java.util.stream.Collectors;
  */
 public class JdbcDataSource extends DataSourceDialect {
 
+    protected DataSource dataSource;
+
     protected JdbcTemplate jdbcTemplate;
 
     protected NamedParameterJdbcTemplate parameterJdbcTemplate;
 
+    protected PlatformTransactionManager transactionManager;
+
     private JdbcDataSource(){}
 
-    public JdbcDataSource(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
-        this.parameterJdbcTemplate = new NamedParameterJdbcTemplate(jdbcTemplate);
+    public JdbcDataSource(DataSource dataSource) {
+        this.jdbcTemplate = new JdbcTemplate(dataSource);
+        this.parameterJdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
+        this.transactionManager = new DataSourceTransactionManager(dataSource);
     }
 
-    public JdbcDataSource(JdbcTemplate jdbcTemplate, boolean storeApi) {
+    public JdbcDataSource(DataSource dataSource, boolean storeApi) {
+        this.jdbcTemplate = new JdbcTemplate(dataSource);
+        this.parameterJdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
+        this.transactionManager = new DataSourceTransactionManager(dataSource);
         this.storeApi = storeApi;
-        this.jdbcTemplate = jdbcTemplate;
-        this.parameterJdbcTemplate = new NamedParameterJdbcTemplate(jdbcTemplate);
+    }
+
+    public PlatformTransactionManager getTransactionManager() {
+        return transactionManager;
     }
 
     public JdbcTemplate getJdbcTemplate(){
         return this.jdbcTemplate;
     }
 
-    public NamedParameterJdbcTemplate getNamedParameterJdbcTemplate(){
+    public NamedParameterJdbcTemplate getParameterJdbcTemplate(){
         return this.parameterJdbcTemplate;
     }
 
@@ -130,6 +143,6 @@ public class JdbcDataSource extends DataSourceDialect {
 
     @Override
     public void close() {
-        IOUtils.closeDataSource(jdbcTemplate.getDataSource());
+        DataSourceUtils.closeDataSource(jdbcTemplate.getDataSource());
     }
 }

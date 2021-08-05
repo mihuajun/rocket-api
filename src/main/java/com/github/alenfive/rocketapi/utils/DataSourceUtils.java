@@ -4,8 +4,11 @@ import javax.sql.DataSource;
 import java.io.Closeable;
 import java.io.IOException;
 
-public class IOUtils {
-
+public class DataSourceUtils {
+    /**
+     * 关闭数据源
+     * @param dataSource
+     */
     public static void closeDataSource(DataSource dataSource){
         if (dataSource == null){
             return;
@@ -19,4 +22,5 @@ public class IOUtils {
             e.printStackTrace();
         }
     }
+
 }

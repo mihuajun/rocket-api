@@ -5,8 +5,8 @@ import com.github.alenfive.rocketapi.entity.ApiParams;
 import com.github.alenfive.rocketapi.entity.vo.Page;
 import com.github.alenfive.rocketapi.entity.vo.TableInfo;
 import com.github.alenfive.rocketapi.extend.IApiPager;
-import org.springframework.jdbc.core.JdbcTemplate;
 
+import javax.sql.DataSource;
 import java.util.List;
 
 /**
@@ -14,12 +14,12 @@ import java.util.List;
  */
 public class DB2DataSource extends JdbcDataSource {
 
-    public DB2DataSource(JdbcTemplate jdbcTemplate) {
-        super(jdbcTemplate);
+    public DB2DataSource(DataSource dataSource) {
+        super(dataSource);
     }
 
-    public DB2DataSource(JdbcTemplate jdbcTemplate, boolean storeApi) {
-        super(jdbcTemplate, storeApi);
+    public DB2DataSource(DataSource dataSource, boolean storeApi) {
+       super(dataSource,storeApi);
     }
 
     @Override
