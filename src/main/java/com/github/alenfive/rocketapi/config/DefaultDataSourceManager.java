@@ -6,10 +6,10 @@ import com.github.alenfive.rocketapi.datasource.MongoDataSource;
 import com.github.alenfive.rocketapi.datasource.MySQLDataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import javax.sql.DataSource;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -20,16 +20,16 @@ import java.util.Map;
 public class DefaultDataSourceManager extends DataSourceManager {
 
     @Autowired
-    private JdbcTemplate jdbcTemplate;
+    private DataSource dataSource;
 
     @Autowired
     private MongoTemplate mongoTemplate;
 
     @PostConstruct
     public void init() {
-        Map<String, DataSourceDialect> dialects = new LinkedHashMap<>();
-        dialects.put("mysql",new MySQLDataSource(jdbcTemplate,false));
-        dialects.put("mongodb",new MongoDataSource(mongoTemplate,true));
-        super.setDialectMap(dialects);
+        Map<String,DataSourceDialect> dialectMap = new LinkedHashMap<>();
+        dialectMap.put("mysql",new MySQLDataSource(dataSource,true));
+        dialectMap.put("mongodb",new MongoDataSource(mongoTemplate));
+        super.setDialectMap(dialectMap);
     }
 }
