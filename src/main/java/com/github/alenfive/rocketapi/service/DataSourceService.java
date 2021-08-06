@@ -72,6 +72,8 @@ public class DataSourceService {
 
         this.closeDBConfig(dbConfig);
 
+        configService.removeConfigById(dbConfig.getId());
+
         //集群刷新
         RefreshDB refreshDB = RefreshDB.builder().oldDBName(dbConfig.getName()).build();
         clusterNotify.sendNotify(NotifyEntity.builder().eventType(NotifyEventType.RefreshDB).refreshDB(refreshDB).build());
