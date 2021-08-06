@@ -119,7 +119,11 @@ public class QLRequestMappingFactory {
         apiInfoService.reLoadApiInfo(isStart);
 
         //重新加载数据源
-        dataSourceService.reLoadDBConfig(isStart);
+        try {
+            dataSourceService.reLoadDBConfig(isStart);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
     private void loadBanner() {

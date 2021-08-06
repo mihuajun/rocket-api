@@ -105,20 +105,24 @@ public class DataSourceService {
             apiConfig.setId(dbConfig.getId());
             apiConfig.setConfigContext(objectMapper.writeValueAsString(dbConfig));
             dataSourceManager.getStoreApiDataSource().saveEntity(apiConfig);
-        } else {
 
+            //加载新连接
+            loadDBConfig(dbConfig);
+        } else {
             oldDBConfig = getDBConfigById(dbConfig.getId());
+
+            //关闭历史连接
+            closeDBConfig(oldDBConfig);
+
+            //加载新连接
+            loadDBConfig(dbConfig);
 
             apiConfig.setId(dbConfig.getId());
             apiConfig.setConfigContext(objectMapper.writeValueAsString(dbConfig));
             dataSourceManager.getStoreApiDataSource().updateEntityById(apiConfig);
-
-            //关闭历史连接
-            closeDBConfig(oldDBConfig);
         }
 
-        //加载新连接
-        loadDBConfig(dbConfig);
+
 
         //集群刷新
         RefreshDB refreshDB = RefreshDB.builder().newDBName(dbConfig.getName()).build();
@@ -154,21 +158,18 @@ public class DataSourceService {
      * 动态数据源加载
      * @param config
      */
-    private void loadDBConfig(DBConfig config) {
+    private void loadDBConfig(DBConfig config) throws Exception{
 
         if (!config.isEnabled()){
             return;
         }
 
-        try {
-            IDataSourceDialectDriver factory = (IDataSourceDialectDriver)(Class.forName(config.getDriver()).newInstance());
-            DataSourceDialect dialect = factory.factory(config);
-            dialect.setDynamic(true);
+        IDataSourceDialectDriver factory = (IDataSourceDialectDriver)(Class.forName(config.getDriver()).newInstance());
+        DataSourceDialect dialect = factory.factory(config);
+        dialect.setDynamic(true);
 
-            dataSourceManager.getDialectMap().put(config.getName(),dialect);
-        }catch (Exception e){
-            e.printStackTrace();
-        }
+        dataSourceManager.getDialectMap().put(config.getName(),dialect);
+
     }
 
     public void reLoadDBConfig(Boolean isStart) throws Exception {
