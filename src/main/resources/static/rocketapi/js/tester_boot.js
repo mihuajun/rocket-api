@@ -1014,6 +1014,10 @@ function searchKeyword(keyword) {
             let newItem = $.extend({},item);
             newItem.path = newItem.path.replace(keyword,'<span class="s_match">'+keyword+'</span>')
             searchApiResult.push(newItem);
+        }else if(item.script.indexOf(keyword)>=0){
+            let newItem = $.extend({},item);
+            newItem.script = newItem.script.replace(keyword,'<span class="s_match">'+keyword+'</span>')
+            searchApiResult.push(newItem);
         }
     });
 

@@ -154,18 +154,21 @@ public class DataSourceService {
      * 动态数据源加载
      * @param config
      */
-    private void loadDBConfig(DBConfig config) throws Exception {
+    private void loadDBConfig(DBConfig config) {
 
         if (!config.isEnabled()){
             return;
         }
 
-        IDataSourceDialectDriver factory = (IDataSourceDialectDriver)(Class.forName(config.getDriver()).newInstance());
-        DataSourceDialect dialect = factory.factory(config);
-        dialect.setDynamic(true);
+        try {
+            IDataSourceDialectDriver factory = (IDataSourceDialectDriver)(Class.forName(config.getDriver()).newInstance());
+            DataSourceDialect dialect = factory.factory(config);
+            dialect.setDynamic(true);
 
-        dataSourceManager.getDialectMap().put(config.getName(),dialect);
-
+            dataSourceManager.getDialectMap().put(config.getName(),dialect);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
     public void reLoadDBConfig(Boolean isStart) throws Exception {
