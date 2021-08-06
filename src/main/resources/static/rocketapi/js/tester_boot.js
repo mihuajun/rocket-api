@@ -981,7 +981,21 @@ function saveExecuter(params) {
 
 function searchApi(e) {
     let keyword = $(e).val().trim();
-    let searchResult = [];
+    let searchResult = searchKeyword(keyword);
+    buildApiTree(searchResult.dirList,searchResult.apiList,keyword?"":"collapsed");
+}
+
+function searchKeyword(keyword) {
+
+    if (!keyword){
+        return {
+            "apiList":gdata.apiList,
+            "dirList":gdata.directoryList
+        }
+    }
+
+    //api搜索
+    let searchApiResult = [];
     $.each(gdata.apiList,function (index,item) {
         if (keyword.split("=").length == 2){
             if (!item.options){
@@ -990,13 +1004,73 @@ function searchApi(e) {
             let kv = keyword.split("=");
             let options = JSON.parse(item.options);
             if (options[kv[0]] == kv[1]){
-                searchResult.push(item);
+                searchApiResult.push(item);
             }
-        }else if (item.name.indexOf(keyword) >=0 || item.fullPath.indexOf(keyword)>=0 || !keyword){
-            searchResult.push(item);
+        }else if (item.name.indexOf(keyword) >=0){
+            let newItem = $.extend({},item);
+            newItem.name = newItem.name.replace(keyword,'<span class="s_match">'+keyword+'</span>')
+            searchApiResult.push(newItem);
+        }else if(item.path.indexOf(keyword)>=0){
+            let newItem = $.extend({},item);
+            newItem.path = newItem.path.replace(keyword,'<span class="s_match">'+keyword+'</span>')
+            searchApiResult.push(newItem);
         }
     });
-    buildApiTree(gdata.directoryList,searchResult,keyword?"":"collapsed");
+
+    //directory搜索
+    let dirMap = new Map();
+    let apiMap = new Map();
+
+    //搜索API上级目录
+    $.each(searchApiResult,function (index,item){
+        searchParentDir(dirMap,item.directoryId)
+
+        //搜索结果优先
+        apiMap.set(item.id,item);
+    });
+
+    //搜索匹配的目录
+    let searchDirectoryResult = [];
+    $.each(gdata.directoryList,function (index,item) {
+        if (item.name.indexOf(keyword) >=0 ){
+            let newItem = $.extend({},item);
+            newItem.name = newItem.name.replace(keyword,'<span class="s_match">'+keyword+'</span>')
+            searchDirectoryResult.push(newItem);
+        }else if(item.path && item.path.indexOf(keyword)>=0){
+            let newItem = $.extend({},item);
+            newItem.path = newItem.path.replace(keyword,'<span class="s_match">'+keyword+'</span>')
+            searchDirectoryResult.push(newItem);
+        }
+    })
+
+    //搜索匹配目录的上级目录，下级目录，当前目录和下级目录的接口
+    $.each(searchDirectoryResult,function (index,item) {
+
+        //搜索上级目录
+        searchParentDir(dirMap,item.id)
+
+        //搜索下级目录和接口
+        searchChildDirOrApi(dirMap,apiMap,item.id)
+
+        //搜索结果优先
+        dirMap.set(item.id,item);
+    })
+
+    let apiList = [];
+    let dirList = [];
+
+    for(let item of dirMap) {
+        dirList.push(item[1]);
+    }
+
+    for(let item of apiMap) {
+        apiList.push(item[1]);
+    }
+
+    return {
+        "apiList":apiList,
+        "dirList":dirList
+    }
 }
 
 function buildApiDom(item) {
@@ -2734,7 +2808,7 @@ function buildMethodsForClazz(clazz) {
 //-------------------------------- export start ------------------------------
 function showExport() {
     $("#export-dialog").show();
-    buildSelectApiTree("#export-dialog",gdata.apiList,"collapsed")
+    buildSelectApiTree("#export-dialog",gdata.directoryList,gdata.apiList,"collapsed")
     $("#export-dialog .filename").focus();
 }
 function hideExport(){
@@ -2811,7 +2885,7 @@ function importApi() {
 //-------------------------------- Remote Sync start ------------------------------
 function showRemoteSync() {
     $("#remote-sync").show();
-    buildSelectApiTree("#remote-sync",gdata.apiList,"collapsed")
+    buildSelectApiTree("#remote-sync",gdata.directoryList,gdata.apiList,"collapsed")
 }
 
 function hideRemoteSync() {
@@ -2857,23 +2931,43 @@ function remoteSync(increment) {
 
 function searchSelectApi(target,e) {
     let keyword = $(e).val().trim();
-    let searchResult = [];
-    $.each(gdata.apiList,function (index,item) {
-        if (keyword.split("=").length == 2){
-            if (!item.options){
-                return;
-            }
-            let kv = keyword.split("=");
-            let options = JSON.parse(item.options);
-            if (options[kv[0]] == kv[1]){
-                searchResult.push(item);
-            }
-        }else if (item.name.indexOf(keyword) >=0 || item.fullPath.indexOf(keyword)>=0 || !keyword){
-            searchResult.push(item);
-        }
-    });
+
+    let searchResult = searchKeyword(keyword);
     $(target + " .items-count").text("0 item selected");
-    buildSelectApiTree(target,searchResult,keyword?"":"collapsed");
+
+    buildSelectApiTree(target,searchResult.dirList,searchResult.apiList,keyword?"":"collapsed");
+}
+
+function searchChildDirOrApi(directoryMap,apiMap,directoryId){
+    $.each(gdata.directoryList,function (index, item) {
+          if (item.parentId == directoryId){
+              if (!directoryMap.get(item.id)){
+                  directoryMap.set(item.id,item);
+              }
+              searchChildDirOrApi(directoryMap,apiMap,item.id)
+          }
+    })
+
+    $.each(gdata.apiList,function (index,item){
+        if (item.directoryId == directoryId && !apiMap.get(item.id)){
+            apiMap.set(item.id,item);
+        }
+    })
+}
+
+function searchParentDir(directoryMap,directoryId){
+    $.each(gdata.directoryList,function (index,item) {
+        if (item.id == directoryId){
+
+            if (!directoryMap.get(item.id)){
+                directoryMap.set(item.id,item);
+            }
+
+            if (item.parentId){
+                searchParentDir(directoryMap,item.parentId)
+            }
+        }
+    })
 }
 
 function buildApiSelectDirectoryDom(directory,collapsed) {
@@ -2909,13 +3003,13 @@ function buildSelectApiDirectory(target,directoryList,dirId,collapsed){
     })
 }
 
-function buildSelectApiTree(target,list,collapsed) {
+function buildSelectApiTree(target,dirList,apiList,collapsed) {
 
     $(target +" .api-list-body").html("");
     //生成tree
-    buildSelectApiDirectory(target,gdata.directoryList,null,collapsed);
+    buildSelectApiDirectory(target,dirList,null,collapsed);
 
-    $.each(list,function (index,item) {
+    $.each(apiList,function (index,item) {
         let _children = $(target + " .directory-select-id-"+item.directoryId);
         _children.append('  <li class="level2 request">\n' +
             '                <div class="tree-entry">\n' +
