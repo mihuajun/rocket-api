@@ -3,9 +3,8 @@ package com.github.alenfive.rocketapi.datasource;
 import com.github.alenfive.rocketapi.config.RocketApiProperties;
 import com.github.alenfive.rocketapi.config.SpringContextUtils;
 import com.github.alenfive.rocketapi.entity.ApiEntity;
-import com.github.alenfive.rocketapi.entity.ApiInfo;
-import com.github.alenfive.rocketapi.entity.ApiParams;
 import com.github.alenfive.rocketapi.entity.vo.Page;
+import com.github.alenfive.rocketapi.entity.vo.ScriptContext;
 import com.github.alenfive.rocketapi.entity.vo.TableInfo;
 import com.github.alenfive.rocketapi.extend.IApiPager;
 import com.github.alenfive.rocketapi.utils.FieldUtils;
@@ -43,16 +42,16 @@ public abstract class DataSourceDialect {
     public abstract <T extends ApiEntity> List<T> pageByEntity(T entity, IApiPager apiPager, Page page);
 
     //查询对象
-    abstract List<Map<String,Object>> find(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams) throws Exception;
+    public abstract List<Map<String,Object>> find(ScriptContext scriptContext) throws Exception;
 
     //返回影响的行数
-    abstract Long update(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams) throws Exception;
+    public abstract Long update(ScriptContext scriptContext) throws Exception;
 
     //返回影响的行数
-    abstract Long remove(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams) throws Exception;
+    public abstract Long remove(ScriptContext scriptContext) throws Exception;
 
     //返回主键
-    abstract Object insert(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams) throws Exception;
+    public abstract Object insert(ScriptContext scriptContext) throws Exception;
 
     /**
      * 替换key
@@ -69,9 +68,9 @@ public abstract class DataSourceDialect {
         return result;
     }
 
-    public abstract String buildCountScript(String script, ApiInfo apiInfo, ApiParams apiParams, IApiPager apiPager, Page page);
+    public abstract String buildCountScript(String script, IApiPager apiPager, Page page);
 
-    public abstract String buildPageScript(String script, ApiInfo apiInfo, ApiParams apiParams, IApiPager apiPager, Page page);
+    public abstract String buildPageScript(String script, IApiPager apiPager, Page page);
 
     //入参转码
     public abstract String transcoding(String param);

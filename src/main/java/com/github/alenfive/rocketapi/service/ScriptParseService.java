@@ -2,14 +2,17 @@ package com.github.alenfive.rocketapi.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.alenfive.rocketapi.datasource.DataSourceDialect;
+import com.github.alenfive.rocketapi.datasource.JdbcDataSource;
 import com.github.alenfive.rocketapi.entity.ApiParams;
 import com.github.alenfive.rocketapi.entity.ParamScope;
 import com.github.alenfive.rocketapi.entity.vo.ArrVar;
 import com.github.alenfive.rocketapi.entity.vo.ConditionMatcher;
+import com.github.alenfive.rocketapi.entity.vo.ScriptLanguageParam;
 import com.github.alenfive.rocketapi.extend.ApiInfoContent;
 import com.github.alenfive.rocketapi.script.IScriptParse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.jdbc.core.SqlParameterValue;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -18,9 +21,11 @@ import javax.script.SimpleBindings;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
-import java.util.Collection;
-import java.util.Map;
-import java.util.Set;
+import java.lang.reflect.Field;
+import java.sql.Types;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -45,9 +50,20 @@ public class ScriptParseService {
 
     private Set<String> scopeSet = Stream.of(ParamScope.values()).map(ParamScope::name).collect(Collectors.toSet());
 
-    public void parse(StringBuilder script, DataSourceDialect sourceDialect,Map<String,Object> specifyParams) {
+    private Pattern sqlTypePattern = null;
+    {
+        Field[] fields = Types.class.getFields();
+        StringBuilder typeMatcherStr = new StringBuilder(",\\s*(");
+        typeMatcherStr.append(Arrays.stream(fields).map(item->item.getName()).collect(Collectors.joining("|")));
+        typeMatcherStr.append(")\\s*$");
+
+        //sqlTypePattern = Pattern.compile(typeMatcherStr.toString());
+        sqlTypePattern = Pattern.compile(",\\s*\\w+\\s*$");
+    }
+
+    public Map<String,Object> parse(StringBuilder script, DataSourceDialect sourceDialect,Map<String,Object> specifyParams) {
         buildIf(script,specifyParams);
-        buildParams(script,sourceDialect,specifyParams);
+        return buildParams(script,sourceDialect,specifyParams);
     }
 
     /**
@@ -147,18 +163,51 @@ public class ScriptParseService {
      * @param script
      * @param specifyParams
      */
-    public void buildParams(StringBuilder script,DataSourceDialect sourceDialect,Map<String,Object> specifyParams){
+    public Map<String,Object> buildParams(StringBuilder script,DataSourceDialect sourceDialect,Map<String,Object> specifyParams){
 
+        Map<String,Object> params = new HashMap<>();
+
+        //匹配参数 :parameter
         int start = 0;
+        Pattern pattern = Pattern.compile(":[a-z_\\-A-Z0-9]+");
+        Matcher parameterMatcher = pattern.matcher(script);
+        while (parameterMatcher.find(start)){
+            String replaceValue = parameterMatcher.group();
+            String parameter = replaceValue.substring(1);
+            Object value = buildContentScopeParamItem(specifyParams, parameter);
+            params.put(parameter,value);
+            start = parameterMatcher.start() + replaceValue.length();
+        }
+
+        AtomicInteger atomicInteger = new AtomicInteger();
+
+        start = 0;
         ConditionMatcher matcher = null;
         //匹配参数#{}
         while ((matcher = buildParamCondition(script,"#{",start)) != null){
-            Object value = buildContentScopeParamItem(specifyParams, matcher.getCondition());
-            String replaceValue = buildValue(value,sourceDialect);
-            if (replaceValue == null){
-                replaceValue = "null";
+
+            ScriptLanguageParam languageParam = buildScriptLanguageParam(matcher.getCondition());
+
+            Object value = buildContentScopeParamItem(specifyParams, languageParam.getScriptLanguage());
+
+            String replaceValue = null;
+            if (sourceDialect instanceof JdbcDataSource){
+                String parameter = "param"+atomicInteger.getAndIncrement();
+                if (languageParam.getSqlType() != null){
+                    params.put(parameter,new SqlParameterValue(languageParam.getSqlType(), value));
+                }else{
+                    params.put(parameter,value);
+                }
+                replaceValue = ":"+parameter;
+            }else{
+                replaceValue = buildValue(value,sourceDialect);
+                if (replaceValue == null){
+                    replaceValue = "null";
+                }
             }
+
             script = script.replace(matcher.getStart(), matcher.getEnd()+1, replaceValue);
+
             start = matcher.getStart() + replaceValue.length();
         }
 
@@ -170,9 +219,38 @@ public class ScriptParseService {
             if (replaceValue == null){
                 replaceValue = "null";
             }
+
             script = script.replace(matcher.getStart(), matcher.getEnd()+1, replaceValue);
             start = matcher.getStart() + replaceValue.length();
         }
+
+        return params;
+    }
+
+    private ScriptLanguageParam buildScriptLanguageParam(String condition) {
+        Integer sqlType = null;
+        String scriptLanguage = null;
+
+        Matcher matcher = sqlTypePattern.matcher(condition);
+        if (matcher.find()){
+            String typeFieldName = matcher.group().substring(1).trim();
+            try {
+                Field field = Types.class.getField(typeFieldName);
+                field.setAccessible(true);
+                sqlType = (Integer) field.get(null);
+            }catch (Exception e){
+                throw new IllegalArgumentException("NoSuchField java.sql.Types."+typeFieldName+"");
+            }
+
+            scriptLanguage = condition.substring(0, matcher.start());
+        }else{
+            scriptLanguage = condition;
+        }
+
+        return ScriptLanguageParam.builder()
+                .sqlType(sqlType)
+                .scriptLanguage(scriptLanguage)
+                .build();
     }
 
     private ConditionMatcher buildParamCondition(StringBuilder script, String flag,int start){

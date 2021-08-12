@@ -134,7 +134,6 @@ public class ApiJpaUtil {
 
     public static<T> List<T> pageByEntity(NamedParameterJdbcTemplate jdbcTemplate, T apiObject, DataSourceDialect sqlDataSource, IApiPager apiPager, Page page) {
         String tableName = ApiAnnotationUtil.getApiTableName(apiObject.getClass());
-
         String where = FieldUtils.allFields(apiObject.getClass()).stream().filter(item->{
             item.setAccessible(true);
             try {
@@ -154,7 +153,7 @@ public class ApiJpaUtil {
                 .append(" order by id desc ")
                 .toString();
 
-        sql = sqlDataSource.buildPageScript(sql,null,null,apiPager,page);
+        sql = sqlDataSource.buildPageScript(sql,apiPager,page);
         log.debug("generate script:{}",sql);
         SqlParameterSource parameterSource = new BeanPropertySqlParameterSource(apiObject);
         return jdbcTemplate.query(sql,parameterSource,new BeanPropertyRowMapper(apiObject.getClass()));

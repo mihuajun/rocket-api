@@ -1,18 +1,15 @@
 package com.github.alenfive.rocketapi.datasource;
 
 import com.github.alenfive.rocketapi.entity.ApiEntity;
-import com.github.alenfive.rocketapi.entity.ApiInfo;
-import com.github.alenfive.rocketapi.entity.ApiParams;
 import com.github.alenfive.rocketapi.entity.vo.Page;
+import com.github.alenfive.rocketapi.entity.vo.ScriptContext;
 import com.github.alenfive.rocketapi.entity.vo.TableInfo;
 import com.github.alenfive.rocketapi.extend.IApiPager;
-import org.springframework.jdbc.core.PreparedStatementCreator;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 
 import javax.sql.DataSource;
-import java.sql.PreparedStatement;
-import java.sql.Statement;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -57,39 +54,35 @@ public class ClickHouseDataSource extends JdbcDataSource {
     }
 
     @Override
-    public List<Map<String,Object>> find(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams) {
-        List<Map<String,Object>> resultList = jdbcTemplate.queryForList(script.toString());
+    public List<Map<String,Object>> find(ScriptContext scriptContext) {
+        List<Map<String,Object>> resultList = jdbcTemplate.queryForList(scriptContext.getScript().toString(), scriptContext.getParams());
         return resultList.stream().map(this::toReplaceKeyLow).collect(Collectors.toList());
     }
 
     @Override
-    public Long update(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams) {
+    public Long update(ScriptContext scriptContext) {
         throw new UnsupportedOperationException("The operation is not allowed");
     }
 
     @Override
-    public Long remove(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams) {
+    public Long remove(ScriptContext scriptContext) {
         throw new UnsupportedOperationException("The operation is not allowed");
     }
 
     @Override
-    public Object insert(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams) {
+    public Object insert(ScriptContext scriptContext) {
         KeyHolder keyHolder = new GeneratedKeyHolder();
-        PreparedStatementCreator preparedStatementCreator = con -> {
-            PreparedStatement ps = con.prepareStatement(script.toString(), Statement.RETURN_GENERATED_KEYS);
-            return ps;
-        };
-        jdbcTemplate.update(preparedStatementCreator, keyHolder);
+        jdbcTemplate.update(scriptContext.getScript().toString(), new MapSqlParameterSource(scriptContext.getParams()), keyHolder);
         return keyHolder.getKeyList().stream().map(item->item.get("GENERATED_KEY")).collect(Collectors.toList());
     }
 
     @Override
-    public String buildCountScript(String script, ApiInfo apiInfo, ApiParams apiParams, IApiPager apiPager,Page page) {
+    public String buildCountScript(String script,IApiPager apiPager,Page page) {
         return script;
     }
 
     @Override
-    public String buildPageScript(String script, ApiInfo apiInfo, ApiParams apiParams,  IApiPager apiPager,Page page) {
+    public String buildPageScript(String script,IApiPager apiPager,Page page) {
         return script;
     }
 

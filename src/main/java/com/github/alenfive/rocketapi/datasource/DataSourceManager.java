@@ -1,13 +1,9 @@
 package com.github.alenfive.rocketapi.datasource;
 
-import com.github.alenfive.rocketapi.entity.ApiInfo;
-import com.github.alenfive.rocketapi.entity.ApiParams;
-import com.github.alenfive.rocketapi.entity.vo.Page;
-import com.github.alenfive.rocketapi.extend.IApiPager;
+import com.github.alenfive.rocketapi.entity.vo.ScriptContext;
 import com.github.alenfive.rocketapi.service.ScriptParseService;
 import org.springframework.util.StringUtils;
 
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -33,44 +29,6 @@ public abstract class DataSourceManager {
         return storeApiDataSource;
     }
 
-    public String buildCountScript(String script, ApiInfo apiInfo, ApiParams apiParams, String specifyDataSource,Map<String,Object> specifyParams,IApiPager apiPager, Page page) throws Exception {
-        DataSourceDialect dataSourceDialect = buildDataSourceDialect(apiInfo.getDatasource(),specifyDataSource);
-        StringBuilder sb = new StringBuilder(script);
-        parseService.parse(sb,dataSourceDialect,specifyParams);
-        return dataSourceDialect.buildCountScript(sb.toString(),apiInfo,apiParams,apiPager,page);
-    }
-
-    public String buildPageScript(String script, ApiInfo apiInfo, ApiParams apiParams,String specifyDataSource,Map<String,Object> specifyParams,IApiPager apiPager,Page page) throws Exception {
-        DataSourceDialect dataSourceDialect = buildDataSourceDialect(apiInfo.getDatasource(),specifyDataSource);
-        StringBuilder sb = new StringBuilder(script);
-        parseService.parse(sb,dataSourceDialect,specifyParams);
-        return dataSourceDialect.buildPageScript(sb.toString(),apiInfo,apiParams,apiPager,page);
-    }
-
-    public List<Map<String, Object>> find(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams, String specifyDataSource,Map<String,Object> specifyParams) throws Exception {
-        DataSourceDialect dataSourceDialect = buildDataSourceDialect(apiInfo.getDatasource(),specifyDataSource);
-        parseService.parse(script,dataSourceDialect,specifyParams);
-        return dataSourceDialect.find(script,apiInfo,apiParams);
-    }
-
-    public Long remove(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams,String specifyDataSource,Map<String,Object> specifyParams) throws Exception {
-        DataSourceDialect dataSourceDialect = buildDataSourceDialect(apiInfo.getDatasource(),specifyDataSource);
-        parseService.parse(script,dataSourceDialect,specifyParams);
-        return dataSourceDialect.remove(script,apiInfo,apiParams);
-    }
-
-    public Object insert(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams,String specifyDataSource,Map<String,Object> specifyParams) throws Exception {
-        DataSourceDialect dataSourceDialect = buildDataSourceDialect(apiInfo.getDatasource(),specifyDataSource);
-        parseService.parse(script,dataSourceDialect,specifyParams);
-        return dataSourceDialect.insert(script,apiInfo,apiParams);
-    }
-
-    public Long update(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams,String specifyDataSource,Map<String,Object> specifyParams) throws Exception {
-        DataSourceDialect dataSourceDialect = buildDataSourceDialect(apiInfo.getDatasource(),specifyDataSource);
-        parseService.parse(script,dataSourceDialect,specifyParams);
-        return dataSourceDialect.update(script,apiInfo,apiParams);
-    }
-
     public Map<String, DataSourceDialect> getDialectMap() {
         return dialectMap;
     }
@@ -81,12 +39,21 @@ public abstract class DataSourceManager {
         this.dialectMap = dialectMap;
     }
 
-    public DataSourceDialect buildDataSourceDialect(String defaultDataSource,String specifyDataSource){
-        String dataSourceKey = StringUtils.isEmpty(specifyDataSource)?defaultDataSource:specifyDataSource;
-        DataSourceDialect dataSourceDialect = dialectMap.get(dataSourceKey);
+    public ScriptContext buildScriptContext(StringBuilder script,DataSourceDialect dataSourceDialect,Map<String,Object> params){
+        return ScriptContext.builder()
+                .script(script)
+                .dataSourceDialect(dataSourceDialect)
+                .params(parseService.parse(script,dataSourceDialect,params))
+                .build();
+    }
+
+    public DataSourceDialect getDataSourceDialect(String datasource, String specifyDataSource){
+        String dataSourceKey = StringUtils.isEmpty(specifyDataSource)?datasource:specifyDataSource;
+        DataSourceDialect dataSourceDialect = this.dialectMap.get(dataSourceKey);
         if (dataSourceDialect == null){
             throw new IllegalArgumentException("unknown datasource `"+dataSourceKey+"`");
         }
+
         return dataSourceDialect;
     }
 }

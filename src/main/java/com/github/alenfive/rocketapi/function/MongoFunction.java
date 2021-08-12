@@ -1,8 +1,10 @@
 package com.github.alenfive.rocketapi.function;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.alenfive.rocketapi.datasource.DataSourceDialect;
 import com.github.alenfive.rocketapi.datasource.DataSourceManager;
 import com.github.alenfive.rocketapi.entity.vo.Page;
+import com.github.alenfive.rocketapi.entity.vo.ScriptContext;
 import com.github.alenfive.rocketapi.extend.ApiInfoContent;
 import com.github.alenfive.rocketapi.extend.IApiPager;
 import com.github.alenfive.rocketapi.extend.ISQLInterceptor;
@@ -73,13 +75,15 @@ public class MongoFunction implements IFunction{
     }
 
 
-    public List<Map<String,Object>> find(Map<String,Object> script,String dataSource,Map<String,Object> params) throws Exception {
+    public List<Map<String,Object>> find(Map<String,Object> script,String datasource,Map<String,Object> params) throws Exception {
         Document document = new Document(script);
 
         StringBuilder sbScript = new StringBuilder(sqlInterceptor.before(document.toJson()));
         List<Map<String,Object>> result = null;
         try {
-            result = dataSourceManager.find(sbScript,apiInfoContent.getApiInfo(),apiInfoContent.getApiParams(),dataSource,params);
+            DataSourceDialect dataSourceDialect = dataSourceManager.getDataSourceDialect(apiInfoContent.getApiInfo().getDatasource(),datasource);
+            ScriptContext scriptContext = dataSourceManager.buildScriptContext(sbScript,dataSourceDialect,params);
+            result = dataSourceDialect.find(scriptContext);
         }finally {
             if (apiInfoContent.getIsDebug()){
                 apiInfoContent.putLog("generate script:  " + sbScript);
@@ -91,12 +95,14 @@ public class MongoFunction implements IFunction{
         return result;
     }
 
-    public Object insert(Map<String,Object> script,String dataSource,Map<String,Object> params) throws Exception {
+    public Object insert(Map<String,Object> script,String datasource,Map<String,Object> params) throws Exception {
         Document document = new Document(script);
         StringBuilder sbScript = new StringBuilder(sqlInterceptor.before(document.toJson()));
         Object result = null;
         try {
-            result = dataSourceManager.insert(sbScript,apiInfoContent.getApiInfo(),apiInfoContent.getApiParams(),dataSource,params);
+            DataSourceDialect dataSourceDialect = dataSourceManager.getDataSourceDialect(apiInfoContent.getApiInfo().getDatasource(),datasource);
+            ScriptContext scriptContext = dataSourceManager.buildScriptContext(sbScript,dataSourceDialect,params);
+            result = dataSourceDialect.insert(scriptContext);
         }finally {
             if (apiInfoContent.getIsDebug()){
                 apiInfoContent.putLog("generate script:  " + sbScript);
@@ -107,12 +113,14 @@ public class MongoFunction implements IFunction{
         return result;
     }
 
-    public Object remove(Map<String,Object> script,String dataSource,Map<String,Object> params) throws Exception {
+    public Object remove(Map<String,Object> script,String datasource,Map<String,Object> params) throws Exception {
         Document document = new Document(script);
         StringBuilder sbScript = new StringBuilder(sqlInterceptor.before(document.toJson()));
         Object result =  null;
         try {
-            result = dataSourceManager.remove(sbScript,apiInfoContent.getApiInfo(),apiInfoContent.getApiParams(),dataSource,params);
+            DataSourceDialect dataSourceDialect = dataSourceManager.getDataSourceDialect(apiInfoContent.getApiInfo().getDatasource(),datasource);
+            ScriptContext scriptContext = dataSourceManager.buildScriptContext(sbScript,dataSourceDialect,params);
+            result = dataSourceDialect.remove(scriptContext);
         }finally {
             if (apiInfoContent.getIsDebug()){
                 apiInfoContent.putLog("generate script:  " + sbScript);
@@ -123,12 +131,14 @@ public class MongoFunction implements IFunction{
         return result;
     }
 
-    public Long update(Map<String,Object> script,String dataSource,Map<String,Object> params) throws Exception {
+    public Long update(Map<String,Object> script,String datasource,Map<String,Object> params) throws Exception {
         Document document = new Document(script);
         StringBuilder sbScript = new StringBuilder(sqlInterceptor.before(document.toJson()));
         Long result =  null;
         try {
-            result = dataSourceManager.update(sbScript,apiInfoContent.getApiInfo(),apiInfoContent.getApiParams(),dataSource,params);
+            DataSourceDialect dataSourceDialect = dataSourceManager.getDataSourceDialect(apiInfoContent.getApiInfo().getDatasource(),datasource);
+            ScriptContext scriptContext = dataSourceManager.buildScriptContext(sbScript,dataSourceDialect,params);
+            result = dataSourceDialect.update(scriptContext);
         }finally {
             if (apiInfoContent.getIsDebug()){
                 apiInfoContent.putLog("generate script:  " + sbScript);
@@ -139,7 +149,7 @@ public class MongoFunction implements IFunction{
         return result;
     }
 
-    public Object pager(Map<String,Object> script,String dataSource,Map<String,Object> params) throws Exception {
+    public Object pager(Map<String,Object> script,String datasource,Map<String,Object> params) throws Exception {
 
         Integer pageNo = buildPagerNo();
         Integer pageSize = buildPagerSize();
@@ -152,12 +162,16 @@ public class MongoFunction implements IFunction{
                 .pageNo(pageNo)
                 .pageSize(pageSize)
                 .build();
-        String totalSql = dataSourceManager.buildCountScript(document.toJson(),apiInfoContent.getApiInfo(),apiInfoContent.getApiParams(),dataSource,params,apiPager,page);
-        Long total = this.count(objectMapper.readValue(totalSql,Map.class),dataSource,params);
+
+        DataSourceDialect dataSourceDialect = dataSourceManager.getDataSourceDialect(apiInfoContent.getApiInfo().getDatasource(),datasource);
+
+        String totalSql = dataSourceDialect.buildCountScript(document.toJson(), apiPager,page);
+
+        Long total = this.count(objectMapper.readValue(totalSql,Map.class),datasource,params);
         List<Map<String,Object>> data = null;
         if (total > 0){
-            String pageSql = dataSourceManager.buildPageScript(document.toJson(),apiInfoContent.getApiInfo(),apiInfoContent.getApiParams(),dataSource,params,apiPager,page);
-            data = this.find(objectMapper.readValue(pageSql,Map.class),dataSource,params);
+            String pageSql = dataSourceDialect.buildPageScript(document.toJson(), apiPager,page);
+            data = this.find(objectMapper.readValue(pageSql,Map.class),datasource,params);
         }else{
             data = Collections.emptyList();
         }

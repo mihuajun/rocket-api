@@ -8,7 +8,6 @@ import com.github.alenfive.rocketapi.config.RocketApiProperties;
 import com.github.alenfive.rocketapi.datasource.DataSourceDialect;
 import com.github.alenfive.rocketapi.datasource.DataSourceManager;
 import com.github.alenfive.rocketapi.datasource.DialectTransactionManager;
-import com.github.alenfive.rocketapi.datasource.JdbcDataSource;
 import com.github.alenfive.rocketapi.entity.ApiInfo;
 import com.github.alenfive.rocketapi.entity.ApiParams;
 import com.github.alenfive.rocketapi.extend.ApiInfoContent;

@@ -1,7 +1,9 @@
 package com.github.alenfive.rocketapi.function;
 
+import com.github.alenfive.rocketapi.datasource.DataSourceDialect;
 import com.github.alenfive.rocketapi.datasource.DataSourceManager;
 import com.github.alenfive.rocketapi.entity.vo.Page;
+import com.github.alenfive.rocketapi.entity.vo.ScriptContext;
 import com.github.alenfive.rocketapi.extend.ApiInfoContent;
 import com.github.alenfive.rocketapi.extend.IApiPager;
 import com.github.alenfive.rocketapi.extend.IDBCache;
@@ -102,7 +104,7 @@ public class DbFunction implements IFunction {
     }
 
     @Deprecated
-    public List<Map<String,Object>> find(String script,String dataSource,Map<String,Object> params) throws Exception {
+    public List<Map<String,Object>> find(String script,String datasource,Map<String,Object> params) throws Exception {
 
         //获取缓存对象
         if (this.cacheKey != null){
@@ -117,7 +119,9 @@ public class DbFunction implements IFunction {
         List<Map<String,Object>> result = null;
         long startTime = System.currentTimeMillis();
         try {
-            result = dataSourceManager.find(sbScript,apiInfoContent.getApiInfo(),apiInfoContent.getApiParams(),dataSource,params);
+            DataSourceDialect dataSourceDialect = dataSourceManager.getDataSourceDialect(apiInfoContent.getApiInfo().getDatasource(),datasource);
+            ScriptContext scriptContext = dataSourceManager.buildScriptContext(sbScript,dataSourceDialect,params);
+            result = dataSourceDialect.find(scriptContext);
         }finally {
             long diff = System.currentTimeMillis() - startTime;
             if (apiInfoContent.getIsDebug()){
@@ -134,14 +138,20 @@ public class DbFunction implements IFunction {
         return result;
     }
 
+
+
+
+
     @Deprecated
-    public Object insert(String script,String dataSource,Map<String,Object> params) throws Exception {
+    public Object insert(String script,String datasource,Map<String,Object> params) throws Exception {
         script = parseSql(script);
         StringBuilder sbScript = new StringBuilder(sqlInterceptor.before(script));
         Object result = null;
         long startTime = System.currentTimeMillis();
         try {
-            result = dataSourceManager.insert(sbScript,apiInfoContent.getApiInfo(),apiInfoContent.getApiParams(),dataSource,params);
+            DataSourceDialect dataSourceDialect = dataSourceManager.getDataSourceDialect(apiInfoContent.getApiInfo().getDatasource(),datasource);
+            ScriptContext scriptContext = dataSourceManager.buildScriptContext(sbScript,dataSourceDialect,params);
+            result = dataSourceDialect.insert(scriptContext);
         }finally {
             long diff = System.currentTimeMillis() - startTime;
             if (apiInfoContent.getIsDebug()){
@@ -154,13 +164,15 @@ public class DbFunction implements IFunction {
     }
 
     @Deprecated
-    public Object remove(String script,String dataSource,Map<String,Object> params) throws Exception {
+    public Object remove(String script,String datasource,Map<String,Object> params) throws Exception {
         script = parseSql(script);
         StringBuilder sbScript = new StringBuilder(sqlInterceptor.before(script));
         Object result =  null;
         long startTime = System.currentTimeMillis();
         try {
-            result = dataSourceManager.remove(sbScript,apiInfoContent.getApiInfo(),apiInfoContent.getApiParams(),dataSource,params);
+            DataSourceDialect dataSourceDialect = dataSourceManager.getDataSourceDialect(apiInfoContent.getApiInfo().getDatasource(),datasource);
+            ScriptContext scriptContext = dataSourceManager.buildScriptContext(sbScript,dataSourceDialect,params);
+            result = dataSourceDialect.remove(scriptContext);
         }finally {
             long diff = System.currentTimeMillis() - startTime;
             if (apiInfoContent.getIsDebug()){
@@ -173,13 +185,15 @@ public class DbFunction implements IFunction {
     }
 
     @Deprecated
-    public Long update(String script,String dataSource,Map<String,Object> params) throws Exception {
+    public Long update(String script,String datasource,Map<String,Object> params) throws Exception {
         script = parseSql(script);
         StringBuilder sbScript = new StringBuilder(sqlInterceptor.before(script));
         Long result =  null;
         long startTime = System.currentTimeMillis();
         try {
-            result = dataSourceManager.update(sbScript,apiInfoContent.getApiInfo(),apiInfoContent.getApiParams(),dataSource,params);
+            DataSourceDialect dataSourceDialect = dataSourceManager.getDataSourceDialect(apiInfoContent.getApiInfo().getDatasource(),datasource);
+            ScriptContext scriptContext = dataSourceManager.buildScriptContext(sbScript,dataSourceDialect,params);
+            result = dataSourceDialect.update(scriptContext);
         }finally {
             long diff = System.currentTimeMillis() - startTime;
             if (apiInfoContent.getIsDebug()){
@@ -192,7 +206,7 @@ public class DbFunction implements IFunction {
     }
 
     @Deprecated
-    public Object pager(String script,String dataSource,Map<String,Object> params) throws Exception {
+    public Object pager(String script,String datasource,Map<String,Object> params) throws Exception {
 
         Integer pageNo = buildPagerNo();
         Integer pageSize = buildPagerSize();
@@ -205,12 +219,18 @@ public class DbFunction implements IFunction {
                 .pageNo(pageNo)
                 .pageSize(pageSize)
                 .build();
-        String totalSql = dataSourceManager.buildCountScript(script,apiInfoContent.getApiInfo(),apiInfoContent.getApiParams(),dataSource,params,apiPager,page);
-        Long total = this.count(totalSql,dataSource,params);
+
+        DataSourceDialect dataSourceDialect = dataSourceManager.getDataSourceDialect(apiInfoContent.getApiInfo().getDatasource(),datasource);
+
+        String totalSql = dataSourceDialect.buildCountScript(script,apiPager,page);
+
+        Long total = this.count(totalSql,datasource,params);
+
+
         List<Map<String,Object>> data = null;
         if (total > 0){
-            String pageSql = dataSourceManager.buildPageScript(script,apiInfoContent.getApiInfo(),apiInfoContent.getApiParams(),dataSource,params,apiPager,page);
-            data = this.find(pageSql,dataSource,params);
+            String pageSql = dataSourceDialect.buildPageScript(script,apiPager,page);
+            data = this.find(pageSql,datasource,params);
         }else{
             data = Collections.emptyList();
         }

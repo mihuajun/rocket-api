@@ -1,9 +1,8 @@
 package com.github.alenfive.rocketapi.datasource;
 
 import com.github.alenfive.rocketapi.entity.ApiEntity;
-import com.github.alenfive.rocketapi.entity.ApiInfo;
-import com.github.alenfive.rocketapi.entity.ApiParams;
 import com.github.alenfive.rocketapi.entity.vo.Page;
+import com.github.alenfive.rocketapi.entity.vo.ScriptContext;
 import com.github.alenfive.rocketapi.entity.vo.TableInfo;
 import com.github.alenfive.rocketapi.extend.IApiPager;
 import com.github.alenfive.rocketapi.utils.ApiAnnotationUtil;
@@ -103,10 +102,10 @@ public class MongoDataSource extends DataSourceDialect {
 
 
     @Override
-    public List<Map<String,Object>> find(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams)  throws Exception {
-        formatISODate(script);
-        formatObjectIdList(script);
-        Document document = mongoTemplate.executeCommand(script.toString());
+    public List<Map<String,Object>> find(ScriptContext scriptContext)  throws Exception {
+        formatISODate(scriptContext.getScript());
+        formatObjectIdList(scriptContext.getScript());
+        Document document = mongoTemplate.executeCommand(scriptContext.getScript().toString());
         if (document.get("n") != null){
             Map<String,Object> count = new HashMap<>();
             count.put("count",document.get("n"));
@@ -132,26 +131,26 @@ public class MongoDataSource extends DataSourceDialect {
     }
 
     @Override
-    public Long update(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams)  throws Exception {
-        formatISODate(script);
-        formatObjectIdList(script);
-        Document result = mongoTemplate.executeCommand(script.toString());
+    public Long update(ScriptContext scriptContext) throws Exception {
+        formatISODate(scriptContext.getScript());
+        formatObjectIdList(scriptContext.getScript());
+        Document result = mongoTemplate.executeCommand(scriptContext.getScript().toString());
         return Long.valueOf(result.getInteger("n"));
     }
 
     @Override
-    public Long remove(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams) throws Exception {
-        formatISODate(script);
-        formatObjectIdList(script);
-        Document result = mongoTemplate.executeCommand(script.toString());
+    public Long remove(ScriptContext scriptContext) throws Exception {
+        formatISODate(scriptContext.getScript());
+        formatObjectIdList(scriptContext.getScript());
+        Document result = mongoTemplate.executeCommand(scriptContext.getScript().toString());
         return Long.valueOf(result.getInteger("n"));
     }
 
     @Override
-    public Object insert(StringBuilder script, ApiInfo apiInfo, ApiParams apiParams) throws Exception {
-        formatISODate(script);
-        formatObjectIdList(script);
-        return batchInsert(script).get(0).toString();
+    public Object insert(ScriptContext scriptContext) throws Exception {
+        formatISODate(scriptContext.getScript());
+        formatObjectIdList(scriptContext.getScript());
+        return batchInsert(scriptContext.getScript()).get(0).toString();
     }
 
     private List<Object> batchInsert(StringBuilder script){
@@ -285,7 +284,7 @@ public class MongoDataSource extends DataSourceDialect {
 
 
     @Override
-    public String buildCountScript(String script, ApiInfo apiInfo, ApiParams apiParams, IApiPager apiPager, Page page) {
+    public String buildCountScript(String script, IApiPager apiPager, Page page) {
         Document document = Document.parse(script);
         document.put("count",document.get("find"));
         document.put("query",document.get("filter"));
@@ -296,7 +295,7 @@ public class MongoDataSource extends DataSourceDialect {
     }
 
     @Override
-    public String buildPageScript(String script, ApiInfo apiInfo, ApiParams apiParams, IApiPager apiPager, Page page) {
+    public String buildPageScript(String script,IApiPager apiPager, Page page) {
         Document document = Document.parse(script);
         document.put("skip",apiPager.getIndexVarValue(page.getPageSize(),page.getPageNo()));
         document.put("limit",page.getPageSize());
