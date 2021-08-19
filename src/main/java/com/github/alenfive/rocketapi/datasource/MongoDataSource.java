@@ -95,7 +95,7 @@ public class MongoDataSource extends DataSourceDialect {
     @Override
     public <T extends ApiEntity> List<T> pageByEntity(T entity, IApiPager apiPager, Page page) {
         Query query = Query.query(buildCriteria(entity));
-        query.skip(apiPager.getIndexVarValue(page.getPageSize(),page.getPageNo())).limit(page.getPageSize());
+        query.skip(apiPager.getOffset(page.getPageSize(),page.getPageNo())).limit(page.getPageSize());
         query.with(Sort.by(Sort.Direction.DESC,"_id"));
         return mongoTemplate.find(query,(Class <T>) (entity.getClass()),ApiAnnotationUtil.getApiTableName(entity.getClass()));
     }
@@ -297,7 +297,7 @@ public class MongoDataSource extends DataSourceDialect {
     @Override
     public String buildPageScript(String script,IApiPager apiPager, Page page) {
         Document document = Document.parse(script);
-        document.put("skip",apiPager.getIndexVarValue(page.getPageSize(),page.getPageNo()));
+        document.put("skip",apiPager.getOffset(page.getPageSize(),page.getPageNo()));
         document.put("limit",page.getPageSize());
         return document.toJson();
     }

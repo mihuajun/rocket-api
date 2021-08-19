@@ -27,7 +27,7 @@ public class DB2DataSource extends JdbcDataSource {
 
     @Override
     public String buildPageScript(String script, IApiPager apiPager, Page page) {
-        Integer offset = apiPager.getIndexVarValue(page.getPageSize(),page.getPageNo());
+        Integer offset = apiPager.getOffset(page.getPageSize(),page.getPageNo());
         return "SELECT * FROM (SELECT TMP_PAGE.*,ROWNUMBER() OVER() AS ROW_ID FROM ( " + script +
                 " ) AS TMP_PAGE) TMP_PAGE WHERE ROW_ID BETWEEN "+(offset+1)+" AND "+(offset + page.getPageSize());
     }

@@ -92,35 +92,7 @@ public class ApplicationTests {
 
     @Test
     public void testPager(){
-        StringBuilder script = new StringBuilder("select * from user limit #{index},#{pageSize}");
 
-        Map<String,Object> params = new HashMap<>();
-        params.put("pageNo",2);
-
-        Integer pageNo = null;
-        Object value = parseService.buildContentScopeParamItem(params,apiPager.getPageNoVarName());
-        if (StringUtils.isEmpty(value)){
-            params.put(apiPager.getPageNoVarName(),apiPager.getPageNoDefaultValue());
-            pageNo = apiPager.getPageNoDefaultValue();
-        }else {
-            pageNo = Integer.valueOf(value.toString());
-        }
-
-        Integer pageSize = null;
-
-        value = parseService.buildContentScopeParamItem(params,apiPager.getPageSizeVarName());
-        if (StringUtils.isEmpty(value)){
-            params.put(apiPager.getPageSizeVarName(),apiPager.getPageSizeDefaultValue());
-            pageSize = apiPager.getPageSizeDefaultValue();
-        }else{
-            pageSize =Integer.valueOf(value.toString());
-
-        }
-
-        params.put(apiPager.getIndexVarName(),apiPager.getIndexVarValue(pageSize,pageNo));
-        parseService.buildParams(script,null,params);
-        log.info("testPager:{}",script.toString());
-        assert script.toString().equals("select * from user limit 15,15");
 
     }
 

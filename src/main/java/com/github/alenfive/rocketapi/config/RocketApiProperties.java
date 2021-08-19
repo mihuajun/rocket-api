@@ -112,4 +112,49 @@ public class RocketApiProperties {
          * 其他返回list,所有查询结果
          */
     }
+
+    /**
+     * 分页参数配置
+     */
+    private Pager pager = new Pager();
+
+    @Data
+    public static class Pager{
+        /**
+         * 每页大小变量名
+         */
+        private String pageSizeVarName = "pageSize";
+        /**
+         * 第几页变量名
+         */
+        private String pageNoVarName = "pageNo";
+        /**
+         * limit offset变量名
+         */
+        private String offsetVarName = "offset";
+
+        /**
+         * 分页list查询结果变量名
+         */
+        private String dataVarName = "data";
+
+        /**
+         * 分页count查询结果变量名
+         */
+        private String totalRecordsVarName = "totalRecords";
+
+        /**
+         * 总页数变量名
+         */
+        private String totalPagesVarName = "totalPages";
+
+        /**
+         * 默认每页大小
+         */
+        private Integer defaultPageSizeValue = 15;
+        /**
+         * 默认第几页
+         */
+        private Integer defaultPageNoValue = 1;
+    }
 }

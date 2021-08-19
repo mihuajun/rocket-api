@@ -3,6 +3,7 @@ package com.github.alenfive.rocketapi.config;
 import com.github.alenfive.rocketapi.entity.ApiInfo;
 import com.github.alenfive.rocketapi.entity.ApiParams;
 import com.github.alenfive.rocketapi.extend.IApiPager;
+import org.springframework.util.StringUtils;
 
 import java.util.HashMap;
 import java.util.List;
@@ -33,22 +34,22 @@ public class SysApiPager implements IApiPager {
     }
 
     @Override
-    public String getIndexVarName() {
+    public String getOffsetVarName() {
         return "index";
     }
 
     @Override
-    public Integer getIndexVarValue(Integer pageSize,Integer pageNo) {
+    public Integer getOffset(Integer pageSize, Integer pageNo) {
         return (pageNo-1)*pageSize;
     }
 
     @Override
-    public Integer getPageSizeDefaultValue() {
-        return 15;
+    public Integer getPageNo() {
+        return null;
     }
 
     @Override
-    public Integer getPageNoDefaultValue() {
-        return 1;
+    public Integer getPageSize() {
+        return null;
     }
 }

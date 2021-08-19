@@ -14,7 +14,6 @@ import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
 
 import java.util.Collections;
 import java.util.List;
@@ -208,11 +207,11 @@ public class DbFunction implements IFunction {
     @Deprecated
     public Object pager(String script,String datasource,Map<String,Object> params) throws Exception {
 
-        Integer pageNo = buildPagerNo();
-        Integer pageSize = buildPagerSize();
+        Integer pageNo = apiPager.getPageNo();
+        Integer pageSize = apiPager.getPageSize();
         apiInfoContent.getEngineBindings().put(apiPager.getPageNoVarName(),pageNo);
         apiInfoContent.getEngineBindings().put(apiPager.getPageSizeVarName(),pageSize);
-        apiInfoContent.getEngineBindings().put(apiPager.getIndexVarName(),apiPager.getIndexVarValue(pageSize,pageNo));
+        apiInfoContent.getEngineBindings().put(apiPager.getOffsetVarName(),apiPager.getOffset(pageSize,pageNo));
 
         script = parseSql(script);
         Page page = Page.builder()
@@ -237,20 +236,20 @@ public class DbFunction implements IFunction {
         return apiPager.buildPager(total,data,apiInfoContent.getApiInfo(),apiInfoContent.getApiParams());
     }
 
-    private Integer buildPagerNo() {
-        Object value = parseService.buildContentScopeParamItem(null,apiPager.getPageNoVarName());
-        if (StringUtils.isEmpty(value)){
-            return apiPager.getPageNoDefaultValue();
-        }
-        return Integer.valueOf(value.toString());
+    public Object pager(Long total, List list){
+        return apiPager.buildPager(total,list,apiInfoContent.getApiInfo(),apiInfoContent.getApiParams());
     }
 
-    private Integer buildPagerSize() {
-        Object value = parseService.buildContentScopeParamItem(null,apiPager.getPageSizeVarName());
-        if (StringUtils.isEmpty(value)){
-            return apiPager.getPageSizeDefaultValue();
-        }
-        return Integer.valueOf(value.toString());
+    public Integer getPageNo(){
+        return apiPager.getPageNo();
+    }
+
+    public Integer getPageSize(){
+        return apiPager.getPageSize();
+    }
+
+    public Integer getOffset(){
+        return apiPager.getOffset(apiPager.getPageSize(), apiPager.getPageNo());
     }
 
     /*重载 script*/

@@ -151,11 +151,11 @@ public class MongoFunction implements IFunction{
 
     public Object pager(Map<String,Object> script,String datasource,Map<String,Object> params) throws Exception {
 
-        Integer pageNo = buildPagerNo();
-        Integer pageSize = buildPagerSize();
+        Integer pageNo = apiPager.getPageNo();
+        Integer pageSize = apiPager.getPageSize();
         apiInfoContent.getEngineBindings().put(apiPager.getPageNoVarName(),pageNo);
         apiInfoContent.getEngineBindings().put(apiPager.getPageSizeVarName(),pageSize);
-        apiInfoContent.getEngineBindings().put(apiPager.getIndexVarName(),apiPager.getIndexVarValue(pageSize,pageNo));
+        apiInfoContent.getEngineBindings().put(apiPager.getOffsetVarName(),apiPager.getOffset(pageSize,pageNo));
 
         Document document = new Document(script);
         Page page = Page.builder()
@@ -176,22 +176,6 @@ public class MongoFunction implements IFunction{
             data = Collections.emptyList();
         }
         return apiPager.buildPager(total,data,apiInfoContent.getApiInfo(),apiInfoContent.getApiParams());
-    }
-
-    private Integer buildPagerNo() {
-        Object value = parseService.buildContentScopeParamItem(null,apiPager.getPageNoVarName());
-        if (StringUtils.isEmpty(value)){
-            return apiPager.getPageNoDefaultValue();
-        }
-        return Integer.valueOf(value.toString());
-    }
-
-    private Integer buildPagerSize() {
-        Object value = parseService.buildContentScopeParamItem(null,apiPager.getPageSizeVarName());
-        if (StringUtils.isEmpty(value)){
-            return apiPager.getPageSizeDefaultValue();
-        }
-        return Integer.valueOf(value.toString());
     }
 
     /*重载 script*/

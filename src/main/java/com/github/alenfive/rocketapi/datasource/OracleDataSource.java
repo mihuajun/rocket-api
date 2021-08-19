@@ -28,7 +28,7 @@ public class OracleDataSource extends JdbcDataSource {
 
     @Override
     public String buildPageScript(String script,IApiPager apiPager, Page page) {
-        Integer offset = apiPager.getIndexVarValue(page.getPageSize(),page.getPageNo());
+        Integer offset = apiPager.getOffset(page.getPageSize(),page.getPageNo());
         Integer endIndex = offset + page.getPageSize();
         return "SELECT * FROM ( SELECT TMP.*, ROWNUM ROW_ID FROM ( " +
                 script + " ) TMP WHERE ROWNUM <= "+endIndex+" ) WHERE ROW_ID > "+offset;

@@ -10,8 +10,10 @@ import java.util.Map;
 
 /**
  * 分页封装函数
+ * @Deprecated  已将方法迁移到 @Link DbFunciton.db.pager(Long total,List list)
  */
 @Component
+@Deprecated
 public class PagerFunction implements IFunction{
 
     @Autowired

@@ -32,22 +32,21 @@ public interface IApiPager {
     /**
      * skip变量名，由页码和每页大小计算获得,
      */
-    String getIndexVarName();
+    String getOffsetVarName();
 
     /**
      * 计算skip变量的值
-     * @param pageSize
-     * @param pageNo
      */
-    Integer getIndexVarValue(Integer pageSize, Integer pageNo);
+    Integer getOffset(Integer pageSize,Integer pageNo);
 
     /**
-     * 默认每页大小
+     * 获取页码
+     * @return
      */
-    Integer getPageSizeDefaultValue();
+    Integer getPageNo();
 
     /**
-     * 默认页码
+     * 获取每页大小
      */
-    Integer getPageNoDefaultValue();
+    Integer getPageSize();
 }

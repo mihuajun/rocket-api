@@ -33,7 +33,7 @@ public class SQLServerDataSource extends JdbcDataSource {
 
     @Override
     public String buildPageScript(String script, IApiPager apiPager, Page page) {
-        Integer offset = apiPager.getIndexVarValue(page.getPageSize(),page.getPageNo());
+        Integer offset = apiPager.getOffset(page.getPageSize(),page.getPageNo());
         return script + " OFFSET "+offset+" ROWS FETCH NEXT "+page.getPageSize()+" ROWS ONLY";
     }
 

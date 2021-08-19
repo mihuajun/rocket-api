@@ -152,7 +152,6 @@ public class ApiJpaUtil {
                 .append(where == null?"":" where "+where)
                 .append(" order by id desc ")
                 .toString();
-
         sql = sqlDataSource.buildPageScript(sql,apiPager,page);
         log.debug("generate script:{}",sql);
         SqlParameterSource parameterSource = new BeanPropertySqlParameterSource(apiObject);
