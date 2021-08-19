@@ -58,7 +58,7 @@ public class DefaultApiPager implements IApiPager {
 
     @Override
     public Integer getOffset(Integer pageSize, Integer pageNo) {
-        return (pageSize-1)*pageNo;
+        return (pageNo-1)*pageSize;
     }
 
     @Override
