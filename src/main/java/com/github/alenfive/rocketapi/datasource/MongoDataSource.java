@@ -264,7 +264,7 @@ public class MongoDataSource extends DataSourceDialect {
         }
     }
 
-    private Map<String,Object> toMap(Document item) {
+    private Map<String,Object>  toMap(Document item) {
         Map<String, Object> map = new HashMap<>(item.size());
         Set<String> keys = item.keySet();
         for (String key : keys){
@@ -272,7 +272,6 @@ public class MongoDataSource extends DataSourceDialect {
            if ("_id".equals(key)){
                key = "id";
            }
-           key = FieldUtils.underlineToCamel(key);
            if (value instanceof Document){
                map.put(key,toMap((Document) value));
                continue;
