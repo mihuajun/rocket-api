@@ -325,7 +325,7 @@ public class ApiController {
     }
 
     private Map<String,String> getPathVar(String pattern,String url){
-        Integer beginIndex = url.indexOf("/",7);
+        Integer beginIndex = url.indexOf("/",8);
         if (beginIndex == -1){
             return null;
         }

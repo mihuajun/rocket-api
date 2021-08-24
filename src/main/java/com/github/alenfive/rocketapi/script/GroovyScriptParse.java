@@ -41,7 +41,7 @@ public class GroovyScriptParse implements IScriptParse{
     @Autowired
     private RocketApiProperties rocketApiProperties;
 
-    @Autowired
+    @Autowired(required = false)
     private TransactionDefinition transactionDefinition;
 
     @Autowired
