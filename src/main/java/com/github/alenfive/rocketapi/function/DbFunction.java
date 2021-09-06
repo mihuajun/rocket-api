@@ -214,12 +214,19 @@ public class DbFunction implements IFunction {
         apiInfoContent.getEngineBindings().put(apiPager.getOffsetVarName(),apiPager.getOffset(pageSize,pageNo));
 
         script = parseSql(script);
+
+
+
         Page page = Page.builder()
                 .pageNo(pageNo)
                 .pageSize(pageSize)
                 .build();
 
         DataSourceDialect dataSourceDialect = dataSourceManager.getDataSourceDialect(apiInfoContent.getApiInfo().getDatasource(),datasource);
+
+        StringBuilder scriptBuilder = new StringBuilder(script);
+        params = parseService.parse(scriptBuilder,dataSourceDialect,params);
+        script = scriptBuilder.toString();
 
         String totalSql = dataSourceDialect.buildCountScript(script,apiPager,page);
 
