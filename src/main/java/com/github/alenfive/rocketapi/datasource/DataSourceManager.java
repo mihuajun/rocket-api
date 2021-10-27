@@ -4,6 +4,8 @@ import com.github.alenfive.rocketapi.entity.vo.ScriptContext;
 import com.github.alenfive.rocketapi.service.ScriptParseService;
 import org.springframework.util.StringUtils;
 
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -39,11 +41,31 @@ public abstract class DataSourceManager {
         this.dialectMap = dialectMap;
     }
 
-    public ScriptContext buildScriptContext(StringBuilder script,DataSourceDialect dataSourceDialect,Map<String,Object> params){
+    public ScriptContext buildScriptContext(StringBuilder script, DataSourceDialect dataSourceDialect, Map<String,Object> params){
         return ScriptContext.builder()
                 .script(script)
                 .dataSourceDialect(dataSourceDialect)
-                .params(parseService.parse(script,dataSourceDialect,params))
+                .params(new Map[]{parseService.parse(script,dataSourceDialect,params)})
+                .build();
+    }
+
+    /**
+     * 批量脚本构建，要求：
+     * 1. 仅支持jdbc数据源
+     * 2. 要求变量名以":varname" 形式定义
+     * @param script
+     * @param dataSourceDialect
+     * @param params
+     * @return
+     */
+    public ScriptContext buildScriptContext(StringBuilder script, DataSourceDialect dataSourceDialect, List<Map<String,Object>> params){
+        if (!(dataSourceDialect instanceof JdbcDataSource)){
+            throw new UnsupportedOperationException("Only JDBC data sources are supported");
+        }
+        return ScriptContext.builder()
+                .script(script)
+                .dataSourceDialect(dataSourceDialect)
+                .params(params.toArray(new HashMap[params.size()]))
                 .build();
     }
 

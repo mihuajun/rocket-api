@@ -21,7 +21,7 @@ public class ScriptContext {
     /**
      * 脚本参数
      */
-    private Map<String,Object> params;
+    private Map<String,Object>[] params;
 
     /**
      * 执行脚本数据源

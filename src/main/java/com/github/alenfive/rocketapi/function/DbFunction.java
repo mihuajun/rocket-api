@@ -9,6 +9,7 @@ import com.github.alenfive.rocketapi.extend.IApiPager;
 import com.github.alenfive.rocketapi.extend.IDBCache;
 import com.github.alenfive.rocketapi.extend.ISQLInterceptor;
 import com.github.alenfive.rocketapi.service.ScriptParseService;
+import com.github.alenfive.rocketapi.utils.LogFormatUtils;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -102,6 +103,17 @@ public class DbFunction implements IFunction {
         return list.get(0);
     }
 
+    private void dbFinal(long startTime,StringBuilder sbScript,ScriptContext scriptContext){
+        long diff = System.currentTimeMillis() - startTime;
+        String logScript = LogFormatUtils.sqlParam(sbScript, scriptContext.getParams());
+        if (apiInfoContent.getIsDebug()){
+            apiInfoContent.putLog(String.format("Elapsed Time:%sms , execute script: %s",diff,logScript));
+        }
+        log.debug("Elapsed Time:{}ms , execute script: {}",diff,logScript);
+
+        sqlInterceptor.after(sbScript.toString());
+    }
+
     @Deprecated
     public List<Map<String,Object>> find(String script,String datasource,Map<String,Object> params) throws Exception {
 
@@ -117,17 +129,13 @@ public class DbFunction implements IFunction {
         StringBuilder sbScript = new StringBuilder(sqlInterceptor.before(script));
         List<Map<String,Object>> result = null;
         long startTime = System.currentTimeMillis();
+        ScriptContext scriptContext = null;
         try {
             DataSourceDialect dataSourceDialect = dataSourceManager.getDataSourceDialect(apiInfoContent.getApiInfo().getDatasource(),datasource);
-            ScriptContext scriptContext = dataSourceManager.buildScriptContext(sbScript,dataSourceDialect,params);
+            scriptContext = dataSourceManager.buildScriptContext(sbScript,dataSourceDialect,params);
             result = dataSourceDialect.find(scriptContext);
         }finally {
-            long diff = System.currentTimeMillis() - startTime;
-            if (apiInfoContent.getIsDebug()){
-                apiInfoContent.putLog(String.format("Elapsed Time:%sms , execute script: %s",diff,sbScript));
-            }
-            log.debug("Elapsed Time:{}ms , execute script: {}",diff,sbScript);
-            sqlInterceptor.after(sbScript.toString());
+            dbFinal(startTime,sbScript,scriptContext);
         }
 
         //设置缓存对象
@@ -147,17 +155,13 @@ public class DbFunction implements IFunction {
         StringBuilder sbScript = new StringBuilder(sqlInterceptor.before(script));
         Object result = null;
         long startTime = System.currentTimeMillis();
+        ScriptContext scriptContext = null;
         try {
             DataSourceDialect dataSourceDialect = dataSourceManager.getDataSourceDialect(apiInfoContent.getApiInfo().getDatasource(),datasource);
-            ScriptContext scriptContext = dataSourceManager.buildScriptContext(sbScript,dataSourceDialect,params);
+            scriptContext = dataSourceManager.buildScriptContext(sbScript,dataSourceDialect,params);
             result = dataSourceDialect.insert(scriptContext);
         }finally {
-            long diff = System.currentTimeMillis() - startTime;
-            if (apiInfoContent.getIsDebug()){
-                apiInfoContent.putLog(String.format("Elapsed Time:%sms , execute script: %s",diff,sbScript));
-            }
-            log.debug("Elapsed Time:{}ms , execute script: {}",diff,sbScript);
-            sqlInterceptor.after(sbScript.toString());
+            dbFinal(startTime,sbScript,scriptContext);
         }
         return result;
     }
@@ -168,38 +172,47 @@ public class DbFunction implements IFunction {
         StringBuilder sbScript = new StringBuilder(sqlInterceptor.before(script));
         Object result =  null;
         long startTime = System.currentTimeMillis();
+        ScriptContext scriptContext = null;
         try {
             DataSourceDialect dataSourceDialect = dataSourceManager.getDataSourceDialect(apiInfoContent.getApiInfo().getDatasource(),datasource);
-            ScriptContext scriptContext = dataSourceManager.buildScriptContext(sbScript,dataSourceDialect,params);
+            scriptContext = dataSourceManager.buildScriptContext(sbScript,dataSourceDialect,params);
             result = dataSourceDialect.remove(scriptContext);
         }finally {
-            long diff = System.currentTimeMillis() - startTime;
-            if (apiInfoContent.getIsDebug()){
-                apiInfoContent.putLog(String.format("Elapsed Time:%sms , execute script: %s",diff,sbScript));
-            }
-            log.debug("Elapsed Time:{}ms , execute script: {}",diff,sbScript);
-            sqlInterceptor.after(sbScript.toString());
+            dbFinal(startTime,sbScript,scriptContext);
         }
         return result;
     }
 
     @Deprecated
-    public Long update(String script,String datasource,Map<String,Object> params) throws Exception {
+    public int update(String script,String datasource,Map<String,Object> params) throws Exception {
         script = parseSql(script);
         StringBuilder sbScript = new StringBuilder(sqlInterceptor.before(script));
-        Long result =  null;
+        int result;
         long startTime = System.currentTimeMillis();
+        ScriptContext scriptContext = null;
         try {
             DataSourceDialect dataSourceDialect = dataSourceManager.getDataSourceDialect(apiInfoContent.getApiInfo().getDatasource(),datasource);
-            ScriptContext scriptContext = dataSourceManager.buildScriptContext(sbScript,dataSourceDialect,params);
+            scriptContext = dataSourceManager.buildScriptContext(sbScript,dataSourceDialect,params);
             result = dataSourceDialect.update(scriptContext);
         }finally {
-            long diff = System.currentTimeMillis() - startTime;
-            if (apiInfoContent.getIsDebug()){
-                apiInfoContent.putLog(String.format("Elapsed Time:%sms , execute script: %s",diff,sbScript));
-            }
-            log.debug("Elapsed Time:{}ms , execute script: {}",diff,sbScript);
-            sqlInterceptor.after(sbScript.toString());
+            dbFinal(startTime,sbScript,scriptContext);
+        }
+        return result;
+    }
+
+    @Deprecated
+    public int[] batchUpdate(String script,String datasource,List<Map<String,Object>> params) throws Exception {
+        script = parseSql(script);
+        StringBuilder sbScript = new StringBuilder(sqlInterceptor.before(script));
+        int result[];
+        long startTime = System.currentTimeMillis();
+        ScriptContext scriptContext = null;
+        try {
+            DataSourceDialect dataSourceDialect = dataSourceManager.getDataSourceDialect(apiInfoContent.getApiInfo().getDatasource(),datasource);
+            scriptContext = dataSourceManager.buildScriptContext(sbScript,dataSourceDialect,params);
+            result = dataSourceDialect.batchUpdate(scriptContext);
+        }finally {
+            dbFinal(startTime,sbScript,scriptContext);
         }
         return result;
     }
@@ -290,7 +303,7 @@ public class DbFunction implements IFunction {
         return this.remove(script,null,null);
     }
 
-    public Long update(String script) throws Exception {
+    public int update(String script) throws Exception {
         script = parseSql(script);
         return this.update(script,null,null);
     }
@@ -334,7 +347,7 @@ public class DbFunction implements IFunction {
     }
 
     @Deprecated
-    public Long update(String script,String datasource) throws Exception {
+    public int update(String script,String datasource) throws Exception {
         script = parseSql(script);
         return this.update(script,datasource,null);
     }
@@ -370,8 +383,13 @@ public class DbFunction implements IFunction {
         return this.remove(script,null,params);
     }
 
-    public Long update(String script,Map<String,Object> params) throws Exception {
+    public int update(String script,Map<String,Object> params) throws Exception {
         script = parseSql(script);
         return this.update(script,null,params);
+    }
+
+    public int[] batchUpdate(String script,List<Map<String,Object>> params) throws Exception {
+        script = parseSql(script);
+        return this.batchUpdate(script,null,params);
     }
 }

@@ -85,24 +85,29 @@ public class JdbcDataSource extends DataSourceDialect implements DialectTransact
 
     @Override
     public List<Map<String,Object>> find(ScriptContext scriptContext) {
-        List<Map<String,Object>> resultList = jdbcTemplate.queryForList(scriptContext.getScript().toString(), scriptContext.getParams());
+        List<Map<String,Object>> resultList = jdbcTemplate.queryForList(scriptContext.getScript().toString(), scriptContext.getParams()[0]);
         return resultList.stream().map(this::toReplaceKeyLow).collect(Collectors.toList());
     }
 
     @Override
-    public Long update(ScriptContext scriptContext) {
-        return Long.valueOf(jdbcTemplate.update(scriptContext.getScript().toString(), scriptContext.getParams()));
+    public int update(ScriptContext scriptContext) {
+        return jdbcTemplate.update(scriptContext.getScript().toString(), scriptContext.getParams()[0]);
     }
 
     @Override
-    public Long remove(ScriptContext scriptContext) {
-        return Long.valueOf(jdbcTemplate.update(scriptContext.getScript().toString(), scriptContext.getParams()));
+    public int[] batchUpdate(ScriptContext scriptContext) throws Exception {
+        return jdbcTemplate.batchUpdate(scriptContext.getScript().toString(),scriptContext.getParams());
+    }
+
+    @Override
+    public int remove(ScriptContext scriptContext) {
+        return jdbcTemplate.update(scriptContext.getScript().toString(), scriptContext.getParams()[0]);
     }
 
     @Override
     public Object insert(ScriptContext scriptContext) {
         KeyHolder keyHolder = new GeneratedKeyHolder();
-        jdbcTemplate.update(scriptContext.getScript().toString(), new MapSqlParameterSource(scriptContext.getParams()), keyHolder);
+        jdbcTemplate.update(scriptContext.getScript().toString(), new MapSqlParameterSource(scriptContext.getParams()[0]), keyHolder);
         return keyHolder.getKeyList().stream().map(item->item.get("GENERATED_KEY")).collect(Collectors.toList());
     }
 

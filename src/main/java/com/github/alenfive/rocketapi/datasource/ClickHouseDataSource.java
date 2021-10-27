@@ -55,24 +55,24 @@ public class ClickHouseDataSource extends JdbcDataSource {
 
     @Override
     public List<Map<String,Object>> find(ScriptContext scriptContext) {
-        List<Map<String,Object>> resultList = jdbcTemplate.queryForList(scriptContext.getScript().toString(), scriptContext.getParams());
+        List<Map<String,Object>> resultList = jdbcTemplate.queryForList(scriptContext.getScript().toString(), scriptContext.getParams()[0]);
         return resultList.stream().map(this::toReplaceKeyLow).collect(Collectors.toList());
     }
 
     @Override
-    public Long update(ScriptContext scriptContext) {
+    public int update(ScriptContext scriptContext) {
         throw new UnsupportedOperationException("The operation is not allowed");
     }
 
     @Override
-    public Long remove(ScriptContext scriptContext) {
+    public int remove(ScriptContext scriptContext) {
         throw new UnsupportedOperationException("The operation is not allowed");
     }
 
     @Override
     public Object insert(ScriptContext scriptContext) {
         KeyHolder keyHolder = new GeneratedKeyHolder();
-        jdbcTemplate.update(scriptContext.getScript().toString(), new MapSqlParameterSource(scriptContext.getParams()), keyHolder);
+        jdbcTemplate.update(scriptContext.getScript().toString(), new MapSqlParameterSource(scriptContext.getParams()[0]), keyHolder);
         return keyHolder.getKeyList().stream().map(item->item.get("GENERATED_KEY")).collect(Collectors.toList());
     }
 

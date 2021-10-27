@@ -3,7 +3,6 @@ package com.github.alenfive.rocketapi.config;
 import com.github.alenfive.rocketapi.entity.ApiInfo;
 import com.github.alenfive.rocketapi.entity.ApiParams;
 import com.github.alenfive.rocketapi.extend.IApiPager;
-import org.springframework.util.StringUtils;
 
 import java.util.HashMap;
 import java.util.List;

@@ -165,7 +165,9 @@ public class ScriptParseService {
      */
     public Map<String,Object> buildParams(StringBuilder script,DataSourceDialect sourceDialect,Map<String,Object> specifyParams){
 
-        Map<String,Object> params = new HashMap<>();
+        Map<String,ScriptLanguageParam> paramKeys = new HashMap<>();
+
+        AtomicInteger atomicInteger = new AtomicInteger();
 
         //匹配参数 :parameter
         int start = 0;
@@ -173,13 +175,14 @@ public class ScriptParseService {
         Matcher parameterMatcher = pattern.matcher(script);
         while (parameterMatcher.find(start)){
             String replaceValue = parameterMatcher.group();
-            String parameter = replaceValue.substring(1);
-            Object value = buildContentScopeParamItem(specifyParams, parameter);
-            params.put(parameter,value);
+
+            String parameter = buildParamKey(atomicInteger);
+            ScriptLanguageParam languageParam = ScriptLanguageParam.builder().scriptLanguage(replaceValue.substring(1)).build();
+            paramKeys.put(parameter,languageParam);
+
             start = parameterMatcher.start() + replaceValue.length();
         }
 
-        AtomicInteger atomicInteger = new AtomicInteger();
 
         start = 0;
         ConditionMatcher matcher = null;
@@ -187,19 +190,14 @@ public class ScriptParseService {
         while ((matcher = buildParamCondition(script,"#{",start)) != null){
 
             ScriptLanguageParam languageParam = buildScriptLanguageParam(matcher.getCondition());
-
-            Object value = buildContentScopeParamItem(specifyParams, languageParam.getScriptLanguage());
+            String parameter = buildParamKey(atomicInteger);
+            paramKeys.put(parameter,languageParam);
 
             String replaceValue = null;
             if (sourceDialect instanceof JdbcDataSource){
-                String parameter = "param"+atomicInteger.getAndIncrement();
-                if (languageParam.getSqlType() != null){
-                    params.put(parameter,new SqlParameterValue(languageParam.getSqlType(), value));
-                }else{
-                    params.put(parameter,value);
-                }
                 replaceValue = ":"+parameter;
             }else{
+                Object value = buildContentScopeParamItem(specifyParams,languageParam.getScriptLanguage());
                 replaceValue = buildValue(value,sourceDialect);
                 if (replaceValue == null){
                     replaceValue = "null";
@@ -224,7 +222,23 @@ public class ScriptParseService {
             start = matcher.getStart() + replaceValue.length();
         }
 
+        //参数封装
+        Map<String,Object> params = new HashMap<>();
+        for (String parameter : paramKeys.keySet()){
+            ScriptLanguageParam languageParam = paramKeys.get(parameter);
+            Object value = buildContentScopeParamItem(specifyParams,languageParam.getScriptLanguage());
+
+            if (languageParam.getSqlType() != null){
+                params.put(parameter,new SqlParameterValue(languageParam.getSqlType(), value));
+            }else{
+                params.put(parameter,value);
+            }
+        }
         return params;
+    }
+
+    private String buildParamKey(AtomicInteger atomicInteger) {
+        return "param"+atomicInteger.getAndIncrement();
     }
 
     private ScriptLanguageParam buildScriptLanguageParam(String condition) {

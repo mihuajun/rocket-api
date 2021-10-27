@@ -14,7 +14,6 @@ import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
 
 import java.util.Collections;
 import java.util.List;
@@ -131,10 +130,10 @@ public class MongoFunction implements IFunction{
         return result;
     }
 
-    public Long update(Map<String,Object> script,String datasource,Map<String,Object> params) throws Exception {
+    public int update(Map<String,Object> script,String datasource,Map<String,Object> params) throws Exception {
         Document document = new Document(script);
         StringBuilder sbScript = new StringBuilder(sqlInterceptor.before(document.toJson()));
-        Long result =  null;
+        int result;
         try {
             DataSourceDialect dataSourceDialect = dataSourceManager.getDataSourceDialect(apiInfoContent.getApiInfo().getDatasource(),datasource);
             ScriptContext scriptContext = dataSourceManager.buildScriptContext(sbScript,dataSourceDialect,params);
@@ -203,7 +202,7 @@ public class MongoFunction implements IFunction{
         return this.remove(script,null,null);
     }
 
-    public Long update(Map<String,Object> script) throws Exception {
+    public int update(Map<String,Object> script) throws Exception {
         return this.update(script,null,null);
     }
 
@@ -233,7 +232,7 @@ public class MongoFunction implements IFunction{
         return this.remove(script,datasource,null);
     }
 
-    public Long update(Map<String,Object> script,String datasource) throws Exception {
+    public int update(Map<String,Object> script,String datasource) throws Exception {
         return this.update(script,datasource,null);
     }
 
@@ -262,7 +261,7 @@ public class MongoFunction implements IFunction{
         return this.remove(script,null,params);
     }
 
-    public Long update(Map<String,Object> script,Map<String,Object> params) throws Exception {
+    public int update(Map<String,Object> script,Map<String,Object> params) throws Exception {
         return this.update(script,null,params);
     }
 }

@@ -131,19 +131,24 @@ public class MongoDataSource extends DataSourceDialect {
     }
 
     @Override
-    public Long update(ScriptContext scriptContext) throws Exception {
+    public int update(ScriptContext scriptContext) throws Exception {
         formatISODate(scriptContext.getScript());
         formatObjectIdList(scriptContext.getScript());
         Document result = mongoTemplate.executeCommand(scriptContext.getScript().toString());
-        return Long.valueOf(result.getInteger("n"));
+        return result.getInteger("n");
     }
 
     @Override
-    public Long remove(ScriptContext scriptContext) throws Exception {
+    public int[] batchUpdate(ScriptContext scriptContext) throws Exception {
+        return new int[0];
+    }
+
+    @Override
+    public int remove(ScriptContext scriptContext) throws Exception {
         formatISODate(scriptContext.getScript());
         formatObjectIdList(scriptContext.getScript());
         Document result = mongoTemplate.executeCommand(scriptContext.getScript().toString());
-        return Long.valueOf(result.getInteger("n"));
+        return result.getInteger("n");
     }
 
     @Override

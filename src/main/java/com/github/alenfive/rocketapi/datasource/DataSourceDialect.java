@@ -45,10 +45,13 @@ public abstract class DataSourceDialect {
     public abstract List<Map<String,Object>> find(ScriptContext scriptContext) throws Exception;
 
     //返回影响的行数
-    public abstract Long update(ScriptContext scriptContext) throws Exception;
+    public abstract int update(ScriptContext scriptContext) throws Exception;
+
+    //返回执行状态
+    public abstract int[] batchUpdate(ScriptContext scriptContext) throws Exception;
 
     //返回影响的行数
-    public abstract Long remove(ScriptContext scriptContext) throws Exception;
+    public abstract int remove(ScriptContext scriptContext) throws Exception;
 
     //返回主键
     public abstract Object insert(ScriptContext scriptContext) throws Exception;
