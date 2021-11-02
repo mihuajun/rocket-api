@@ -534,9 +534,7 @@ function runApi(debug) {
         url: runApiUrl,
         contentType : "application/json",
         data: JSON.stringify(params),
-        dataType:"text",
         success: function (data) {
-            data = JSON.parse(data.replace(/:s*([0-9]{15,})s*(,?)/g, ': "$1" $2'));
             data = unpackResult(data);
             let content = "";
             if (data.data && data.data.logs){

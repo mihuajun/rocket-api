@@ -17,6 +17,9 @@ public class LogFormatUtils {
     }
 
     private static String buildValue(Object value) {
+        if (value == null){
+            return "null";
+        }
         if (value instanceof String){
             return "'"+value.toString()+"'";
         }
