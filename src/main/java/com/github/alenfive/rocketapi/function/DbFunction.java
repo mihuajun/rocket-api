@@ -108,7 +108,7 @@ public class DbFunction implements IFunction {
             return;
         }
         long diff = System.currentTimeMillis() - startTime;
-        String logScript = LogFormatUtils.sqlParam(sbScript, scriptContext.getParams());
+        String logScript = LogFormatUtils.sqlParam(sbScript, parseService,scriptContext);
         if (apiInfoContent.getIsDebug()){
             apiInfoContent.putLog(String.format("Elapsed Time:%sms , execute script: %s",diff,logScript));
         }

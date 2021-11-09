@@ -515,8 +515,19 @@ public class ScriptParseService {
         return val.toString();
     }
 
-    private String buildValue(Object val,DataSourceDialect sourceDialect) {
+    public String buildValue(Object val,DataSourceDialect sourceDialect) {
         if (val == null)return null;
+        StringBuilder valStr = new StringBuilder();
+        if (val instanceof Collection){
+            valStr.append(((Collection)val).stream().map(item->buildStrValue(item,sourceDialect)).collect(Collectors.joining(",")));
+        }else {
+            valStr.append(buildStrValue(val,sourceDialect));
+        }
+        return valStr.toString();
+    }
+
+    public String buildFormatValue(Object val,DataSourceDialect sourceDialect) {
+        if (val == null)return "null";
         StringBuilder valStr = new StringBuilder();
         if (val instanceof Collection){
             valStr.append(((Collection)val).stream().map(item->buildStrValue(item,sourceDialect)).collect(Collectors.joining(",")));
