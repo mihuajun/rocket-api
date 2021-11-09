@@ -9,7 +9,8 @@ public class LogFormatUtils {
         for (Map<String,Object> item : params){
             String itemStr = script.toString();
             for(String key : item.keySet()){
-                itemStr = itemStr.replaceAll(":"+key,buildValue(item.get(key)));
+                String replacement = java.util.regex.Matcher.quoteReplacement(buildValue(item.get(key)));
+                itemStr = itemStr.replaceAll(":"+key,replacement);
             }
             res.append("\r\n").append(itemStr);
         }
@@ -25,5 +26,4 @@ public class LogFormatUtils {
         }
         return value.toString();
     }
-
 }

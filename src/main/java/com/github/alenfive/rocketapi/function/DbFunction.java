@@ -104,6 +104,9 @@ public class DbFunction implements IFunction {
     }
 
     private void dbFinal(long startTime,StringBuilder sbScript,ScriptContext scriptContext){
+        if (scriptContext == null){
+            return;
+        }
         long diff = System.currentTimeMillis() - startTime;
         String logScript = LogFormatUtils.sqlParam(sbScript, scriptContext.getParams());
         if (apiInfoContent.getIsDebug()){
