@@ -35,11 +35,13 @@ public class JdbcDataSource extends DataSourceDialect implements DialectTransact
     public JdbcDataSource(DataSource dataSource) {
         this.jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
         this.transactionManager = new DataSourceTransactionManager(dataSource);
+        this.dataSource = dataSource;
     }
 
     public JdbcDataSource(DataSource dataSource, boolean storeApi) {
         this.jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
         this.transactionManager = new DataSourceTransactionManager(dataSource);
+        this.dataSource = dataSource;
         this.storeApi = storeApi;
     }
 
